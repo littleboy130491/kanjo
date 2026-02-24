@@ -1,31 +1,28 @@
 <?php
 
-namespace App\Filament\Admin\Resources;
+namespace App\Filament\Admin\Resources\Companies\Schemas;
 
-use App\Filament\Admin\Resources\CompanyResource\Pages;
-use App\Models\Company;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
-class CompanyResource extends Resource
+class CompanyForm
 {
-    protected static ?string $model = Company::class;
-
-    public static function form(Form $form): Form
+    public static function configure(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Company Information')
+        return $schema
+            ->components([
+                Section::make('Company Information')
                     ->schema([
-                        Forms\Components\TextInput::make('company_name')
+                        TextInput::make('company_name')
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('brand_name')
+                        TextInput::make('brand_name')
                             ->required()
                             ->maxLength(255),
                         CuratorPicker::make('logo')
@@ -38,41 +35,41 @@ class CompanyResource extends Resource
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Contact Information')
+                Section::make('Contact Information')
                     ->schema([
-                        Forms\Components\Textarea::make('address')
+                        Textarea::make('address')
                             ->rows(4)
                             ->columnSpanFull(),
-                        Forms\Components\TextInput::make('email_1')
+                        TextInput::make('email_1')
                             ->email()
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('email_2')
+                        TextInput::make('email_2')
                             ->email()
                             ->nullable()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('phone_1')
+                        TextInput::make('phone_1')
                             ->tel()
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('phone_2')
+                        TextInput::make('phone_2')
                             ->tel()
                             ->nullable()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('tax_id')
+                        TextInput::make('tax_id')
                             ->label('Tax ID (NPWP)')
                             ->nullable()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('website')
+                        TextInput::make('website')
                             ->url()
                             ->nullable()
                             ->maxLength(255),
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Branding & Currency')
+                Section::make('Branding & Currency')
                     ->schema([
-                        Forms\Components\Select::make('default_currency')
+                        Select::make('default_currency')
                             ->options([
                                 'IDR' => 'IDR - Indonesian Rupiah',
                                 'USD' => 'USD - US Dollar',
@@ -80,22 +77,22 @@ class CompanyResource extends Resource
                             ])
                             ->default('IDR')
                             ->required(),
-                        Forms\Components\TextInput::make('color_primary')
+                        TextInput::make('color_primary')
                             ->label('Primary Color (Hex)')
                             ->placeholder('#000000')
                             ->maxLength(7),
-                        Forms\Components\TextInput::make('color_secondary')
+                        TextInput::make('color_secondary')
                             ->label('Secondary Color (Hex)')
                             ->placeholder('#FFFFFF')
                             ->maxLength(7),
                     ])
                     ->columns(3),
 
-                Forms\Components\Section::make('Footer Text')
+                Section::make('Footer Text')
                     ->schema([
                         Translate::make()
                             ->schema([
-                                Forms\Components\Textarea::make('footer_text')
+                                Textarea::make('footer_text')
                                     ->required()
                                     ->rows(3)
                                     ->columnSpanFull(),
@@ -104,17 +101,17 @@ class CompanyResource extends Resource
                             ->suffixLocaleLabel(),
                     ]),
 
-                Forms\Components\Section::make('Bank Accounts')
+                Section::make('Bank Accounts')
                     ->schema([
-                        Forms\Components\Repeater::make('bank')
+                        Repeater::make('bank')
                             ->schema([
-                                Forms\Components\TextInput::make('bank_name')
+                                TextInput::make('bank_name')
                                     ->required()
                                     ->maxLength(255),
-                                Forms\Components\TextInput::make('account_name')
+                                TextInput::make('account_name')
                                     ->required()
                                     ->maxLength(255),
-                                Forms\Components\TextInput::make('account_number')
+                                TextInput::make('account_number')
                                     ->required()
                                     ->maxLength(255),
                             ])
@@ -125,14 +122,14 @@ class CompanyResource extends Resource
                             ->columns(3),
                     ]),
 
-                Forms\Components\Section::make('Person in Charge (PIC)')
+                Section::make('Person in Charge (PIC)')
                     ->schema([
-                        Forms\Components\Repeater::make('pic')
+                        Repeater::make('pic')
                             ->schema([
-                                Forms\Components\TextInput::make('pic_name')
+                                TextInput::make('pic_name')
                                     ->required()
                                     ->maxLength(255),
-                                Forms\Components\TextInput::make('pic_role')
+                                TextInput::make('pic_role')
                                     ->required()
                                     ->maxLength(255),
                                 CuratorPicker::make('pic_sign')
@@ -146,65 +143,6 @@ class CompanyResource extends Resource
                             ->default([])
                             ->columns(3),
                     ]),
-            ])
-            ->columns(1);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('brand_name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('company_name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('email_1')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('phone_1')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('default_currency')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('default_currency')
-                    ->options([
-                        'IDR' => 'IDR',
-                        'USD' => 'USD',
-                        'EUR' => 'EUR',
-                    ]),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListCompanies::class,
-            'create' => Pages\CreateCompany::class,
-            'edit' => Pages\EditCompany::class,
-        ];
     }
 }
