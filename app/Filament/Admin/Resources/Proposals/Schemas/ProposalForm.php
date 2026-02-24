@@ -159,6 +159,11 @@ class ProposalForm
                                             ->prefix(fn (Get $get) => $get('currency'))
                                             ->required()
                                             ->helperText('Annual/periodic cost for renewals'),
+                                        TextInput::make('offer_1_original_renewal_price')
+                                            ->label('Original Renewal Price (if discounted)')
+                                            ->numeric()
+                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->nullable(),
                                     ])
                                     ->columns(2),
 
@@ -180,6 +185,11 @@ class ProposalForm
                                             ->nullable(),
                                         TextInput::make('offer_2_renewal_price')
                                             ->label('Renewal Price')
+                                            ->numeric()
+                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->nullable(),
+                                        TextInput::make('offer_2_original_renewal_price')
+                                            ->label('Original Renewal Price (if discounted)')
                                             ->numeric()
                                             ->prefix(fn (Get $get) => $get('currency'))
                                             ->nullable(),

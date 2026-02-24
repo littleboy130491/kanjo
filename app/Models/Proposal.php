@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\DocumentStatus;
+use App\Services\DocumentNumberService;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
-use App\Services\DocumentNumberService;
-use App\Enums\DocumentStatus;
-use Carbon\Carbon;
 
 class Proposal extends Model
 {
@@ -46,11 +46,13 @@ class Proposal extends Model
         'offer_1_price',
         'offer_1_original_price',
         'offer_1_renewal_price',
+        'offer_1_original_renewal_price',
         'offer_1_project_timeline',
         'offer_name_2',
         'offer_2_price',
         'offer_2_original_price',
         'offer_2_renewal_price',
+        'offer_2_original_renewal_price',
         'offer_2_project_timeline',
         'status',
         'access_username',
@@ -87,9 +89,11 @@ class Proposal extends Model
         'offer_1_price' => 'decimal:2',
         'offer_1_original_price' => 'decimal:2',
         'offer_1_renewal_price' => 'decimal:2',
+        'offer_1_original_renewal_price' => 'decimal:2',
         'offer_2_price' => 'decimal:2',
         'offer_2_original_price' => 'decimal:2',
         'offer_2_renewal_price' => 'decimal:2',
+        'offer_2_original_renewal_price' => 'decimal:2',
         'status' => DocumentStatus::class,
     ];
 
@@ -114,12 +118,12 @@ class Proposal extends Model
             $proposal->document_number_raw = $data['document_number_raw'];
 
             // If not overridden, use the generated suffix and full number
-            if (!$proposal->document_number_override) {
+            if (! $proposal->document_number_override) {
                 $proposal->document_number = $data['document_number'];
                 $proposal->document_number_suffix = $data['document_number_suffix'];
             } else {
                 // If overridden but no suffix provided, use default
-                if (!$proposal->document_number_suffix) {
+                if (! $proposal->document_number_suffix) {
                     $proposal->document_number_suffix = $data['document_number_suffix'];
                 }
                 // Generate the full number with the custom suffix
