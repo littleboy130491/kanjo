@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
 use App\Services\DocumentNumberService;
+use App\Enums\DocumentStatus;
+use App\Enums\PaymentStatus;
 use Carbon\Carbon;
 
 class Invoice extends Model
@@ -14,16 +16,34 @@ class Invoice extends Model
     use HasFactory, HasTranslations, SoftDeletes;
 
     protected $fillable = [
-        'document_number', 'document_number_raw', 'document_number_suffix', 'document_number_override',
-        'issue_month', 'issue_year',
-        'client_company', 'client_name', 'client_email',
-        'issue_date', 'due_date',
-        'currency', 'tax_rate', 'tax_amount', 'subtotal', 'total',
+        'document_number',
+        'document_number_raw',
+        'document_number_suffix',
+        'document_number_override',
+        'issue_month',
+        'issue_year',
+        'client_company',
+        'client_name',
+        'client_email',
+        'issue_date',
+        'due_date',
+        'currency',
+        'tax_rate',
+        'tax_amount',
+        'subtotal',
+        'total',
         'items',
-        'status', 'payment_status',
-        'paid_amount', 'paid_at', 'payment_method',
-        'access_username', 'access_password',
-        'notes', 'proposal_id', 'user_id', 'company_id',
+        'status',
+        'payment_status',
+        'paid_amount',
+        'paid_at',
+        'payment_method',
+        'access_username',
+        'access_password',
+        'notes',
+        'proposal_id',
+        'user_id',
+        'company_id',
     ];
 
     protected $translatable = [
@@ -32,14 +52,16 @@ class Invoice extends Model
 
     protected $casts = [
         'document_number_override' => 'boolean',
-        'issue_date'               => 'date',
-        'due_date'                 => 'date',
-        'paid_at'                  => 'datetime',
-        'tax_rate'                 => 'decimal:2',
-        'tax_amount'               => 'decimal:2',
-        'subtotal'                 => 'decimal:2',
-        'total'                    => 'decimal:2',
-        'paid_amount'              => 'decimal:2',
+        'issue_date' => 'date',
+        'due_date' => 'date',
+        'paid_at' => 'datetime',
+        'tax_rate' => 'decimal:2',
+        'tax_amount' => 'decimal:2',
+        'subtotal' => 'decimal:2',
+        'total' => 'decimal:2',
+        'paid_amount' => 'decimal:2',
+        'status' => DocumentStatus::class,
+        'payment_status' => PaymentStatus::class,
     ];
 
     protected static function booted()
@@ -59,9 +81,9 @@ class Invoice extends Model
             // Always generate document number (even if overridden)
             $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
             $data = DocumentNumberService::generate('INV', $date);
-            
+
             $invoice->document_number_raw = $data['document_number_raw'];
-            
+
             // If not overridden, use the generated suffix and full number
             if (!$invoice->document_number_override) {
                 $invoice->document_number = $data['document_number'];

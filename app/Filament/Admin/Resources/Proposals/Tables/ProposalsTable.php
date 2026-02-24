@@ -9,6 +9,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use App\Enums\DocumentStatus;
 
 class ProposalsTable
 {
@@ -28,14 +29,12 @@ class ProposalsTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('offer_1_price')
-                    ->money(fn ($record) => $record->currency)
+                    ->money(fn($record) => $record->currency)
                     ->sortable()
                     ->alignment('right'),
                 BadgeColumn::make('status')
-                    ->colors([
-                        'draft' => 'warning',
-                        'published' => 'success',
-                    ]),
+                    ->formatStateUsing(fn(DocumentStatus $state): string => $state->getLabel())
+                    ->color(fn(DocumentStatus $state): string => $state->getColor()),
                 TextColumn::make('issue_date')
                     ->date()
                     ->sortable(),
@@ -60,10 +59,7 @@ class ProposalsTable
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                    ]),
+                    ->options(DocumentStatus::class),
                 SelectFilter::make('company_id')
                     ->label('Issuing Company')
                     ->relationship('company', 'brand_name')
@@ -72,8 +68,8 @@ class ProposalsTable
                 TernaryFilter::make('has_invoice')
                     ->label('Has Invoice')
                     ->queries(
-                        true: fn (Builder $query) => $query->whereHas('invoices'),
-                        false: fn (Builder $query) => $query->whereDoesntHave('invoices'),
+                        true: fn(Builder $query) => $query->whereHas('invoices'),
+                        false: fn(Builder $query) => $query->whereDoesntHave('invoices'),
                     ),
                 Filter::make('issue_date')
                     ->form([
@@ -84,11 +80,11 @@ class ProposalsTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('issue_date', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '>=', $date),
                             )
                             ->when(
                                 $data['to'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('issue_date', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '<=', $date),
                             );
                     }),
                 Filter::make('created_at')
@@ -100,11 +96,11 @@ class ProposalsTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
                             )
                             ->when(
                                 $data['to'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
                     }),
                 Filter::make('valid_until')
@@ -116,11 +112,11 @@ class ProposalsTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('valid_until', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('valid_until', '>=', $date),
                             )
                             ->when(
                                 $data['to'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('valid_until', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('valid_until', '<=', $date),
                             );
                     }),
             ]);

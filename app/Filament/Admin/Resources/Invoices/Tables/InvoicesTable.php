@@ -7,6 +7,8 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use App\Enums\DocumentStatus;
+use App\Enums\PaymentStatus;
 
 class InvoicesTable
 {
@@ -24,26 +26,17 @@ class InvoicesTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('total')
-                    ->money(fn ($record) => $record->currency)
+                    ->money(fn($record) => $record->currency)
                     ->sortable(),
                 TextColumn::make('payment_status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'unpaid' => 'gray',
-                        'partially_paid' => 'warning',
-                        'paid' => 'success',
-                        'overdue' => 'danger',
-                        'cancelled' => 'secondary',
-                        default => 'gray',
-                    })
+                    ->formatStateUsing(fn(PaymentStatus $state): string => $state->getLabel())
+                    ->color(fn(PaymentStatus $state): string => $state->getColor())
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'draft' => 'gray',
-                        'published' => 'success',
-                        default => 'gray',
-                    })
+                    ->formatStateUsing(fn(DocumentStatus $state): string => $state->getLabel())
+                    ->color(fn(DocumentStatus $state): string => $state->getColor())
                     ->sortable(),
                 TextColumn::make('issue_date')
                     ->date()
@@ -53,7 +46,8 @@ class InvoicesTable
                     ->sortable(),
                 TextColumn::make('proposal.document_number')
                     ->label('Proposal')
-                    ->url(fn ($record) => $record->proposal
+                    ->url(
+                        fn($record) => $record->proposal
                         ? route('filament.admin.resources.proposals.edit', $record->proposal)
                         : null
                     )
@@ -71,18 +65,9 @@ class InvoicesTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                    ]),
+                    ->options(DocumentStatus::class),
                 SelectFilter::make('payment_status')
-                    ->options([
-                        'unpaid' => 'Unpaid',
-                        'partially_paid' => 'Partially Paid',
-                        'paid' => 'Paid',
-                        'overdue' => 'Overdue',
-                        'cancelled' => 'Cancelled',
-                    ]),
+                    ->options(PaymentStatus::class),
                 SelectFilter::make('company_id')
                     ->label('Company')
                     ->relationship('company', 'brand_name')
@@ -94,8 +79,8 @@ class InvoicesTable
                     ->trueLabel('With proposal')
                     ->falseLabel('Without proposal')
                     ->queries(
-                        true: fn ($query) => $query->whereNotNull('proposal_id'),
-                        false: fn ($query) => $query->whereNull('proposal_id'),
+                        true: fn($query) => $query->whereNotNull('proposal_id'),
+                        false: fn($query) => $query->whereNull('proposal_id'),
                     ),
                 Filter::make('issue_date')
                     ->form([
@@ -106,11 +91,11 @@ class InvoicesTable
                         return $query
                             ->when(
                                 $data['from'],
-                                fn ($query, $date) => $query->whereDate('issue_date', '>=', $date),
+                                fn($query, $date) => $query->whereDate('issue_date', '>=', $date),
                             )
                             ->when(
                                 $data['until'],
-                                fn ($query, $date) => $query->whereDate('issue_date', '<=', $date),
+                                fn($query, $date) => $query->whereDate('issue_date', '<=', $date),
                             );
                     }),
                 Filter::make('due_date')
@@ -122,11 +107,11 @@ class InvoicesTable
                         return $query
                             ->when(
                                 $data['from'],
-                                fn ($query, $date) => $query->whereDate('due_date', '>=', $date),
+                                fn($query, $date) => $query->whereDate('due_date', '>=', $date),
                             )
                             ->when(
                                 $data['until'],
-                                fn ($query, $date) => $query->whereDate('due_date', '<=', $date),
+                                fn($query, $date) => $query->whereDate('due_date', '<=', $date),
                             );
                     }),
                 Filter::make('created_at')
@@ -138,11 +123,11 @@ class InvoicesTable
                         return $query
                             ->when(
                                 $data['from'],
-                                fn ($query, $date) => $query->whereDate('created_at', '>=', $date),
+                                fn($query, $date) => $query->whereDate('created_at', '>=', $date),
                             )
                             ->when(
                                 $data['until'],
-                                fn ($query, $date) => $query->whereDate('created_at', '<=', $date),
+                                fn($query, $date) => $query->whereDate('created_at', '<=', $date),
                             );
                     }),
             ])

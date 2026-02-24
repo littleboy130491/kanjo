@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
 use App\Services\DocumentNumberService;
+use App\Enums\DocumentStatus;
 use Carbon\Carbon;
 
 class Proposal extends Model
@@ -14,43 +15,82 @@ class Proposal extends Model
     use HasFactory, HasTranslations, SoftDeletes;
 
     protected $fillable = [
-        'document_number', 'document_number_raw', 'document_number_suffix', 'document_number_override',
-        'issue_month', 'issue_year',
-        'client_company', 'client_name', 'client_email',
-        'issue_date', 'valid_until',
-        'currency', 'tax_rate', 'tax_amount', 'total_amount',
-        'brief', 'core_services', 'features', 'server', 'assets', 'security', 'support',
-        'additional_benefit', 'add_on', 'payment', 'terms_condition',
+        'document_number',
+        'document_number_raw',
+        'document_number_suffix',
+        'document_number_override',
+        'issue_month',
+        'issue_year',
+        'client_company',
+        'client_name',
+        'client_email',
+        'issue_date',
+        'valid_until',
+        'currency',
+        'tax_rate',
+        'tax_amount',
+        'total_amount',
+        'brief',
+        'core_services',
+        'features',
+        'server',
+        'assets',
+        'security',
+        'support',
+        'additional_benefit',
+        'add_on',
+        'payment',
+        'terms_condition',
         'portfolios',
-        'offer_name_1', 'offer_1_price', 'offer_1_original_price', 'offer_1_renewal_price',
+        'offer_name_1',
+        'offer_1_price',
+        'offer_1_original_price',
+        'offer_1_renewal_price',
         'offer_1_project_timeline',
-        'offer_name_2', 'offer_2_price', 'offer_2_original_price', 'offer_2_renewal_price',
+        'offer_name_2',
+        'offer_2_price',
+        'offer_2_original_price',
+        'offer_2_renewal_price',
         'offer_2_project_timeline',
-        'status', 'access_username', 'access_password',
-        'notes', 'user_id', 'company_id',
+        'status',
+        'access_username',
+        'access_password',
+        'notes',
+        'user_id',
+        'company_id',
     ];
 
     protected $translatable = [
-        'brief', 'core_services', 'features', 'server', 'assets',
-        'security', 'support', 'additional_benefit', 'add_on',
-        'payment', 'terms_condition',
-        'offer_1_project_timeline', 'offer_2_project_timeline',
+        'brief',
+        'core_services',
+        'features',
+        'server',
+        'assets',
+        'security',
+        'support',
+        'additional_benefit',
+        'add_on',
+        'payment',
+        'terms_condition',
+        'offer_1_project_timeline',
+        'offer_2_project_timeline',
     ];
 
     protected $casts = [
-        'portfolios'               => 'array',
+        'portfolios' => 'array',
         'document_number_override' => 'boolean',
-        'issue_date'               => 'date',
-        'valid_until'              => 'date',
-        'tax_rate'                 => 'decimal:2',
-        'tax_amount'               => 'decimal:2',
-        'total_amount'             => 'decimal:2',
-        'offer_1_price'            => 'decimal:2',
-        'offer_1_original_price'   => 'decimal:2',
-        'offer_1_renewal_price'    => 'decimal:2',
-        'offer_2_price'            => 'decimal:2',
-        'offer_2_original_price'   => 'decimal:2',
-        'offer_2_renewal_price'    => 'decimal:2',
+        'issue_date' => 'date',
+        'valid_until' => 'date',
+        'tax_rate' => 'decimal:2',
+        'tax_amount' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'offer_1_price' => 'decimal:2',
+        'offer_1_original_price' => 'decimal:2',
+        'offer_1_renewal_price' => 'decimal:2',
+        'offer_2_price' => 'decimal:2',
+        'offer_2_original_price' => 'decimal:2',
+        'offer_2_renewal_price' => 'decimal:2',
+        'status' => DocumentStatus::class,
     ];
 
     protected static function booted()
@@ -70,9 +110,9 @@ class Proposal extends Model
             // Always generate document number (even if overridden)
             $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
             $data = DocumentNumberService::generate('QUO', $date);
-            
+
             $proposal->document_number_raw = $data['document_number_raw'];
-            
+
             // If not overridden, use the generated suffix and full number
             if (!$proposal->document_number_override) {
                 $proposal->document_number = $data['document_number'];
