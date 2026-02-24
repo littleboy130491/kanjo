@@ -10,6 +10,14 @@ class Company extends Model
 {
     use HasFactory, HasTranslations;
 
+    protected $fillable = [
+        'company_name', 'brand_name', 'logo', 'address',
+        'email_1', 'email_2', 'phone_1', 'phone_2',
+        'tax_id', 'website', 'default_currency',
+        'color_primary', 'color_secondary',
+        'footer_text', 'bank', 'pic',
+    ];
+
     protected $translatable = [
         'footer_text',
     ];

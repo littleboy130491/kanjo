@@ -6,10 +6,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
+use App\Services\DocumentNumberService;
+use Carbon\Carbon;
 
 class Proposal extends Model
 {
     use HasFactory, HasTranslations, SoftDeletes;
+
+    protected $fillable = [
+        'document_number', 'document_number_raw', 'document_number_suffix', 'document_number_override',
+        'issue_month', 'issue_year',
+        'client_company', 'client_name', 'client_email',
+        'issue_date', 'valid_until',
+        'currency', 'tax_rate', 'tax_amount', 'total_amount',
+        'brief', 'core_services', 'features', 'server', 'assets', 'security', 'support',
+        'additional_benefit', 'add_on', 'payment', 'terms_condition',
+        'portfolios',
+        'offer_name_1', 'offer_1_price', 'offer_1_original_price', 'offer_1_renewal_price',
+        'offer_1_project_timeline',
+        'offer_name_2', 'offer_2_price', 'offer_2_original_price', 'offer_2_renewal_price',
+        'offer_2_project_timeline',
+        'status', 'access_username', 'access_password',
+        'notes', 'user_id', 'company_id',
+    ];
 
     protected $translatable = [
         'brief', 'core_services', 'features', 'server', 'assets',
@@ -33,6 +52,66 @@ class Proposal extends Model
         'offer_2_original_price'   => 'decimal:2',
         'offer_2_renewal_price'    => 'decimal:2',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($proposal) {
+            // Always set issue_month and issue_year from issue_date
+            if ($proposal->issue_date) {
+                $date = Carbon::parse($proposal->issue_date);
+                $proposal->issue_month = $date->month;
+                $proposal->issue_year = $date->year;
+            } else {
+                $now = now();
+                $proposal->issue_month = $now->month;
+                $proposal->issue_year = $now->year;
+            }
+
+            // Always generate document number (even if overridden)
+            $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
+            $data = DocumentNumberService::generate('QUO', $date);
+            
+            $proposal->document_number_raw = $data['document_number_raw'];
+            
+            // If not overridden, use the generated suffix and full number
+            if (!$proposal->document_number_override) {
+                $proposal->document_number = $data['document_number'];
+                $proposal->document_number_suffix = $data['document_number_suffix'];
+            } else {
+                // If overridden but no suffix provided, use default
+                if (!$proposal->document_number_suffix) {
+                    $proposal->document_number_suffix = $data['document_number_suffix'];
+                }
+                // Generate the full number with the custom suffix
+                $proposal->document_number = DocumentNumberService::regenerateWithSuffix(
+                    'QUO',
+                    $data['document_number_raw'],
+                    $date,
+                    $proposal->document_number_suffix
+                );
+            }
+        });
+
+        static::updating(function ($proposal) {
+            // Update issue_month and issue_year if issue_date changes
+            if ($proposal->isDirty('issue_date') && $proposal->issue_date) {
+                $date = Carbon::parse($proposal->issue_date);
+                $proposal->issue_month = $date->month;
+                $proposal->issue_year = $date->year;
+            }
+
+            // Regenerate document number with new suffix if overridden
+            if ($proposal->document_number_override && $proposal->isDirty('document_number_suffix')) {
+                $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
+                $proposal->document_number = DocumentNumberService::regenerateWithSuffix(
+                    'QUO',
+                    $proposal->document_number_raw,
+                    $date,
+                    $proposal->document_number_suffix
+                );
+            }
+        });
+    }
 
     public function company()
     {
