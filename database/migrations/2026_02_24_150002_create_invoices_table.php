@@ -12,10 +12,10 @@ return new class extends Migration
             $table->id();
 
             // Document numbering
-            $table->string('document_number')->index();
-            $table->unsignedInteger('document_number_raw');
-            $table->unsignedTinyInteger('issue_month');
-            $table->unsignedSmallInteger('issue_year');
+            $table->string('document_number')->nullable()->index();
+            $table->unsignedInteger('document_number_raw')->nullable();
+            $table->unsignedTinyInteger('issue_month')->nullable();
+            $table->unsignedSmallInteger('issue_year')->nullable();
             $table->string('document_number_suffix')->default('NEW');
             $table->boolean('document_number_override')->default(false);
             $table->unique(['document_number_raw', 'issue_month', 'issue_year'], 'invoices_doc_unique');
