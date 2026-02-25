@@ -4,8 +4,10 @@ namespace App\Filament\Admin\Resources\Proposals\Schemas;
 
 use App\Enums\DocumentStatus;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
+use App\Filament\Admin\Resources\Portfolios\Schemas\PortfolioForm;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Portfolio;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -167,7 +169,8 @@ class ProposalForm
                                         TextInput::make('offer_name_1')
                                             ->label('Offer Name')
                                             ->required()
-                                            ->maxLength(255),
+                                            ->maxLength(255)
+                                            ->columnSpanFull(),
                                         TextInput::make('offer_1_price')
                                             ->label('Price')
                                             ->numeric()
@@ -197,7 +200,8 @@ class ProposalForm
                                         TextInput::make('offer_name_2')
                                             ->label('Offer Name')
                                             ->maxLength(255)
-                                            ->nullable(),
+                                            ->nullable()
+                                            ->columnSpanFull(),
                                         TextInput::make('offer_2_price')
                                             ->label('Price')
                                             ->numeric()
@@ -539,29 +543,23 @@ class ProposalForm
                         Tab::make('Portfolios')
                             ->icon('heroicon-o-photo')
                             ->schema([
-                                Section::make('Portfolio Items')
+                                Section::make('Linked Portfolios')
                                     ->schema([
-                                        Repeater::make('portfolios')
-                                            ->schema([
-                                                TextInput::make('portfolio_name')
-                                                    ->label('Project Name')
-                                                    ->required()
-                                                    ->maxLength(255),
-                                                TextInput::make('portfolio_image_url')
-                                                    ->label('Image URL')
-                                                    ->url()
-                                                    ->maxLength(255),
-                                                TextInput::make('portfolio_link')
-                                                    ->label('Project Link')
-                                                    ->url()
-                                                    ->maxLength(255),
+                                        Select::make('portfolios')
+                                            ->label('Select Portfolios')
+                                            ->relationship('portfolios', 'name')
+                                            ->multiple()
+                                            ->preload()
+                                            ->searchable()
+                                            ->createOptionUsing(function (array $data): int {
+                                                $portfolio = Portfolio::create($data);
+
+                                                return $portfolio->getKey();
+                                            })
+                                            ->createOptionForm(schema: [
+                                                PortfolioForm::getPortfolioInformationSection(),
                                             ])
-                                            ->addable()
-                                            ->reorderable()
-                                            ->deletable()
-                                            ->default([])
-                                            ->columns(3)
-                                            ->columnSpanFull(),
+                                            ->helperText('Link portfolios from your portfolio database to this proposal'),
                                     ]),
                             ]),
 

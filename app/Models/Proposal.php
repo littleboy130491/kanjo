@@ -42,7 +42,6 @@ class Proposal extends Model
         'add_on',
         'payment',
         'terms_condition',
-        'portfolios',
         'offer_name_1',
         'offer_1_price',
         'offer_1_original_price',
@@ -82,7 +81,6 @@ class Proposal extends Model
     ];
 
     protected $casts = [
-        'portfolios' => 'array',
         'document_number_override' => 'boolean',
         'issue_date' => 'date',
         'valid_until' => 'date',
@@ -103,6 +101,11 @@ class Proposal extends Model
     protected static function booted()
     {
         static::creating(function ($proposal) {
+            // Set user_id from authenticated user if not provided
+            if (empty($proposal->user_id) && auth()->check()) {
+                $proposal->user_id = auth()->id();
+            }
+
             // Always set issue_month and issue_year from issue_date
             if ($proposal->issue_date) {
                 $date = Carbon::parse($proposal->issue_date);
@@ -183,5 +186,10 @@ class Proposal extends Model
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function portfolios()
+    {
+        return $this->belongsToMany(Portfolio::class);
     }
 }

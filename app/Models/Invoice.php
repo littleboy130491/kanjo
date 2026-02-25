@@ -70,6 +70,11 @@ class Invoice extends Model
     protected static function booted()
     {
         static::creating(function ($invoice) {
+            // Set user_id from authenticated user if not provided
+            if (empty($invoice->user_id) && auth()->check()) {
+                $invoice->user_id = auth()->id();
+            }
+
             // Always set issue_month and issue_year from issue_date
             if ($invoice->issue_date) {
                 $date = Carbon::parse($invoice->issue_date);

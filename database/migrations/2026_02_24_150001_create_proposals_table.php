@@ -50,9 +50,6 @@ return new class extends Migration
             $table->json('payment')->nullable();
             $table->json('terms_condition')->nullable();
 
-            // Non-translatable JSON fields
-            $table->json('portfolios')->nullable();
-
             // Offer 1
             $table->string('offer_name_1')->nullable();
             $table->decimal('offer_1_price', 15, 2)->nullable();
