@@ -68,7 +68,20 @@ class ServicesTable
                             return $query;
                         }
 
-                        return $query->whereRaw('MONTH(renewal_date) = ?', [$data['month']]);
+                        return $query->whereMonth('renewal_date', $data['month']);
+                    }),
+                Filter::make('start_date')
+                    ->label('Start Date')
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('from')
+                            ->label('From'),
+                        \Filament\Forms\Components\DatePicker::make('until')
+                            ->label('Until'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when($data['from'], fn ($query) => $query->where('start_date', '>=', $data['from']))
+                            ->when($data['until'], fn ($query) => $query->where('start_date', '<=', $data['until']));
                     }),
             ])
             ->actions([
