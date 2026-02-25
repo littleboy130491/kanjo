@@ -28,6 +28,8 @@ class ProposalsTable
                 TextColumn::make('client_name')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('offer_name_1')
+                    ->sortable(),
                 TextColumn::make('offer_1_price')
                     ->money(fn($record) => $record->currency)
                     ->sortable()
@@ -85,38 +87,6 @@ class ProposalsTable
                             ->when(
                                 $data['to'] ?? null,
                                 fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '<=', $date),
-                            );
-                    }),
-                Filter::make('created_at')
-                    ->form([
-                        \Filament\Forms\Components\DatePicker::make('from'),
-                        \Filament\Forms\Components\DatePicker::make('to'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['to'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
-                    }),
-                Filter::make('valid_until')
-                    ->form([
-                        \Filament\Forms\Components\DatePicker::make('from'),
-                        \Filament\Forms\Components\DatePicker::make('to'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('valid_until', '>=', $date),
-                            )
-                            ->when(
-                                $data['to'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('valid_until', '<=', $date),
                             );
                     }),
             ]);

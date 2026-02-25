@@ -98,38 +98,6 @@ class InvoicesTable
                                 fn($query, $date) => $query->whereDate('issue_date', '<=', $date),
                             );
                     }),
-                Filter::make('due_date')
-                    ->form([
-                        \Filament\Forms\Components\DatePicker::make('from'),
-                        \Filament\Forms\Components\DatePicker::make('until'),
-                    ])
-                    ->query(function ($query, array $data) {
-                        return $query
-                            ->when(
-                                $data['from'],
-                                fn($query, $date) => $query->whereDate('due_date', '>=', $date),
-                            )
-                            ->when(
-                                $data['until'],
-                                fn($query, $date) => $query->whereDate('due_date', '<=', $date),
-                            );
-                    }),
-                Filter::make('created_at')
-                    ->form([
-                        \Filament\Forms\Components\DatePicker::make('from'),
-                        \Filament\Forms\Components\DatePicker::make('until'),
-                    ])
-                    ->query(function ($query, array $data) {
-                        return $query
-                            ->when(
-                                $data['from'],
-                                fn($query, $date) => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['until'],
-                                fn($query, $date) => $query->whereDate('created_at', '<=', $date),
-                            );
-                    }),
             ])
             ->defaultSort('created_at', 'desc');
     }
