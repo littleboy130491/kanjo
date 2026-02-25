@@ -4,8 +4,9 @@ namespace App\Filament\Admin\Resources\Services\Tables;
 
 use App\Enums\ServiceStatus;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 
 class ServicesTable
 {
@@ -42,6 +43,33 @@ class ServicesTable
                 SelectFilter::make('client_id')
                     ->label('Client')
                     ->relationship('client', 'company'),
+                Filter::make('renewal_month')
+                    ->label('Renewal Month')
+                    ->form([
+                        \Filament\Forms\Components\Select::make('month')
+                            ->label('Month')
+                            ->options([
+                                1 => 'January',
+                                2 => 'February',
+                                3 => 'March',
+                                4 => 'April',
+                                5 => 'May',
+                                6 => 'June',
+                                7 => 'July',
+                                8 => 'August',
+                                9 => 'September',
+                                10 => 'October',
+                                11 => 'November',
+                                12 => 'December',
+                            ]),
+                    ])
+                    ->query(function ($query, array $data) {
+                        if (! $data['month']) {
+                            return $query;
+                        }
+
+                        return $query->whereRaw('MONTH(renewal_date) = ?', [$data['month']]);
+                    }),
             ])
             ->actions([
                 //
