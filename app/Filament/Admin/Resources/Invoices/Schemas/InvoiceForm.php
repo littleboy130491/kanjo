@@ -179,7 +179,6 @@ class InvoiceForm
                                                             ->required()
                                                             ->numeric()
                                                             ->inputMode('decimal')
-                                                            ->prefix(fn ($state, $get) => $get('../../currency') ?? 'IDR')
                                                             ->columnSpan(1),
                                                         Textarea::make('description')
                                                             ->rows(2)
@@ -220,15 +219,12 @@ class InvoiceForm
                                     ->schema([
                                         TextInput::make('subtotal')
                                             ->readonly()
-                                            ->prefix(fn ($state, $get) => $get('currency') ?? 'IDR')
                                             ->placeholder('Auto-calculated'),
                                         TextInput::make('tax_amount')
-                                            ->readonly()
-                                            ->prefix(fn ($state, $get) => $get('currency') ?? 'IDR')
+                                            ->readonly()                                 
                                             ->placeholder('Auto-calculated'),
                                         TextInput::make('total')
                                             ->readonly()
-                                            ->prefix(fn ($state, $get) => $get('currency') ?? 'IDR')
                                             ->placeholder('Auto-calculated'),
                                     ])
                                     ->columns(3),
