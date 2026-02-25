@@ -2,6 +2,9 @@
 
 namespace App\Filament\Admin\Resources\Proposals\Schemas;
 
+use App\Enums\DocumentStatus;
+use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
+use App\Models\Client;
 use App\Models\Company;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
@@ -58,14 +61,13 @@ class ProposalForm
                                         Select::make('company_id')
                                             ->label('Issuing Company')
                                             ->options(fn () => Company::pluck('brand_name', 'id'))
+                                            ->default(fn () => Company::first()?->id)
                                             ->required()
                                             ->searchable(),
                                         Select::make('status')
-                                            ->options([
-                                                'draft' => 'Draft',
-                                                'published' => 'Published',
-                                            ])
-                                            ->default('draft')
+                                            ->options(DocumentStatus::class)
+                                            ->enum(DocumentStatus::class)
+                                            ->default(DocumentStatus::DRAFT)
                                             ->required(),
                                         DatePicker::make('issue_date')
                                             ->label('Issue Date')
@@ -74,6 +76,7 @@ class ProposalForm
                                         DatePicker::make('valid_until')
                                             ->label('Valid Until')
                                             ->helperText('Leave empty for infinite validity')
+                                            ->default(now()->addDays(30))
                                             ->nullable(),
                                     ])
                                     ->columns(2),
@@ -83,6 +86,35 @@ class ProposalForm
                         Tab::make('Client Info')
                             ->icon('heroicon-o-user')
                             ->schema([
+                                Section::make('Select Client (Optional)')
+                                    ->schema([
+                                        Select::make('client_id')
+                                            ->label('Load from Client Database')
+                                            ->options(fn () => Client::orderBy('company')->pluck('company', 'id'))
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->helperText('Select a client to auto-fill the fields below. The data will be saved to this proposal, not linked.')
+                                            ->createOptionUsing(function (array $data): int {
+                                                $client = Client::create($data);
+                                                return $client->getKey();
+                                            })
+                                            ->createOptionForm(schema: [
+                                                ClientForm::getClientInformationSection(),
+                                                ClientForm::getNotesSection(),
+                                            ])
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    $client = Client::find($state);
+                                                    if ($client) {
+                                                        $set('client_company', $client->company);
+                                                        $set('client_name', $client->name);
+                                                        $set('client_email', $client->email);
+                                                        $set('client_phone', $client->phone);
+                                                    }
+                                                }
+                                            }),
+                                    ]),
                                 Section::make('Client Information')
                                     ->schema([
                                         TextInput::make('client_company')
@@ -97,6 +129,10 @@ class ProposalForm
                                             ->label('Email')
                                             ->email()
                                             ->required()
+                                            ->maxLength(255),
+                                        TextInput::make('client_phone')
+                                            ->label('Phone')
+                                            ->tel()
                                             ->maxLength(255),
                                     ])
                                     ->columns(2),
@@ -119,7 +155,7 @@ class ProposalForm
                                         TextInput::make('tax_rate')
                                             ->label('Tax Rate (%)')
                                             ->numeric()
-                                            ->default(11)
+                                            ->default(0)
                                             ->required()
                                             ->suffix('%'),
                                         TextInput::make('tax_amount')

@@ -13,39 +13,46 @@ class ClientForm
     {
         return $schema
             ->components([
-                Section::make('Client Information')
-                    ->schema([
-                        TextInput::make('name')
-                            ->label('Contact Person')
-                            ->required()
-                            ->maxLength(255),
-                        TextInput::make('company')
-                            ->label('Company Name')
-                            ->required()
-                            ->maxLength(255),
-                        TextInput::make('email')
-                            ->email()
-                            ->required()
-                            ->maxLength(255),
-                        TextInput::make('phone')
-                            ->tel()
-                            ->required()
-                            ->maxLength(255),
-                    ])
-                    ->columns(2),
-
-                Section::make('Notes')
-                    ->schema([
-                        Repeater::make('notes')
-                            ->schema([
-                                TextInput::make('note')
-                                    ->label('Note')
-                                    ->required()
-                                    ->maxLength(500),
-                            ])
-                            ->columns(1)
-                            ->addActionLabel('Add Note'),
-                    ]),
+                self::getClientInformationSection(),
+                self::getNotesSection(),
             ]);
     }
+
+    public static function getClientInformationSection(): Section
+    {
+        return Section::make('Client Information')
+            ->schema([
+                TextInput::make('name')
+                    ->label('Contact Person')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('company')
+                    ->label('Company Name')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('email')
+                    ->email()
+                    ->maxLength(255),
+                TextInput::make('phone')
+                    ->tel()
+                    ->maxLength(255),
+            ])
+            ->columns(2);
+    }
+
+    public static function getNotesSection(): Section
+    {
+        return Section::make('Notes')
+            ->schema([
+                Repeater::make('notes')
+                    ->schema([
+                        TextInput::make('note')
+                            ->label('Note')
+                            ->maxLength(500),
+                    ])
+                    ->columns(1)
+                    ->addActionLabel('Add Note'),
+            ]);
+    }
+
 }

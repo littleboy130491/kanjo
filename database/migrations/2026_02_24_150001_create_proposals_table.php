@@ -26,7 +26,7 @@ return new class extends Migration
             // Client info
             $table->string('client_company');
             $table->string('client_name');
-            $table->string('client_email');
+            $table->string('client_email')->nullable();
             $table->string('client_phone')->nullable();
 
             // Dates
