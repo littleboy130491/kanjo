@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
-use App\Services\DocumentNumberService;
+use App\Services\DocumentNumberGenerator;
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
 use Carbon\Carbon;
@@ -83,7 +83,7 @@ class Invoice extends Model
 
             // Always generate document number (even if overridden)
             $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
-            $data = DocumentNumberService::generate('INV', $date);
+            $data = DocumentNumberGenerator::generate('INV', $date);
 
             $invoice->document_number_raw = $data['document_number_raw'];
 
@@ -97,7 +97,7 @@ class Invoice extends Model
                     $invoice->document_number_suffix = $data['document_number_suffix'];
                 }
                 // Generate the full number with the custom suffix
-                $invoice->document_number = DocumentNumberService::regenerateWithSuffix(
+                $invoice->document_number = DocumentNumberGenerator::regenerateWithSuffix(
                     'INV',
                     $data['document_number_raw'],
                     $date,
@@ -117,7 +117,7 @@ class Invoice extends Model
             // Regenerate document number with new suffix if overridden
             if ($invoice->document_number_override && $invoice->isDirty('document_number_suffix')) {
                 $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
-                $invoice->document_number = DocumentNumberService::regenerateWithSuffix(
+                $invoice->document_number = DocumentNumberGenerator::regenerateWithSuffix(
                     'INV',
                     $invoice->document_number_raw,
                     $date,

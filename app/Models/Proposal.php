@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\DocumentStatus;
-use App\Services\DocumentNumberService;
+use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -116,7 +116,7 @@ class Proposal extends Model
 
             // Always generate document number (even if overridden)
             $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
-            $data = DocumentNumberService::generate('QUO', $date);
+            $data = DocumentNumberGenerator::generate('QUO', $date);
 
             $proposal->document_number_raw = $data['document_number_raw'];
 
@@ -130,7 +130,7 @@ class Proposal extends Model
                     $proposal->document_number_suffix = $data['document_number_suffix'];
                 }
                 // Generate the full number with the custom suffix
-                $proposal->document_number = DocumentNumberService::regenerateWithSuffix(
+                $proposal->document_number = DocumentNumberGenerator::regenerateWithSuffix(
                     'QUO',
                     $data['document_number_raw'],
                     $date,
@@ -150,7 +150,7 @@ class Proposal extends Model
             // Regenerate document number with new suffix if overridden
             if ($proposal->document_number_override && $proposal->isDirty('document_number_suffix')) {
                 $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
-                $proposal->document_number = DocumentNumberService::regenerateWithSuffix(
+                $proposal->document_number = DocumentNumberGenerator::regenerateWithSuffix(
                     'QUO',
                     $proposal->document_number_raw,
                     $date,
@@ -173,5 +173,15 @@ class Proposal extends Model
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
     }
 }

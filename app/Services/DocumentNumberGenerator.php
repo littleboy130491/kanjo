@@ -5,7 +5,7 @@ namespace App\Services;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class DocumentNumberService
+class DocumentNumberGenerator
 {
     private static array $roman = [
         1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV',
