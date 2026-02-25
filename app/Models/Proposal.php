@@ -24,6 +24,7 @@ class Proposal extends Model
         'client_company',
         'client_name',
         'client_email',
+        'client_phone',
         'issue_date',
         'valid_until',
         'currency',
@@ -60,6 +61,8 @@ class Proposal extends Model
         'notes',
         'user_id',
         'company_id',
+        'client_id',
+        'service_id',
     ];
 
     protected $translatable = [

@@ -25,6 +25,7 @@ class Invoice extends Model
         'client_company',
         'client_name',
         'client_email',
+        'client_phone',
         'issue_date',
         'due_date',
         'currency',
@@ -44,6 +45,8 @@ class Invoice extends Model
         'proposal_id',
         'user_id',
         'company_id',
+        'client_id',
+        'service_id',
     ];
 
     protected $translatable = [
@@ -137,5 +140,15 @@ class Invoice extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
     }
 }
