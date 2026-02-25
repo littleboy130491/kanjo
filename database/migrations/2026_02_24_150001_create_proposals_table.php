@@ -36,8 +36,6 @@ return new class extends Migration
             // Financials
             $table->string('currency')->default('IDR');
             $table->decimal('tax_rate', 5, 2)->default(0);
-            $table->decimal('tax_amount', 15, 2)->default(0);
-            $table->decimal('total_amount', 15, 2)->default(0);
 
             // Translatable JSON fields
             $table->json('brief')->nullable();

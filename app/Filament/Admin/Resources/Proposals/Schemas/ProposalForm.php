@@ -92,6 +92,7 @@ class ProposalForm
                                             ->label('Load from Client Database')
                                             ->options(fn () => Client::orderBy('company')->pluck('company', 'id'))
                                             ->searchable()
+                                            ->live()
                                             ->preload()
                                             ->nullable()
                                             ->helperText('Select a client to auto-fill the fields below. The data will be saved to this proposal, not linked.')
@@ -158,18 +159,6 @@ class ProposalForm
                                             ->default(0)
                                             ->required()
                                             ->suffix('%'),
-                                        TextInput::make('tax_amount')
-                                            ->label('Tax Amount')
-                                            ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
-                                            ->disabled()
-                                            ->dehydrated(true),
-                                        TextInput::make('total_amount')
-                                            ->label('Total Amount')
-                                            ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
-                                            ->disabled()
-                                            ->dehydrated(true),
                                     ])
                                     ->columns(2),
 
