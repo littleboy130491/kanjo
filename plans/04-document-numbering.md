@@ -24,11 +24,22 @@ Implement the auto-generated document number logic used by both Proposals and In
 
 ---
 
+## Database Fields (per document)
+
+| Field | Type | Notes |
+|---|---|---|
+| `document_number` | string | Full formatted string (display/search) |
+| `document_number_raw` | integer | The auto-increment portion |
+| `document_number_suffix` | string | Default `NEW` |
+| `document_number_override` | boolean | Flag to allow admin override |
+
+---
+
 ## Implementation
 
-### Service Class: `DocumentNumberService`
+### Service Class: `DocumentNumberGenerator`
 
-**File:** `app/Services/DocumentNumberService.php`
+**File:** `app/Services/DocumentNumberGenerator.php`
 
 #### Methods:
 
@@ -37,17 +48,18 @@ Implement the auto-generated document number logic used by both Proposals and In
 Returns:
 ```php
 [
-    'document_number'     => 'QUO/001/IV/26/NEW',
-    'document_number_raw' => 1,
+    'document_number'        => 'QUO/001/IV/26/NEW',
+    'document_number_raw'    => 1,
     'document_number_suffix' => 'NEW',
 ]
 ```
 
 **Logic:**
-1. Determine the next `document_number_raw` by querying the same table for the same `type`, same month, and same year — take `MAX(document_number_raw) + 1`, default to `1`.
-2. Convert month integer to Roman numeral using a static lookup array.
-3. Format: `sprintf('%s/%03d/%s/%02d/%s', $type, $raw, $roman, $yy, $suffix)`
-4. Wrap in a DB transaction to prevent race conditions.
+1. Determine the target table based on `$type` (`QUO` → `proposals`, `INV` → `invoices`).
+2. Query the table for the same month and year of `$date` — take `MAX(document_number_raw) + 1`, default to `1`.
+3. Convert month integer to Roman numeral using a static lookup array.
+4. Format: `sprintf('%s/%03d/%s/%02d/%s', $type, $raw, $roman, $yy, $suffix)`
+5. Wrap in a DB transaction with row locking to prevent race conditions.
 
 **`toRoman(int $month): string`**
 
@@ -64,17 +76,21 @@ private static array $roman = [
 
 ### Integration
 
-Wire into model creation via an **Eloquent `creating` observer** or **service call in Filament form**:
+Wire into model creation via an **Eloquent `creating` event** in the model's `booted()` method:
 
 ```php
-// In Proposal::creating observer
-$data = DocumentNumberService::generate('QUO', now());
-$proposal->document_number        = $data['document_number'];
-$proposal->document_number_raw    = $data['document_number_raw'];
-$proposal->document_number_suffix = $data['document_number_suffix'];
+// In Proposal model booted()
+static::creating(function (Proposal $proposal) {
+    if (!$proposal->document_number_override) {
+        $data = DocumentNumberGenerator::generate('QUO', $proposal->issue_date ?? now());
+        $proposal->document_number        = $data['document_number'];
+        $proposal->document_number_raw    = $data['document_number_raw'];
+        $proposal->document_number_suffix = $data['document_number_suffix'];
+    }
+});
 ```
 
-For `document_number_override = true`, skip auto-generation and allow admin to input suffix manually (only the suffix changes, not the full number).
+Same pattern for Invoice with type `INV`.
 
 ---
 
@@ -86,13 +102,13 @@ When `document_number_override` is `true`:
 
 ---
 
-## Database Unique Constraint
-Add a compound unique index in the migration to prevent duplicates:
-```php
-// For proposals table
-$table->unique(['document_number_raw', DB::raw('MONTH(issue_date)'), DB::raw('YEAR(issue_date)')]);
-```
-> Implement as a composite unique index at the app layer if DB-level computed columns are unavailable.
+## Unique Constraint
+
+**PRD spec:** Compound unique on `type + raw_number + month + year` to prevent duplicates within a month.
+
+Since proposals and invoices are in separate tables, each table inherently separates by type. Enforce uniqueness within a table using:
+- DB transaction with `lockForUpdate()` in `DocumentNumberGenerator` to prevent race conditions
+- App-level validation before saving
 
 ---
 

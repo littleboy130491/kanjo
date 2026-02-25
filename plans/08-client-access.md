@@ -22,14 +22,14 @@ Implement per-document, session-based authentication for clients viewing proposa
 **File:** `routes/web.php`
 
 ```php
-Route::get('/proposal/{slug}', [ProposalController::class, 'show']);
-Route::post('/proposal/{slug}/auth', [ProposalController::class, 'authenticate']);
+Route::get('/proposal/{slug}', [ProposalViewController::class, 'show']);
+Route::post('/proposal/{slug}/auth', [ProposalViewController::class, 'authenticate']);
 
-Route::get('/invoice/{slug}', [InvoiceController::class, 'show']);
-Route::post('/invoice/{slug}/auth', [InvoiceController::class, 'authenticate']);
+Route::get('/invoice/{slug}', [InvoiceViewController::class, 'show']);
+Route::post('/invoice/{slug}/auth', [InvoiceViewController::class, 'authenticate']);
 ```
 
-**Slug:** Use `document_number` (URL-encoded or with slashes replaced) or a dedicated `slug` column. Recommend replacing `/` with `-` in the URL slug, e.g., `QUO-001-IV-26-NEW`.
+**Slug:** Use `document_number` with `/` replaced by `-` in the URL slug, e.g., `QUO-001-IV-26-NEW`.
 
 ---
 
@@ -52,10 +52,12 @@ Apply via route middleware or inline in controller.
 
 ## Controllers
 
-### `ProposalController`
+### `ProposalViewController`
+
+**File:** `app/Http/Controllers/ProposalViewController.php`
 
 **`show(string $slug)`**
-- Find proposal by slug
+- Find proposal by slug (convert slug back to document_number)
 - Check `status = 'published'` (else 404)
 - Apply access check
 - Return view `proposals.show` with proposal data at current locale
@@ -66,8 +68,11 @@ Apply via route middleware or inline in controller.
 - On success: store `session("doc_auth_proposal_{$proposal->id}", true)`
 - Redirect back to proposal view
 
-### `InvoiceController`
-Same pattern as ProposalController for `/invoice/{slug}`.
+### `InvoiceViewController`
+
+**File:** `app/Http/Controllers/InvoiceViewController.php`
+
+Same pattern as ProposalViewController for `/invoice/{slug}`.
 
 ---
 

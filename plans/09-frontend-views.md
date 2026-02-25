@@ -18,7 +18,7 @@ Build the HTML views clients see when accessing a proposal or invoice URL. Views
 
 ### Sections (in order)
 1. **Header** — Company logo, company name, document number, issue date, valid until
-2. **Client Info** — Client company, client name, client email
+2. **Client Info** — Client company, client name, client email, client phone
 3. **Brief** — Translated content
 4. **Portfolios** — Grid of portfolio items with image + link
 5. **Core Services** — Translated list
@@ -27,7 +27,7 @@ Build the HTML views clients see when accessing a proposal or invoice URL. Views
 8. **Assets** — Translated list
 9. **Security** — Translated list
 10. **Support** — Translated list
-11. **Offer 1** — `offer_name_1`, price (with strikethrough original if discounted), renewal price, project timeline table
+11. **Offer 1** — `offer_name_1`, price (with strikethrough original if discounted), renewal price (with strikethrough original renewal if discounted), project timeline table
 12. **Offer 2** — Same structure, hidden if `offer_name_2` is null
 13. **Additional Benefit** — Translated list
 14. **Add-Ons** — Name, description, price per item
@@ -44,7 +44,7 @@ Build the HTML views clients see when accessing a proposal or invoice URL. Views
 
 ### Sections (in order)
 1. **Header** — Company logo, document number, issue date, due date, payment status badge
-2. **Client Info** — Frozen client fields
+2. **Client Info** — Frozen client fields (company, name, email, phone)
 3. **Items Table** — Title, description, price per item
 4. **Financial Summary** — Subtotal, tax rate, tax amount, total
 5. **Payment Info** — `paid_amount`, `payment_method`, `paid_at` (shown if partially/fully paid)
@@ -73,7 +73,7 @@ Logo from Curator media:
 ## Language Switcher
 A simple toggle (EN / ID) that sets the locale and re-renders the page:
 ```php
-Route::get('/proposal/{slug}/{locale}', [ProposalController::class, 'setLocale']);
+Route::get('/proposal/{locale}/{slug}', [ProposalViewController::class, 'setLocale']);
 ```
 Or use a query param `?lang=id`.
 

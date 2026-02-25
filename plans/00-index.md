@@ -5,12 +5,12 @@
 | # | File | Activity | Description |
 |---|------|----------|-------------|
 | 01 | [01-project-setup.md](./01-project-setup.md) | Project Setup | Install packages, configure .env, Filament, Curator, locales |
-| 02 | [02-database-migrations.md](./02-database-migrations.md) | Database Migrations | `companies`, `proposals`, `invoices` tables |
-| 03 | [03-models.md](./03-models.md) | Eloquent Models | Company, Proposal, Invoice — casts, translatable, relationships |
+| 02 | [02-database-migrations.md](./02-database-migrations.md) | Database Migrations | `companies`, `clients`, `services`, `proposals`, `invoices` tables |
+| 03 | [03-models.md](./03-models.md) | Eloquent Models | Company, Client, Service, Proposal, Invoice — casts, translatable, relationships |
 | 04 | [04-document-numbering.md](./04-document-numbering.md) | Document Numbering | `QUO/001/IV/26/NEW` format, monthly reset, override logic |
-| 05 | [05-filament-resources.md](./05-filament-resources.md) | Filament Resources | CRUD forms for Company, Proposal, Invoice, User |
+| 05 | [05-filament-resources.md](./05-filament-resources.md) | Filament Resources | CRUD forms for Company, Client, Service, Proposal, Invoice, User |
 | 06 | [06-filament-tables-and-filters.md](./06-filament-tables-and-filters.md) | Tables & Filters | Columns, filters, search for Proposal and Invoice tables |
-| 07 | [07-custom-actions.md](./07-custom-actions.md) | Custom Actions | Convert, Renewal, Duplicate, PDF, Mark as Paid, View Proposal |
+| 07 | [07-custom-actions.md](./07-custom-actions.md) | Custom Actions | Convert, Renewal, Duplicate, PDF, Mark as Paid, Create Client, Create Service, View Proposal |
 | 08 | [08-client-access.md](./08-client-access.md) | Client Access Auth | Per-document session auth, global .env fallback |
 | 09 | [09-frontend-views.md](./09-frontend-views.md) | Frontend Views | Client-facing Blade views for proposals and invoices |
 | 10 | [10-pdf-generation.md](./10-pdf-generation.md) | PDF Generation | Browsershot setup, print CSS, PDF download routes |

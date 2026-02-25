@@ -1,7 +1,7 @@
 # Activity 05 — Filament Resources (CRUD)
 
 ## Goal
-Build the four Filament admin resources: Company, Proposal, Invoice, User.
+Build the six Filament admin resources: Company, Client, Service, Proposal, Invoice, User.
 
 ---
 
@@ -32,7 +32,54 @@ Build the four Filament admin resources: Company, Proposal, Invoice, User.
 
 ---
 
-## Resource 2: `ProposalResource`
+## Resource 2: `ClientResource`
+
+**File:** `app/Filament/Resources/ClientResource.php`
+
+### Form Fields
+- `name` — TextInput, required (contact person)
+- `company` — TextInput, required (client's company name)
+- `email` — TextInput, email, required
+- `phone` — TextInput, required
+- `notes` — Repeater with sub-field: `note` (non-translatable JSON array)
+
+### Table Columns
+- `name`, `company`, `email`, `phone`
+- `proposals_count` — count badge
+- `invoices_count` — count badge
+- `services_count` — count badge
+
+### Soft Deletes
+Generate with `--soft-deletes` flag.
+
+---
+
+## Resource 3: `ServiceResource`
+
+**File:** `app/Filament/Resources/ServiceResource.php`
+
+### Form Fields
+- `name` — TextInput, required
+- `domain` — TextInput, nullable (website URL)
+- `start_date` — TextInput, nullable (when service became active)
+- `renewal_date` — TextInput, nullable (date and month for renewal)
+- `status` — Select: `terminated`, `on-going`, `suspended`
+- `client_id` — Select (relationship to Client)
+- `notes` — Repeater with sub-field: `note` (non-translatable JSON array)
+
+### Table Columns
+- `name`, `domain`, `status` (badge), `client.company`, `renewal_date`
+
+### Filters
+- `status` — SelectFilter
+- `client_id` — SelectFilter
+
+### Soft Deletes
+Generate with `--soft-deletes` flag.
+
+---
+
+## Resource 4: `ProposalResource`
 
 **File:** `app/Filament/Resources/ProposalResource.php`
 
@@ -48,13 +95,18 @@ Build the four Filament admin resources: Company, Proposal, Invoice, User.
 - `valid_until` — DatePicker, nullable (null = infinite)
 
 **Section: Client Info**
-- `client_company`, `client_name`, `client_email`
+- `client_id` — Select (relationship to Client), nullable, optional reference only
+- `client_company`, `client_name`, `client_email`, `client_phone` — TextInput (frozen snapshot fields)
+- When `client_id` is selected on create, auto-populate the snapshot fields from the client record
+
+**Section: Service**
+- `service_id` — Select (relationship to Service), nullable, optional reference
 
 **Section: Financials**
 - `currency` — Select
 - `tax_rate` — TextInput (numeric), default `11`
-- `offer_name_1`, `offer_1_price`, `offer_1_original_price`, `offer_1_renewal_price`
-- `offer_name_2`, `offer_2_price`, `offer_2_original_price`, `offer_2_renewal_price` (nullable group)
+- `offer_name_1`, `offer_1_price`, `offer_1_original_price`, `offer_1_renewal_price`, `offer_1_original_renewal_price`
+- `offer_name_2`, `offer_2_price`, `offer_2_original_price`, `offer_2_renewal_price`, `offer_2_original_renewal_price` (nullable group)
 
 **Section: Content (Translatable)**
 All wrapped in `TranslatableFields` with `en` + `id` tabs:
@@ -82,7 +134,7 @@ All wrapped in `TranslatableFields` with `en` + `id` tabs:
 
 ---
 
-## Resource 3: `InvoiceResource`
+## Resource 5: `InvoiceResource`
 
 **File:** `app/Filament/Resources/InvoiceResource.php`
 
@@ -100,7 +152,11 @@ All wrapped in `TranslatableFields` with `en` + `id` tabs:
 - `due_date` — DatePicker
 
 **Section: Client Info**
-- `client_company`, `client_name`, `client_email`
+- `client_id` — Select (relationship to Client), nullable, optional reference only
+- `client_company`, `client_name`, `client_email`, `client_phone` — TextInput (frozen snapshot fields)
+
+**Section: Service**
+- `service_id` — Select (relationship to Service), nullable
 
 **Section: Items (Translatable)**
 - `items` — Repeater wrapped in `TranslatableFields`: `title`, `description`, `price`
@@ -115,7 +171,7 @@ All wrapped in `TranslatableFields` with `en` + `id` tabs:
 
 ---
 
-## Resource 4: `UserResource`
+## Resource 6: `UserResource`
 
 **File:** `app/Filament/Resources/UserResource.php`
 
@@ -125,8 +181,19 @@ Standard Filament user management:
 
 ---
 
+## Client Snapshot Behavior
+
+When creating a Proposal or Invoice with a selected `client_id`:
+1. Auto-populate `client_company`, `client_name`, `client_email`, `client_phone` from the selected Client record
+2. These snapshot fields are independently editable — they do NOT auto-sync after creation
+3. The `client_id` remains as an optional reference for navigation only
+
+---
+
 ## Acceptance Criteria
-- All 4 resources accessible in Filament admin sidebar
-- Company, Proposal, Invoice CRUD operations work without errors
+- All 6 resources accessible in Filament admin sidebar
+- Company, Client, Service, Proposal, Invoice CRUD operations work without errors
+- Client snapshot fields auto-populate when selecting a client on create
 - Translatable fields show language tabs for `en` and `id`
 - Curator media picker works for logo and PIC signature fields
+- Service resource shows client relationship and status filter

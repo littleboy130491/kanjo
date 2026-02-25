@@ -105,6 +105,11 @@ This renders tabs — one for each locale — within the form section.
 ## Fields That Are Translatable (Company)
 - `footer_text`
 
+## Fields That Are NOT Translatable
+- `portfolios` (Proposal) — plain JSON array, no locale keys
+- `bank`, `pic` (Company) — plain JSON arrays
+- `notes` (Client, Service) — plain JSON arrays
+
 ---
 
 ## Frontend Locale Switching
@@ -139,3 +144,4 @@ Or if locale is already set:
 - Client-facing view renders in the selected locale
 - `App::setLocale('id')` causes all translatable fields to return Indonesian values
 - Fallback to `en` if `id` translation is missing
+- Non-translatable JSON arrays (portfolios, bank, pic, notes) are stored as plain arrays without locale keys
