@@ -90,7 +90,51 @@ Represents the brands/companies that issue documents.
 
 ---
 
-### 2. Proposal
+### 2. Client
+
+| Field | Type | Translatable | Notes |
+|---|---|---|---|
+| `id` | bigint | — | PK |
+| `name` | string | no | Client contact person |
+| `company` | string | no | Client's company name |
+| `email` | string | no | |
+| `phone` | string | no | |
+| `notes` | JSON array | no | non-translatable |
+| `deleted_at` | timestamp | — | Soft delete |
+| `created_at` | timestamp | — | |
+| `updated_at` | timestamp | — | |
+
+**Relationships:**
+- `hasMany(Proposal)`
+- `hasMany(Invoice)`
+- `hasMany(Service)`
+
+---
+
+### 3. Service
+
+| Field | Type | Translatable | Notes |
+|---|---|---|---|
+| `id` | bigint | — | PK |
+| `name` | string | no | |
+| `domain` | string | no | website url |
+| `start_date` | string | no | the time when the service is active |
+| `renewal_date` | string | no | date and month for renewal |
+| `status` | enum | no | `terminated`, `on-going`, `suspended` |
+| `notes` | JSON array | no | non-translatable |
+| `client_id` | FK | no | has one client |
+| `deleted_at` | timestamp | — | Soft delete |
+| `created_at` | timestamp | — | |
+| `updated_at` | timestamp | — | |
+
+**Relationships:**
+- `belongsTo(Client)`
+- `hasMany(Proposal)`
+- `hasMany(Invoice)`
+
+---
+
+### 4. Proposal
 
 | Field | Type | Translatable | Notes |
 |---|---|---|---|
@@ -99,9 +143,11 @@ Represents the brands/companies that issue documents.
 | `document_number_raw` | integer | no | Auto-increment portion |
 | `document_number_suffix` | string | no | Default `NEW` |
 | `document_number_override` | boolean | no | |
-| `client_company` | string | no | Client's company name |
-| `client_name` | string | no | Client contact person |
-| `client_email` | string | no | |
+| `client_id` | FK | no | nullable, optional reference to client record |
+| `client_company` | string | no | Frozen snapshot at document creation |
+| `client_name` | string | no | Frozen snapshot at document creation |
+| `client_email` | string | no | Frozen snapshot at document creation |
+| `client_phone` | string | no | Frozen snapshot at document creation |
 | `issue_date` | date | no | Default from `created_at`, can override |
 | `valid_until` | date | no | Default: issue_date + 30 days. Set to `null` for infinite validity |
 | `currency` | string | no | Default `IDR` |
@@ -136,66 +182,14 @@ Represents the brands/companies that issue documents.
 | `access_password` | string | no | nullable, hashed, per-record override |
 | `user_id` | FK | no | Author/admin who created |
 | `company_id` | FK | no | Issuing company |
+| `service_id` | FK | no | nullable, related service |
 | `deleted_at` | timestamp | — | Soft delete |
 | `created_at` | timestamp | — | |
 | `updated_at` | timestamp | — | |
 
-**`portfolios` structure:**
-```json
-[
-  {
-    "portfolio_name": "Happy Dental Clinic",
-    "portfolio_image_url": "https://...",
-    "portfolio_link": "https://..."
-  }
-]
-```
-
-**`offer_X_project_timeline` structure (translatable per sub-field):**
-```json
-[
-  {
-    "activity_name": "Discovery & Research",
-    "activity_pic": "Henry",
-    "activity_days": 5
-  }
-]
-```
-
-**`add_on` structure:**
-```json
-[
-  {
-    "name": "SEO Setup",
-    "description": "On-page SEO optimization...",
-    "price": 2500000
-  }
-]
-```
-
-**`payment` structure:**
-```json
-[
-  {
-    "info": "Payment via bank transfer",
-    "down_payment_amount": 5000000
-  }
-]
-```
-
-**`terms_condition` structure:**
-```json
-[
-  {
-    "title": "Project Scope",
-    "description": "Any changes beyond the agreed scope..."
-  }
-]
-```
-
 ---
 
-### 3. Invoice
+### 5. Invoice
 
 | Field | Type | Translatable | Notes |
 |---|---|---|---|
@@ -204,9 +198,11 @@ Represents the brands/companies that issue documents.
 | `document_number_raw` | integer | no | |
 | `document_number_suffix` | string | no | Default `NEW` |
 | `document_number_override` | boolean | no | |
-| `client_company` | string | no | Frozen at creation |
-| `client_name` | string | no | Frozen at creation |
-| `client_email` | string | no | Frozen at creation |
+| `client_id` | FK | no | nullable, optional reference to client record |
+| `client_company` | string | no | Frozen snapshot at document creation |
+| `client_name` | string | no | Frozen snapshot at document creation |
+| `client_email` | string | no | Frozen snapshot at document creation |
+| `client_phone` | string | no | Frozen snapshot at document creation |
 | `issue_date` | date | no | Default from `created_at`, can override |
 | `due_date` | date | no | Default: issue_date + 30 days |
 | `currency` | string | no | Default `IDR` |
@@ -224,26 +220,16 @@ Represents the brands/companies that issue documents.
 | `access_username` | string | no | nullable, per-record override |
 | `access_password` | string | no | nullable, hashed, per-record override |
 | `proposal_id` | FK | no | nullable, link back to source proposal |
+| `service_id` | FK | no | nullable, related service |
 | `user_id` | FK | no | |
 | `company_id` | FK | no | |
 | `deleted_at` | timestamp | — | Soft delete |
 | `created_at` | timestamp | — | |
 | `updated_at` | timestamp | — | |
 
-**`items` structure:**
-```json
-[
-  {
-    "title": "Website Development",
-    "description": "Full custom website build...",
-    "price": 15000000
-  }
-]
-```
-
 ---
 
-### 4. User (Admin/Author)
+### 6. User (Admin/Author)
 
 Uses Filament's built-in user authentication. Standard fields: `name`, `email`, `password`, plus any Filament defaults.
 
@@ -257,12 +243,6 @@ Simple document-level authentication. No user accounts, no registration, no toke
 - `access_username` — nullable string
 - `access_password` — nullable string, stored hashed
 
-**Access flow:**
-1. Client visits the document URL (e.g., `/proposal/{slug}` or `/invoice/{slug}`)
-2. If the document has `access_username` and `access_password` set → prompt for credentials
-3. If per-document credentials are empty → fall back to global credentials from `.env` (`GLOBAL_ACCESS_USERNAME`, `GLOBAL_ACCESS_PASSWORD`)
-4. Session-based: once authenticated for a document, client stays authenticated for that browser session
-
 ---
 
 ## Proposal → Invoice Conversion
@@ -270,7 +250,8 @@ Simple document-level authentication. No user accounts, no registration, no toke
 One-click action in Filament admin. No selection modal — always converts using Offer 1.
 
 **Copied fields (frozen snapshot, not linked):**
-- `client_company`, `client_name`, `client_email`
+- `client_company`, `client_name`, `client_email`, `client_phone`
+- `client_id` (optional reference only, not source of displayed client values)
 - `company_id`, `user_id`
 - `currency`
 - `tax_rate`
@@ -284,7 +265,6 @@ One-click action in Filament admin. No selection modal — always converts using
 **Items generation from Offer 1:**
 - `offer_name_1` → first invoice item title
 - `offer_1_price` → first invoice item price
-- Description can be auto-generated or left empty for admin to fill
 
 **Linked:**
 - `proposal_id` — references the source proposal
@@ -293,87 +273,26 @@ One-click action in Filament admin. No selection modal — always converts using
 - `status` → `draft`
 - `payment_status` → `unpaid`
 
+**Relationship rules:**
+- Proposal has many invoices
+- Proposal and invoice store client snapshot fields and remain unchanged even if `clients` data is edited later
+- Proposal and invoice may keep optional `client_id` for quick navigation/reference
+- If proposal/invoice is created from a selected client, copy `name/company/email/phone` into snapshot fields at creation time
+- Service belongs to one client, and proposal/invoice can optionally link to one service (`service_id`)
+
 ---
 
 ## Renewal Invoices
 
-Proposals contain `offer_1_renewal_price`, which represents the recurring annual/periodic cost after the initial project. Admin can generate renewal invoices directly from a proposal.
+Proposals contain `offer_1_renewal_price`, which represents the recurring annual/periodic cost after the initial project.
 
 **Action:** "Create Renewal Invoice" on Proposal (separate from "Convert to Invoice")
 
 **Behavior:**
 - Same as standard conversion, except uses `offer_1_renewal_price` instead of `offer_1_price`
-- Item title auto-generated as "[offer_name_1] — Renewal" (admin can edit)
+- Item title auto-generated as `"{offer_name_1} — Renewal"` (admin can edit)
 - `proposal_id` links back to the same source proposal
 - A single proposal can have multiple invoices (initial + multiple renewals over the years)
-
-**Proposal → Invoice relationship:** one-to-many. The proposal table in Filament shows a badge or count of linked invoices, and each invoice links back to its source proposal.
-
----
-
-## Scheduled Artisan Command
-
-**Command:** `php artisan documents:check-overdue`
-
-**Recommended schedule:** Daily via Laravel's scheduler (`schedule:run` in cron)
-
-**Two operations per run:**
-
-**1. Expire overdue proposals:**
-- Condition: `status = 'published'` AND `valid_until IS NOT NULL` AND `valid_until < today`
-- Action: Set `status` → `draft` (unpublishes, client can no longer view)
-
-**2. Flag overdue invoices:**
-- Condition: `status = 'published'` AND `payment_status IN ('unpaid', 'partially_paid')` AND `due_date < today`
-- Action: Set `payment_status` → `overdue` (invoice stays published and visible to client)
-
-**Notes:**
-- Command is idempotent — safe to run multiple times
-- Already-overdue records are skipped (no repeated writes)
-- Proposals with `valid_until = null` (infinite validity) are never auto-expired
-
----
-
-## PDF Generation
-
-**Engine:** Browsershot (headless Chrome via Puppeteer)
-
-**Flow:**
-1. Admin or client clicks "Download PDF" on a proposal or invoice
-2. System renders the HTML view (same as frontend display) with print-optimized CSS
-3. Browsershot captures and returns PDF
-4. PDF uses company branding (logo, colors from `color_primary`/`color_secondary`)
-
-**Requirements:**
-- Node.js on server (Laravel Sail handles this)
-- Print stylesheet with proper page breaks, margins, headers/footers
-- Company letterhead rendered in PDF header
-
----
-
-## Translation Strategy (Spatie)
-
-**Approach:** Each translatable sub-field within JSON arrays is individually translatable, not the entire array.
-
-**Example — `features` field:**
-```json
-[
-  {
-    "feature_name": {
-      "en": "Responsive Design",
-      "id": "Desain Responsif"
-    },
-    "feature_description": {
-      "en": "Adapts to all screen sizes",
-      "id": "Menyesuaikan ke semua ukuran layar"
-    }
-  }
-]
-```
-
-This allows the array structure (order, count) to remain consistent across locales while individual text content is translated.
-
-**Non-translatable arrays** (like `portfolios`, `bank`) store plain values without locale keys.
 
 ---
 
@@ -384,57 +303,71 @@ This allows the array structure (order, count) to remain consistent across local
 - **ProposalResource** — full CRUD with all fields, repeater components for JSON arrays, translation tabs
 - **InvoiceResource** — full CRUD, payment status management
 - **CompanyResource** — full CRUD, media upload for logo and PIC signatures
+- **ClientResource** — full CRUD for clients
+- **ServiceResource** — full CRUD for services
 - **UserResource** — standard Filament user management
 
 ### Filament Table: Proposals
 
-**Columns:** `document_number`, `client_company`, `client_name`, `offer_1_price`, `status`, `issue_date`, `invoices_count` (badge showing number of linked invoices)
-
-**Filters:**
-- `status` — select filter: draft, published
-- `company_id` — select filter: issuing company
-- `has_invoice` — ternary filter: proposals that have/haven't been converted to invoice (via `invoices` relationship existence check)
-- `issue_date` — date range picker
-- `created_at` — date range picker
-- `valid_until` — date range picker (useful for finding expired proposals)
+**Columns:** `document_number`, `client_company`, `client_name`, `offer_1_price`, `status`, `issue_date`, `invoices_count`
 
 **Searchable columns:** `client_name`, `client_company`, `document_number`
 
 ### Filament Table: Invoices
 
-**Columns:** `document_number`, `client_company`, `client_name`, `total`, `payment_status`, `status`, `issue_date`, `due_date`, `proposal` (link to source proposal, if linked)
-
-**Filters:**
-- `status` — select filter: draft, published
-- `payment_status` — select filter: unpaid, partially_paid, paid, overdue, cancelled
-- `company_id` — select filter: issuing company
-- `has_proposal` — ternary filter: invoices linked/not linked to a proposal
-- `issue_date` — date range picker
-- `due_date` — date range picker
-- `created_at` — date range picker
+**Columns:** `document_number`, `client_company`, `client_name`, `total`, `payment_status`, `status`, `issue_date`, `due_date`, `proposal`
 
 **Searchable columns:** `client_name`, `client_company`, `document_number`
 
 ### Custom Actions
 
 **Proposal actions:**
-- **Convert to Invoice** — one-click, auto-generates invoice from Offer 1 main price, redirects to new invoice edit page
-- **Create Renewal Invoice** — one-click, auto-generates invoice from Offer 1 renewal price, redirects to new invoice edit page
-- **Duplicate Proposal** — clones all fields into a new draft with fresh auto-generated document number
-- **Generate PDF** — download PDF via Browsershot
+- **Convert to Invoice**
+- **Create Renewal Invoice**
+- **Duplicate Proposal**
+- **Create Client** — one-click from proposal snapshot fields (`client_name`, `client_company`, `client_email`, `client_phone`) and auto-link `client_id`
+- **Create Service** — one-click from proposal and auto-link selected `client_id`
+- **Generate PDF**
 
 **Invoice actions:**
-- **Duplicate Invoice** — clones all fields into a new draft with fresh auto-generated document number
-- **Generate PDF** — download PDF via Browsershot
-- **Mark as Paid** — quick action modal with `paid_amount`, `payment_method`, `paid_at` fields
-- **View Proposal** — link to source proposal (visible only if `proposal_id` is set)
+- **Duplicate Invoice**
+- **Generate PDF**
+- **Mark as Paid**
+- **Create Client** — one-click from invoice snapshot fields (`client_name`, `client_company`, `client_email`, `client_phone`) and auto-link `client_id`
+- **Create Service** — one-click from invoice and auto-link selected `client_id`
+- **View Proposal**
 
-### Dashboard Widgets
+---
 
-- **Total Outstanding** — sum of `total` for all unpaid/partially_paid published invoices
-- **Overdue Invoices** — count of published invoices where `payment_status = 'overdue'`
-- **Pending Proposals** — count of published proposals not yet converted to invoice
-- **Revenue This Month** — sum of `paid_amount` for invoices marked paid in current month
+## Translation Strategy (Spatie)
+
+**Approach:** Each translatable sub-field within JSON arrays is individually translatable, not the entire array.
+
+**Non-translatable arrays** (like `portfolios`, `bank`, `client.notes`, `service.notes`) store plain values without locale keys.
+
+---
+
+## PDF Generation
+
+**Engine:** Browsershot (headless Chrome via Puppeteer)
+
+**Flow:**
+1. Admin or client clicks "Download PDF" on a proposal or invoice.
+2. System renders the HTML view with print-optimized CSS.
+3. Browsershot captures and returns PDF.
+4. PDF uses company branding (logo, colors from `color_primary`/`color_secondary`).
+
+---
+
+## Scheduled Artisan Command
+
+**Command:** `php artisan documents:check-overdue`
+
+**Recommended schedule:** Daily via Laravel scheduler.
+
+**Operations:**
+1. Expire proposals where `status = published`, `valid_until IS NOT NULL`, and `valid_until < today` → set `status = draft`.
+2. Flag invoices where `status = published`, `payment_status IN (unpaid, partially_paid)`, and `due_date < today` → set `payment_status = overdue`.
 
 ---
 
@@ -442,6 +375,8 @@ This allows the array structure (order, count) to remain consistent across local
 
 ```
 companies
+clients
+services
 proposals
 invoices
 users (Filament default)
@@ -451,7 +386,9 @@ users (Filament default)
 
 ## Resolved Decisions
 
-1. **Recurring invoices:** ✅ Yes — "Create Renewal Invoice" action on proposals using `offer_1_renewal_price`, linked via `proposal_id`
-2. **Client portal:** ✅ No — clients view individual documents only
-3. **Digital signature:** ✅ No — not needed
-4. **Overdue auto-detection:** ✅ Scheduled artisan command — expires proposals (set to draft) and flags invoices (set payment_status to overdue)
+1. **Recurring invoices:** ✅ Yes — use "Create Renewal Invoice" action on proposals.
+2. **Client portal:** ✅ No — clients view individual documents only.
+3. **Digital signature:** ✅ No — not needed.
+4. **Overdue auto-detection:** ✅ Scheduled artisan command.
+5. **Client snapshot policy:** ✅ Proposal and Invoice keep frozen `client_*` fields; editing Client later does not mutate existing documents.
+6. **Service management:** ✅ Service is a first-class entity and can be created from Proposal/Invoice in one click.

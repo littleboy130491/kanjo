@@ -2,20 +2,21 @@
 
 ## Project Overview
 
-This is a **quotation and invoice management web app** for a web design agency with multiple brands. Read `PRD.md` in the project root **before doing anything**. The PRD is the single source of truth for all requirements, field definitions, and business logic.
+This is a quotation and invoice management web app for a web design agency with multiple brands. Read `PRD.md` in the project root before doing anything. The PRD is the single source of truth for all requirements, field definitions, and business logic.
 
-**Do not assume or invent requirements. If something is not in the PRD, ask.**
+Do not assume or invent requirements. If something is not in the PRD, ask.
 
 ---
 
 ## Critical Rules
 
-1. **Read PRD.md first.** Every task you do must align with the PRD. Re-read the relevant section before starting each phase.
-2. **Work in small steps.** One migration, one model, one resource at a time. Never scaffold multiple features in a single step.
-3. **Commit after every meaningful change.** A meaningful change is: one migration, one model, one resource, one action, one command, etc. Never bundle unrelated changes.
-4. **Test before committing.** Run migrations, check for syntax errors, verify the admin panel loads. Do not commit broken code.
-5. **Do not refactor ahead of need.** Build what the PRD specifies. No premature abstractions, no "nice to have" additions.
-6. **Ask before deviating.** If you encounter a decision not covered by the PRD, stop and ask rather than guessing.
+1. Read `PRD.md` first. Every task must align with the PRD.
+2. Work in small steps. One migration, one model, one resource, one action at a time.
+3. Commit after every meaningful change. Never bundle unrelated changes.
+4. Test before committing. Run migrations, check syntax, verify admin panel loads.
+5. Do not refactor ahead of need. Build only what PRD specifies.
+6. Ask before deviating. If PRD does not specify a decision, ask.
+7. If unsure about Filament APIs or patterns, verify against official Filament 5 docs first. If MCP reference docs are available, use them as secondary context.
 
 ---
 
@@ -28,7 +29,7 @@ This is a **quotation and invoice management web app** for a web design agency w
 | CSS | Tailwind CSS | Frontend views + PDF styling |
 | Dev Environment | Laravel Sail or Herd | Sail preferred for Browsershot (needs Node.js) |
 | Translations | Spatie Laravel Translatable | Dual language (EN/ID) |
-| Media | Curator (Filament plugin) | For logos, portfolio images, PIC signatures |
+| Media | Curator (Filament plugin) | Logos, portfolio images, PIC signatures |
 | PDF | Browsershot | Headless Chrome via Puppeteer |
 
 ---
@@ -37,33 +38,45 @@ This is a **quotation and invoice management web app** for a web design agency w
 
 Format: `type(scope): description`
 
-```
+```text
 feat(migration): create companies table
 feat(model): add Company model with translatable fields
 feat(resource): add CompanyResource with CRUD
+feat(migration): create clients table
+feat(model): add Client model with relationships
+feat(resource): add ClientResource with CRUD
+feat(migration): create services table
+feat(model): add Service model with relationships
+feat(resource): add ServiceResource with CRUD
 feat(migration): create proposals table
-feat(model): add Proposal model with relationships
+feat(model): add Proposal model with frozen client snapshot fields
 feat(resource): add ProposalResource table columns and filters
 feat(resource): add ProposalResource form with repeaters
+feat(migration): create invoices table
+feat(model): add Invoice model with frozen client snapshot fields
 feat(action): add convert-to-invoice action on Proposal
-feat(action): add duplicate action on Proposal
+feat(action): add create-client quick action on Proposal and Invoice
+feat(action): add create-service quick action on Proposal and Invoice
 feat(command): add documents:check-overdue artisan command
 fix(model): fix proposal numbering auto-increment logic
 refactor(resource): extract shared document number logic
 ```
 
-Keep commits **atomic**. One logical change per commit. If you find yourself writing "and" in the commit message, split it into two commits.
+Keep commits atomic. One logical change per commit.
 
 ---
 
 ## Development Phases
 
-Execute these phases **in order**. Complete each phase fully before moving to the next. Each phase lists the exact commits expected.
+Execute these phases in order. Complete each phase fully before moving to the next.
 
 ### Phase 1: Project Setup
 
 1. Install Laravel 12 with Sail
 2. Install and configure Filament 5
+   - Use official install flow for v5 panel builder:
+     - `composer require filament/filament:"^5.0"` (PowerShell fallback: `~5.0`)
+     - `php artisan filament:install --panels`
 3. Install Spatie Laravel Translatable
 4. Install Curator for Filament
 5. Install Browsershot
@@ -71,156 +84,163 @@ Execute these phases **in order**. Complete each phase fully before moving to th
 7. Configure Filament panel provider (branding, navigation groups)
 8. Configure supported locales: `en`, `id`
 
-**Verify:** Admin panel loads at `/admin`, login works.
+Verify: Admin panel loads at `/admin`, login works.
 
 ### Phase 2: Company Entity
 
-1. Create `companies` migration — follow the PRD field list exactly
-2. Create `Company` model — define `$casts` for JSON fields (`bank`, `pic`), set up Spatie translatable for `footer_text`
-3. Create `CompanyResource` — form with repeaters for `bank` and `pic` arrays, Curator media picker for `logo`
+1. Create `companies` migration exactly per PRD
+2. Create `Company` model (`$casts` for `bank`, `pic`; translatable `footer_text`)
+3. Create `CompanyResource` with repeaters for `bank` and `pic`, Curator media picker for `logo`
 4. Seed at least one test company
 
-**Verify:** Can create, edit, delete companies. Logo uploads work. Bank/PIC repeaters work.
+Verify: CRUD works, logo uploads work, repeaters work.
 
-### Phase 3: Proposal Entity
+### Phase 3: Client Entity
 
-1. Create `proposals` migration — follow the PRD field list exactly. Note: `decimal` fields should use `decimal(15, 2)`. JSON fields should be `json` type. Add foreign keys for `user_id` and `company_id`. Add soft deletes.
+1. Create `clients` migration exactly per PRD:
+   - `name`, `company`, `email`, `phone`
+   - `notes` JSON array (non-translatable)
+   - soft deletes
+2. Create `Client` model:
+   - `$casts` for `notes`
+   - relationships: `hasMany(Proposal)`, `hasMany(Invoice)`, `hasMany(Service)`
+3. Create `ClientResource` with full CRUD
+
+Verify: Can create/edit/delete clients, notes JSON works.
+
+### Phase 4: Service Entity
+
+1. Create `services` migration exactly per PRD:
+   - `name`, `domain`, `start_date`, `renewal_date`
+   - `status` enum: `terminated`, `on-going`, `suspended`
+   - `notes` JSON array (non-translatable)
+   - `client_id` FK
+   - soft deletes
+2. Create `Service` model:
+   - `$casts` for `notes`, `status`
+   - relationships: `belongsTo(Client)`, `hasMany(Proposal)`, `hasMany(Invoice)`
+3. Create `ServiceResource` with full CRUD
+
+Verify: CRUD works, client relation works, status filtering works.
+
+### Phase 5: Proposal Entity
+
+1. Create `proposals` migration exactly per PRD:
+   - Use `decimal(15, 2)` for decimal fields
+   - Use `json` for JSON fields
+   - Add soft deletes
+   - Add foreign keys for `user_id`, `company_id`, `client_id` (nullable), `service_id` (nullable)
+   - Add frozen snapshot fields: `client_company`, `client_name`, `client_email`, `client_phone`
 2. Create `Proposal` model:
-   - Define `$casts` for all JSON fields and enums
-   - Set up Spatie translatable for all translatable JSON fields (see PRD for which fields are translatable)
-   - Define relationships: `belongsTo(Company)`, `belongsTo(User)`, `hasMany(Invoice)`
-   - Add `booted()` method for auto-generating `document_number` on creating
+   - `$casts` for JSON fields and enums
+   - Spatie translatable setup for translatable fields only (per PRD)
+   - relationships: `belongsTo(Company)`, `belongsTo(User)`, `belongsTo(Client)` nullable, `belongsTo(Service)` nullable, `hasMany(Invoice)`
+   - `booted()` method for auto-generating `document_number`
 3. Create `ProposalResource` table:
-   - Columns as specified in PRD: `document_number`, `client_company`, `client_name`, `offer_1_price`, `status`, `issue_date`, `invoices_count`
-   - Filters as specified: `status`, `company_id`, `has_invoice` (ternary), `issue_date`, `created_at`, `valid_until` (all date filters as range pickers)
+   - Columns: `document_number`, `client_company`, `client_name`, `offer_1_price`, `status`, `issue_date`, `invoices_count`
+   - Filters: `status`, `company_id`, `has_invoice`, `issue_date`, `created_at`, `valid_until`
    - Searchable: `client_name`, `client_company`, `document_number`
    - Default sort: `created_at` desc
 4. Create `ProposalResource` form:
-   - Section: Client Info (`client_company`, `client_name`, `client_email`)
-   - Section: Document Settings (`document_number` fields, `issue_date`, `valid_until`, `currency`, `company_id`, `status`, `access_username`, `access_password`)
-   - Section: Brief (repeater, translatable)
-   - Section: Portfolios (repeater, non-translatable — `portfolio_name`, `portfolio_image_url`, `portfolio_link`)
-   - Sections for each translatable array: Core Services, Features, Server, Assets, Security, Support
-   - Section: Offer 1 (name, prices, timeline repeater)
-   - Section: Offer 2 (same structure, all nullable)
-   - Section: Additional Benefits, Add-ons, Payment, Terms & Conditions (repeaters)
-   - Section: Tax & Totals (tax_rate, computed tax_amount, computed total_amount)
-   - Section: Internal (`notes`)
+   - Client section uses snapshot fields (`client_company`, `client_name`, `client_email`, `client_phone`)
+   - Add optional `client_id` selector for reference only
+   - Add optional `service_id` selector
+   - Include all PRD sections and repeaters
+5. Snapshot rule:
+   - When proposal is created from selected client, copy client values into snapshot fields
+   - Proposal snapshot fields do not auto-sync when client record changes
 
-**Verify:** Can create a full proposal with all fields. Translatable fields show EN/ID tabs. Repeaters add/remove items. Document number auto-generates.
+Verify: Full proposal CRUD works, repeaters/translations work, number auto-generates, snapshot behavior is correct.
 
-### Phase 4: Invoice Entity
+### Phase 6: Invoice Entity
 
-1. Create `invoices` migration — follow PRD exactly. Foreign keys for `proposal_id` (nullable), `user_id`, `company_id`. Soft deletes.
+1. Create `invoices` migration exactly per PRD:
+   - Add foreign keys for `proposal_id` (nullable), `user_id`, `company_id`, `client_id` (nullable), `service_id` (nullable)
+   - Add frozen snapshot fields: `client_company`, `client_name`, `client_email`, `client_phone`
+   - Soft deletes
 2. Create `Invoice` model:
    - `$casts`, translatable fields, relationships
-   - `belongsTo(Proposal)` (nullable), `belongsTo(Company)`, `belongsTo(User)`
-   - Auto-generate `document_number` on creating
+   - relationships: `belongsTo(Proposal)` nullable, `belongsTo(Company)`, `belongsTo(User)`, `belongsTo(Client)` nullable, `belongsTo(Service)` nullable
+   - auto-generate `document_number` on creating
 3. Create `InvoiceResource` table:
-   - Columns as PRD: `document_number`, `client_company`, `client_name`, `total`, `payment_status`, `status`, `issue_date`, `due_date`, `proposal` (link)
-   - Filters as PRD: `status`, `payment_status`, `company_id`, `has_proposal` (ternary), `issue_date`, `due_date`, `created_at`
+   - Columns: `document_number`, `client_company`, `client_name`, `total`, `payment_status`, `status`, `issue_date`, `due_date`, `proposal`
+   - Filters: `status`, `payment_status`, `company_id`, `has_proposal`, `issue_date`, `due_date`, `created_at`
    - Searchable: `client_name`, `client_company`, `document_number`
 4. Create `InvoiceResource` form:
-   - Simpler than proposal: client info, document settings, items repeater, tax/totals, payment status fields, notes
+   - Client section uses snapshot fields plus optional `client_id` reference
+   - Optional `service_id`
+   - Items repeater, tax/totals, payment status, notes
+5. Snapshot rule:
+   - Invoice snapshot fields do not auto-sync when client record changes
 
-**Verify:** Can create invoices manually. All filters and search work. Proposal link shows when linked.
+Verify: Invoice CRUD works, filters/search work, snapshot behavior is correct.
 
-### Phase 5: Document Numbering Logic
+### Phase 7: Document Numbering Logic
 
-1. Create a shared service/trait: `DocumentNumberGenerator`
-   - Input: document type (`QUO` or `INV`), optional suffix override
-   - Logic: query the max `document_number_raw` for this type + current month + current year, increment by 1
-   - Format: `{TYPE}/{NUM padded to 3 digits}/{ROMAN_MONTH}/{YY}/{SUFFIX}`
-   - Roman month mapping: `1 => 'I', 2 => 'II', ... 12 => 'XII'`
-2. Integrate into Proposal and Invoice model `creating` events
-3. Add manual override: if `document_number_override` is true, skip auto-generation
-4. Add validation: compound unique on `type + raw_number + month + year`
+1. Create shared `DocumentNumberGenerator`
+2. Integrate in Proposal and Invoice `creating` events
+3. Manual override: skip generation if `document_number_override` is true
+4. Validate unique on `type + raw_number + month + year`
 
-**Verify:** Create multiple proposals in same month — numbers increment. New month resets to 001. Manual override works. Duplicate numbers are rejected.
+Verify: increment and monthly reset work, manual override works, duplicates rejected.
 
-### Phase 6: Custom Actions
+### Phase 8: Custom Actions
 
-1. **Convert to Invoice** (Proposal action):
-   - Creates new Invoice with frozen client info from proposal
-   - Copies: `client_company`, `client_name`, `client_email`, `company_id`, `user_id`, `currency`, `tax_rate`, `access_username`, `access_password`
-   - Generates items from Offer 1: `offer_name_1` → item title, `offer_1_price` → item price
-   - Sets `proposal_id`, `status = draft`, `payment_status = unpaid`
-   - Redirects to new invoice edit page
-2. **Create Renewal Invoice** (Proposal action):
-   - Same as above but uses `offer_1_renewal_price` instead of `offer_1_price`
-   - Item title: `"{offer_name_1} — Renewal"`
-3. **Duplicate Proposal** (Proposal action):
-   - Clones all fields
-   - Resets: fresh `document_number` (auto-generated), `status = draft`, `document_number_override = false`
-   - Clears: `deleted_at`
-4. **Duplicate Invoice** (Invoice action):
-   - Same clone logic as proposal duplication
-   - Resets: fresh `document_number`, `status = draft`, `payment_status = unpaid`, `paid_amount = 0`, `paid_at = null`, `payment_method = null`
-5. **Mark as Paid** (Invoice action):
-   - Modal form: `paid_amount`, `payment_method`, `paid_at` (default now)
-   - Updates `payment_status` to `paid` (or `partially_paid` if `paid_amount < total`)
-6. **View Proposal** (Invoice action):
-   - Simple URL action, visible only when `proposal_id` is not null
-   - Links to ProposalResource edit page
+1. Convert to Invoice (Proposal action):
+   - Create Invoice with frozen snapshot fields copied from Proposal
+   - Copy `client_id` and `service_id` as optional references
+   - Generate item from Offer 1
+   - Set `proposal_id`, `status = draft`, `payment_status = unpaid`
+2. Create Renewal Invoice (Proposal action):
+   - Same as above but use `offer_1_renewal_price`
+3. Duplicate Proposal
+4. Duplicate Invoice
+5. Mark as Paid
+6. View Proposal (Invoice action)
+7. Create Client (Proposal and Invoice quick action):
+   - Build client from snapshot fields
+   - Save new `client_id` without overwriting existing snapshot content
+8. Create Service (Proposal and Invoice quick action):
+   - Build service and auto-link selected `client_id`
 
-**Verify:** Each action works end-to-end. Conversion creates correct invoice. Renewal uses renewal price. Duplicate produces valid independent copy. Mark as Paid updates status correctly.
+Verify: each action works end-to-end with snapshot rules preserved.
 
-### Phase 7: Dashboard Widgets
+### Phase 9: Dashboard Widgets
 
-1. **Total Outstanding** — `Invoice::where('status', 'published')->whereIn('payment_status', ['unpaid', 'partially_paid', 'overdue'])->sum('total')`
-2. **Overdue Invoices** — count where `payment_status = 'overdue'`
-3. **Pending Proposals** — published proposals with zero linked invoices
-4. **Revenue This Month** — sum of `paid_amount` where `paid_at` is in current month
+1. Total Outstanding
+2. Overdue Invoices
+3. Pending Proposals
+4. Revenue This Month
 
-**Verify:** Widgets show correct numbers. Create test data and confirm calculations.
+Verify: widget values match seeded data.
 
-### Phase 8: Scheduled Command
+### Phase 10: Scheduled Command
 
-1. Create `app/Console/Commands/CheckOverdueDocuments.php`
-   - Signature: `documents:check-overdue`
-   - Expire proposals: `status = published`, `valid_until IS NOT NULL`, `valid_until < today` → set `status = draft`
-   - Flag invoices: `status = published`, `payment_status IN (unpaid, partially_paid)`, `due_date < today` → set `payment_status = overdue`
-   - Log count of affected records
-   - Idempotent: already-expired/overdue records are excluded by the query conditions
-2. Register in `routes/console.php` or scheduler: `->daily()`
+1. Create `documents:check-overdue`
+2. Expire proposals past `valid_until`
+3. Mark overdue invoices past `due_date`
+4. Schedule daily
 
-**Verify:** Run manually with `php artisan documents:check-overdue`. Create test proposal past `valid_until` — should become draft. Create test invoice past `due_date` — should become overdue. Run twice — no duplicate changes.
+Verify: idempotent behavior.
 
-### Phase 9: Frontend (Client-Facing Views)
+### Phase 11: Frontend (Client-Facing Views)
 
-1. Create middleware: `DocumentAccessMiddleware`
-   - Check per-document `access_username`/`access_password` first
-   - Fall back to `.env` `GLOBAL_ACCESS_USERNAME`/`GLOBAL_ACCESS_PASSWORD`
-   - Store authentication in session per document
-2. Create routes: `/proposal/{proposal}`, `/invoice/{invoice}`
-   - Use `slug` or `document_number` for URL (decide and be consistent)
-   - Apply middleware
-3. Create Blade views for Proposal:
-   - Render all proposal sections with company branding
-   - Use Tailwind CSS
-   - Respect current locale (`?lang=en` or `?lang=id`)
-   - Include "Download PDF" button
-4. Create Blade views for Invoice:
-   - Render invoice with company letterhead, items table, totals, bank details
-   - Include "Download PDF" button
-5. Create auth gate view (simple username/password form, no registration)
+1. `DocumentAccessMiddleware`
+2. Routes for proposal/invoice views
+3. Proposal blade
+4. Invoice blade
+5. Auth gate view
 
-**Verify:** Client can access published document with correct credentials. Draft documents return 404. Language switcher works. PDF download works.
+Verify: published docs accessible with credentials, draft docs 404, language switch works.
 
-### Phase 10: PDF Generation
+### Phase 12: PDF Generation
 
-1. Create a dedicated Blade layout for PDF (print-optimized)
-   - Proper margins, page breaks
-   - Company letterhead with logo, colors from `color_primary`/`color_secondary`
-   - Footer with company info
-2. Create PDF controller/action using Browsershot:
-   - Render the Blade view to HTML
-   - Pass through Browsershot for PDF conversion
-   - Return as download
-3. Add "Generate PDF" action in Filament (both Proposal and Invoice resources)
-4. Add "Download PDF" button on frontend views
+1. Dedicated print layout
+2. Browsershot controller/action
+3. Filament Generate PDF actions
+4. Frontend Download PDF buttons
 
-**Verify:** PDF matches the HTML view. Multi-page proposals break correctly. Company branding renders. Both admin and client can download.
+Verify: PDF output matches HTML and branding.
 
 ---
 
@@ -228,118 +248,140 @@ Execute these phases **in order**. Complete each phase fully before moving to th
 
 ### Document Numbering
 
-The numbering system is critical. Read the PRD section carefully. Key points:
 - Monthly reset on auto-increment
 - Compound unique constraint prevents duplicates
-- Admin can override the full number manually
-- The suffix (default `NEW`) is per-document, not global
+- Admin can override full number
+- Suffix default `NEW` is per-document
 
 ### Translation Strategy
 
-Translatable JSON arrays use **per-sub-field translation**, not whole-array swapping:
+Translatable JSON arrays use per-sub-field translation, not whole-array swapping.
 
-```json
-// CORRECT — each text sub-field has locale keys
-{
-  "feature_name": { "en": "Responsive", "id": "Responsif" },
-  "feature_description": { "en": "Works on all devices", "id": "Berfungsi di semua perangkat" }
-}
+### Proposal -> Invoice Relationship
 
-// WRONG — do not swap the entire array per locale
-"features": { "en": [...], "id": [...] }
-```
-
-Non-translatable arrays (portfolios, bank, pic) use plain values.
-
-### Proposal → Invoice Relationship
-
-One proposal can have many invoices (initial + renewals). Client info is **copied and frozen** on the invoice at creation time, not referenced via relationship. This ensures invoice records are immutable snapshots even if the proposal changes later.
+- One proposal can have many invoices.
+- Client data on proposal and invoice is a frozen snapshot (`client_*` fields).
+- Existing documents must not change when the client master record is edited.
+- `client_id` is optional reference for navigation and convenience only.
 
 ### Client Access
 
-No user accounts for clients. Simple username/password gate per document with `.env` fallback. Session-based, no tokens. Keep it simple.
+No user accounts for clients. Use username/password gate per document with `.env` fallback.
 
 ### Computed Fields
 
-`tax_amount`, `subtotal`, `total`, `total_amount` should be computed and stored on save (not calculated on-the-fly in views). Use model `saving` or `creating` events, or Filament `afterStateUpdated` reactive form logic. Store the computed value so it can be used in dashboard queries without recalculation.
+`tax_amount`, `subtotal`, `total`, `total_amount` are computed and stored on save.
+
+---
+
+## Filament 5 Conventions
+
+Follow these conventions unless PRD explicitly says otherwise:
+
+1. Generate scaffolding with Filament commands instead of hand-rolling:
+   - `php artisan make:filament-resource ModelName`
+   - add `--soft-deletes` when entity uses soft deletes
+2. Keep the v5 resource structure:
+   - resource class in `app/Filament/Resources/*Resource.php`
+   - pages in `app/Filament/Resources/*Resource/Pages/`
+   - by default, Filament may generate separate `Schemas/*Form.php` and `Tables/*Table.php`; keep this pattern if generated
+3. Use v5 schema/table APIs:
+   - form schema methods should use `Filament\Schemas\Schema`
+   - table methods should use `Filament\Tables\Table`
+   - prefer `->recordActions([...])` / `->toolbarActions([...])` patterns used by v5 docs
+4. Keep page routing in `getPages()` using Filament page classes (`List*`, `Create*`, `Edit*`, `View*`) and route definitions.
+5. Panel configuration must live in a panel provider (`AdminPanelProvider`) via `panel(Panel $panel): Panel`.
+6. Navigation, filters, actions, and widgets should use first-party Filament components before custom implementations.
+7. For plugin usage (for example Curator), follow plugin docs for Filament 5 compatibility before implementation.
+
+Verification workflow when uncertain:
+- First source: official docs at `https://filamentphp.com/docs/5.x`
+- Second source: installed MCP docs/resources when available in the environment
+- If neither is available, state assumptions explicitly in commit message and PR notes
 
 ---
 
 ## Code Style
 
-- Follow Laravel conventions (PSR-12, snake_case for DB columns, camelCase for PHP methods)
-- Use Filament conventions for resources, forms, tables, actions
-- Use enums for `status` and `payment_status` (PHP 8.1+ backed enums)
-- JSON fields: cast to `array` in model `$casts`
-- Translatable fields: use Spatie's `$translatable` array on the model
-- Decimal fields: use `decimal(15, 2)` in migrations
-- Always add `->nullable()` where the PRD says nullable
-- Always add `->default()` where the PRD specifies a default
-- Foreign keys: use `->constrained()->cascadeOnDelete()` for `company_id` and `user_id`, use `->constrained()->nullOnDelete()` for `proposal_id`
+- Follow Laravel conventions (PSR-12, snake_case DB columns, camelCase methods)
+- Follow Filament 5 naming and file conventions from generated scaffolding
+- Use enums for statuses
+- JSON fields cast to `array`
+- Spatie translatable only for true translatable fields
+- Decimal fields use `decimal(15, 2)`
+- Respect PRD nullable/default requirements
+- Foreign keys:
+  - `company_id`, `user_id` => `constrained()->cascadeOnDelete()`
+  - `proposal_id`, `client_id`, `service_id` => `constrained()->nullOnDelete()` when nullable
 
 ---
 
 ## File Structure (Expected)
 
-```
+```text
 app/
-├── Console/Commands/
-│   └── CheckOverdueDocuments.php
-├── Enums/
-│   ├── DocumentStatus.php          // draft, published
-│   └── PaymentStatus.php           // unpaid, partially_paid, paid, overdue, cancelled
-├── Filament/
-│   ├── Resources/
-│   │   ├── CompanyResource.php
-│   │   ├── CompanyResource/Pages/
-│   │   ├── ProposalResource.php
-│   │   ├── ProposalResource/Pages/
-│   │   ├── InvoiceResource.php
-│   │   └── InvoiceResource/Pages/
-│   └── Widgets/
-│       ├── TotalOutstandingWidget.php
-│       ├── OverdueInvoicesWidget.php
-│       ├── PendingProposalsWidget.php
-│       └── RevenueThisMonthWidget.php
-├── Http/
-│   ├── Controllers/
-│   │   ├── ProposalViewController.php
-│   │   ├── InvoiceViewController.php
-│   │   └── PdfController.php
-│   └── Middleware/
-│       └── DocumentAccessMiddleware.php
-├── Models/
-│   ├── Company.php
-│   ├── Proposal.php
-│   ├── Invoice.php
-│   └── User.php
-├── Services/
-│   └── DocumentNumberGenerator.php
+  Console/Commands/
+    CheckOverdueDocuments.php
+  Enums/
+    DocumentStatus.php
+    PaymentStatus.php
+    ServiceStatus.php
+  Filament/
+    Resources/
+      CompanyResource.php
+      CompanyResource/Pages/
+      ClientResource.php
+      ClientResource/Pages/
+      ServiceResource.php
+      ServiceResource/Pages/
+      ProposalResource.php
+      ProposalResource/Pages/
+      InvoiceResource.php
+      InvoiceResource/Pages/
+    Widgets/
+      TotalOutstandingWidget.php
+      OverdueInvoicesWidget.php
+      PendingProposalsWidget.php
+      RevenueThisMonthWidget.php
+  Http/
+    Controllers/
+      ProposalViewController.php
+      InvoiceViewController.php
+      PdfController.php
+    Middleware/
+      DocumentAccessMiddleware.php
+  Models/
+    Company.php
+    Client.php
+    Service.php
+    Proposal.php
+    Invoice.php
+    User.php
+  Services/
+    DocumentNumberGenerator.php
 database/
-├── migrations/
-│   ├── xxxx_create_companies_table.php
-│   ├── xxxx_create_proposals_table.php
-│   └── xxxx_create_invoices_table.php
+  migrations/
+    xxxx_create_companies_table.php
+    xxxx_create_clients_table.php
+    xxxx_create_services_table.php
+    xxxx_create_proposals_table.php
+    xxxx_create_invoices_table.php
 resources/
-├── views/
-│   ├── proposals/
-│   │   └── show.blade.php
-│   ├── invoices/
-│   │   └── show.blade.php
-│   ├── pdf/
-│   │   ├── proposal.blade.php
-│   │   └── invoice.blade.php
-│   └── auth/
-│       └── document-access.blade.php
+  views/
+    proposals/show.blade.php
+    invoices/show.blade.php
+    pdf/proposal.blade.php
+    pdf/invoice.blade.php
+    auth/document-access.blade.php
 ```
 
 ---
 
 ## Common Pitfalls
 
-- **Do not use `$table->id()` shorthand if you need `bigIncrements` explicitly** — actually `id()` is fine in Laravel 12, it uses bigIncrements.
-- **Spatie Translatable + JSON arrays:** The model's `$translatable` property handles top-level column translation. For translatable sub-fields inside JSON arrays, you handle this in the Filament form (translation tabs per repeater item) and store the locale keys in the JSON structure itself. Do not put JSON column names in `$translatable`.
-- **Browsershot needs Node.js and Puppeteer.** In Sail, make sure the container has Node installed. In production, `npm install puppeteer` must be run.
-- **Filament repeaters for JSON fields:** Use `->schema([...])` not `->relationship()`. These are JSON columns, not separate tables.
-- **Document number generation race condition:** Use database-level locking (`lockForUpdate()`) when querying the max number to prevent duplicates under concurrent requests.
-- **Soft deletes:** Both proposals and invoices use soft deletes. Make sure Filament resources include `SoftDeletes` trait support (restore/force delete actions).
+- Do not auto-sync `client_*` snapshot fields from `client_id` after document creation.
+- Spatie translatable does not automatically translate nested JSON array structures.
+- Browsershot requires Node.js and Puppeteer.
+- Use repeater `->schema([...])` for JSON columns, not `->relationship()`.
+- Prevent document-number race conditions with DB locking.
+- Proposals, invoices, clients, and services use soft deletes.
