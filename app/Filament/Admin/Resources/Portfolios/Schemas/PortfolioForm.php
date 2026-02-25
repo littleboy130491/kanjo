@@ -29,7 +29,7 @@ class PortfolioForm
                     ->maxLength(255)
                     ->helperText('Link to the live project or case study'),
             ])
-            ->columns(2);
+            ->columnSpanFull();
     }
 
     public static function configure(Schema $schema): Schema

@@ -33,7 +33,7 @@ class CompanyForm
                             ->imageResizeTargetWidth('300')
                             ->imageResizeTargetHeight('300'),
                     ])
-                    ->columns(2),
+                    ->columnSpanFull(),
 
                 Section::make('Contact Information')
                     ->schema([
@@ -65,7 +65,7 @@ class CompanyForm
                             ->nullable()
                             ->maxLength(255),
                     ])
-                    ->columns(2),
+                    ->columnSpanFull(),
 
                 Section::make('Branding & Currency')
                     ->schema([
@@ -86,7 +86,7 @@ class CompanyForm
                             ->placeholder('#FFFFFF')
                             ->maxLength(7),
                     ])
-                    ->columns(3),
+                    ->columnSpanFull(),
 
                 Section::make('Footer Text')
                     ->schema([
@@ -99,7 +99,8 @@ class CompanyForm
                             ])
                             ->locales(['en', 'id'])
                             ->suffixLocaleLabel(),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
 
                 Section::make('Bank Accounts')
                     ->schema([
@@ -119,8 +120,9 @@ class CompanyForm
                             ->reorderable()
                             ->deletable()
                             ->default([])
-                            ->columns(3),
-                    ]),
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull(),
 
                 Section::make('Person in Charge (PIC)')
                     ->schema([
@@ -141,8 +143,9 @@ class CompanyForm
                             ->reorderable()
                             ->deletable()
                             ->default([])
-                            ->columns(3),
-                    ]),
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 }

@@ -37,7 +37,7 @@ class ClientForm
                     ->tel()
                     ->maxLength(255),
             ])
-            ->columns(2);
+            ->columnSpanFull();
     }
 
     public static function getNotesSection(): Section
@@ -52,7 +52,9 @@ class ClientForm
                     ])
                     ->columns(1)
                     ->addActionLabel('Add Note'),
-            ]);
+            ])
+            ->columnSpanFull();
     }
+
 
 }

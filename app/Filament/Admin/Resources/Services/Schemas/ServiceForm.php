@@ -34,12 +34,8 @@ class ServiceForm
                             ->preload(),
                         Select::make('status')
                             ->label('Status')
-                            ->options([
-                                'on-going' => 'On Going',
-                                'suspended' => 'Suspended',
-                                'terminated' => 'Terminated',
-                            ])
-                            ->default('on-going')
+                            ->options(ServiceStatus::class)
+                            ->default(ServiceStatus::ON_GOING->value)
                             ->required(),
                     ])
                     ->columns(2),
@@ -65,12 +61,12 @@ class ServiceForm
                             ->schema([
                                 TextInput::make('note')
                                     ->label('Note')
-                                    ->required()
                                     ->maxLength(500),
                             ])
                             ->columns(1)
                             ->addActionLabel('Add Note'),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 }
