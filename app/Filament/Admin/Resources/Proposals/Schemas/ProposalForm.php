@@ -585,11 +585,18 @@ class ProposalForm
 
                                 Section::make('Notes')
                                     ->schema([
-                                        Textarea::make('notes')
-                                            ->label('Internal Notes')
-                                            ->rows(4)
-                                            ->columnSpanFull()
-                                            ->helperText('Not shown on the frontend or PDF'),
+                                        Repeater::make('notes')
+                                            ->schema([
+                                                Textarea::make('note')
+                                                    ->label('Note')
+                                                    ->rows(2)
+                                                    ->columnSpanFull(),
+                                            ])
+                                            ->addable()
+                                            ->reorderable()
+                                            ->deletable()
+                                            ->default([])
+                                            ->columnSpanFull(),
                                     ]),
                             ]),
                     ])

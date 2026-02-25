@@ -2,6 +2,12 @@
 
 namespace App\Filament\Admin\Resources\Invoices\Schemas;
 
+use App\Enums\DocumentStatus;
+use App\Enums\PaymentStatus;
+use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\Service;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -11,6 +17,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
@@ -29,57 +36,58 @@ class InvoiceForm
                                     ->schema([
                                         TextInput::make('document_number')
                                             ->label('Document Number')
-                                            ->readonly()
-                                            ->placeholder('Auto-generated')
-                                            ->columnSpan(2),
+                                            ->disabled()
+                                            ->dehydrated(false)
+                                            ->placeholder('Auto-generated'),
                                         TextInput::make('document_number_suffix')
                                             ->label('Suffix')
-                                            ->maxLength(50)
-                                            ->fullWidth(),
+                                            ->default('DP')
+                                            ->maxLength(10)
+                                            ->helperText('DP / LN / REN / REV'),
                                         Toggle::make('document_number_override')
                                             ->label('Override Document Number')
-                                            ->helperText('Enable to manually enter custom document number suffix')
+                                            ->helperText('Enable to manually set the full document number')
+                                            ->live()
                                             ->default(false),
+                                        TextInput::make('document_number_manual')
+                                            ->label('Manual Document Number')
+                                            ->maxLength(255)
+                                            ->visible(fn (Get $get): bool => $get('document_number_override'))
+                                            ->required(fn (Get $get): bool => $get('document_number_override')),
                                     ])
-                                    ->columns(3),
+                                    ->columns(2),
 
                                 Section::make('Document Details')
                                     ->schema([
                                         Select::make('company_id')
                                             ->label('Company')
-                                            ->relationship('company', 'brand_name')
+                                            ->options(fn () => Company::pluck('brand_name', 'id'))
+                                            ->default(fn () => Company::first()?->id)
                                             ->required()
-                                            ->searchable()
-                                            ->preload(),
+                                            ->searchable(),
                                         Select::make('proposal_id')
                                             ->label('Proposal (Optional)')
-                                            ->relationship('proposal', 'document_number')
+                                            ->options(fn () => \App\Models\Proposal::pluck('document_number', 'id'))
                                             ->searchable()
                                             ->preload()
                                             ->placeholder('Not linked to a proposal')
                                             ->native(false),
                                         Select::make('status')
-                                            ->options([
-                                                'draft' => 'Draft',
-                                                'published' => 'Published',
-                                            ])
-                                            ->default('draft')
+                                            ->options(DocumentStatus::class)
+                                            ->enum(DocumentStatus::class)
+                                            ->default(DocumentStatus::DRAFT)
                                             ->required(),
                                         Select::make('payment_status')
-                                            ->options([
-                                                'unpaid' => 'Unpaid',
-                                                'partially_paid' => 'Partially Paid',
-                                                'paid' => 'Paid',
-                                                'overdue' => 'Overdue',
-                                                'cancelled' => 'Cancelled',
-                                            ])
-                                            ->default('unpaid')
+                                            ->options(PaymentStatus::class)
+                                            ->enum(PaymentStatus::class)
+                                            ->default(PaymentStatus::UNPAID)
                                             ->required(),
                                         DatePicker::make('issue_date')
                                             ->required()
                                             ->default(now()),
                                         DatePicker::make('due_date')
-                                            ->required(),
+                                            ->required()
+                                            ->default(now()->addDays(30)),
                                     ])
                                     ->columns(2),
                             ]),
@@ -87,6 +95,36 @@ class InvoiceForm
                         Tab::make('Client Info')
                             ->icon('heroicon-o-user')
                             ->schema([
+                                Section::make('Select Client (Optional)')
+                                    ->schema([
+                                        Select::make('client_id')
+                                            ->label('Load from Client Database')
+                                            ->options(fn () => Client::orderBy('company')->pluck('company', 'id'))
+                                            ->searchable()
+                                            ->live()
+                                            ->preload()
+                                            ->nullable()
+                                            ->helperText('Select a client to auto-fill the fields below. The data will be saved to this invoice, not linked.')
+                                            ->createOptionUsing(function (array $data): int {
+                                                $client = Client::create($data);
+                                                return $client->getKey();
+                                            })
+                                            ->createOptionForm(schema: [
+                                                ClientForm::getClientInformationSection(),
+                                                ClientForm::getNotesSection(),
+                                            ])
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    $client = Client::find($state);
+                                                    if ($client) {
+                                                        $set('client_company', $client->company);
+                                                        $set('client_name', $client->name);
+                                                        $set('client_email', $client->email);
+                                                        $set('client_phone', $client->phone);
+                                                    }
+                                                }
+                                            }),
+                                    ]),
                                 Section::make('Client Information')
                                     ->schema([
                                         TextInput::make('client_company')
@@ -94,20 +132,38 @@ class InvoiceForm
                                             ->required()
                                             ->maxLength(255),
                                         TextInput::make('client_name')
-                                            ->label('Contact Name')
+                                            ->label('Contact Person')
                                             ->required()
                                             ->maxLength(255),
                                         TextInput::make('client_email')
                                             ->label('Email')
                                             ->email()
-                                            ->required()
+                                            ->maxLength(255),
+                                        TextInput::make('client_phone')
+                                            ->label('Phone')
+                                            ->tel()
                                             ->maxLength(255),
                                     ])
                                     ->columns(2),
+
+                                Section::make('Related Service (Optional)')
+                                    ->schema([
+                                        Select::make('service_id')
+                                            ->label('Link to Service')
+                                            ->options(fn () => Service::with('client')
+                                                ->get()
+                                                ->mapWithKeys(fn ($service) => [
+                                                    $service->id => $service->name . ' - ' . ($service->client?->company ?? 'No Client')
+                                                ]))
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->helperText('Optional: Link this invoice to an existing service'),
+                                    ]),
                             ]),
 
-                        Tab::make('Items')
-                            ->icon('heroicon-o-list-bullet')
+                        Tab::make('Financials')
+                            ->icon('heroicon-o-currency-dollar')
                             ->schema([
                                 Section::make('Invoice Items')
                                     ->schema([
@@ -117,17 +173,20 @@ class InvoiceForm
                                                     ->schema([
                                                         TextInput::make('title')
                                                             ->required()
-                                                            ->maxLength(255),
-                                                        Textarea::make('description')
-                                                            ->rows(2)
-                                                            ->nullable(),
+                                                            ->maxLength(255)
+                                                            ->columnSpan(1),
                                                         TextInput::make('price')
                                                             ->required()
                                                             ->numeric()
                                                             ->inputMode('decimal')
-                                                            ->prefix(fn ($state, $get) => $get('../../currency') ?? 'IDR'),
+                                                            ->prefix(fn ($state, $get) => $get('../../currency') ?? 'IDR')
+                                                            ->columnSpan(1),
+                                                        Textarea::make('description')
+                                                            ->rows(2)
+                                                            ->nullable()
+                                                            ->columnSpanFull(),
                                                     ])
-                                                    ->columns(3)
+                                                    ->columns(2)
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
@@ -136,11 +195,7 @@ class InvoiceForm
                                             ->locales(['en', 'id'])
                                             ->suffixLocaleLabel(),
                                     ]),
-                            ]),
 
-                        Tab::make('Financials')
-                            ->icon('heroicon-o-currency-dollar')
-                            ->schema([
                                 Section::make('Currency & Tax')
                                     ->schema([
                                         Select::make('currency')
@@ -156,6 +211,7 @@ class InvoiceForm
                                             ->numeric()
                                             ->inputMode('decimal')
                                             ->default(0)
+                                            ->required()
                                             ->suffix('%'),
                                     ])
                                     ->columns(2),
@@ -176,37 +232,6 @@ class InvoiceForm
                                             ->placeholder('Auto-calculated'),
                                     ])
                                     ->columns(3),
-                            ]),
-
-                        Tab::make('Payment')
-                            ->icon('heroicon-o-credit-card')
-                            ->schema([
-                                Section::make('Payment Details')
-                                    ->schema([
-                                        TextInput::make('paid_amount')
-                                            ->label('Paid Amount')
-                                            ->numeric()
-                                            ->inputMode('decimal')
-                                            ->default(0)
-                                            ->prefix(fn ($state, $get) => $get('currency') ?? 'IDR'),
-                                        Select::make('payment_method')
-                                            ->options([
-                                                'bank_transfer' => 'Bank Transfer',
-                                                'cash' => 'Cash',
-                                                'credit_card' => 'Credit Card',
-                                                'debit_card' => 'Debit Card',
-                                                'check' => 'Check',
-                                                'paypal' => 'PayPal',
-                                                'other' => 'Other',
-                                            ])
-                                            ->nullable()
-                                            ->placeholder('Select payment method'),
-                                        DatePicker::make('paid_at')
-                                            ->label('Paid At')
-                                            ->nullable()
-                                            ->placeholder('Not yet paid'),
-                                    ])
-                                    ->columns(2),
                             ]),
 
                         Tab::make('Internal')
@@ -231,14 +256,23 @@ class InvoiceForm
 
                                 Section::make('Notes')
                                     ->schema([
-                                        Textarea::make('notes')
-                                            ->rows(4)
-                                            ->nullable()
+                                        Repeater::make('notes')
+                                            ->schema([
+                                                Textarea::make('note')
+                                                    ->label('Note')
+                                                    ->rows(2)
+                                                    ->columnSpanFull(),
+                                            ])
+                                            ->addable()
+                                            ->reorderable()
+                                            ->deletable()
+                                            ->default([])
                                             ->columnSpanFull(),
                                     ]),
                             ]),
                     ])
-                    ->persistTabInQueryString(),
+                    ->persistTabInQueryString()
+                    ->columnSpanFull(),
             ]);
     }
 }

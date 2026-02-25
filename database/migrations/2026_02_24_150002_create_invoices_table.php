@@ -44,11 +44,6 @@ return new class extends Migration
             $table->enum('status', ['draft', 'published'])->default('draft');
             $table->enum('payment_status', ['unpaid', 'partially_paid', 'paid', 'overdue', 'cancelled'])->default('unpaid');
 
-            // Payment tracking
-            $table->decimal('paid_amount', 15, 2)->default(0);
-            $table->timestamp('paid_at')->nullable();
-            $table->string('payment_method')->nullable();
-
             // Access
             $table->string('access_username')->nullable();
             $table->string('access_password')->nullable();
