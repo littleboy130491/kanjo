@@ -76,7 +76,7 @@ return new class extends Migration
             $table->string('access_password')->nullable();
 
             // Internal
-            $table->text('notes')->nullable();
+            $table->json('notes')->nullable();
 
             // Relations
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();

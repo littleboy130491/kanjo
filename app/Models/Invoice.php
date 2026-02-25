@@ -62,6 +62,8 @@ class Invoice extends Model
         'paid_amount' => 'decimal:2',
         'status' => DocumentStatus::class,
         'payment_status' => PaymentStatus::class,
+        'items' => 'array',
+        'notes' => 'array',
     ];
 
     protected static function booted()

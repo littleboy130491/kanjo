@@ -49,7 +49,7 @@ return new class extends Migration
             $table->string('access_password')->nullable();
 
             // Internal
-            $table->text('notes')->nullable();
+            $table->json('notes')->nullable();
 
             // Relations
             $table->foreignId('proposal_id')->nullable()->constrained()->nullOnDelete();

@@ -176,7 +176,7 @@ Represents the brands/companies that issue documents.
 | `tax_rate` | decimal | no | percentage, default 11 (PPN) |
 | `tax_amount` | decimal | no | computed |
 | `total_amount` | decimal | no | computed |
-| `notes` | text | no | Internal, not shown on frontend |
+| `notes` | JSON array | no | Internal, not shown on frontend |
 | `status` | enum | no | `draft`, `published` |
 | `access_username` | string | no | nullable, per-record override |
 | `access_password` | string | no | nullable, hashed, per-record override |
@@ -211,7 +211,7 @@ Represents the brands/companies that issue documents.
 | `tax_amount` | decimal | no | computed |
 | `subtotal` | decimal | no | computed |
 | `total` | decimal | no | computed |
-| `notes` | text | no | Internal |
+| `notes` | JSON array | no | Internal |
 | `status` | enum | no | `draft`, `published` |
 | `payment_status` | enum | no | `unpaid`, `partially_paid`, `paid`, `overdue`, `cancelled` |
 | `paid_amount` | decimal | no | Default 0 |
@@ -343,7 +343,7 @@ Proposals contain `offer_1_renewal_price`, which represents the recurring annual
 
 **Approach:** Each translatable sub-field within JSON arrays is individually translatable, not the entire array.
 
-**Non-translatable arrays** (like `portfolios`, `bank`, `client.notes`, `service.notes`) store plain values without locale keys.
+**Non-translatable arrays** (like `portfolios`, `bank`, `client.notes`, `service.notes`, `proposal.notes`, `invoice.notes`) store plain values without locale keys.
 
 ---
 

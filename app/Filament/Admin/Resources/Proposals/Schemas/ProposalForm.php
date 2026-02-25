@@ -154,6 +154,7 @@ class ProposalForm
                                                 'EUR' => 'EUR - Euro',
                                             ])
                                             ->default('IDR')
+                                            ->live()
                                             ->required(),
                                         TextInput::make('tax_rate')
                                             ->label('Tax Rate (%)')
@@ -185,7 +186,6 @@ class ProposalForm
                                             ->label('Renewal Price')
                                             ->numeric()
                                             ->prefix(fn (Get $get) => $get('currency'))
-                                            ->required()
                                             ->helperText('Annual/periodic cost for renewals'),
                                         TextInput::make('offer_1_original_renewal_price')
                                             ->label('Original Renewal Price (if discounted)')

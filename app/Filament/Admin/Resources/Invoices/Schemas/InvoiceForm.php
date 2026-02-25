@@ -204,6 +204,7 @@ class InvoiceForm
                                                 'EUR' => 'EUR - Euro',
                                             ])
                                             ->default('IDR')
+                                            ->live()
                                             ->required(),
                                         TextInput::make('tax_rate')
                                             ->label('Tax Rate (%)')
@@ -219,12 +220,18 @@ class InvoiceForm
                                     ->schema([
                                         TextInput::make('subtotal')
                                             ->readonly()
+                                            ->default(0)
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->placeholder('Auto-calculated'),
                                         TextInput::make('tax_amount')
-                                            ->readonly()                                 
+                                            ->readonly()
+                                            ->default(0)
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->placeholder('Auto-calculated'),
                                         TextInput::make('total')
                                             ->readonly()
+                                            ->default(0)
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->placeholder('Auto-calculated'),
                                     ])
                                     ->columns(3),

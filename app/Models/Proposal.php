@@ -96,6 +96,7 @@ class Proposal extends Model
         'offer_2_renewal_price' => 'decimal:2',
         'offer_2_original_renewal_price' => 'decimal:2',
         'status' => DocumentStatus::class,
+        'notes' => 'array',
     ];
 
     protected static function booted()
