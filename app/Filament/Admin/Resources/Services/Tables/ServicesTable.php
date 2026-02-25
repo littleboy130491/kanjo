@@ -75,13 +75,19 @@ class ServicesTable
                     ->form([
                         \Filament\Forms\Components\DatePicker::make('from')
                             ->label('From'),
-                        \Filament\Forms\Components\DatePicker::make('until')
-                            ->label('Until'),
+                        \Filament\Forms\Components\DatePicker::make('to')
+                            ->label('To'),
                     ])
                     ->query(function ($query, array $data) {
                         return $query
-                            ->when($data['from'], fn ($query) => $query->where('start_date', '>=', $data['from']))
-                            ->when($data['until'], fn ($query) => $query->where('start_date', '<=', $data['until']));
+                            ->when(
+                                $data['from'] ?? null,
+                                fn($query) => $query->whereDate('start_date', '>=', $data['from']),
+                            )
+                            ->when(
+                                $data['to'] ?? null,
+                                fn($query) => $query->whereDate('start_date', '<=', $data['to']),
+                            );
                     }),
             ])
             ->actions([
