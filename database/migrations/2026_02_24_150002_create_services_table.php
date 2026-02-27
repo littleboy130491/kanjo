@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('renewal_date')->nullable();   // date and month for renewal
             $table->enum('status', ['terminated', 'on-going', 'suspended'])->default('on-going');
             $table->json('notes')->nullable();            // non-translatable JSON array
-            $table->foreignId('client_id')->constrained()->nullOnDelete();
+            $table->foreignId('client_id')->nullable()->constrained()->nullOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });
