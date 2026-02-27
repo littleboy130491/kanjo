@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Awcodes\Curator\Models\Media;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,5 +20,10 @@ class Portfolio extends Model
     public function proposals()
     {
         return $this->belongsToMany(Proposal::class);
+    }
+
+    public function image()
+    {
+        return $this->belongsTo(Media::class, 'image_url');
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Filament\Admin\Resources\Portfolios\Tables;
 
+use Awcodes\Curator\Components\Tables\CuratorColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Filters\SelectFilter;
 
 class PortfoliosTable
 {
@@ -16,11 +16,11 @@ class PortfoliosTable
                     ->label('Project Name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('image_url')
+                CuratorColumn::make('image_url')
                     ->label('Image')
-                    ->url(fn ($record) => $record->image_url)
-                    ->openUrlInNewTab()
-                    ->limit(50),
+                    ->size(50)
+                    ->url(fn ($record) => $record->image?->url)
+                    ->openUrlInNewTab(),
                 TextColumn::make('url_link')
                     ->label('Project Link')
                     ->url(fn ($record) => $record->url_link)
@@ -31,6 +31,9 @@ class PortfoliosTable
                     ->counts('proposals'),
             ])
             ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn ($query) => $query->with(['image', 'proposals']))
+            ->contentGrid(['md' => 2, 'lg' => 3])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
