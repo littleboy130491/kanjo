@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Translatable\HasTranslations;
 
 class Proposal extends Model
@@ -162,6 +163,20 @@ class Proposal extends Model
                 );
             }
         });
+    }
+
+
+    public function setAccessPasswordAttribute(?string $value): void
+    {
+        if (blank($value)) {
+            $this->attributes['access_password'] = null;
+
+            return;
+        }
+
+        $this->attributes['access_password'] = Hash::info($value)['algo'] !== null
+            ? $value
+            : Hash::make($value);
     }
 
     public function company()

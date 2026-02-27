@@ -2,6 +2,19 @@
 
 namespace App\Filament\Admin\Resources\Proposals\Tables;
 
+use App\Enums\DocumentStatus;
+use App\Enums\PaymentStatus;
+use App\Enums\ServiceStatus;
+use App\Filament\Admin\Resources\Invoices\InvoiceResource;
+use App\Filament\Admin\Resources\Proposals\ProposalResource;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Proposal;
+use App\Models\Service;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -9,7 +22,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Enums\DocumentStatus;
 
 class ProposalsTable
 {
@@ -89,6 +101,139 @@ class ProposalsTable
                                 fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '<=', $date),
                             );
                     }),
+            ])
+            ->recordActions([
+                Action::make('convert_to_invoice')
+                    ->label('Convert to Invoice')
+                    ->icon('heroicon-o-arrow-right-circle')
+                    ->color('primary')
+                    ->visible(fn (Proposal $record): bool => $record->status === DocumentStatus::PUBLISHED)
+                    ->action(function (Proposal $record) {
+                        $invoice = self::createInvoiceFromProposal($record, (float) $record->offer_1_price, (string) $record->offer_name_1);
+
+                        return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
+                    }),
+                Action::make('create_renewal_invoice')
+                    ->label('Create Renewal Invoice')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->visible(fn (Proposal $record): bool => filled($record->offer_1_renewal_price))
+                    ->action(function (Proposal $record) {
+                        $title = trim(($record->offer_name_1 ?: 'Service'). ' — Renewal');
+                        $invoice = self::createInvoiceFromProposal($record, (float) $record->offer_1_renewal_price, $title);
+
+                        return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
+                    }),
+                Action::make('duplicate_proposal')
+                    ->label('Duplicate')
+                    ->icon('heroicon-o-document-duplicate')
+                    ->action(function (Proposal $record) {
+                        $duplicate = $record->replicate([
+                            'document_number',
+                            'document_number_raw',
+                            'document_number_suffix',
+                            'issue_month',
+                            'issue_year',
+                            'created_at',
+                            'updated_at',
+                            'deleted_at',
+                        ]);
+
+                        $duplicate->status = DocumentStatus::DRAFT;
+                        $duplicate->document_number_override = false;
+                        $duplicate->save();
+
+                        return redirect(ProposalResource::getUrl('edit', ['record' => $duplicate]));
+                    }),
+                Action::make('create_client')
+                    ->label('Create Client')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('success')
+                    ->visible(fn (Proposal $record): bool => blank($record->client_id))
+                    ->action(function (Proposal $record) {
+                        $client = Client::create([
+                            'name' => $record->client_name,
+                            'company' => $record->client_company,
+                            'email' => $record->client_email,
+                            'phone' => $record->client_phone,
+                            'notes' => [],
+                        ]);
+
+                        $record->update(['client_id' => $client->id]);
+
+                        Notification::make()->title('Client created and linked.')->success()->send();
+                    }),
+                Action::make('create_service')
+                    ->label('Create Service')
+                    ->icon('heroicon-o-wrench-screwdriver')
+                    ->color('success')
+                    ->visible(fn (Proposal $record): bool => filled($record->client_id) && blank($record->service_id))
+                    ->schema([
+                        \Filament\Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        \Filament\Forms\Components\TextInput::make('domain')
+                            ->maxLength(255),
+                    ])
+                    ->action(function (Proposal $record, array $data) {
+                        $service = Service::create([
+                            'name' => $data['name'],
+                            'domain' => $data['domain'] ?? null,
+                            'client_id' => $record->client_id,
+                            'status' => ServiceStatus::ON_GOING,
+                            'notes' => [],
+                        ]);
+
+                        $record->update(['service_id' => $service->id]);
+
+                        Notification::make()->title('Service created and linked.')->success()->send();
+                    }),
+                Action::make('download_pdf')
+                    ->label('Download PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->url(fn (Proposal $record): string => route('pdf.proposal', [
+                        'slug' => str_replace('/', '-', $record->document_number),
+                    ]))
+                    ->openUrlInNewTab(),
+                EditAction::make(),
+                DeleteAction::make(),
             ]);
+    }
+
+    private static function createInvoiceFromProposal(Proposal $proposal, float $price, string $title): Invoice
+    {
+        $subtotal = $price;
+        $taxAmount = $subtotal * (((float) $proposal->tax_rate) / 100);
+
+        return Invoice::create([
+            'client_company' => $proposal->client_company,
+            'client_name' => $proposal->client_name,
+            'client_email' => $proposal->client_email,
+            'client_phone' => $proposal->client_phone,
+            'client_id' => $proposal->client_id,
+            'company_id' => $proposal->company_id,
+            'user_id' => auth()->id() ?? $proposal->user_id,
+            'service_id' => $proposal->service_id,
+            'currency' => $proposal->currency,
+            'tax_rate' => $proposal->tax_rate,
+            'tax_amount' => $taxAmount,
+            'subtotal' => $subtotal,
+            'total' => $subtotal + $taxAmount,
+            'access_username' => $proposal->access_username,
+            'access_password' => $proposal->access_password,
+            'issue_date' => now()->toDateString(),
+            'due_date' => now()->addDays(30)->toDateString(),
+            'items' => [
+                [
+                    'title' => $title,
+                    'price' => $price,
+                    'description' => '',
+                ],
+            ],
+            'status' => DocumentStatus::DRAFT,
+            'payment_status' => PaymentStatus::UNPAID,
+            'proposal_id' => $proposal->id,
+            'notes' => [],
+        ]);
     }
 }

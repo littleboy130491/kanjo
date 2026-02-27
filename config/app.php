@@ -134,5 +134,8 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+    'global_access_username' => env('GLOBAL_ACCESS_USERNAME'),
+
+    'global_access_password' => env('GLOBAL_ACCESS_PASSWORD'),
 
 ];

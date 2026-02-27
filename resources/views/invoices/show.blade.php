@@ -1,0 +1,108 @@
+@php
+    $company = $invoice->company;
+    $toMoney = fn ($value) => $invoice->currency . ' ' . number_format((float) ($value ?? 0), 2);
+    $badgeColor = match($invoice->payment_status->value) {
+        'paid' => 'bg-green-100 text-green-700',
+        'partially_paid' => 'bg-blue-100 text-blue-700',
+        'overdue' => 'bg-red-100 text-red-700',
+        default => 'bg-yellow-100 text-yellow-700',
+    };
+    $logoUrl = is_string($company?->logo) && str_starts_with($company->logo, 'http') ? $company->logo : null;
+    $pdfMode = (bool) ($pdf ?? false);
+@endphp
+<!doctype html>
+<html lang="{{ $locale }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $invoice->document_number }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --color-primary: {{ $company?->color_primary ?? '#0f172a' }}; --color-secondary: {{ $company?->color_secondary ?? '#334155' }}; }
+        .brand-title { color: var(--color-primary); }
+        @media print { .no-print { display: none !important; } @page { margin: 20mm; } }
+    </style>
+</head>
+<body class="bg-slate-100 p-4 md:p-8">
+<div class="mx-auto max-w-5xl space-y-6 rounded-xl bg-white p-6 shadow">
+    @if(! $pdfMode)
+    <div class="no-print flex justify-end gap-2">
+        <a class="rounded border px-3 py-1 text-sm {{ $locale === 'en' ? 'bg-slate-900 text-white' : '' }}" href="{{ route('invoice.show', ['slug' => $slug, 'lang' => 'en']) }}">EN</a>
+        <a class="rounded border px-3 py-1 text-sm {{ $locale === 'id' ? 'bg-slate-900 text-white' : '' }}" href="{{ route('invoice.show', ['slug' => $slug, 'lang' => 'id']) }}">ID</a>
+        <a class="rounded border px-3 py-1 text-sm" href="{{ route('pdf.invoice', ['slug' => $slug, 'lang' => $locale]) }}">Download PDF</a>
+    </div>
+    @endif
+
+    <section class="border-b pb-4">
+        <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+                @if($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-12 w-12 object-contain">
+                @endif
+                <div>
+                    <h1 class="text-2xl font-bold brand-title">Invoice {{ $invoice->document_number }}</h1>
+                    <p class="text-sm text-slate-500">{{ $company?->brand_name ?? $company?->company_name }}</p>
+                </div>
+            </div>
+            <div class="text-right text-sm">
+                <p>Issue: {{ optional($invoice->issue_date)->format('d M Y') }}</p>
+                <p>Due: {{ optional($invoice->due_date)->format('d M Y') }}</p>
+                <span class="inline-block rounded-full px-3 py-1 text-xs font-semibold {{ $badgeColor }}">{{ $invoice->payment_status->getLabel() }}</span>
+            </div>
+        </div>
+    </section>
+
+    <section><h2 class="mb-2 font-semibold">Client Info</h2><p>{{ $invoice->client_company }} — {{ $invoice->client_name }}</p><p>{{ $invoice->client_email }} | {{ $invoice->client_phone }}</p></section>
+
+    <section>
+        <h2 class="mb-2 font-semibold">Items</h2>
+        <table class="w-full border-collapse text-sm">
+            <thead><tr class="bg-slate-50"><th class="border p-2 text-left">Title</th><th class="border p-2 text-left">Description</th><th class="border p-2 text-right">Price</th></tr></thead>
+            <tbody>
+            @foreach(($invoice->items ?? []) as $item)
+                <tr>
+                    <td class="border p-2">{{ $item['title'] ?? '-' }}</td>
+                    <td class="border p-2">{{ $item['description'] ?? '-' }}</td>
+                    <td class="border p-2 text-right">{{ $toMoney($item['price'] ?? 0) }}</td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </section>
+
+    <section class="rounded border p-4">
+        <h2 class="mb-2 font-semibold">Financial Summary</h2>
+        <p>Subtotal: {{ $toMoney($invoice->subtotal) }}</p>
+        <p>Tax ({{ $invoice->tax_rate }}%): {{ $toMoney($invoice->tax_amount) }}</p>
+        <p class="font-semibold">Total: {{ $toMoney($invoice->total) }}</p>
+    </section>
+
+    @if($invoice->paid_amount || $invoice->payment_method || $invoice->paid_at)
+    <section class="rounded border p-4">
+        <h2 class="mb-2 font-semibold">Payment Info</h2>
+        <p>Paid amount: {{ $toMoney($invoice->paid_amount) }}</p>
+        <p>Payment method: {{ $invoice->payment_method ?: '-' }}</p>
+        <p>Paid at: {{ optional($invoice->paid_at)->format('d M Y H:i') ?: '-' }}</p>
+    </section>
+    @endif
+
+    <section class="border-t pt-4 text-sm text-slate-600">
+        <p>{{ $company?->getTranslation('footer_text', $locale, false) ?? '' }}</p>
+        <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+                <p class="font-medium text-slate-800">Bank Details</p>
+                @foreach(($company?->bank ?? []) as $bank)
+                    <p>{{ $bank['bank_name'] ?? '-' }} - {{ $bank['account_number'] ?? '-' }} ({{ $bank['account_name'] ?? '-' }})</p>
+                @endforeach
+            </div>
+            <div>
+                <p class="font-medium text-slate-800">PIC</p>
+                @foreach(($company?->pic ?? []) as $pic)
+                    <p>{{ $pic['pic_name'] ?? '-' }} ({{ $pic['pic_role'] ?? '-' }})</p>
+                @endforeach
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

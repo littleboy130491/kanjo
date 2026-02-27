@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Admin\Widgets\DocumentStatsWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -45,7 +46,7 @@ class AdminPanelProvider extends PanelProvider
                 in: app_path("Filament/Admin/Widgets"),
                 for: "App\Filament\Admin\Widgets",
             )
-            ->widgets([AccountWidget::class, FilamentInfoWidget::class])
+            ->widgets([AccountWidget::class, DocumentStatsWidget::class, FilamentInfoWidget::class])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
