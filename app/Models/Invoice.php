@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Translatable\HasTranslations;
 use App\Services\DocumentNumberGenerator;
 use App\Enums\DocumentStatus;
@@ -36,6 +37,9 @@ class Invoice extends Model
         'items',
         'status',
         'payment_status',
+        'paid_amount',
+        'paid_at',
+        'payment_method',
         'access_username',
         'access_password',
         'notes',
@@ -134,6 +138,20 @@ class Invoice extends Model
     public function proposal()
     {
         return $this->belongsTo(Proposal::class);
+    }
+
+
+    public function setAccessPasswordAttribute(?string $value): void
+    {
+        if (blank($value)) {
+            $this->attributes['access_password'] = null;
+
+            return;
+        }
+
+        $this->attributes['access_password'] = Hash::info($value)['algo'] !== null
+            ? $value
+            : Hash::make($value);
     }
 
     public function company()
