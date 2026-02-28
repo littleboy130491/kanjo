@@ -24,7 +24,7 @@ class ProposalContentDefaultForm
                             ->unique(ignoreRecord: true),
                     ]),
                 Section::make('Default Values')
-                    ->description('Enter JSON arrays for each locale. Example: [{"feature_name":"...","feature_description":"..."}]')
+                    ->description('Enter a JSON array for English values. Example: [{"feature_name":"...","feature_description":"..."}]')
                     ->schema([
                         Textarea::make('value_en')
                             ->label('Default Value (EN)')
@@ -42,6 +42,10 @@ class ProposalContentDefaultForm
                                     }
                                 };
                             }),
+                    ]),
+                Section::make('Default Value (ID)')
+                    ->description('Enter a JSON array for Indonesian values.')
+                    ->schema([
                         Textarea::make('value_id')
                             ->label('Default Value (ID)')
                             ->rows(16)
@@ -58,8 +62,7 @@ class ProposalContentDefaultForm
                                     }
                                 };
                             }),
-                    ])
-                    ->columns(2),
+                    ]),
             ]);
     }
 }
