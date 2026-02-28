@@ -273,6 +273,35 @@ class ProposalForm
 
                                 Section::make('Features')
                                     ->schema([
+                                        Toggle::make('use_default_features')
+                                            ->label('Use Default Features Template')
+                                            ->helperText('Turn on to load default features. Turn off to clear only when data still matches the default template.')
+                                            ->default(true)
+                                            ->live()
+                                            ->dehydrated(false)
+                                            ->afterStateHydrated(function ($state, Get $get, callable $set): void {
+                                                if (! $state) {
+                                                    return;
+                                                }
+
+                                                if (blank($get('features'))) {
+                                                    $set('features', self::defaultFeaturesTemplate());
+                                                }
+                                            })
+                                            ->afterStateUpdated(function ($state, Get $get, callable $set): void {
+                                                if ($state) {
+                                                    if (blank($get('features'))) {
+                                                        $set('features', self::defaultFeaturesTemplate());
+                                                    }
+
+                                                    return;
+                                                }
+
+                                                $features = $get('features');
+                                                if ($features === self::defaultFeaturesTemplate()) {
+                                                    $set('features', []);
+                                                }
+                                            }),
                                         Translate::make()
                                             ->schema([
                                                 Repeater::make('features')
@@ -603,5 +632,39 @@ class ProposalForm
                     ->persistTabInQueryString()
                     ->columnSpanFull(),
             ]);
+    }
+
+    protected static function defaultFeaturesTemplate(): array
+    {
+        return [
+            'en' => [
+                [
+                    'feature_name' => 'Responsive Design',
+                    'feature_description' => 'Optimized display and usability on mobile, tablet, and desktop devices.',
+                ],
+                [
+                    'feature_name' => 'Admin Dashboard',
+                    'feature_description' => 'Secure dashboard to manage content, users, and key business data.',
+                ],
+                [
+                    'feature_name' => 'SEO Foundation',
+                    'feature_description' => 'Basic technical SEO setup for indexing, metadata, and performance readiness.',
+                ],
+            ],
+            'id' => [
+                [
+                    'feature_name' => 'Desain Responsif',
+                    'feature_description' => 'Tampilan dan pengalaman yang optimal di perangkat mobile, tablet, dan desktop.',
+                ],
+                [
+                    'feature_name' => 'Dashboard Admin',
+                    'feature_description' => 'Dashboard aman untuk mengelola konten, pengguna, dan data bisnis utama.',
+                ],
+                [
+                    'feature_name' => 'Fondasi SEO',
+                    'feature_description' => 'Pengaturan SEO teknis dasar untuk indexing, metadata, dan kesiapan performa.',
+                ],
+            ],
+        ];
     }
 }
