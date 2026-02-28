@@ -11,10 +11,10 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\Service;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -43,12 +43,12 @@ class ProposalsTable
                 TextColumn::make('offer_name_1')
                     ->sortable(),
                 TextColumn::make('offer_1_price')
-                    ->money(fn($record) => $record->currency)
+                    ->money(fn ($record) => $record->currency)
                     ->sortable()
                     ->alignment('right'),
                 BadgeColumn::make('status')
-                    ->formatStateUsing(fn(DocumentStatus $state): string => $state->getLabel())
-                    ->color(fn(DocumentStatus $state): string => $state->getColor()),
+                    ->formatStateUsing(fn (DocumentStatus $state): string => $state->getLabel())
+                    ->color(fn (DocumentStatus $state): string => $state->getColor()),
                 TextColumn::make('issue_date')
                     ->date()
                     ->sortable(),
@@ -82,8 +82,8 @@ class ProposalsTable
                 TernaryFilter::make('has_invoice')
                     ->label('Has Invoice')
                     ->queries(
-                        true: fn(Builder $query) => $query->whereHas('invoices'),
-                        false: fn(Builder $query) => $query->whereDoesntHave('invoices'),
+                        true: fn (Builder $query) => $query->whereHas('invoices'),
+                        false: fn (Builder $query) => $query->whereDoesntHave('invoices'),
                     ),
                 Filter::make('issue_date')
                     ->form([
@@ -94,11 +94,11 @@ class ProposalsTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('issue_date', '>=', $date),
                             )
                             ->when(
                                 $data['to'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('issue_date', '<=', $date),
                             );
                     }),
             ])
@@ -119,7 +119,7 @@ class ProposalsTable
                     ->color('warning')
                     ->visible(fn (Proposal $record): bool => filled($record->offer_1_renewal_price))
                     ->action(function (Proposal $record) {
-                        $title = trim(($record->offer_name_1 ?: 'Service'). ' — Renewal');
+                        $title = trim(($record->offer_name_1 ?: 'Service').' — Renewal');
                         $invoice = self::createInvoiceFromProposal($record, (float) $record->offer_1_renewal_price, $title);
 
                         return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));

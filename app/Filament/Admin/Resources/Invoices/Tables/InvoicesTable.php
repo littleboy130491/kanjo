@@ -10,10 +10,10 @@ use App\Filament\Admin\Resources\Proposals\ProposalResource;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Service;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -36,17 +36,17 @@ class InvoicesTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('total')
-                    ->money(fn($record) => $record->currency)
+                    ->money(fn ($record) => $record->currency)
                     ->sortable(),
                 TextColumn::make('payment_status')
                     ->badge()
-                    ->formatStateUsing(fn(PaymentStatus $state): string => $state->getLabel())
-                    ->color(fn(PaymentStatus $state): string => $state->getColor())
+                    ->formatStateUsing(fn (PaymentStatus $state): string => $state->getLabel())
+                    ->color(fn (PaymentStatus $state): string => $state->getColor())
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn(DocumentStatus $state): string => $state->getLabel())
-                    ->color(fn(DocumentStatus $state): string => $state->getColor())
+                    ->formatStateUsing(fn (DocumentStatus $state): string => $state->getLabel())
+                    ->color(fn (DocumentStatus $state): string => $state->getColor())
                     ->sortable(),
                 TextColumn::make('issue_date')
                     ->date()
@@ -57,7 +57,7 @@ class InvoicesTable
                 TextColumn::make('proposal.document_number')
                     ->label('Proposal')
                     ->url(
-                        fn($record) => $record->proposal
+                        fn ($record) => $record->proposal
                         ? route('filament.admin.resources.proposals.edit', $record->proposal)
                         : null
                     )
@@ -89,8 +89,8 @@ class InvoicesTable
                     ->trueLabel('With proposal')
                     ->falseLabel('Without proposal')
                     ->queries(
-                        true: fn($query) => $query->whereNotNull('proposal_id'),
-                        false: fn($query) => $query->whereNull('proposal_id'),
+                        true: fn ($query) => $query->whereNotNull('proposal_id'),
+                        false: fn ($query) => $query->whereNull('proposal_id'),
                     ),
                 Filter::make('issue_date')
                     ->form([
@@ -101,11 +101,11 @@ class InvoicesTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn($query, $date) => $query->whereDate('issue_date', '>=', $date),
+                                fn ($query, $date) => $query->whereDate('issue_date', '>=', $date),
                             )
                             ->when(
                                 $data['until'] ?? null,
-                                fn($query, $date) => $query->whereDate('issue_date', '<=', $date),
+                                fn ($query, $date) => $query->whereDate('issue_date', '<=', $date),
                             );
                     }),
             ])
