@@ -8,6 +8,7 @@ use App\Filament\Admin\Resources\Portfolios\Schemas\PortfolioForm;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Portfolio;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -273,34 +274,48 @@ class ProposalForm
 
                                 Section::make('Features')
                                     ->schema([
-                                        Toggle::make('use_default_features')
-                                            ->label('Use Default Features Template')
-                                            ->helperText('Turn on to load default features. Turn off to clear only when data still matches the default template.')
-                                            ->default(true)
+                                        CheckboxList::make('feature_suggestions')
+                                            ->label('Suggested Features')
+                                            ->options(fn (): array => collect(self::featureSuggestions())
+                                                ->mapWithKeys(fn (array $suggestion, string $key): array => [
+                                                    $key => $suggestion['en']['feature_name'].' / '.$suggestion['id']['feature_name'],
+                                                ])
+                                                ->all())
+                                            ->helperText('Select suggestions to add only the features you need. You can edit them afterward.')
                                             ->live()
                                             ->dehydrated(false)
-                                            ->afterStateHydrated(function ($state, Get $get, callable $set): void {
-                                                if (! $state) {
+                                            ->afterStateUpdated(function ($state, Get $get, callable $set): void {
+                                                $selected = array_filter((array) $state);
+                                                if ($selected === []) {
                                                     return;
                                                 }
 
-                                                if (blank($get('features'))) {
-                                                    $set('features', self::defaultFeaturesTemplate());
-                                                }
-                                            })
-                                            ->afterStateUpdated(function ($state, Get $get, callable $set): void {
-                                                if ($state) {
-                                                    if (blank($get('features'))) {
-                                                        $set('features', self::defaultFeaturesTemplate());
+                                                $suggestions = self::featureSuggestions();
+                                                $features = (array) ($get('features') ?? []);
+
+                                                foreach (['en', 'id'] as $locale) {
+                                                    $rows = (array) ($features[$locale] ?? []);
+
+                                                    foreach ($selected as $key) {
+                                                        $candidate = $suggestions[$key][$locale] ?? null;
+                                                        if (! is_array($candidate)) {
+                                                            continue;
+                                                        }
+
+                                                        $alreadyExists = collect($rows)->contains(
+                                                            fn (array $row): bool => ($row['feature_name'] ?? null) === ($candidate['feature_name'] ?? null)
+                                                        );
+
+                                                        if (! $alreadyExists) {
+                                                            $rows[] = $candidate;
+                                                        }
                                                     }
 
-                                                    return;
+                                                    $features[$locale] = $rows;
                                                 }
 
-                                                $features = $get('features');
-                                                if ($features === self::defaultFeaturesTemplate()) {
-                                                    $set('features', []);
-                                                }
+                                                $set('features', $features);
+                                                $set('feature_suggestions', []);
                                             }),
                                         Translate::make()
                                             ->schema([
@@ -634,33 +649,35 @@ class ProposalForm
             ]);
     }
 
-    protected static function defaultFeaturesTemplate(): array
+    protected static function featureSuggestions(): array
     {
         return [
-            'en' => [
-                [
+            'responsive_design' => [
+                'en' => [
                     'feature_name' => 'Responsive Design',
                     'feature_description' => 'Optimized display and usability on mobile, tablet, and desktop devices.',
                 ],
-                [
-                    'feature_name' => 'Admin Dashboard',
-                    'feature_description' => 'Secure dashboard to manage content, users, and key business data.',
-                ],
-                [
-                    'feature_name' => 'SEO Foundation',
-                    'feature_description' => 'Basic technical SEO setup for indexing, metadata, and performance readiness.',
-                ],
-            ],
-            'id' => [
-                [
+                'id' => [
                     'feature_name' => 'Desain Responsif',
                     'feature_description' => 'Tampilan dan pengalaman yang optimal di perangkat mobile, tablet, dan desktop.',
                 ],
-                [
+            ],
+            'admin_dashboard' => [
+                'en' => [
+                    'feature_name' => 'Admin Dashboard',
+                    'feature_description' => 'Secure dashboard to manage content, users, and key business data.',
+                ],
+                'id' => [
                     'feature_name' => 'Dashboard Admin',
                     'feature_description' => 'Dashboard aman untuk mengelola konten, pengguna, dan data bisnis utama.',
                 ],
-                [
+            ],
+            'seo_foundation' => [
+                'en' => [
+                    'feature_name' => 'SEO Foundation',
+                    'feature_description' => 'Basic technical SEO setup for indexing, metadata, and performance readiness.',
+                ],
+                'id' => [
                     'feature_name' => 'Fondasi SEO',
                     'feature_description' => 'Pengaturan SEO teknis dasar untuk indexing, metadata, dan kesiapan performa.',
                 ],
