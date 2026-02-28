@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProposalContentDefault extends Model
 {
+    public const GLOBAL_FIELD_KEY = '__all__';
+
     public const FIELD_OPTIONS = [
         'brief' => 'Brief',
         'core_services' => 'Core Services',

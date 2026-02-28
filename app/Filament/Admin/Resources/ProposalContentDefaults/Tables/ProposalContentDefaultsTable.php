@@ -16,10 +16,9 @@ class ProposalContentDefaultsTable
         return $table
             ->columns([
                 TextColumn::make('field_key')
-                    ->label('Content Field')
-                    ->formatStateUsing(fn (string $state): string => ProposalContentDefault::FIELD_OPTIONS[$state] ?? $state)
-                    ->searchable()
-                    ->sortable(),
+                    ->label('Defaults Scope')
+                    ->formatStateUsing(fn (): string => 'Proposal Content (Global)')
+                    ->badge(),
                 TextColumn::make('updated_at')
                     ->label('Updated')
                     ->dateTime()

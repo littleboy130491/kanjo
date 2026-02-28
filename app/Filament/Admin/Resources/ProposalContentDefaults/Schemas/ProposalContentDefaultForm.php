@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\ProposalContentDefaults\Schemas;
 
 use App\Models\ProposalContentDefault;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -12,57 +12,43 @@ class ProposalContentDefaultForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $fieldSections = collect(ProposalContentDefault::FIELD_OPTIONS)
+            ->map(fn (string $label, string $fieldKey): Section => Section::make($label)
+                ->schema([
+                    self::makeJsonTextarea("value_en.{$fieldKey}", 'Default Value (EN)'),
+                    self::makeJsonTextarea("value_id.{$fieldKey}", 'Default Value (ID)'),
+                ]))
+            ->all();
+
         return $schema
             ->components([
-                Section::make('Content Field')
+                Section::make('Settings')
                     ->schema([
-                        Select::make('field_key')
-                            ->label('Content Field')
-                            ->options(ProposalContentDefault::FIELD_OPTIONS)
-                            ->searchable()
-                            ->required()
-                            ->unique(ignoreRecord: true),
+                        Hidden::make('field_key')
+                            ->default(ProposalContentDefault::GLOBAL_FIELD_KEY)
+                            ->dehydrated(),
                     ]),
-                Section::make('Default Values')
-                    ->description('Enter a JSON array for English values. Example: [{"feature_name":"...","feature_description":"..."}]')
-                    ->schema([
-                        Textarea::make('value_en')
-                            ->label('Default Value (EN)')
-                            ->rows(16)
-                            ->required()
-                            ->helperText('Must be a valid JSON array.')
-                            ->formatStateUsing(fn ($state): string => json_encode($state ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
-                            ->dehydrateStateUsing(fn (?string $state): array => json_decode($state ?: '[]', true) ?: [])
-                            ->rule(function () {
-                                return function (string $attribute, $value, \Closure $fail): void {
-                                    $decoded = json_decode((string) $value, true);
-
-                                    if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
-                                        $fail('The value must be a valid JSON array.');
-                                    }
-                                };
-                            }),
-                    ]),
-                Section::make('Default Value (ID)')
-                    ->description('Enter a JSON array for Indonesian values.')
-                    ->schema([
-                        Textarea::make('value_id')
-                            ->label('Default Value (ID)')
-                            ->rows(16)
-                            ->required()
-                            ->helperText('Must be a valid JSON array.')
-                            ->formatStateUsing(fn ($state): string => json_encode($state ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
-                            ->dehydrateStateUsing(fn (?string $state): array => json_decode($state ?: '[]', true) ?: [])
-                            ->rule(function () {
-                                return function (string $attribute, $value, \Closure $fail): void {
-                                    $decoded = json_decode((string) $value, true);
-
-                                    if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
-                                        $fail('The value must be a valid JSON array.');
-                                    }
-                                };
-                            }),
-                    ]),
+                ...$fieldSections,
             ]);
+    }
+
+    protected static function makeJsonTextarea(string $statePath, string $label): Textarea
+    {
+        return Textarea::make($statePath)
+            ->label($label)
+            ->rows(12)
+            ->required()
+            ->helperText('Must be a valid JSON array.')
+            ->formatStateUsing(fn ($state): string => json_encode($state ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
+            ->dehydrateStateUsing(fn (?string $state): array => json_decode($state ?: '[]', true) ?: [])
+            ->rule(function () {
+                return function (string $attribute, $value, \Closure $fail): void {
+                    $decoded = json_decode((string) $value, true);
+
+                    if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+                        $fail('The value must be a valid JSON array.');
+                    }
+                };
+            });
     }
 }
