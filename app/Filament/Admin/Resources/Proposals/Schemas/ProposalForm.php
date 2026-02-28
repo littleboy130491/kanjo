@@ -8,6 +8,7 @@ use App\Filament\Admin\Resources\Portfolios\Schemas\PortfolioForm;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Portfolio;
+use App\Models\ProposalContentDefault;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -233,7 +234,7 @@ class ProposalForm
                                 Section::make('Brief')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('brief')
                                                     ->schema([
                                                         Textarea::make('content')
@@ -244,7 +245,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('brief', $locale))
                                                     ->columnSpanFull(),
                                             ])
                                             ->locales(['en', 'id'])
@@ -254,7 +255,7 @@ class ProposalForm
                                 Section::make('Core Services')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('core_services')
                                                     ->schema([
                                                         TextInput::make('service')
@@ -264,7 +265,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('core_services', $locale))
                                                     ->columnSpanFull(),
                                             ])
                                             ->locales(['en', 'id'])
@@ -289,7 +290,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default(self::defaultFeaturesForLocale($locale))
+                                                    ->default(self::defaultContentRows('features', $locale))
                                                     ->columns(1)
                                                     ->columnSpanFull(),
                                             ])
@@ -300,7 +301,7 @@ class ProposalForm
                                 Section::make('Server')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('server')
                                                     ->schema([
                                                         TextInput::make('item')
@@ -310,7 +311,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('server', $locale))
                                                     ->columnSpanFull(),
                                             ])
                                             ->locales(['en', 'id'])
@@ -320,7 +321,7 @@ class ProposalForm
                                 Section::make('Assets')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('assets')
                                                     ->schema([
                                                         TextInput::make('item')
@@ -330,7 +331,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('assets', $locale))
                                                     ->columnSpanFull(),
                                             ])
                                             ->locales(['en', 'id'])
@@ -340,7 +341,7 @@ class ProposalForm
                                 Section::make('Security')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('security')
                                                     ->schema([
                                                         TextInput::make('item')
@@ -350,7 +351,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('security', $locale))
                                                     ->columnSpanFull(),
                                             ])
                                             ->locales(['en', 'id'])
@@ -360,7 +361,7 @@ class ProposalForm
                                 Section::make('Support')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('support')
                                                     ->schema([
                                                         TextInput::make('item')
@@ -370,7 +371,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('support', $locale))
                                                     ->columnSpanFull(),
                                             ])
                                             ->locales(['en', 'id'])
@@ -380,7 +381,7 @@ class ProposalForm
                                 Section::make('Additional Benefits')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('additional_benefit')
                                                     ->schema([
                                                         TextInput::make('benefit')
@@ -390,7 +391,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('additional_benefit', $locale))
                                                     ->columnSpanFull(),
                                             ])
                                             ->locales(['en', 'id'])
@@ -400,7 +401,7 @@ class ProposalForm
                                 Section::make('Add-ons')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('add_on')
                                                     ->schema([
                                                         TextInput::make('name')
@@ -420,7 +421,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('add_on', $locale))
                                                     ->columns(2)
                                                     ->columnSpanFull(),
                                             ])
@@ -431,7 +432,7 @@ class ProposalForm
                                 Section::make('Payment Terms')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('payment')
                                                     ->schema([
                                                         Textarea::make('info')
@@ -448,7 +449,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('payment', $locale))
                                                     ->columnSpanFull(),
                                             ])
                                             ->locales(['en', 'id'])
@@ -458,7 +459,7 @@ class ProposalForm
                                 Section::make('Terms & Conditions')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('terms_condition')
                                                     ->schema([
                                                         TextInput::make('title')
@@ -474,7 +475,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('terms_condition', $locale))
                                                     ->columnSpanFull(),
                                             ])
                                             ->locales(['en', 'id'])
@@ -484,7 +485,7 @@ class ProposalForm
                                 Section::make('Offer 1 Project Timeline')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('offer_1_project_timeline')
                                                     ->schema([
                                                         TextInput::make('activity_name')
@@ -503,7 +504,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('offer_1_project_timeline', $locale))
                                                     ->columns(3)
                                                     ->columnSpanFull(),
                                             ])
@@ -514,7 +515,7 @@ class ProposalForm
                                 Section::make('Offer 2 Project Timeline')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
+                                            ->schema(fn (string $locale): array => [
                                                 Repeater::make('offer_2_project_timeline')
                                                     ->schema([
                                                         TextInput::make('activity_name')
@@ -530,7 +531,7 @@ class ProposalForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->default([])
+                                                    ->default(self::defaultContentRows('offer_2_project_timeline', $locale))
                                                     ->columns(3)
                                                     ->columnSpanFull(),
                                             ])
@@ -605,37 +606,60 @@ class ProposalForm
             ]);
     }
 
-    protected static function defaultFeaturesForLocale(string $locale): array
+    protected static function defaultContentRows(string $fieldKey, string $locale): array
     {
-        return [
+        $databaseDefault = ProposalContentDefault::query()
+            ->where('field_key', $fieldKey)
+            ->first();
+
+        if ($databaseDefault instanceof ProposalContentDefault) {
+            return match ($locale) {
+                'en' => $databaseDefault->value_en ?? [],
+                'id' => $databaseDefault->value_id ?? [],
+                default => [],
+            };
+        }
+
+        return self::fallbackContentRows($fieldKey, $locale);
+    }
+
+    protected static function fallbackContentRows(string $fieldKey, string $locale): array
+    {
+        $defaults = [
             'en' => [
-                [
-                    'feature_name' => 'Responsive Design',
-                    'feature_description' => 'Optimized display and usability on mobile, tablet, and desktop devices.',
-                ],
-                [
-                    'feature_name' => 'Admin Dashboard',
-                    'feature_description' => 'Secure dashboard to manage content, users, and key business data.',
-                ],
-                [
-                    'feature_name' => 'SEO Foundation',
-                    'feature_description' => 'Basic technical SEO setup for indexing, metadata, and performance readiness.',
+                'features' => [
+                    [
+                        'feature_name' => 'Responsive Design',
+                        'feature_description' => 'Optimized display and usability on mobile, tablet, and desktop devices.',
+                    ],
+                    [
+                        'feature_name' => 'Admin Dashboard',
+                        'feature_description' => 'Secure dashboard to manage content, users, and key business data.',
+                    ],
+                    [
+                        'feature_name' => 'SEO Foundation',
+                        'feature_description' => 'Basic technical SEO setup for indexing, metadata, and performance readiness.',
+                    ],
                 ],
             ],
             'id' => [
-                [
-                    'feature_name' => 'Desain Responsif',
-                    'feature_description' => 'Tampilan dan pengalaman yang optimal di perangkat mobile, tablet, dan desktop.',
-                ],
-                [
-                    'feature_name' => 'Dashboard Admin',
-                    'feature_description' => 'Dashboard aman untuk mengelola konten, pengguna, dan data bisnis utama.',
-                ],
-                [
-                    'feature_name' => 'Fondasi SEO',
-                    'feature_description' => 'Pengaturan SEO teknis dasar untuk indexing, metadata, dan kesiapan performa.',
+                'features' => [
+                    [
+                        'feature_name' => 'Desain Responsif',
+                        'feature_description' => 'Tampilan dan pengalaman yang optimal di perangkat mobile, tablet, dan desktop.',
+                    ],
+                    [
+                        'feature_name' => 'Dashboard Admin',
+                        'feature_description' => 'Dashboard aman untuk mengelola konten, pengguna, dan data bisnis utama.',
+                    ],
+                    [
+                        'feature_name' => 'Fondasi SEO',
+                        'feature_description' => 'Pengaturan SEO teknis dasar untuk indexing, metadata, dan kesiapan performa.',
+                    ],
                 ],
             ],
         ][$locale] ?? [];
+
+        return $defaults[$fieldKey] ?? [];
     }
 }
