@@ -608,14 +608,31 @@ class ProposalForm
 
     protected static function defaultContentRows(string $fieldKey, string $locale): array
     {
-        $databaseDefault = ProposalContentDefault::query()
+        $globalDefault = ProposalContentDefault::query()
+            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY)
+            ->first();
+
+        if ($globalDefault instanceof ProposalContentDefault) {
+            $value = match ($locale) {
+                'en' => data_get($globalDefault->value_en, $fieldKey, []),
+                'id' => data_get($globalDefault->value_id, $fieldKey, []),
+                default => [],
+            };
+
+            if (is_array($value)) {
+                return $value;
+            }
+        }
+
+        // Backward compatibility for earlier per-field records.
+        $legacyDefault = ProposalContentDefault::query()
             ->where('field_key', $fieldKey)
             ->first();
 
-        if ($databaseDefault instanceof ProposalContentDefault) {
+        if ($legacyDefault instanceof ProposalContentDefault) {
             return match ($locale) {
-                'en' => $databaseDefault->value_en ?? [],
-                'id' => $databaseDefault->value_id ?? [],
+                'en' => $legacyDefault->value_en ?? [],
+                'id' => $legacyDefault->value_id ?? [],
                 default => [],
             };
         }
