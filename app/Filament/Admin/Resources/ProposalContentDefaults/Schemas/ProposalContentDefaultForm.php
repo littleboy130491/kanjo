@@ -22,12 +22,9 @@ class ProposalContentDefaultForm
 
         return $schema
             ->components([
-                Section::make('Settings')
-                    ->schema([
-                        Hidden::make('field_key')
-                            ->default(ProposalContentDefault::GLOBAL_FIELD_KEY)
-                            ->dehydrated(),
-                    ]),
+                Hidden::make('field_key')
+                    ->default(ProposalContentDefault::GLOBAL_FIELD_KEY)
+                    ->dehydrated(),
                 ...$fieldSections,
             ]);
     }
