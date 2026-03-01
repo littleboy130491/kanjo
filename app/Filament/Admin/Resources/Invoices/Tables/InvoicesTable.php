@@ -13,6 +13,7 @@ use App\Models\Service;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -193,22 +194,30 @@ class InvoicesTable
                     ->visible(fn (Invoice $record): bool => filled($record->client_id) && blank($record->service_id))
                     ->schema([
                         \Filament\Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->default(fn (Invoice $record): string => (string) (data_get($record->items, '0.title') ?: $record->document_number)),
                         \Filament\Forms\Components\TextInput::make('domain')
                             ->maxLength(255),
+                        \Filament\Forms\Components\TextInput::make('start_date')
+                            ->maxLength(255)
+                            ->default(fn (Invoice $record): ?string => $record->issue_date?->toDateString()),
+                        \Filament\Forms\Components\TextInput::make('renewal_date')
+                            ->maxLength(255)
+                            ->default(fn (Invoice $record): ?string => $record->due_date?->toDateString()),
                     ])
                     ->action(function (Invoice $record, array $data) {
                         $service = Service::create([
-                            'name' => $data['name'],
-                            'domain' => $data['domain'] ?? null,
+                            'name' => (string) ($data['name'] ?? ''),
+                            'domain' => $data['domain'] ?: null,
+                            'start_date' => $data['start_date'] ?: null,
+                            'renewal_date' => $data['renewal_date'] ?: null,
                             'client_id' => $record->client_id,
                             'status' => ServiceStatus::ON_GOING,
-                            'notes' => [],
+                            'notes' => is_array($record->notes) ? $record->notes : [],
                         ]);
 
                         $record->update(['service_id' => $service->id]);
-                        Notification::make()->title('Service created and linked.')->success()->send();
+                        Notification::make()->title('Service generated from invoice and linked.')->success()->send();
                     }),
                 Action::make('download_pdf')
                     ->label('Download PDF')
@@ -217,6 +226,7 @@ class InvoicesTable
                         'slug' => $record->slug ?: str_replace('/', '-', $record->document_number),
                     ]))
                     ->openUrlInNewTab(),
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

@@ -25,8 +25,6 @@ class Proposal extends Model
         'document_number',
         'slug',
         'document_number_raw',
-        'document_number_override',
-        'document_number_manual',
         'issue_month',
         'issue_year',
         'client_company',
@@ -110,12 +108,7 @@ class Proposal extends Model
     protected function documentNumberFinal(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value, array $attributes): ?string => (
-                (bool) ($attributes['document_number_override'] ?? false)
-                && filled($attributes['document_number_manual'] ?? null)
-            )
-                ? (string) $attributes['document_number_manual']
-                : ($attributes['document_number'] ?? null),
+            get: fn (?string $value, array $attributes): ?string => $attributes['document_number'] ?? null,
         );
     }
 
@@ -148,19 +141,21 @@ class Proposal extends Model
                 $proposal->issue_year = $now->year;
             }
 
-            // Always generate document number (even if overridden)
+            // Always allocate the next raw number, even when display number is overridden
             $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
             $data = DocumentNumberGenerator::generate('QUO', $date);
+            $generatedDocumentNumber = $data['document_number'];
 
             $proposal->document_number_raw = $data['document_number_raw'];
 
-            if ($proposal->document_number_override && filled($proposal->document_number_manual)) {
-                $proposal->document_number = $proposal->document_number_manual;
+            if (blank($proposal->document_number)) {
+                $proposal->document_number = $generatedDocumentNumber;
+                $proposal->document_number_override = false;
 
                 return;
             }
 
-            $proposal->document_number = $data['document_number'];
+            $proposal->document_number_override = $proposal->document_number !== $generatedDocumentNumber;
         });
 
         static::created(function ($proposal) {
@@ -186,23 +181,28 @@ class Proposal extends Model
                 $proposal->issue_year = $date->year;
             }
 
-            if ($proposal->document_number_override && $proposal->isDirty('document_number_manual') && filled($proposal->document_number_manual)) {
-                $proposal->document_number = $proposal->document_number_manual;
+            $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
+            $generatedDocumentNumber = DocumentNumberGenerator::regenerate(
+                'QUO',
+                (int) $proposal->document_number_raw,
+                $date,
+            );
+
+            if ($proposal->isDirty('document_number')) {
+                if (blank($proposal->document_number)) {
+                    $proposal->document_number = $generatedDocumentNumber;
+                    $proposal->document_number_override = false;
+
+                    return;
+                }
+
+                $proposal->document_number_override = $proposal->document_number !== $generatedDocumentNumber;
 
                 return;
             }
 
-            if (
-                $proposal->document_number_override
-                && blank($proposal->document_number_manual)
-                && $proposal->isDirty('issue_date')
-            ) {
-                $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
-                $proposal->document_number = DocumentNumberGenerator::regenerate(
-                    'QUO',
-                    $proposal->document_number_raw,
-                    $date,
-                );
+            if ($proposal->isDirty('issue_date') && ! $proposal->document_number_override) {
+                $proposal->document_number = $generatedDocumentNumber;
             }
         });
     }
