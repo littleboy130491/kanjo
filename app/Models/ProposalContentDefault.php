@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Translatable\HasTranslations;
 
 class ProposalContentDefault extends Model
 {
+    use HasTranslations;
+
     public const GLOBAL_FIELD_KEY = '__all__';
 
     public const FIELD_OPTIONS = [
@@ -26,12 +29,10 @@ class ProposalContentDefault extends Model
 
     protected $fillable = [
         'field_key',
-        'value_en',
-        'value_id',
+        'value',
     ];
 
-    protected $casts = [
-        'value_en' => 'array',
-        'value_id' => 'array',
+    protected $translatable = [
+        'value',
     ];
 }

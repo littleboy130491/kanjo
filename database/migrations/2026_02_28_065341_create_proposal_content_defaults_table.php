@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('proposal_content_defaults', function (Blueprint $table) {
             $table->id();
             $table->string('field_key')->unique();
-            $table->json('value_en')->nullable();
-            $table->json('value_id')->nullable();
+            $table->json('value')->nullable();
             $table->timestamps();
         });
     }

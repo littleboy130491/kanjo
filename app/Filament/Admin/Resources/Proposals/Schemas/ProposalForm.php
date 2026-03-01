@@ -101,6 +101,7 @@ class ProposalForm
                                             ->helperText('Select a client to auto-fill the fields below. The data will be saved to this proposal, not linked.')
                                             ->createOptionUsing(function (array $data): int {
                                                 $client = Client::create($data);
+
                                                 return $client->getKey();
                                             })
                                             ->createOptionForm(schema: [
@@ -613,14 +614,21 @@ class ProposalForm
             ->first();
 
         if ($globalDefault instanceof ProposalContentDefault) {
-            $value = match ($locale) {
-                'en' => data_get($globalDefault->value_en, $fieldKey, []),
-                'id' => data_get($globalDefault->value_id, $fieldKey, []),
-                default => [],
-            };
+            $translations = $globalDefault->getTranslations('value');
+            $value = data_get($translations, "{$locale}.{$fieldKey}", []);
 
             if (is_array($value)) {
                 return $value;
+            }
+
+            $legacyValue = match ($locale) {
+                'en' => data_get($globalDefault->getAttribute('value_en'), $fieldKey, []),
+                'id' => data_get($globalDefault->getAttribute('value_id'), $fieldKey, []),
+                default => [],
+            };
+
+            if (is_array($legacyValue)) {
+                return $legacyValue;
             }
         }
 
@@ -630,9 +638,16 @@ class ProposalForm
             ->first();
 
         if ($legacyDefault instanceof ProposalContentDefault) {
+            $translations = $legacyDefault->getTranslations('value');
+            $value = data_get($translations, $locale, []);
+
+            if (is_array($value)) {
+                return $value;
+            }
+
             return match ($locale) {
-                'en' => $legacyDefault->value_en ?? [],
-                'id' => $legacyDefault->value_id ?? [],
+                'en' => $legacyDefault->getAttribute('value_en') ?? [],
+                'id' => $legacyDefault->getAttribute('value_id') ?? [],
                 default => [],
             };
         }

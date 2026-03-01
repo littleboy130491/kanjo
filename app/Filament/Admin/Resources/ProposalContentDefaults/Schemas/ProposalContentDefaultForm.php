@@ -15,8 +15,8 @@ class ProposalContentDefaultForm
         $fieldSections = collect(ProposalContentDefault::FIELD_OPTIONS)
             ->map(fn (string $label, string $fieldKey): Section => Section::make($label)
                 ->schema([
-                    self::makeJsonTextarea("value_en.{$fieldKey}", 'Default Value (EN)'),
-                    self::makeJsonTextarea("value_id.{$fieldKey}", 'Default Value (ID)'),
+                    self::makeJsonTextarea("value.en.{$fieldKey}", 'Default Value (EN)'),
+                    self::makeJsonTextarea("value.id.{$fieldKey}", 'Default Value (ID)'),
                 ]))
             ->all();
 
