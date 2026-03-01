@@ -37,8 +37,12 @@ class InvoiceViewController extends Controller
             'password' => ['required', 'string'],
         ]);
 
+        $documentNumber = str_replace('-', '/', $slug);
+
         $invoice = Invoice::query()
-            ->where('document_number', str_replace('-', '/', $slug))
+            ->where(fn ($query) => $query
+                ->where('slug', $slug)
+                ->orWhere('document_number', $documentNumber))
             ->first();
 
         if (! $invoice || $invoice->status->value !== 'published') {

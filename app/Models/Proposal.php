@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
 class Proposal extends Model
@@ -17,6 +18,7 @@ class Proposal extends Model
 
     protected $fillable = [
         'document_number',
+        'slug',
         'document_number_raw',
         'document_number_suffix',
         'document_number_override',
@@ -102,6 +104,16 @@ class Proposal extends Model
 
     protected static function booted()
     {
+        static::saving(function ($proposal) {
+            if (blank($proposal->slug)) {
+                $proposal->slug = null;
+
+                return;
+            }
+
+            $proposal->slug = Str::slug((string) $proposal->slug);
+        });
+
         static::creating(function ($proposal) {
             // Set user_id from authenticated user if not provided
             if (empty($proposal->user_id) && auth()->check()) {
@@ -144,6 +156,16 @@ class Proposal extends Model
             }
         });
 
+        static::created(function ($proposal) {
+            if (filled($proposal->slug)) {
+                return;
+            }
+
+            $proposal->forceFill([
+                'slug' => self::generateSlug((int) $proposal->id, 'quo'),
+            ])->saveQuietly();
+        });
+
         static::updating(function ($proposal) {
             // Update issue_month and issue_year if issue_date changes
             if ($proposal->isDirty('issue_date') && $proposal->issue_date) {
@@ -163,6 +185,20 @@ class Proposal extends Model
                 );
             }
         });
+    }
+
+    private static function generateSlug(int $id, string $prefix): string
+    {
+        do {
+            $slug = sprintf(
+                '%s-%s-%s',
+                $prefix,
+                base_convert((string) $id, 10, 36),
+                Str::lower(Str::random(8)),
+            );
+        } while (self::query()->where('slug', $slug)->exists());
+
+        return $slug;
     }
 
 

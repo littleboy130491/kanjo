@@ -130,6 +130,7 @@ class ProposalsTable
                     ->action(function (Proposal $record) {
                         $duplicate = $record->replicate([
                             'document_number',
+                            'slug',
                             'document_number_raw',
                             'document_number_suffix',
                             'issue_month',
@@ -192,7 +193,7 @@ class ProposalsTable
                     ->label('Download PDF')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn (Proposal $record): string => route('pdf.proposal', [
-                        'slug' => str_replace('/', '-', $record->document_number),
+                        'slug' => $record->slug ?: str_replace('/', '-', $record->document_number),
                     ]))
                     ->openUrlInNewTab(),
                 EditAction::make(),

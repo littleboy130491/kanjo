@@ -116,6 +116,7 @@ class InvoicesTable
                     ->action(function (Invoice $record) {
                         $duplicate = $record->replicate([
                             'document_number',
+                            'slug',
                             'document_number_raw',
                             'document_number_suffix',
                             'issue_month',
@@ -214,7 +215,7 @@ class InvoicesTable
                     ->label('Download PDF')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn (Invoice $record): string => route('pdf.invoice', [
-                        'slug' => str_replace('/', '-', $record->document_number),
+                        'slug' => $record->slug ?: str_replace('/', '-', $record->document_number),
                     ]))
                     ->openUrlInNewTab(),
                 EditAction::make(),

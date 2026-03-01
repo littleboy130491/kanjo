@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
 class InvoiceForm
@@ -39,6 +40,15 @@ class InvoiceForm
                                             ->disabled()
                                             ->dehydrated(false)
                                             ->placeholder('Auto-generated'),
+                                        TextInput::make('slug')
+                                            ->label('Public Slug')
+                                            ->placeholder('Auto-generated after save')
+                                            ->helperText('Leave empty to auto-generate from ID + random token. Fill manually to disable auto-generation.')
+                                            ->maxLength(255)
+                                            ->unique(ignoreRecord: true)
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(fn (?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
+                                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Str::slug($state) : null),
                                         TextInput::make('document_number_suffix')
                                             ->label('Suffix')
                                             ->default('DP')

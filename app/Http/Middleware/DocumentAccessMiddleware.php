@@ -64,8 +64,16 @@ class DocumentAccessMiddleware
         $documentNumber = str_replace('-', '/', $slug);
 
         return match ($type) {
-            'proposal' => Proposal::query()->where('document_number', $documentNumber)->first(),
-            'invoice' => Invoice::query()->where('document_number', $documentNumber)->first(),
+            'proposal' => Proposal::query()
+                ->where(fn ($query) => $query
+                    ->where('slug', $slug)
+                    ->orWhere('document_number', $documentNumber))
+                ->first(),
+            'invoice' => Invoice::query()
+                ->where(fn ($query) => $query
+                    ->where('slug', $slug)
+                    ->orWhere('document_number', $documentNumber))
+                ->first(),
             default => null,
         };
     }

@@ -17,7 +17,7 @@ class EditProposal extends EditRecord
                 ->label('Download PDF')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->url(fn (): string => route('pdf.proposal', [
-                    'slug' => str_replace('/', '-', $this->record->document_number),
+                    'slug' => $this->record->slug ?: str_replace('/', '-', $this->record->document_number),
                 ]))
                 ->openUrlInNewTab(),
         ];

@@ -18,7 +18,7 @@ class EditInvoice extends EditRecord
                 ->label('Download PDF')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->url(fn (): string => route('pdf.invoice', [
-                    'slug' => str_replace('/', '-', $this->record->document_number),
+                    'slug' => $this->record->slug ?: str_replace('/', '-', $this->record->document_number),
                 ]))
                 ->openUrlInNewTab(),
             Action::make('view_proposal')
