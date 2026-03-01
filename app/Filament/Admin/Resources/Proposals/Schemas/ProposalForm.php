@@ -9,6 +9,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Portfolio;
 use App\Models\ProposalContentDefault;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -236,7 +237,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('brief')
+                                                self::configureTranslatedRepeater(Repeater::make('brief'), 'brief', $locale)
                                                     ->schema([
                                                         Textarea::make('content')
                                                             ->required()
@@ -257,7 +258,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('core_services')
+                                                self::configureTranslatedRepeater(Repeater::make('core_services'), 'core_services', $locale)
                                                     ->schema([
                                                         TextInput::make('service')
                                                             ->required()
@@ -277,7 +278,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('features')
+                                                self::configureTranslatedRepeater(Repeater::make('features'), 'features', $locale)
                                                     ->schema([
                                                         TextInput::make('feature_name')
                                                             ->label('Feature Name')
@@ -303,7 +304,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('server')
+                                                self::configureTranslatedRepeater(Repeater::make('server'), 'server', $locale)
                                                     ->schema([
                                                         TextInput::make('item')
                                                             ->required()
@@ -323,7 +324,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('assets')
+                                                self::configureTranslatedRepeater(Repeater::make('assets'), 'assets', $locale)
                                                     ->schema([
                                                         TextInput::make('item')
                                                             ->required()
@@ -343,7 +344,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('security')
+                                                self::configureTranslatedRepeater(Repeater::make('security'), 'security', $locale)
                                                     ->schema([
                                                         TextInput::make('item')
                                                             ->required()
@@ -363,7 +364,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('support')
+                                                self::configureTranslatedRepeater(Repeater::make('support'), 'support', $locale)
                                                     ->schema([
                                                         TextInput::make('item')
                                                             ->required()
@@ -383,7 +384,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('additional_benefit')
+                                                self::configureTranslatedRepeater(Repeater::make('additional_benefit'), 'additional_benefit', $locale)
                                                     ->schema([
                                                         TextInput::make('benefit')
                                                             ->required()
@@ -403,7 +404,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('add_on')
+                                                self::configureTranslatedRepeater(Repeater::make('add_on'), 'add_on', $locale)
                                                     ->schema([
                                                         TextInput::make('name')
                                                             ->label('Name')
@@ -434,7 +435,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('payment')
+                                                self::configureTranslatedRepeater(Repeater::make('payment'), 'payment', $locale)
                                                     ->schema([
                                                         Textarea::make('info')
                                                             ->label('Payment Info')
@@ -461,7 +462,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('terms_condition')
+                                                self::configureTranslatedRepeater(Repeater::make('terms_condition'), 'terms_condition', $locale)
                                                     ->schema([
                                                         TextInput::make('title')
                                                             ->label('Title')
@@ -487,7 +488,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('offer_1_project_timeline')
+                                                self::configureTranslatedRepeater(Repeater::make('offer_1_project_timeline'), 'offer_1_project_timeline', $locale)
                                                     ->schema([
                                                         TextInput::make('activity_name')
                                                             ->label('Activity')
@@ -517,7 +518,7 @@ class ProposalForm
                                     ->schema([
                                         Translate::make()
                                             ->schema(fn (string $locale): array => [
-                                                Repeater::make('offer_2_project_timeline')
+                                                self::configureTranslatedRepeater(Repeater::make('offer_2_project_timeline'), 'offer_2_project_timeline', $locale)
                                                     ->schema([
                                                         TextInput::make('activity_name')
                                                             ->label('Activity')
@@ -605,6 +606,160 @@ class ProposalForm
                     ->persistTabInQueryString()
                     ->columnSpanFull(),
             ]);
+    }
+
+    protected static function configureTranslatedRepeater(Repeater $repeater, string $fieldKey, string $locale): Repeater
+    {
+        $deletedRowIndex = null;
+
+        return $repeater
+            ->addAction(fn (Action $action): Action => $action
+                ->after(function (Repeater $component) use ($fieldKey, $locale): void {
+                    self::syncTranslatedRepeaterAddedRow($component, $fieldKey, $locale);
+                }))
+            ->deleteAction(fn (Action $action): Action => $action
+                ->before(function (array $arguments, Repeater $component) use (&$deletedRowIndex): void {
+                    $rawRows = $component->getRawState() ?? [];
+                    $rawKeys = array_keys($rawRows);
+                    $deletedKey = $arguments['item'] ?? null;
+                    $index = array_search($deletedKey, $rawKeys, true);
+
+                    $deletedRowIndex = $index === false ? null : (int) $index;
+                })
+                ->after(function (Repeater $component) use (&$deletedRowIndex, $fieldKey, $locale): void {
+                    self::syncTranslatedRepeaterDeletedRow($component, $fieldKey, $locale, $deletedRowIndex);
+                    $deletedRowIndex = null;
+                }));
+    }
+
+    protected static function syncTranslatedRepeaterAddedRow(Repeater $component, string $fieldKey, string $locale): void
+    {
+        $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
+
+        if (! $targetRepeater) {
+            return;
+        }
+
+        $currentRows = is_array($component->getRawState()) ? $component->getRawState() : [];
+        $targetRows = is_array($targetRepeater->getRawState()) ? $targetRepeater->getRawState() : [];
+
+        if (count($targetRows) >= count($currentRows)) {
+            return;
+        }
+
+        $missingRows = count($currentRows) - count($targetRows);
+        $newKeys = [];
+
+        for ($i = 0; $i < $missingRows; $i++) {
+            $newKey = $targetRepeater->generateUuid();
+
+            if ($newKey) {
+                $targetRows[$newKey] = self::emptyTranslatedRepeaterRow($fieldKey);
+                $newKeys[] = $newKey;
+            } else {
+                $targetRows[] = self::emptyTranslatedRepeaterRow($fieldKey);
+                $newKeys[] = array_key_last($targetRows);
+            }
+        }
+
+        $targetRepeater->rawState($targetRows);
+
+        foreach ($newKeys as $newKey) {
+            if ($newKey !== null) {
+                $targetRepeater->getChildSchema($newKey)->fill();
+            }
+        }
+    }
+
+    protected static function syncTranslatedRepeaterDeletedRow(Repeater $component, string $fieldKey, string $locale, ?int $deletedRowIndex): void
+    {
+        $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
+
+        if (! $targetRepeater) {
+            return;
+        }
+
+        $currentRows = is_array($component->getRawState()) ? $component->getRawState() : [];
+        $targetRows = is_array($targetRepeater->getRawState()) ? $targetRepeater->getRawState() : [];
+
+        if (count($targetRows) <= count($currentRows)) {
+            return;
+        }
+
+        $targetKeys = array_keys($targetRows);
+        $index = $deletedRowIndex ?? count($currentRows);
+
+        if (! isset($targetKeys[$index])) {
+            $index = array_key_last($targetKeys);
+        }
+
+        if ($index === null || ! isset($targetKeys[$index])) {
+            return;
+        }
+
+        unset($targetRows[$targetKeys[$index]]);
+        $targetRepeater->rawState($targetRows);
+    }
+
+    protected static function getMirroredLocaleRepeater(Repeater $component, string $currentLocale): ?Repeater
+    {
+        $targetPath = self::getMirroredLocaleStatePath($component, $currentLocale);
+
+        if (! $targetPath) {
+            return null;
+        }
+
+        $targetComponent = $component
+            ->getRootContainer()
+            ->getComponentByStatePath($targetPath, withHidden: true, withAbsoluteStatePath: true);
+
+        return $targetComponent instanceof Repeater ? $targetComponent : null;
+    }
+
+    protected static function getMirroredLocaleStatePath(Repeater $component, string $currentLocale): ?string
+    {
+        $currentPath = $component->getStatePath();
+        $targetLocale = $currentLocale === 'en' ? 'id' : 'en';
+        $localeSuffix = ".{$currentLocale}";
+
+        if (! str_ends_with($currentPath, $localeSuffix)) {
+            return null;
+        }
+
+        return substr($currentPath, 0, -strlen($localeSuffix)).".{$targetLocale}";
+    }
+
+    protected static function emptyTranslatedRepeaterRow(string $fieldKey): array
+    {
+        return match ($fieldKey) {
+            'brief' => ['content' => ''],
+            'core_services' => ['service' => ''],
+            'features' => [
+                'feature_name' => '',
+                'feature_description' => '',
+            ],
+            'server', 'assets', 'security', 'support' => ['item' => ''],
+            'additional_benefit' => ['benefit' => ''],
+            'add_on' => [
+                'name' => '',
+                'description' => '',
+                'price' => '',
+            ],
+            'payment' => [
+                'info' => '',
+                'down_payment_amount' => '',
+            ],
+            'terms_condition' => [
+                'title' => '',
+                'description' => '',
+            ],
+            'offer_1_project_timeline', 'offer_2_project_timeline' => [
+                'activity_name' => '',
+                'activity_pic' => '',
+                'activity_days' => '',
+            ],
+            default => [],
+        };
     }
 
     protected static function defaultContentRows(string $fieldKey, string $locale): array

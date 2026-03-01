@@ -12,16 +12,14 @@ class ProposalContentDefaultSeeder extends Seeder
 
     public function run(): void
     {
-        $proposalContentDefault = ProposalContentDefault::firstOrNew([
+        ProposalContentDefault::updateOrCreate([
             'field_key' => ProposalContentDefault::GLOBAL_FIELD_KEY,
+        ], [
+            'value' => [
+                'en' => self::defaultValueEn(),
+                'id' => self::defaultValueId(),
+            ],
         ]);
-
-        $proposalContentDefault->setTranslations('value', [
-            'en' => self::defaultValueEn(),
-            'id' => self::defaultValueId(),
-        ]);
-
-        $proposalContentDefault->save();
     }
 
     /**

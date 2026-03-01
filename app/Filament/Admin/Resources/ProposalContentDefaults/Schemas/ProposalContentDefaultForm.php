@@ -17,6 +17,10 @@ class ProposalContentDefaultForm
             ->map(fn (string $label, string $fieldKey): Section => Section::make($label)
                 ->schema([
                     Translate::make()
+                        ->exclude([
+                            "value.en.{$fieldKey}",
+                            "value.id.{$fieldKey}",
+                        ])
                         ->schema(fn (string $locale): array => [
                             self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value'),
                         ])
