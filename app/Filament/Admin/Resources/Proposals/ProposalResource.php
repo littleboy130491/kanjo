@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Proposals;
 use App\Filament\Admin\Resources\Proposals\Pages\CreateProposal;
 use App\Filament\Admin\Resources\Proposals\Pages\EditProposal;
 use App\Filament\Admin\Resources\Proposals\Pages\ListProposals;
+use App\Filament\Admin\Resources\Proposals\RelationManagers\InvoicesRelationManager;
 use App\Filament\Admin\Resources\Proposals\Schemas\ProposalForm;
 use App\Filament\Admin\Resources\Proposals\Tables\ProposalsTable;
 use App\Models\Proposal;
@@ -30,6 +31,13 @@ class ProposalResource extends Resource
     public static function table(Table $table): Table
     {
         return ProposalsTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            InvoicesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
