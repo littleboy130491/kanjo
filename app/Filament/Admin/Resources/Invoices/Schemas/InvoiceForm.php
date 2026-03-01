@@ -15,7 +15,6 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -39,13 +38,14 @@ class InvoiceForm
                                     ->schema([
                                         TextInput::make('document_number')
                                             ->label('Document Number')
-                                            ->disabled()
-                                            ->dehydrated(false)
+                                            ->helperText('Defaults to the next auto-generated number. You can edit it directly to override.')
+                                            ->maxLength(255)
                                             ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
                                                 'INV',
                                                 $get('issue_date'),
                                             ))
-                                            ->placeholder('Auto-generated'),
+                                            ->placeholder('Auto-generated')
+                                            ->live(onBlur: true),
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
@@ -55,20 +55,6 @@ class InvoiceForm
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(fn (?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
                                             ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Str::slug($state) : null),
-                                        Toggle::make('document_number_override')
-                                            ->label('Override Document Number')
-                                            ->helperText('Enable to manually set the full document number')
-                                            ->live()
-                                            ->default(false),
-                                        TextInput::make('document_number_manual')
-                                            ->label('Manual Document Number')
-                                            ->maxLength(255)
-                                            ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
-                                                'INV',
-                                                $get('issue_date'),
-                                            ))
-                                            ->visible(fn (Get $get): bool => $get('document_number_override'))
-                                            ->required(fn (Get $get): bool => $get('document_number_override')),
                                     ])
                                     ->columns(2),
 
