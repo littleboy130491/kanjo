@@ -110,12 +110,12 @@ class Proposal extends Model
     protected function documentNumberFinal(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value, array $attributes): ?string => (
+            get: fn(?string $value, array $attributes): ?string => (
                 (bool) ($attributes['document_number_override'] ?? false)
                 && filled($attributes['document_number_manual'] ?? null)
             )
-                ? (string) $attributes['document_number_manual']
-                : ($attributes['document_number'] ?? null),
+            ? (string) $attributes['document_number_manual']
+            : ($attributes['document_number'] ?? null),
         );
     }
 
