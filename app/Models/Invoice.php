@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
@@ -211,6 +210,8 @@ class Invoice extends Model
 
     private static function recalculateTotals(self $invoice): void
     {
+        $invoice->items = self::normalizeTranslatedItemPrices($invoice->items);
+
         $items = self::extractItemsForTotal($invoice->items);
         $subtotal = collect($items)
             ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0));
@@ -223,34 +224,102 @@ class Invoice extends Model
         $invoice->total = round($subtotal + $taxAmount, 2);
     }
 
+    private static function normalizeTranslatedItemPrices(mixed $items): mixed
+    {
+        if (! is_array($items)) {
+            return $items;
+        }
+
+        if (! isset($items['en'], $items['id']) || ! is_array($items['en']) || ! is_array($items['id'])) {
+            return $items;
+        }
+
+        $enRows = $items['en'];
+        $idRows = $items['id'];
+        $enKeys = array_keys($enRows);
+        $idKeys = array_keys($idRows);
+        $maxRows = max(count($enKeys), count($idKeys));
+
+        for ($index = 0; $index < $maxRows; $index++) {
+            $enKey = $enKeys[$index] ?? null;
+            $idKey = $idKeys[$index] ?? null;
+            $enPrice = $enKey !== null ? data_get($enRows[$enKey], 'price') : null;
+            $idPrice = $idKey !== null ? data_get($idRows[$idKey], 'price') : null;
+            $resolvedPrice = filled($enPrice) ? $enPrice : $idPrice;
+
+            if ($resolvedPrice === null) {
+                continue;
+            }
+
+            if ($enKey !== null && is_array($enRows[$enKey])) {
+                $enRows[$enKey]['price'] = $resolvedPrice;
+            }
+
+            if ($idKey !== null && is_array($idRows[$idKey])) {
+                $idRows[$idKey]['price'] = $resolvedPrice;
+            }
+        }
+
+        $items['en'] = $enRows;
+        $items['id'] = $idRows;
+
+        return $items;
+    }
+
     /**
      * @return array<int, array<string, mixed>>
      */
     private static function extractItemsForTotal(mixed $items): array
     {
-        if (! is_array($items)) {
-            return [];
+        return self::findItemRows($items) ?? [];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>|null
+     */
+    private static function findItemRows(mixed $node): ?array
+    {
+        if (! is_array($node)) {
+            return null;
         }
 
-        if (Arr::isList($items)) {
-            return $items;
+        if (self::isItemRowCollection($node)) {
+            return array_values($node);
         }
 
-        foreach (['en', 'id'] as $locale) {
-            $localeItems = $items[$locale] ?? null;
+        foreach ($node as $value) {
+            $found = self::findItemRows($value);
 
-            if (is_array($localeItems) && Arr::isList($localeItems)) {
-                return $localeItems;
+            if ($found !== null) {
+                return $found;
             }
         }
 
-        foreach ($items as $value) {
-            if (is_array($value) && Arr::isList($value)) {
-                return $value;
+        return null;
+    }
+
+    private static function isItemRowCollection(array $rows): bool
+    {
+        if ($rows === []) {
+            return true;
+        }
+
+        $values = array_values($rows);
+
+        foreach ($values as $value) {
+            if (! is_array($value) || ! self::isItemRow($value)) {
+                return false;
             }
         }
 
-        return [];
+        return true;
+    }
+
+    private static function isItemRow(array $row): bool
+    {
+        return array_key_exists('price', $row)
+            || array_key_exists('title', $row)
+            || array_key_exists('description', $row);
     }
 
     public function proposal()

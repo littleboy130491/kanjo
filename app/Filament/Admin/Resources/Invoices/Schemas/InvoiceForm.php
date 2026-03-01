@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\Service;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -22,7 +23,6 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
@@ -175,8 +175,8 @@ class InvoiceForm
                                 Section::make('Invoice Items')
                                     ->schema([
                                         Translate::make()
-                                            ->schema([
-                                                Repeater::make('items')
+                                            ->schema(fn (string $locale): array => [
+                                                self::configureTranslatedItemsRepeater(Repeater::make('items'), $locale)
                                                     ->schema([
                                                         TextInput::make('title')
                                                             ->required()
@@ -187,7 +187,10 @@ class InvoiceForm
                                                             ->numeric()
                                                             ->inputMode('decimal')
                                                             ->live(onBlur: true)
-                                                            ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set))
+                                                            ->afterStateUpdated(function (mixed $state, TextInput $component, Get $get, Set $set): void {
+                                                                self::syncItemPriceAcrossLocales($component, $set, $state);
+                                                                self::recalculateTotals($get, $set);
+                                                            })
                                                             ->columnSpan(1),
                                                         Textarea::make('description')
                                                             ->rows(2)
@@ -320,7 +323,14 @@ class InvoiceForm
 
     protected static function recalculateTotals(Get $get, Set $set): void
     {
-        $items = self::extractItemsForTotal($get('items'));
+        $items = self::extractItemsForTotal(
+            $get('items')
+            ?? $get('../items')
+            ?? $get('../../items')
+            ?? $get('../../../items')
+            ?? $get('../../../../items')
+            ?? $get('../../../../../items')
+        );
 
         $subtotal = collect($items)
             ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0));
@@ -334,33 +344,207 @@ class InvoiceForm
         $set('total', round($total, 2));
     }
 
+    protected static function configureTranslatedItemsRepeater(Repeater $repeater, string $locale): Repeater
+    {
+        $deletedRowIndex = null;
+
+        return $repeater
+            ->addAction(fn (Action $action): Action => $action
+                ->after(function (Repeater $component) use ($locale): void {
+                    self::syncTranslatedItemsAddedRow($component, $locale);
+                }))
+            ->deleteAction(fn (Action $action): Action => $action
+                ->before(function (array $arguments, Repeater $component) use (&$deletedRowIndex): void {
+                    $rawRows = $component->getRawState() ?? [];
+                    $rawKeys = array_keys($rawRows);
+                    $deletedKey = $arguments['item'] ?? null;
+                    $index = array_search($deletedKey, $rawKeys, true);
+
+                    $deletedRowIndex = $index === false ? null : (int) $index;
+                })
+                ->after(function (Repeater $component) use (&$deletedRowIndex, $locale): void {
+                    self::syncTranslatedItemsDeletedRow($component, $locale, $deletedRowIndex);
+                    $deletedRowIndex = null;
+                }));
+    }
+
+    protected static function syncTranslatedItemsAddedRow(Repeater $component, string $locale): void
+    {
+        $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
+
+        if (! $targetRepeater) {
+            return;
+        }
+
+        $currentRows = is_array($component->getRawState()) ? $component->getRawState() : [];
+        $targetRows = is_array($targetRepeater->getRawState()) ? $targetRepeater->getRawState() : [];
+
+        if (count($targetRows) >= count($currentRows)) {
+            return;
+        }
+
+        $missingRows = count($currentRows) - count($targetRows);
+        $newKeys = [];
+
+        for ($i = 0; $i < $missingRows; $i++) {
+            $newKey = $targetRepeater->generateUuid();
+
+            if ($newKey) {
+                $targetRows[$newKey] = self::emptyItemRow();
+                $newKeys[] = $newKey;
+            } else {
+                $targetRows[] = self::emptyItemRow();
+                $newKeys[] = array_key_last($targetRows);
+            }
+        }
+
+        $targetRepeater->rawState($targetRows);
+
+        foreach ($newKeys as $newKey) {
+            if ($newKey !== null) {
+                $targetRepeater->getChildSchema($newKey)->fill();
+            }
+        }
+    }
+
+    protected static function syncTranslatedItemsDeletedRow(Repeater $component, string $locale, ?int $deletedRowIndex): void
+    {
+        $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
+
+        if (! $targetRepeater) {
+            return;
+        }
+
+        $currentRows = is_array($component->getRawState()) ? $component->getRawState() : [];
+        $targetRows = is_array($targetRepeater->getRawState()) ? $targetRepeater->getRawState() : [];
+
+        if (count($targetRows) <= count($currentRows)) {
+            return;
+        }
+
+        $targetKeys = array_keys($targetRows);
+        $index = $deletedRowIndex ?? count($currentRows);
+
+        if (! isset($targetKeys[$index])) {
+            $index = array_key_last($targetKeys);
+        }
+
+        if ($index === null || ! isset($targetKeys[$index])) {
+            return;
+        }
+
+        unset($targetRows[$targetKeys[$index]]);
+        $targetRepeater->rawState($targetRows);
+    }
+
+    protected static function syncItemPriceAcrossLocales(TextInput $component, Set $set, mixed $state): void
+    {
+        $currentPath = $component->getStatePath();
+        $targetPath = null;
+
+        if (str_contains($currentPath, '.en.')) {
+            $targetPath = str_replace('.en.', '.id.', $currentPath);
+        } elseif (str_contains($currentPath, '.id.')) {
+            $targetPath = str_replace('.id.', '.en.', $currentPath);
+        }
+
+        if ($targetPath === null || $targetPath === $currentPath) {
+            return;
+        }
+
+        $set($targetPath, $state, isAbsolute: true);
+    }
+
+    protected static function getMirroredLocaleRepeater(Repeater $component, string $currentLocale): ?Repeater
+    {
+        $targetPath = self::getMirroredLocaleStatePath($component, $currentLocale);
+
+        if (! $targetPath) {
+            return null;
+        }
+
+        $targetComponent = $component
+            ->getRootContainer()
+            ->getComponentByStatePath($targetPath, withHidden: true, withAbsoluteStatePath: true);
+
+        return $targetComponent instanceof Repeater ? $targetComponent : null;
+    }
+
+    protected static function getMirroredLocaleStatePath(Repeater $component, string $currentLocale): ?string
+    {
+        $currentPath = $component->getStatePath();
+        $targetLocale = $currentLocale === 'en' ? 'id' : 'en';
+        $localeSuffix = ".{$currentLocale}";
+
+        if (! str_ends_with($currentPath, $localeSuffix)) {
+            return null;
+        }
+
+        return substr($currentPath, 0, -strlen($localeSuffix)) . ".{$targetLocale}";
+    }
+
+    protected static function emptyItemRow(): array
+    {
+        return [
+            'title' => '',
+            'price' => '',
+            'description' => '',
+        ];
+    }
+
     /**
      * @return array<int, array<string, mixed>>
      */
     protected static function extractItemsForTotal(mixed $items): array
     {
-        if (! is_array($items)) {
-            return [];
+        return self::findItemRows($items) ?? [];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>|null
+     */
+    protected static function findItemRows(mixed $node): ?array
+    {
+        if (! is_array($node)) {
+            return null;
         }
 
-        if (Arr::isList($items)) {
-            return $items;
+        if (self::isItemRowCollection($node)) {
+            return array_values($node);
         }
 
-        foreach (['en', 'id'] as $locale) {
-            $localeItems = $items[$locale] ?? null;
+        foreach ($node as $value) {
+            $found = self::findItemRows($value);
 
-            if (is_array($localeItems) && Arr::isList($localeItems)) {
-                return $localeItems;
+            if ($found !== null) {
+                return $found;
             }
         }
 
-        foreach ($items as $value) {
-            if (is_array($value) && Arr::isList($value)) {
-                return $value;
+        return null;
+    }
+
+    protected static function isItemRowCollection(array $rows): bool
+    {
+        if ($rows === []) {
+            return true;
+        }
+
+        $values = array_values($rows);
+
+        foreach ($values as $value) {
+            if (! is_array($value) || ! self::isItemRow($value)) {
+                return false;
             }
         }
 
-        return [];
+        return true;
+    }
+
+    protected static function isItemRow(array $row): bool
+    {
+        return array_key_exists('price', $row)
+            || array_key_exists('title', $row)
+            || array_key_exists('description', $row);
     }
 }
