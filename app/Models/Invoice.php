@@ -27,7 +27,6 @@ class Invoice extends Model
         'slug',
         'document_number_raw',
         'document_number_override',
-        'document_number_manual',
         'issue_month',
         'issue_year',
         'client_company',
@@ -80,12 +79,7 @@ class Invoice extends Model
     protected function documentNumberFinal(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value, array $attributes): ?string => (
-                (bool) ($attributes['document_number_override'] ?? false)
-                && filled($attributes['document_number_manual'] ?? null)
-            )
-                ? (string) $attributes['document_number_manual']
-                : ($attributes['document_number'] ?? null),
+            get: fn (?string $value, array $attributes): ?string => $attributes['document_number'] ?? null,
         );
     }
 
@@ -118,19 +112,21 @@ class Invoice extends Model
                 $invoice->issue_year = $now->year;
             }
 
-            // Always generate document number (even if overridden)
+            // Always allocate the next raw number, even when display number is overridden
             $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
             $data = DocumentNumberGenerator::generate('INV', $date);
+            $generatedDocumentNumber = $data['document_number'];
 
             $invoice->document_number_raw = $data['document_number_raw'];
 
-            if ($invoice->document_number_override && filled($invoice->document_number_manual)) {
-                $invoice->document_number = $invoice->document_number_manual;
+            if (blank($invoice->document_number)) {
+                $invoice->document_number = $generatedDocumentNumber;
+                $invoice->document_number_override = false;
 
                 return;
             }
 
-            $invoice->document_number = $data['document_number'];
+            $invoice->document_number_override = $invoice->document_number !== $generatedDocumentNumber;
         });
 
         static::created(function ($invoice) {
@@ -156,23 +152,28 @@ class Invoice extends Model
                 $invoice->issue_year = $date->year;
             }
 
-            if ($invoice->document_number_override && $invoice->isDirty('document_number_manual') && filled($invoice->document_number_manual)) {
-                $invoice->document_number = $invoice->document_number_manual;
+            $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
+            $generatedDocumentNumber = DocumentNumberGenerator::regenerate(
+                'INV',
+                (int) $invoice->document_number_raw,
+                $date,
+            );
+
+            if ($invoice->isDirty('document_number')) {
+                if (blank($invoice->document_number)) {
+                    $invoice->document_number = $generatedDocumentNumber;
+                    $invoice->document_number_override = false;
+
+                    return;
+                }
+
+                $invoice->document_number_override = $invoice->document_number !== $generatedDocumentNumber;
 
                 return;
             }
 
-            if (
-                $invoice->document_number_override
-                && blank($invoice->document_number_manual)
-                && $invoice->isDirty('issue_date')
-            ) {
-                $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
-                $invoice->document_number = DocumentNumberGenerator::regenerate(
-                    'INV',
-                    $invoice->document_number_raw,
-                    $date,
-                );
+            if ($invoice->isDirty('issue_date') && ! $invoice->document_number_override) {
+                $invoice->document_number = $generatedDocumentNumber;
             }
         });
     }
