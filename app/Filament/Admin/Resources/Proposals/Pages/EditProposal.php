@@ -41,9 +41,9 @@ class EditProposal extends EditRecord
                 ->label('Create Renewal Invoice')
                 ->icon('heroicon-o-arrow-path')
                 ->color('warning')
-                ->visible(fn (): bool => filled($this->record->offer_1_renewal_price))
+                ->visible(fn(): bool => filled($this->record->offer_1_renewal_price))
                 ->action(function () {
-                    $title = trim(($this->record->offer_name_1 ?: 'Service').' — Renewal');
+                    $title = trim(($this->record->offer_name_1 ?: 'Service') . ' — Renewal');
                     $invoice = $this->createInvoiceFromProposal(
                         (float) $this->record->offer_1_renewal_price,
                         $title,
@@ -56,19 +56,19 @@ class EditProposal extends EditRecord
                 ->label('Generate Service')
                 ->icon('heroicon-o-wrench-screwdriver')
                 ->color('success')
-                ->visible(fn (): bool => filled($this->record->client_id) && blank($this->record->service_id))
+                ->visible(fn(): bool => filled($this->record->client_id) && blank($this->record->service_id))
                 ->schema([
                     \Filament\Forms\Components\TextInput::make('name')
                         ->maxLength(255)
-                        ->default(fn (): string => (string) ($this->record->offer_name_1 ?: $this->record->document_number)),
+                        ->default(fn(): string => (string) ($this->record->offer_name_1 ?: $this->record->document_number)),
                     \Filament\Forms\Components\TextInput::make('domain')
                         ->maxLength(255),
                     \Filament\Forms\Components\TextInput::make('start_date')
                         ->maxLength(255)
-                        ->default(fn (): ?string => $this->record->issue_date?->toDateString()),
+                        ->default(fn(): ?string => $this->record->issue_date?->toDateString()),
                     \Filament\Forms\Components\TextInput::make('renewal_date')
                         ->maxLength(255)
-                        ->default(fn (): ?string => $this->record->valid_until?->toDateString()),
+                        ->default(fn(): ?string => $this->record->valid_until?->toDateString()),
                 ])
                 ->action(function (array $data) {
                     $service = Service::create([
@@ -87,14 +87,14 @@ class EditProposal extends EditRecord
             Action::make('view_document')
                 ->label('View Document')
                 ->icon('heroicon-o-eye')
-                ->url(fn (): string => route('proposal.show', [
+                ->url(fn(): string => route('proposal.show', [
                     'slug' => $this->record->slug ?: str_replace('/', '-', $this->record->document_number),
                 ]))
                 ->openUrlInNewTab(),
             Action::make('create_pdf')
                 ->label('Create PDF')
                 ->icon('heroicon-o-document-arrow-down')
-                ->url(fn (): string => route('pdf.proposal', [
+                ->url(fn(): string => route('pdf.proposal', [
                     'slug' => $this->record->slug ?: str_replace('/', '-', $this->record->document_number),
                 ]))
                 ->openUrlInNewTab(),
@@ -131,7 +131,7 @@ class EditProposal extends EditRecord
                     'description' => '',
                 ],
             ],
-            'status' => DocumentStatus::DRAFT,
+            'status' => DocumentStatus::PUBLISHED,
             'payment_status' => PaymentStatus::UNPAID,
             'proposal_id' => $this->record->id,
             'notes' => [],

@@ -7,6 +7,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Filament\Admin\Resources\Proposals\ProposalResource;
+use App\Filament\Admin\Resources\Services\ServiceResource;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Service;
@@ -223,6 +224,8 @@ class InvoicesTable
 
                         $record->update(['service_id' => $service->id]);
                         Notification::make()->title('Service generated from invoice and linked.')->success()->send();
+
+                        return redirect(ServiceResource::getUrl('edit', ['record' => $service]));
                     }),
                 Action::make('download_pdf')
                     ->label('Download PDF')

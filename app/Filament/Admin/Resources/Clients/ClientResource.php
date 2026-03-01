@@ -5,7 +5,6 @@ namespace App\Filament\Admin\Resources\Clients;
 use App\Filament\Admin\Resources\Clients\Pages\CreateClient;
 use App\Filament\Admin\Resources\Clients\Pages\EditClient;
 use App\Filament\Admin\Resources\Clients\Pages\ListClients;
-use App\Filament\Admin\Resources\Clients\Pages\ViewClient;
 use App\Filament\Admin\Resources\Clients\RelationManagers\InvoicesRelationManager;
 use App\Filament\Admin\Resources\Clients\RelationManagers\ProposalsRelationManager;
 use App\Filament\Admin\Resources\Clients\RelationManagers\ServicesRelationManager;
@@ -50,7 +49,6 @@ class ClientResource extends Resource
         return [
             'index' => ListClients::route('/'),
             'create' => CreateClient::route('/create'),
-            'view' => ViewClient::route('/{record}'),
             'edit' => EditClient::route('/{record}/edit'),
         ];
     }

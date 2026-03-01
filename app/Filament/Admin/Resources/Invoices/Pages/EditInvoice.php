@@ -7,6 +7,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Filament\Admin\Resources\Proposals\ProposalResource;
+use App\Filament\Admin\Resources\Services\ServiceResource;
 use App\Models\Invoice;
 use App\Models\Service;
 use Filament\Actions\Action;
@@ -55,6 +56,8 @@ class EditInvoice extends EditRecord
 
                     $this->record->update(['service_id' => $service->id]);
                     $this->refreshFormData(['service_id']);
+
+                    return redirect(ServiceResource::getUrl('edit', ['record' => $service]));
                 }),
             Action::make('generate_invoice_from_service')
                 ->label('Generate Invoice from Service')

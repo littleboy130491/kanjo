@@ -26,19 +26,19 @@ class InvoicesRelationManager extends RelationManager
                 TextColumn::make('document_number')
                     ->searchable()
                     ->sortable()
-                    ->url(fn (Invoice $record): string => InvoiceResource::getUrl('view', ['record' => $record])),
+                    ->url(fn(Invoice $record): string => InvoiceResource::getUrl('edit', ['record' => $record])),
                 TextColumn::make('total')
-                    ->money(fn (Invoice $record): string => $record->currency)
+                    ->money(fn(Invoice $record): string => $record->currency)
                     ->sortable(),
                 TextColumn::make('payment_status')
                     ->badge()
-                    ->formatStateUsing(fn (PaymentStatus $state): string => $state->getLabel())
-                    ->color(fn (PaymentStatus $state): string => $state->getColor())
+                    ->formatStateUsing(fn(PaymentStatus $state): string => $state->getLabel())
+                    ->color(fn(PaymentStatus $state): string => $state->getColor())
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn (DocumentStatus $state): string => $state->getLabel())
-                    ->color(fn (DocumentStatus $state): string => $state->getColor())
+                    ->formatStateUsing(fn(DocumentStatus $state): string => $state->getLabel())
+                    ->color(fn(DocumentStatus $state): string => $state->getColor())
                     ->sortable(),
                 TextColumn::make('issue_date')
                     ->date()
