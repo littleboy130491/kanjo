@@ -875,7 +875,7 @@ class ProposalForm
         $raw = self::generateNextDocumentRaw($date);
         $romanMonth = DocumentNumberGenerator::toRoman($date->month);
 
-        return sprintf('%s/%03d/%s/%s', $type, $raw, $romanMonth, $date->format('y'));
+        return sprintf('%s/%03d/%s/%s/NEW', $type, $raw, $romanMonth, $date->format('y'));
     }
 
     protected static function generateSlugPreview(mixed $issueDate): string

@@ -30,7 +30,7 @@ class DocumentNumberGenerator
             $roman = self::toRoman($date->month);
             $yy = $date->format('y');
             
-            $documentNumber = sprintf('%s/%03d/%s/%02d', $type, $raw, $roman, $yy);
+            $documentNumber = sprintf('%s/%03d/%s/%02d/NEW', $type, $raw, $roman, $yy);
 
             return [
                 'document_number' => $documentNumber,
@@ -49,6 +49,6 @@ class DocumentNumberGenerator
         $roman = self::toRoman($date->month);
         $yy = $date->format('y');
 
-        return sprintf('%s/%03d/%s/%02d', $type, $raw, $roman, $yy);
+        return sprintf('%s/%03d/%s/%02d/NEW', $type, $raw, $roman, $yy);
     }
 }
