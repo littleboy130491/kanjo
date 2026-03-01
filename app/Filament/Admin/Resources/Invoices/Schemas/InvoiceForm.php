@@ -49,7 +49,7 @@ class InvoiceForm
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
-                                            ->helperText('Auto-generated as {id}-{document_number_raw} after save. You can override it manually.')
+                                            ->helperText('Auto-generated as {id}-{document_number_raw}{issue_month}{issue_year} after save. You can override it manually.')
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
                                             ->live(onBlur: true)

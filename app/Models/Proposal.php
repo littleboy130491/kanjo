@@ -169,7 +169,12 @@ class Proposal extends Model
             }
 
             $proposal->forceFill([
-                'slug' => self::generateSlug((int) $proposal->id, (int) $proposal->document_number_raw),
+                'slug' => self::generateSlug(
+                    (int) $proposal->id,
+                    (int) $proposal->document_number_raw,
+                    (int) $proposal->issue_month,
+                    (int) $proposal->issue_year,
+                ),
             ])->saveQuietly();
         });
 
@@ -202,9 +207,13 @@ class Proposal extends Model
         });
     }
 
-    private static function generateSlug(int $id, int $documentNumberRaw): string
-    {
-        return sprintf('%d-%d', $id, $documentNumberRaw);
+    private static function generateSlug(
+        int $id,
+        int $documentNumberRaw,
+        int $issueMonth,
+        int $issueYear,
+    ): string {
+        return sprintf('%d-%d%d%d', $id, $documentNumberRaw, $issueMonth, $issueYear);
     }
 
 

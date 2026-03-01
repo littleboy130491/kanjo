@@ -53,7 +53,7 @@ class ProposalForm
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
-                                            ->helperText('Auto-generated as {id}-{document_number_raw} after save. You can override it manually.')
+                                            ->helperText('Auto-generated as {id}-{document_number_raw}{issue_month}{issue_year} after save. You can override it manually.')
                                             ->default(fn (Get $get): string => self::generateSlugPreview($get('issue_date')))
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
@@ -884,7 +884,7 @@ class ProposalForm
         $nextId = ((int) Proposal::query()->max('id')) + 1;
         $raw = self::generateNextDocumentRaw($date);
 
-        return sprintf('%d-%d', $nextId, $raw);
+        return sprintf('%d-%d%d%d', $nextId, $raw, $date->month, $date->year);
     }
 
     protected static function generateNextDocumentRaw(Carbon $date): int
