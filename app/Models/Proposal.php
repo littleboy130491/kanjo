@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
 class Proposal extends Model
@@ -109,7 +110,12 @@ class Proposal extends Model
     protected function documentNumberFinal(): Attribute
     {
         return Attribute::make(
-            get: fn (): ?string => $this->document_number,
+            get: fn (?string $value, array $attributes): ?string => (
+                (bool) ($attributes['document_number_override'] ?? false)
+                && filled($attributes['document_number_manual'] ?? null)
+            )
+                ? (string) $attributes['document_number_manual']
+                : ($attributes['document_number'] ?? null),
         );
     }
 
