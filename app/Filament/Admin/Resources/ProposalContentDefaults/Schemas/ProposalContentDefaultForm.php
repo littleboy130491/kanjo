@@ -7,6 +7,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
 class ProposalContentDefaultForm
 {
@@ -15,8 +16,12 @@ class ProposalContentDefaultForm
         $fieldSections = collect(ProposalContentDefault::FIELD_OPTIONS)
             ->map(fn (string $label, string $fieldKey): Section => Section::make($label)
                 ->schema([
-                    self::makeJsonTextarea("value.en.{$fieldKey}", 'Default Value (EN)'),
-                    self::makeJsonTextarea("value.id.{$fieldKey}", 'Default Value (ID)'),
+                    Translate::make()
+                        ->schema(fn (string $locale): array => [
+                            self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value'),
+                        ])
+                        ->locales(['en', 'id'])
+                        ->suffixLocaleLabel(),
                 ]))
             ->all();
 
