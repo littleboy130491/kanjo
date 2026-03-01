@@ -22,6 +22,8 @@ class PortfolioResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Data';
 
+    protected static ?int $navigationSort = 10;
+
     public static function form(Schema $schema): Schema
     {
         return PortfolioForm::configure($schema);

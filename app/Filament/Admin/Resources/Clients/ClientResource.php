@@ -25,6 +25,8 @@ class ClientResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Data';
 
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return ClientForm::configure($schema);

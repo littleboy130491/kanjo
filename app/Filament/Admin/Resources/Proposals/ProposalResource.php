@@ -23,6 +23,8 @@ class ProposalResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Documents';
 
+    protected static ?int $navigationSort = 10;
+
     public static function form(Schema $schema): Schema
     {
         return ProposalForm::configure($schema);

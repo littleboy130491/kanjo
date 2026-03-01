@@ -22,6 +22,8 @@ class InvoiceResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Documents';
 
+    protected static ?int $navigationSort = 20;
+
     public static function form(Schema $schema): Schema
     {
         return InvoiceForm::configure($schema);

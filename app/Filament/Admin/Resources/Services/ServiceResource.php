@@ -24,6 +24,8 @@ class ServiceResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Data';
 
+    protected static ?int $navigationSort = 30;
+
     public static function form(Schema $schema): Schema
     {
         return ServiceForm::configure($schema);

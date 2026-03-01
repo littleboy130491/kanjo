@@ -59,6 +59,13 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([Authenticate::class])
-            ->plugins([\Awcodes\Curator\CuratorPlugin::make()]);
+            ->plugins([\Awcodes\Curator\CuratorPlugin::make()])
+            ->unsavedChangesAlerts()
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups([
+                'Documents',
+                'Data',
+                'Settings',
+            ]);
     }
 }

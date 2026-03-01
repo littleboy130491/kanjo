@@ -8,6 +8,7 @@ use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Filament\Admin\Resources\Proposals\ProposalResource;
 use App\Models\Invoice;
+use App\Models\Proposal;
 use App\Models\Service;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
@@ -25,6 +26,15 @@ class EditProposal extends EditRecord
                 ->color('primary')
                 ->link()
                 ->action('save'),
+            Action::make('duplicate')
+                ->label('Duplicate')
+                ->icon('heroicon-o-document-duplicate')
+                ->link()
+                ->action(function () {
+                    $duplicate = $this->duplicateProposal();
+
+                    return redirect(ProposalResource::getUrl('edit', ['record' => $duplicate]));
+                }),
             Action::make('create_invoice')
                 ->label('Create Invoice')
                 ->icon('heroicon-o-arrow-right-circle')
@@ -72,6 +82,30 @@ class EditProposal extends EditRecord
                 ]))
                 ->openUrlInNewTab(),
         ];
+    }
+
+    private function duplicateProposal(): Proposal
+    {
+        $this->record->loadMissing('portfolios');
+
+        $duplicate = $this->record->replicate([
+            'document_number',
+            'slug',
+            'document_number_raw',
+            'issue_month',
+            'issue_year',
+            'invoices_count',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ]);
+
+        $duplicate->status = DocumentStatus::DRAFT;
+        $duplicate->document_number_override = false;
+        $duplicate->save();
+        $duplicate->portfolios()->sync($this->record->portfolios->modelKeys());
+
+        return $duplicate;
     }
 
     private function createInvoiceFromProposal(float $price, string $title, string $suffix = 'NEW'): Invoice

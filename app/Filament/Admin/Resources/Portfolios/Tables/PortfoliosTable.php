@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Portfolios\Tables;
 
+use App\Filament\Admin\Resources\Portfolios\PortfolioResource;
 use Awcodes\Curator\Components\Tables\CuratorColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -33,7 +34,7 @@ class PortfoliosTable
             ->defaultSort('created_at', 'desc')
             ->modifyQueryUsing(fn ($query) => $query->with(['image', 'proposals']))
             ->contentGrid(['md' => 2, 'lg' => 3])
-            ->recordUrl(null)
+            ->recordUrl(fn ($record): string => PortfolioResource::getUrl('edit', ['record' => $record]))
             ->filters([
                 //
             ])
