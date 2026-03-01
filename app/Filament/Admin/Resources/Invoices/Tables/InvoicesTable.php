@@ -11,15 +11,20 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Service;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Collection;
 
 class InvoicesTable
 {
@@ -226,9 +231,30 @@ class InvoicesTable
                         'slug' => $record->slug ?: str_replace('/', '-', $record->document_number),
                     ]))
                     ->openUrlInNewTab(),
-                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('change_status')
+                        ->label('Change Status')
+                        ->icon('heroicon-o-pencil-square')
+                        ->form([
+                            Select::make('status')
+                                ->label('Status')
+                                ->options(collect(DocumentStatus::cases())->mapWithKeys(
+                                    fn (DocumentStatus $status): array => [$status->value => $status->getLabel()]
+                                )->all())
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $status = DocumentStatus::from((string) $data['status']);
+
+                            $records->each(fn (Invoice $record): bool => $record->update(['status' => $status]));
+                        }),
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                ]),
             ])
             ->defaultSort('created_at', 'desc');
     }
