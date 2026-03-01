@@ -5,7 +5,6 @@ namespace App\Filament\Admin\Resources\Invoices;
 use App\Filament\Admin\Resources\Invoices\Pages\CreateInvoice;
 use App\Filament\Admin\Resources\Invoices\Pages\EditInvoice;
 use App\Filament\Admin\Resources\Invoices\Pages\ListInvoices;
-use App\Filament\Admin\Resources\Invoices\Pages\ViewInvoice;
 use App\Filament\Admin\Resources\Invoices\Schemas\InvoiceForm;
 use App\Filament\Admin\Resources\Invoices\Tables\InvoicesTable;
 use App\Models\Invoice;
@@ -38,7 +37,6 @@ class InvoiceResource extends Resource
         return [
             'index' => ListInvoices::route('/'),
             'create' => CreateInvoice::route('/create'),
-            'view' => ViewInvoice::route('/{record}'),
             'edit' => EditInvoice::route('/{record}/edit'),
         ];
     }

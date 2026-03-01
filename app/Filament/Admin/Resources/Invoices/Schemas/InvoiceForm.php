@@ -41,7 +41,7 @@ class InvoiceForm
                                             ->label('Document Number')
                                             ->helperText('Defaults to the next auto-generated number. You can edit it directly to override.')
                                             ->maxLength(255)
-                                            ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
+                                            ->default(fn(Get $get): string => self::generateDocumentNumberPreview(
                                                 'INV',
                                                 $get('issue_date'),
                                             ))
@@ -50,14 +50,15 @@ class InvoiceForm
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
-                                            ->helperText(fn (Get $get): string => 'Public URL: '.route('invoice.show', [
+                                            ->helperText(fn(Get $get): string => 'Public URL: ' . route('invoice.show', [
                                                 'slug' => Str::slug((string) ($get('slug') ?: self::generateSlugPreview($get('issue_date')))),
                                             ]))
+                                            ->default(fn(Get $get): string => self::generateSlugPreview($get('issue_date')))
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn (?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
-                                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Str::slug($state) : null),
+                                            ->afterStateUpdated(fn(?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
+                                            ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? Str::slug($state) : null),
                                     ])
                                     ->columns(2),
 
@@ -65,13 +66,13 @@ class InvoiceForm
                                     ->schema([
                                         Select::make('company_id')
                                             ->label('Company')
-                                            ->options(fn () => Company::pluck('brand_name', 'id'))
-                                            ->default(fn () => Company::first()?->id)
+                                            ->options(fn() => Company::pluck('brand_name', 'id'))
+                                            ->default(fn() => Company::first()?->id)
                                             ->required()
                                             ->searchable(),
                                         Select::make('proposal_id')
                                             ->label('Proposal (Optional)')
-                                            ->options(fn () => \App\Models\Proposal::pluck('document_number', 'id'))
+                                            ->options(fn() => \App\Models\Proposal::pluck('document_number', 'id'))
                                             ->searchable()
                                             ->preload()
                                             ->placeholder('Not linked to a proposal')
@@ -79,7 +80,7 @@ class InvoiceForm
                                         Select::make('status')
                                             ->options(DocumentStatus::class)
                                             ->enum(DocumentStatus::class)
-                                            ->default(DocumentStatus::DRAFT)
+                                            ->default(DocumentStatus::PUBLISHED)
                                             ->required(),
                                         Select::make('payment_status')
                                             ->options(PaymentStatus::class)
@@ -103,7 +104,7 @@ class InvoiceForm
                                     ->schema([
                                         Select::make('client_id')
                                             ->label('Load from Client Database')
-                                            ->options(fn () => Client::orderBy('company')->pluck('company', 'id'))
+                                            ->options(fn() => Client::orderBy('company')->pluck('company', 'id'))
                                             ->searchable()
                                             ->live()
                                             ->preload()
@@ -154,9 +155,9 @@ class InvoiceForm
                                     ->schema([
                                         Select::make('service_id')
                                             ->label('Link to Service')
-                                            ->options(fn () => Service::with('client')
+                                            ->options(fn() => Service::with('client')
                                                 ->get()
-                                                ->mapWithKeys(fn ($service) => [
+                                                ->mapWithKeys(fn($service) => [
                                                     $service->id => $service->name . ' - ' . ($service->client?->company ?? 'No Client')
                                                 ]))
                                             ->searchable()

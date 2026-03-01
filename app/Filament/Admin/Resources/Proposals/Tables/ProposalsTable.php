@@ -49,12 +49,12 @@ class ProposalsTable
                 TextColumn::make('offer_name_1')
                     ->sortable(),
                 TextColumn::make('offer_1_price')
-                    ->money(fn ($record) => $record->currency)
+                    ->money(fn($record) => $record->currency)
                     ->sortable()
                     ->alignment('right'),
                 BadgeColumn::make('status')
-                    ->formatStateUsing(fn (DocumentStatus $state): string => $state->getLabel())
-                    ->color(fn (DocumentStatus $state): string => $state->getColor()),
+                    ->formatStateUsing(fn(DocumentStatus $state): string => $state->getLabel())
+                    ->color(fn(DocumentStatus $state): string => $state->getColor()),
                 TextColumn::make('issue_date')
                     ->date()
                     ->sortable(),
@@ -88,8 +88,8 @@ class ProposalsTable
                 TernaryFilter::make('has_invoice')
                     ->label('Has Invoice')
                     ->queries(
-                        true: fn (Builder $query) => $query->whereHas('invoices'),
-                        false: fn (Builder $query) => $query->whereDoesntHave('invoices'),
+                        true: fn(Builder $query) => $query->whereHas('invoices'),
+                        false: fn(Builder $query) => $query->whereDoesntHave('invoices'),
                     ),
                 Filter::make('issue_date')
                     ->form([
@@ -100,22 +100,27 @@ class ProposalsTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('issue_date', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '>=', $date),
                             )
                             ->when(
                                 $data['to'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('issue_date', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '<=', $date),
                             );
                     }),
             ])
             ->recordActions([
-                Action::make('convert_to_invoice')
-                    ->label('Convert to Invoice')
+                Action::make('create_invoice')
+                    ->label('Create Invoice')
                     ->icon('heroicon-o-arrow-right-circle')
                     ->color('primary')
-                    ->visible(fn (Proposal $record): bool => $record->status === DocumentStatus::PUBLISHED)
+                    ->visible(fn(Proposal $record): bool => $record->status === DocumentStatus::PUBLISHED)
                     ->action(function (Proposal $record) {
-                        $invoice = self::createInvoiceFromProposal($record, (float) $record->offer_1_price, (string) $record->offer_name_1);
+                        $invoice = self::createInvoiceFromProposal(
+                            $record,
+                            (float) $record->offer_1_price,
+                            (string) $record->offer_name_1,
+                            'DP',
+                        );
 
                         return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
                     }),
@@ -123,10 +128,15 @@ class ProposalsTable
                     ->label('Create Renewal Invoice')
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
-                    ->visible(fn (Proposal $record): bool => filled($record->offer_1_renewal_price))
+                    ->visible(fn(Proposal $record): bool => filled($record->offer_1_renewal_price))
                     ->action(function (Proposal $record) {
-                        $title = trim(($record->offer_name_1 ?: 'Service').' — Renewal');
-                        $invoice = self::createInvoiceFromProposal($record, (float) $record->offer_1_renewal_price, $title);
+                        $title = trim(($record->offer_name_1 ?: 'Service') . ' — Renewal');
+                        $invoice = self::createInvoiceFromProposal(
+                            $record,
+                            (float) $record->offer_1_renewal_price,
+                            $title,
+                            'REN',
+                        );
 
                         return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
                     }),
@@ -155,7 +165,7 @@ class ProposalsTable
                     ->label('Create Client')
                     ->icon('heroicon-o-user-plus')
                     ->color('success')
-                    ->visible(fn (Proposal $record): bool => blank($record->client_id))
+                    ->visible(fn(Proposal $record): bool => blank($record->client_id))
                     ->action(function (Proposal $record) {
                         $client = Client::create([
                             'name' => $record->client_name,
@@ -173,19 +183,19 @@ class ProposalsTable
                     ->label('Create Service')
                     ->icon('heroicon-o-wrench-screwdriver')
                     ->color('success')
-                    ->visible(fn (Proposal $record): bool => filled($record->client_id) && blank($record->service_id))
+                    ->visible(fn(Proposal $record): bool => filled($record->client_id) && blank($record->service_id))
                     ->schema([
                         \Filament\Forms\Components\TextInput::make('name')
                             ->maxLength(255)
-                            ->default(fn (Proposal $record): string => (string) ($record->offer_name_1 ?: $record->document_number)),
+                            ->default(fn(Proposal $record): string => (string) ($record->offer_name_1 ?: $record->document_number)),
                         \Filament\Forms\Components\TextInput::make('domain')
                             ->maxLength(255),
                         \Filament\Forms\Components\TextInput::make('start_date')
                             ->maxLength(255)
-                            ->default(fn (Proposal $record): ?string => $record->issue_date?->toDateString()),
+                            ->default(fn(Proposal $record): ?string => $record->issue_date?->toDateString()),
                         \Filament\Forms\Components\TextInput::make('renewal_date')
                             ->maxLength(255)
-                            ->default(fn (Proposal $record): ?string => $record->valid_until?->toDateString()),
+                            ->default(fn(Proposal $record): ?string => $record->valid_until?->toDateString()),
                     ])
                     ->action(function (Proposal $record, array $data) {
                         $service = Service::create([
@@ -205,7 +215,7 @@ class ProposalsTable
                 Action::make('download_pdf')
                     ->label('Download PDF')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn (Proposal $record): string => route('pdf.proposal', [
+                    ->url(fn(Proposal $record): string => route('pdf.proposal', [
                         'slug' => $record->slug ?: str_replace('/', '-', $record->document_number),
                     ]))
                     ->openUrlInNewTab(),
@@ -221,14 +231,14 @@ class ProposalsTable
                             Select::make('status')
                                 ->label('Status')
                                 ->options(collect(DocumentStatus::cases())->mapWithKeys(
-                                    fn (DocumentStatus $status): array => [$status->value => $status->getLabel()]
+                                    fn(DocumentStatus $status): array => [$status->value => $status->getLabel()]
                                 )->all())
                                 ->required(),
                         ])
                         ->action(function (Collection $records, array $data): void {
                             $status = DocumentStatus::from((string) $data['status']);
 
-                            $records->each(fn (Proposal $record): bool => $record->update(['status' => $status]));
+                            $records->each(fn(Proposal $record): bool => $record->update(['status' => $status]));
                         }),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
@@ -236,12 +246,17 @@ class ProposalsTable
             ]);
     }
 
-    private static function createInvoiceFromProposal(Proposal $proposal, float $price, string $title): Invoice
+    private static function createInvoiceFromProposal(
+        Proposal $proposal,
+        float $price,
+        string $title,
+        string $suffix = 'NEW',
+    ): Invoice
     {
         $subtotal = $price;
         $taxAmount = $subtotal * (((float) $proposal->tax_rate) / 100);
 
-        return Invoice::create([
+        $invoice = new Invoice([
             'client_company' => $proposal->client_company,
             'client_name' => $proposal->client_name,
             'client_email' => $proposal->client_email,
@@ -271,5 +286,10 @@ class ProposalsTable
             'proposal_id' => $proposal->id,
             'notes' => [],
         ]);
+
+        $invoice->documentNumberSuffix = $suffix;
+        $invoice->save();
+
+        return $invoice;
     }
 }

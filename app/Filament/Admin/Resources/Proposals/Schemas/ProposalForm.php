@@ -44,7 +44,7 @@ class ProposalForm
                                             ->label('Document Number')
                                             ->helperText('Defaults to the next auto-generated number. You can edit it directly to override.')
                                             ->maxLength(255)
-                                            ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
+                                            ->default(fn(Get $get): string => self::generateDocumentNumberPreview(
                                                 'QUO',
                                                 $get('issue_date'),
                                             ))
@@ -53,15 +53,15 @@ class ProposalForm
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
-                                            ->helperText(fn (Get $get): string => 'Public URL: '.route('proposal.show', [
+                                            ->helperText(fn(Get $get): string => 'Public URL: ' . route('proposal.show', [
                                                 'slug' => Str::slug((string) ($get('slug') ?: self::generateSlugPreview($get('issue_date')))),
                                             ]))
-                                            ->default(fn (Get $get): string => self::generateSlugPreview($get('issue_date')))
+                                            ->default(fn(Get $get): string => self::generateSlugPreview($get('issue_date')))
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn (?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
-                                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Str::slug($state) : null),
+                                            ->afterStateUpdated(fn(?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
+                                            ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? Str::slug($state) : null),
                                     ])
                                     ->columns(2),
 
@@ -69,14 +69,14 @@ class ProposalForm
                                     ->schema([
                                         Select::make('company_id')
                                             ->label('Issuing Company')
-                                            ->options(fn () => Company::pluck('brand_name', 'id'))
-                                            ->default(fn () => Company::first()?->id)
+                                            ->options(fn() => Company::pluck('brand_name', 'id'))
+                                            ->default(fn() => Company::first()?->id)
                                             ->required()
                                             ->searchable(),
                                         Select::make('status')
                                             ->options(DocumentStatus::class)
                                             ->enum(DocumentStatus::class)
-                                            ->default(DocumentStatus::DRAFT)
+                                            ->default(DocumentStatus::PUBLISHED)
                                             ->required(),
                                         DatePicker::make('issue_date')
                                             ->label('Issue Date')
@@ -99,7 +99,7 @@ class ProposalForm
                                     ->schema([
                                         Select::make('client_id')
                                             ->label('Load from Client Database')
-                                            ->options(fn () => Client::orderBy('company')->pluck('company', 'id'))
+                                            ->options(fn() => Client::orderBy('company')->pluck('company', 'id'))
                                             ->searchable()
                                             ->live()
                                             ->preload()
@@ -183,22 +183,22 @@ class ProposalForm
                                         TextInput::make('offer_1_price')
                                             ->label('Price')
                                             ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->required(),
                                         TextInput::make('offer_1_original_price')
                                             ->label('Original Price (if discounted)')
                                             ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->nullable(),
                                         TextInput::make('offer_1_renewal_price')
                                             ->label('Renewal Price')
                                             ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->helperText('Annual/periodic cost for renewals'),
                                         TextInput::make('offer_1_original_renewal_price')
                                             ->label('Original Renewal Price (if discounted)')
                                             ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->nullable(),
                                     ])
                                     ->columns(2),
@@ -213,22 +213,22 @@ class ProposalForm
                                         TextInput::make('offer_2_price')
                                             ->label('Price')
                                             ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->nullable(),
                                         TextInput::make('offer_2_original_price')
                                             ->label('Original Price (if discounted)')
                                             ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->nullable(),
                                         TextInput::make('offer_2_renewal_price')
                                             ->label('Renewal Price')
                                             ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->nullable(),
                                         TextInput::make('offer_2_original_renewal_price')
                                             ->label('Original Renewal Price (if discounted)')
                                             ->numeric()
-                                            ->prefix(fn (Get $get) => $get('currency'))
+                                            ->prefix(fn(Get $get) => $get('currency'))
                                             ->nullable(),
                                     ])
                                     ->columns(2),
@@ -241,7 +241,7 @@ class ProposalForm
                                 Section::make('Brief')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('brief'), 'brief', $locale)
                                                     ->schema([
                                                         Textarea::make('content')
@@ -262,7 +262,7 @@ class ProposalForm
                                 Section::make('Core Services')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('core_services'), 'core_services', $locale)
                                                     ->schema([
                                                         TextInput::make('service')
@@ -282,7 +282,7 @@ class ProposalForm
                                 Section::make('Features')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('features'), 'features', $locale)
                                                     ->schema([
                                                         TextInput::make('feature_name')
@@ -308,7 +308,7 @@ class ProposalForm
                                 Section::make('Server')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('server'), 'server', $locale)
                                                     ->schema([
                                                         TextInput::make('item')
@@ -328,7 +328,7 @@ class ProposalForm
                                 Section::make('Assets')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('assets'), 'assets', $locale)
                                                     ->schema([
                                                         TextInput::make('item')
@@ -348,7 +348,7 @@ class ProposalForm
                                 Section::make('Security')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('security'), 'security', $locale)
                                                     ->schema([
                                                         TextInput::make('item')
@@ -368,7 +368,7 @@ class ProposalForm
                                 Section::make('Support')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('support'), 'support', $locale)
                                                     ->schema([
                                                         TextInput::make('item')
@@ -388,7 +388,7 @@ class ProposalForm
                                 Section::make('Additional Benefits')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('additional_benefit'), 'additional_benefit', $locale)
                                                     ->schema([
                                                         TextInput::make('benefit')
@@ -408,7 +408,7 @@ class ProposalForm
                                 Section::make('Add-ons')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('add_on'), 'add_on', $locale)
                                                     ->schema([
                                                         TextInput::make('name')
@@ -422,7 +422,7 @@ class ProposalForm
                                                         TextInput::make('price')
                                                             ->label('Price')
                                                             ->numeric()
-                                                            ->prefix(fn (Get $get) => $get('currency'))
+                                                            ->prefix(fn(Get $get) => $get('currency'))
                                                             ->required(),
                                                     ])
                                                     ->addable()
@@ -439,7 +439,7 @@ class ProposalForm
                                 Section::make('Payment Terms')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('payment'), 'payment', $locale)
                                                     ->schema([
                                                         Textarea::make('info')
@@ -450,7 +450,7 @@ class ProposalForm
                                                         TextInput::make('down_payment_amount')
                                                             ->label('Down Payment Amount')
                                                             ->numeric()
-                                                            ->prefix(fn (Get $get) => $get('currency'))
+                                                            ->prefix(fn(Get $get) => $get('currency'))
                                                             ->nullable(),
                                                     ])
                                                     ->addable()
@@ -466,7 +466,7 @@ class ProposalForm
                                 Section::make('Terms & Conditions')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('terms_condition'), 'terms_condition', $locale)
                                                     ->schema([
                                                         TextInput::make('title')
@@ -492,7 +492,7 @@ class ProposalForm
                                 Section::make('Offer 1 Project Timeline')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('offer_1_project_timeline'), 'offer_1_project_timeline', $locale)
                                                     ->schema([
                                                         TextInput::make('activity_name')
@@ -522,7 +522,7 @@ class ProposalForm
                                 Section::make('Offer 2 Project Timeline')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedRepeater(Repeater::make('offer_2_project_timeline'), 'offer_2_project_timeline', $locale)
                                                     ->schema([
                                                         TextInput::make('activity_name')
@@ -617,11 +617,11 @@ class ProposalForm
         $deletedRowIndex = null;
 
         return $repeater
-            ->addAction(fn (Action $action): Action => $action
+            ->addAction(fn(Action $action): Action => $action
                 ->after(function (Repeater $component) use ($fieldKey, $locale): void {
                     self::syncTranslatedRepeaterAddedRow($component, $fieldKey, $locale);
                 }))
-            ->deleteAction(fn (Action $action): Action => $action
+            ->deleteAction(fn(Action $action): Action => $action
                 ->before(function (array $arguments, Repeater $component) use (&$deletedRowIndex): void {
                     $rawRows = $component->getRawState() ?? [];
                     $rawKeys = array_keys($rawRows);
@@ -640,7 +640,7 @@ class ProposalForm
     {
         $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
 
-        if (! $targetRepeater) {
+        if (!$targetRepeater) {
             return;
         }
 
@@ -679,7 +679,7 @@ class ProposalForm
     {
         $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
 
-        if (! $targetRepeater) {
+        if (!$targetRepeater) {
             return;
         }
 
@@ -693,11 +693,11 @@ class ProposalForm
         $targetKeys = array_keys($targetRows);
         $index = $deletedRowIndex ?? count($currentRows);
 
-        if (! isset($targetKeys[$index])) {
+        if (!isset($targetKeys[$index])) {
             $index = array_key_last($targetKeys);
         }
 
-        if ($index === null || ! isset($targetKeys[$index])) {
+        if ($index === null || !isset($targetKeys[$index])) {
             return;
         }
 
@@ -709,7 +709,7 @@ class ProposalForm
     {
         $targetPath = self::getMirroredLocaleStatePath($component, $currentLocale);
 
-        if (! $targetPath) {
+        if (!$targetPath) {
             return null;
         }
 
@@ -726,11 +726,11 @@ class ProposalForm
         $targetLocale = $currentLocale === 'en' ? 'id' : 'en';
         $localeSuffix = ".{$currentLocale}";
 
-        if (! str_ends_with($currentPath, $localeSuffix)) {
+        if (!str_ends_with($currentPath, $localeSuffix)) {
             return null;
         }
 
-        return substr($currentPath, 0, -strlen($localeSuffix)).".{$targetLocale}";
+        return substr($currentPath, 0, -strlen($localeSuffix)) . ".{$targetLocale}";
     }
 
     protected static function emptyTranslatedRepeaterRow(string $fieldKey): array

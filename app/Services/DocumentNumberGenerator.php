@@ -13,9 +13,9 @@ class DocumentNumberGenerator
         9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
     ];
 
-    public static function generate(string $type, Carbon $date): array
+    public static function generate(string $type, Carbon $date, string $suffix = 'NEW'): array
     {
-        return DB::transaction(function () use ($type, $date) {
+        return DB::transaction(function () use ($type, $date, $suffix) {
             $tableName = $type === 'QUO' ? 'proposals' : 'invoices';
             
             // Get the next raw number for this type, month, and year
@@ -30,7 +30,7 @@ class DocumentNumberGenerator
             $roman = self::toRoman($date->month);
             $yy = $date->format('y');
             
-            $documentNumber = sprintf('%s/%03d/%s/%02d/NEW', $type, $raw, $roman, $yy);
+            $documentNumber = sprintf('%s/%03d/%s/%02d/%s', $type, $raw, $roman, $yy, $suffix);
 
             return [
                 'document_number' => $documentNumber,
@@ -44,11 +44,11 @@ class DocumentNumberGenerator
         return self::$roman[$month] ?? '';
     }
 
-    public static function regenerate(string $type, int $raw, Carbon $date): string
+    public static function regenerate(string $type, int $raw, Carbon $date, string $suffix = 'NEW'): string
     {
         $roman = self::toRoman($date->month);
         $yy = $date->format('y');
 
-        return sprintf('%s/%03d/%s/%02d/NEW', $type, $raw, $roman, $yy);
+        return sprintf('%s/%03d/%s/%02d/%s', $type, $raw, $roman, $yy, $suffix);
     }
 }

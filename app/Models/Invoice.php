@@ -18,6 +18,8 @@ class Invoice extends Model
 {
     use HasFactory, HasTranslations, SoftDeletes;
 
+    public string $documentNumberSuffix = 'NEW';
+
     protected $appends = [
         'document_number_final',
     ];
@@ -114,7 +116,10 @@ class Invoice extends Model
 
             // Always allocate the next raw number, even when display number is overridden
             $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
-            $data = DocumentNumberGenerator::generate('INV', $date);
+            $suffix = self::extractSuffixFromDocumentNumber($invoice->document_number)
+                ?? $invoice->documentNumberSuffix
+                ?? 'NEW';
+            $data = DocumentNumberGenerator::generate('INV', $date, $suffix);
             $generatedDocumentNumber = $data['document_number'];
 
             $invoice->document_number_raw = $data['document_number_raw'];
@@ -153,10 +158,12 @@ class Invoice extends Model
             }
 
             $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
+            $suffix = self::extractSuffixFromDocumentNumber($invoice->document_number) ?? 'NEW';
             $generatedDocumentNumber = DocumentNumberGenerator::regenerate(
                 'INV',
                 (int) $invoice->document_number_raw,
                 $date,
+                $suffix,
             );
 
             if ($invoice->isDirty('document_number')) {
@@ -185,6 +192,18 @@ class Invoice extends Model
         int $issueYear,
     ): string {
         return sprintf('%d-%d%d%d', $id, $documentNumberRaw, $issueMonth, $issueYear);
+    }
+
+    private static function extractSuffixFromDocumentNumber(?string $documentNumber): ?string
+    {
+        if (blank($documentNumber)) {
+            return null;
+        }
+
+        $parts = explode('/', (string) $documentNumber);
+        $suffix = trim((string) end($parts));
+
+        return $suffix !== '' ? $suffix : null;
     }
 
     public function proposal()
