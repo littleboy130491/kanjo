@@ -9,9 +9,9 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Service;
+use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
-use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -175,23 +175,28 @@ class InvoiceForm
                                 Section::make('Invoice Items')
                                     ->schema([
                                         Translate::make()
+                                            ->actions([
+                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('items'),
+                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                self::configureTranslatedItemsRepeater(Repeater::make('items'), $locale)
+                                                TranslatableRepeaterSync::configure(
+                                                    Repeater::make('items'),
+                                                    $locale,
+                                                    emptyRowTemplate: ['title' => '', 'price' => '', 'description' => ''],
+                                                )
                                                     ->schema([
                                                         TextInput::make('title')
                                                             ->required()
                                                             ->maxLength(255)
                                                             ->columnSpan(1),
-                                                        TextInput::make('price')
-                                                            ->required()
-                                                            ->numeric()
-                                                            ->inputMode('decimal')
-                                                            ->live(onBlur: true)
-                                                            ->afterStateUpdated(function (mixed $state, TextInput $component, Get $get, Set $set): void {
-                                                                self::syncItemPriceAcrossLocales($component, $set, $state);
-                                                                self::recalculateTotals($get, $set);
-                                                            })
-                                                            ->columnSpan(1),
+                                                        TranslatableRepeaterSync::permanentlySynced(
+                                                            TextInput::make('price')
+                                                                ->required()
+                                                                ->numeric()
+                                                                ->inputMode('decimal')
+                                                                ->afterStateUpdated(fn(Get $get, Set $set) => self::recalculateTotals($get, $set))
+                                                                ->columnSpan(1)
+                                                        ),
                                                         Textarea::make('description')
                                                             ->rows(2)
                                                             ->nullable()
@@ -341,154 +346,6 @@ class InvoiceForm
         $set('subtotal', round($subtotal, 2));
         $set('tax_amount', round($taxAmount, 2));
         $set('total', round($total, 2));
-    }
-
-    protected static function configureTranslatedItemsRepeater(Repeater $repeater, string $locale): Repeater
-    {
-        $deletedRowIndex = null;
-
-        return $repeater
-            ->addAction(fn(Action $action): Action => $action
-                ->after(function (Repeater $component) use ($locale): void {
-                    self::syncTranslatedItemsAddedRow($component, $locale);
-                }))
-            ->deleteAction(fn(Action $action): Action => $action
-                ->before(function (array $arguments, Repeater $component) use (&$deletedRowIndex): void {
-                    $rawRows = $component->getRawState() ?? [];
-                    $rawKeys = array_keys($rawRows);
-                    $deletedKey = $arguments['item'] ?? null;
-                    $index = array_search($deletedKey, $rawKeys, true);
-
-                    $deletedRowIndex = $index === false ? null : (int) $index;
-                })
-                ->after(function (Repeater $component) use (&$deletedRowIndex, $locale): void {
-                    self::syncTranslatedItemsDeletedRow($component, $locale, $deletedRowIndex);
-                    $deletedRowIndex = null;
-                }));
-    }
-
-    protected static function syncTranslatedItemsAddedRow(Repeater $component, string $locale): void
-    {
-        $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
-
-        if (!$targetRepeater) {
-            return;
-        }
-
-        $currentRows = is_array($component->getRawState()) ? $component->getRawState() : [];
-        $targetRows = is_array($targetRepeater->getRawState()) ? $targetRepeater->getRawState() : [];
-
-        if (count($targetRows) >= count($currentRows)) {
-            return;
-        }
-
-        $missingRows = count($currentRows) - count($targetRows);
-        $newKeys = [];
-
-        for ($i = 0; $i < $missingRows; $i++) {
-            $newKey = $targetRepeater->generateUuid();
-
-            if ($newKey) {
-                $targetRows[$newKey] = self::emptyItemRow();
-                $newKeys[] = $newKey;
-            } else {
-                $targetRows[] = self::emptyItemRow();
-                $newKeys[] = array_key_last($targetRows);
-            }
-        }
-
-        $targetRepeater->rawState($targetRows);
-
-        foreach ($newKeys as $newKey) {
-            if ($newKey !== null) {
-                $targetRepeater->getChildSchema($newKey)->fill();
-            }
-        }
-    }
-
-    protected static function syncTranslatedItemsDeletedRow(Repeater $component, string $locale, ?int $deletedRowIndex): void
-    {
-        $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
-
-        if (!$targetRepeater) {
-            return;
-        }
-
-        $currentRows = is_array($component->getRawState()) ? $component->getRawState() : [];
-        $targetRows = is_array($targetRepeater->getRawState()) ? $targetRepeater->getRawState() : [];
-
-        if (count($targetRows) <= count($currentRows)) {
-            return;
-        }
-
-        $targetKeys = array_keys($targetRows);
-        $index = $deletedRowIndex ?? count($currentRows);
-
-        if (!isset($targetKeys[$index])) {
-            $index = array_key_last($targetKeys);
-        }
-
-        if ($index === null || !isset($targetKeys[$index])) {
-            return;
-        }
-
-        unset($targetRows[$targetKeys[$index]]);
-        $targetRepeater->rawState($targetRows);
-    }
-
-    protected static function syncItemPriceAcrossLocales(TextInput $component, Set $set, mixed $state): void
-    {
-        $currentPath = $component->getStatePath();
-        $targetPath = null;
-
-        if (str_contains($currentPath, '.en.')) {
-            $targetPath = str_replace('.en.', '.id.', $currentPath);
-        } elseif (str_contains($currentPath, '.id.')) {
-            $targetPath = str_replace('.id.', '.en.', $currentPath);
-        }
-
-        if ($targetPath === null || $targetPath === $currentPath) {
-            return;
-        }
-
-        $set($targetPath, $state, isAbsolute: true);
-    }
-
-    protected static function getMirroredLocaleRepeater(Repeater $component, string $currentLocale): ?Repeater
-    {
-        $targetPath = self::getMirroredLocaleStatePath($component, $currentLocale);
-
-        if (!$targetPath) {
-            return null;
-        }
-
-        $targetComponent = $component
-            ->getRootContainer()
-            ->getComponentByStatePath($targetPath, withHidden: true, withAbsoluteStatePath: true);
-
-        return $targetComponent instanceof Repeater ? $targetComponent : null;
-    }
-
-    protected static function getMirroredLocaleStatePath(Repeater $component, string $currentLocale): ?string
-    {
-        $currentPath = $component->getStatePath();
-        $targetLocale = $currentLocale === 'en' ? 'id' : 'en';
-        $localeSuffix = ".{$currentLocale}";
-
-        if (!str_ends_with($currentPath, $localeSuffix)) {
-            return null;
-        }
-
-        return substr($currentPath, 0, -strlen($localeSuffix)) . ".{$targetLocale}";
-    }
-
-    protected static function emptyItemRow(): array
-    {
-        return [
-            'title' => '',
-            'price' => '',
-            'description' => '',
-        ];
     }
 
     /**
