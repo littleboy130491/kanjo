@@ -1,5 +1,6 @@
 @php
     $company = $invoice->company;
+    $companyLogo = $company?->logo;
     $toMoney = fn ($value) => $invoice->currency . ' ' . number_format((float) ($value ?? 0), 2);
     $badgeColor = match($invoice->payment_status->value) {
         'paid' => 'bg-green-100 text-green-700',
@@ -7,31 +8,18 @@
         'overdue' => 'bg-red-100 text-red-700',
         default => 'bg-yellow-100 text-yellow-700',
     };
-    $logoUrl = is_string($company?->logo) && str_starts_with($company->logo, 'http') ? $company->logo : null;
+    $logoUrl = is_string($companyLogo) && str_starts_with($companyLogo, 'http') ? $companyLogo : null;
     $pdfMode = (bool) ($pdf ?? false);
 @endphp
-<!doctype html>
-<html lang="{{ $locale }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $invoice->document_number }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root { --color-primary: {{ $company?->color_primary ?? '#0f172a' }}; --color-secondary: {{ $company?->color_secondary ?? '#334155' }}; }
-        .brand-title { color: var(--color-primary); }
-        @media print { .no-print { display: none !important; } @page { margin: 20mm; } }
-    </style>
-</head>
-<body class="bg-slate-100 p-4 md:p-8">
-<div class="mx-auto max-w-5xl space-y-6 rounded-xl bg-white p-6 shadow">
-    @if(! $pdfMode)
-    <div class="no-print flex justify-end gap-2">
-        <a class="rounded border px-3 py-1 text-sm {{ $locale === 'en' ? 'bg-slate-900 text-white' : '' }}" href="{{ route('invoice.show', ['slug' => $slug, 'lang' => 'en']) }}">EN</a>
-        <a class="rounded border px-3 py-1 text-sm {{ $locale === 'id' ? 'bg-slate-900 text-white' : '' }}" href="{{ route('invoice.show', ['slug' => $slug, 'lang' => 'id']) }}">ID</a>
-        <a class="rounded border px-3 py-1 text-sm" href="{{ route('pdf.invoice', ['slug' => $slug, 'lang' => $locale]) }}">Download PDF</a>
-    </div>
-    @endif
+<x-layout
+    :locale="$locale"
+    :title="$invoice->document_number"
+    :company="$company"
+    :pdf-mode="$pdfMode"
+    :slug="$slug"
+    lang-route="invoice.show"
+    pdf-route="pdf.invoice"
+>
 
     <section class="border-b pb-4">
         <div class="flex items-start justify-between">
@@ -103,6 +91,4 @@
             </div>
         </div>
     </section>
-</div>
-</body>
-</html>
+</x-layout>

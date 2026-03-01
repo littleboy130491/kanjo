@@ -1,40 +1,23 @@
 @php
     $company = $proposal->company;
+    $companyLogo = $company?->logo;
     $toMoney = fn ($value) => $proposal->currency . ' ' . number_format((float) ($value ?? 0), 2);
     $pdfMode = (bool) ($pdf ?? false);
-    $logoUrl = is_string($company?->logo) && str_starts_with($company->logo, 'http') ? $company->logo : null;
+    $logoUrl = is_string($companyLogo) && str_starts_with($companyLogo, 'http') ? $companyLogo : null;
 
     $list = function (?array $items, string $key): array {
         return collect($items ?? [])->pluck($key)->filter()->values()->all();
     };
 @endphp
-<!doctype html>
-<html lang="{{ $locale }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $proposal->document_number }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root { --color-primary: {{ $company?->color_primary ?? '#0f172a' }}; --color-secondary: {{ $company?->color_secondary ?? '#334155' }}; }
-        .brand-title { color: var(--color-primary); }
-        .brand-bg { background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); }
-        @media print {
-            .no-print { display: none !important; }
-            @page { margin: 20mm; }
-            section { break-inside: avoid; }
-        }
-    </style>
-</head>
-<body class="bg-slate-100 p-4 md:p-8">
-<div class="mx-auto max-w-5xl space-y-6 rounded-xl bg-white p-6 shadow">
-    @if(! $pdfMode)
-    <div class="no-print flex justify-end gap-2">
-        <a class="rounded border px-3 py-1 text-sm {{ $locale === 'en' ? 'bg-slate-900 text-white' : '' }}" href="{{ route('proposal.show', ['slug' => $slug, 'lang' => 'en']) }}">EN</a>
-        <a class="rounded border px-3 py-1 text-sm {{ $locale === 'id' ? 'bg-slate-900 text-white' : '' }}" href="{{ route('proposal.show', ['slug' => $slug, 'lang' => 'id']) }}">ID</a>
-        <a class="rounded border px-3 py-1 text-sm" href="{{ route('pdf.proposal', ['slug' => $slug, 'lang' => $locale]) }}">Download PDF</a>
-    </div>
-    @endif
+<x-layout
+    :locale="$locale"
+    :title="$proposal->document_number"
+    :company="$company"
+    :pdf-mode="$pdfMode"
+    :slug="$slug"
+    lang-route="proposal.show"
+    pdf-route="pdf.proposal"
+>
 
     <section class="border-b pb-4">
         <div class="flex items-start justify-between">
@@ -78,16 +61,38 @@
     <section>
         <h2 class="mb-2 font-semibold">Offer 1</h2>
         <p>{{ $proposal->offer_name_1 }}</p>
-        <p>{!! $proposal->offer_1_original_price && $proposal->offer_1_original_price > $proposal->offer_1_price ? '<span class="line-through text-slate-500 mr-1">'.$toMoney($proposal->offer_1_original_price).'</span>' : '' !!}{{ $toMoney($proposal->offer_1_price) }}</p>
-        <p>Renewal: {!! $proposal->offer_1_original_renewal_price && $proposal->offer_1_original_renewal_price > $proposal->offer_1_renewal_price ? '<span class="line-through text-slate-500 mr-1">'.$toMoney($proposal->offer_1_original_renewal_price).'</span>' : '' !!}{{ $toMoney($proposal->offer_1_renewal_price) }}</p>
+        <p>
+            @if($proposal->offer_1_original_price && $proposal->offer_1_original_price > $proposal->offer_1_price)
+                <span class="mr-1 line-through text-slate-500">{{ $toMoney($proposal->offer_1_original_price) }}</span>
+            @endif
+            {{ $toMoney($proposal->offer_1_price) }}
+        </p>
+        <p>
+            Renewal:
+            @if($proposal->offer_1_original_renewal_price && $proposal->offer_1_original_renewal_price > $proposal->offer_1_renewal_price)
+                <span class="mr-1 line-through text-slate-500">{{ $toMoney($proposal->offer_1_original_renewal_price) }}</span>
+            @endif
+            {{ $toMoney($proposal->offer_1_renewal_price) }}
+        </p>
     </section>
 
     @if($proposal->offer_name_2)
     <section>
         <h2 class="mb-2 font-semibold">Offer 2</h2>
         <p>{{ $proposal->offer_name_2 }}</p>
-        <p>{!! $proposal->offer_2_original_price && $proposal->offer_2_original_price > $proposal->offer_2_price ? '<span class="line-through text-slate-500 mr-1">'.$toMoney($proposal->offer_2_original_price).'</span>' : '' !!}{{ $toMoney($proposal->offer_2_price) }}</p>
-        <p>Renewal: {!! $proposal->offer_2_original_renewal_price && $proposal->offer_2_original_renewal_price > $proposal->offer_2_renewal_price ? '<span class="line-through text-slate-500 mr-1">'.$toMoney($proposal->offer_2_original_renewal_price).'</span>' : '' !!}{{ $toMoney($proposal->offer_2_renewal_price) }}</p>
+        <p>
+            @if($proposal->offer_2_original_price && $proposal->offer_2_original_price > $proposal->offer_2_price)
+                <span class="mr-1 line-through text-slate-500">{{ $toMoney($proposal->offer_2_original_price) }}</span>
+            @endif
+            {{ $toMoney($proposal->offer_2_price) }}
+        </p>
+        <p>
+            Renewal:
+            @if($proposal->offer_2_original_renewal_price && $proposal->offer_2_original_renewal_price > $proposal->offer_2_renewal_price)
+                <span class="mr-1 line-through text-slate-500">{{ $toMoney($proposal->offer_2_original_renewal_price) }}</span>
+            @endif
+            {{ $toMoney($proposal->offer_2_renewal_price) }}
+        </p>
     </section>
     @endif
 
@@ -120,6 +125,4 @@
             </div>
         </div>
     </section>
-</div>
-</body>
-</html>
+</x-layout>
