@@ -28,9 +28,12 @@ class EditProposal extends EditRecord
                 ->label('Convert to Invoice')
                 ->icon('heroicon-o-arrow-right-circle')
                 ->color('primary')
-                ->visible(fn (): bool => $this->record->status === DocumentStatus::PUBLISHED)
                 ->action(function () {
-                    $invoice = $this->createInvoiceFromProposal((float) $this->record->offer_1_price, (string) $this->record->offer_name_1);
+                    $invoice = $this->createInvoiceFromProposal(
+                        (float) $this->record->offer_1_price,
+                        (string) $this->record->offer_name_1,
+                        'DP',
+                    );
 
                     return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
                 }),
@@ -41,7 +44,11 @@ class EditProposal extends EditRecord
                 ->visible(fn (): bool => filled($this->record->offer_1_renewal_price))
                 ->action(function () {
                     $title = trim(($this->record->offer_name_1 ?: 'Service').' — Renewal');
-                    $invoice = $this->createInvoiceFromProposal((float) $this->record->offer_1_renewal_price, $title);
+                    $invoice = $this->createInvoiceFromProposal(
+                        (float) $this->record->offer_1_renewal_price,
+                        $title,
+                        'REN',
+                    );
 
                     return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
                 }),
@@ -94,12 +101,12 @@ class EditProposal extends EditRecord
         ];
     }
 
-    private function createInvoiceFromProposal(float $price, string $title): Invoice
+    private function createInvoiceFromProposal(float $price, string $title, string $suffix = 'NEW'): Invoice
     {
         $subtotal = $price;
         $taxAmount = $subtotal * (((float) $this->record->tax_rate) / 100);
 
-        return Invoice::create([
+        $invoice = new Invoice([
             'client_company' => $this->record->client_company,
             'client_name' => $this->record->client_name,
             'client_email' => $this->record->client_email,
@@ -129,5 +136,10 @@ class EditProposal extends EditRecord
             'proposal_id' => $this->record->id,
             'notes' => [],
         ]);
+
+        $invoice->documentNumberSuffix = $suffix;
+        $invoice->save();
+
+        return $invoice;
     }
 }

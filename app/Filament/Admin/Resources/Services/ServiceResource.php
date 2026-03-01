@@ -5,6 +5,8 @@ namespace App\Filament\Admin\Resources\Services;
 use App\Filament\Admin\Resources\Services\Pages\CreateService;
 use App\Filament\Admin\Resources\Services\Pages\EditService;
 use App\Filament\Admin\Resources\Services\Pages\ListServices;
+use App\Filament\Admin\Resources\Services\RelationManagers\InvoicesRelationManager;
+use App\Filament\Admin\Resources\Services\RelationManagers\ProposalsRelationManager;
 use App\Filament\Admin\Resources\Services\Schemas\ServiceForm;
 use App\Filament\Admin\Resources\Services\Tables\ServicesTable;
 use App\Models\Service;
@@ -30,6 +32,14 @@ class ServiceResource extends Resource
     public static function table(Table $table): Table
     {
         return ServicesTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            ProposalsRelationManager::class,
+            InvoicesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

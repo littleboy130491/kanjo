@@ -113,7 +113,6 @@ class ProposalsTable
                     ->label('Create Invoice')
                     ->icon('heroicon-o-arrow-right-circle')
                     ->color('primary')
-                    ->visible(fn(Proposal $record): bool => $record->status === DocumentStatus::PUBLISHED)
                     ->action(function (Proposal $record) {
                         $invoice = self::createInvoiceFromProposal(
                             $record,
