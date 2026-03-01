@@ -29,8 +29,6 @@
 <div class="mx-auto max-w-5xl space-y-6 rounded-xl bg-white p-6 shadow">
     @if(! $pdfMode && $slug && $langRoute && $pdfRoute)
         <div class="no-print flex justify-end gap-2">
-            <a class="rounded border px-3 py-1 text-sm {{ $locale === 'en' ? 'bg-slate-900 text-white' : '' }}" href="{{ route($langRoute, ['slug' => $slug, 'lang' => 'en']) }}">EN</a>
-            <a class="rounded border px-3 py-1 text-sm {{ $locale === 'id' ? 'bg-slate-900 text-white' : '' }}" href="{{ route($langRoute, ['slug' => $slug, 'lang' => 'id']) }}">ID</a>
             <a class="rounded border px-3 py-1 text-sm" href="{{ route($pdfRoute, ['slug' => $slug, 'lang' => $locale]) }}">Download PDF</a>
         </div>
     @endif

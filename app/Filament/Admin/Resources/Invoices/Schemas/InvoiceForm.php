@@ -7,6 +7,7 @@ use App\Enums\PaymentStatus;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\Service;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
@@ -49,7 +50,9 @@ class InvoiceForm
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
-                                            ->helperText('Auto-generated as {id}-{document_number_raw}{issue_month}{issue_year} after save. You can override it manually.')
+                                            ->helperText(fn (Get $get): string => 'Public URL: '.route('invoice.show', [
+                                                'slug' => Str::slug((string) ($get('slug') ?: self::generateSlugPreview($get('issue_date')))),
+                                            ]))
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
                                             ->live(onBlur: true)
@@ -252,8 +255,6 @@ class InvoiceForm
                                             ->label('Access Password')
                                             ->nullable()
                                             ->maxLength(255)
-                                            ->password()
-                                            ->revealable()
                                             ->helperText('Optional: Custom password for client access. Falls back to global credentials.'),
                                     ])
                                     ->columns(2),
@@ -287,5 +288,24 @@ class InvoiceForm
         $date = filled($issueDate) ? Carbon::parse($issueDate) : now();
 
         return DocumentNumberGenerator::generate($type, $date)['document_number'];
+    }
+
+    protected static function generateSlugPreview(mixed $issueDate): string
+    {
+        $date = filled($issueDate) ? Carbon::parse($issueDate) : now();
+        $nextId = ((int) Invoice::query()->max('id')) + 1;
+        $raw = self::generateNextDocumentRaw($date);
+
+        return sprintf('%d-%d%d%d', $nextId, $raw, $date->month, $date->year);
+    }
+
+    protected static function generateNextDocumentRaw(Carbon $date): int
+    {
+        $maxRaw = Invoice::query()
+            ->where('issue_month', $date->month)
+            ->where('issue_year', $date->year)
+            ->max('document_number_raw');
+
+        return $maxRaw ? ((int) $maxRaw + 1) : 1;
     }
 }

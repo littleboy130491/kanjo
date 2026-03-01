@@ -26,6 +26,7 @@ class Invoice extends Model
         'document_number',
         'slug',
         'document_number_raw',
+        'document_number_override',
         'issue_month',
         'issue_year',
         'client_company',
