@@ -4,25 +4,20 @@ namespace App\Models;
 
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
-use App\Services\DocumentNumberGenerator;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Models\Concerns\HasDocumentModelBehavior;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
 class Invoice extends Model
 {
-    use HasFactory, HasTranslations, SoftDeletes;
+    use HasDocumentModelBehavior;
+    use HasFactory;
+    use HasTranslations;
+    use SoftDeletes;
 
     public string $documentNumberSuffix = 'NEW';
-
-    protected $appends = [
-        'document_number_final',
-    ];
 
     protected $fillable = [
         'document_number',
@@ -78,137 +73,29 @@ class Invoice extends Model
         'notes' => 'array',
     ];
 
-    protected function documentNumberFinal(): Attribute
+    protected static function documentNumberType(): string
     {
-        return Attribute::make(
-            get: fn (?string $value, array $attributes): ?string => $attributes['document_number'] ?? null,
-        );
+        return 'INV';
     }
 
-    protected static function booted()
+    protected static function beforeDocumentSaving(Model $model): void
     {
-        static::saving(function ($invoice) {
-            self::recalculateTotals($invoice);
-
-            if (blank($invoice->slug)) {
-                $invoice->slug = null;
-
-                return;
-            }
-
-            $invoice->slug = Str::slug((string) $invoice->slug);
-        });
-
-        static::creating(function ($invoice) {
-            // Set user_id from authenticated user if not provided
-            if (empty($invoice->user_id) && auth()->check()) {
-                $invoice->user_id = auth()->id();
-            }
-
-            // Always set issue_month and issue_year from issue_date
-            if ($invoice->issue_date) {
-                $date = Carbon::parse($invoice->issue_date);
-                $invoice->issue_month = $date->month;
-                $invoice->issue_year = $date->year;
-            } else {
-                $now = now();
-                $invoice->issue_month = $now->month;
-                $invoice->issue_year = $now->year;
-            }
-
-            // Always allocate the next raw number, even when display number is overridden
-            $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
-            $suffix = self::extractSuffixFromDocumentNumber($invoice->document_number)
-                ?? $invoice->documentNumberSuffix
-                ?? 'NEW';
-            $data = DocumentNumberGenerator::generate('INV', $date, $suffix);
-            $generatedDocumentNumber = $data['document_number'];
-
-            $invoice->document_number_raw = $data['document_number_raw'];
-
-            if (blank($invoice->document_number)) {
-                $invoice->document_number = $generatedDocumentNumber;
-                $invoice->document_number_override = false;
-
-                return;
-            }
-
-            $invoice->document_number_override = $invoice->document_number !== $generatedDocumentNumber;
-        });
-
-        static::created(function ($invoice) {
-            if (filled($invoice->slug)) {
-                return;
-            }
-
-            $invoice->forceFill([
-                'slug' => self::generateSlug(
-                    (int) $invoice->id,
-                    (int) $invoice->document_number_raw,
-                    (int) $invoice->issue_month,
-                    (int) $invoice->issue_year,
-                ),
-            ])->saveQuietly();
-        });
-
-        static::updating(function ($invoice) {
-            // Update issue_month and issue_year if issue_date changes
-            if ($invoice->isDirty('issue_date') && $invoice->issue_date) {
-                $date = Carbon::parse($invoice->issue_date);
-                $invoice->issue_month = $date->month;
-                $invoice->issue_year = $date->year;
-            }
-
-            $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
-            $suffix = self::extractSuffixFromDocumentNumber($invoice->document_number) ?? 'NEW';
-            $generatedDocumentNumber = DocumentNumberGenerator::regenerate(
-                'INV',
-                (int) $invoice->document_number_raw,
-                $date,
-                $suffix,
-            );
-
-            if ($invoice->isDirty('document_number')) {
-                if (blank($invoice->document_number)) {
-                    $invoice->document_number = $generatedDocumentNumber;
-                    $invoice->document_number_override = false;
-
-                    return;
-                }
-
-                $invoice->document_number_override = $invoice->document_number !== $generatedDocumentNumber;
-
-                return;
-            }
-
-            if ($invoice->isDirty('issue_date') && ! $invoice->document_number_override) {
-                $invoice->document_number = $generatedDocumentNumber;
-            }
-        });
+        self::recalculateTotals($model);
     }
 
-    private static function generateSlug(
-        int $id,
-        int $documentNumberRaw,
-        int $issueMonth,
-        int $issueYear,
-    ): string {
-        return sprintf('%d-%d%d%d', $id, $documentNumberRaw, $issueMonth, $issueYear);
-    }
-
-    private static function extractSuffixFromDocumentNumber(?string $documentNumber): ?string
+    protected static function resolveDocumentSuffixForCreate(Model $model): ?string
     {
-        if (blank($documentNumber)) {
-            return null;
-        }
-
-        $parts = explode('/', (string) $documentNumber);
-        $suffix = trim((string) end($parts));
-
-        return $suffix !== '' ? $suffix : null;
+        return self::extractSuffixFromDocumentNumber($model->document_number)
+            ?? $model->documentNumberSuffix
+            ?? 'NEW';
     }
 
-    private static function recalculateTotals(self $invoice): void
+    protected static function resolveDocumentSuffixForUpdate(Model $model): ?string
+    {
+        return self::extractSuffixFromDocumentNumber($model->document_number) ?? 'NEW';
+    }
+
+    private static function recalculateTotals(Model $invoice): void
     {
         $invoice->items = self::normalizeTranslatedItemPrices($invoice->items);
 
@@ -325,20 +212,6 @@ class Invoice extends Model
     public function proposal()
     {
         return $this->belongsTo(Proposal::class);
-    }
-
-
-    public function setAccessPasswordAttribute(?string $value): void
-    {
-        if (blank($value)) {
-            $this->attributes['access_password'] = null;
-
-            return;
-        }
-
-        $this->attributes['access_password'] = Hash::info($value)['algo'] !== null
-            ? $value
-            : Hash::make($value);
     }
 
     public function company()

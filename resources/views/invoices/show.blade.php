@@ -21,7 +21,7 @@
                     <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-12 w-12 object-contain">
                 @endif
                 <div>
-                    <h1 class="text-2xl font-bold brand-title">Invoice {{ $invoice->document_number_final }}</h1>
+                    <h1 class="text-2xl font-bold brand-title">Invoice {{ $invoice->document_number }}</h1>
                     <p class="text-sm text-slate-500">{{ $company?->brand_name ?? $company?->company_name }}</p>
                 </div>
             </div>

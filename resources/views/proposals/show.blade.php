@@ -21,7 +21,7 @@
                 <div>
                     <h1 class="text-2xl font-bold brand-title">{{ $company?->brand_name ?? $company?->company_name }}
                     </h1>
-                    <p class="text-sm text-slate-500">{{ $proposal->document_number_final }}</p>
+                    <p class="text-sm text-slate-500">{{ $proposal->document_number }}</p>
                 </div>
             </div>
             <div class="text-right text-sm">
