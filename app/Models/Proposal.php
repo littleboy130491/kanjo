@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
 class Proposal extends Model
@@ -25,7 +24,6 @@ class Proposal extends Model
         'document_number',
         'slug',
         'document_number_raw',
-        'document_number_suffix',
         'document_number_override',
         'document_number_manual',
         'issue_month',
@@ -150,29 +148,13 @@ class Proposal extends Model
 
             $proposal->document_number_raw = $data['document_number_raw'];
 
-            // If not overridden, use the generated suffix and full number
-            if (! $proposal->document_number_override) {
-                $proposal->document_number = $data['document_number'];
-                $proposal->document_number_suffix = $data['document_number_suffix'];
-            } else {
-                if (filled($proposal->document_number_manual)) {
-                    $proposal->document_number = $proposal->document_number_manual;
+            if ($proposal->document_number_override && filled($proposal->document_number_manual)) {
+                $proposal->document_number = $proposal->document_number_manual;
 
-                    return;
-                }
-
-                // If overridden but no suffix provided, use default
-                if (! $proposal->document_number_suffix) {
-                    $proposal->document_number_suffix = $data['document_number_suffix'];
-                }
-                // Generate the full number with the custom suffix
-                $proposal->document_number = DocumentNumberGenerator::regenerateWithSuffix(
-                    'QUO',
-                    $data['document_number_raw'],
-                    $date,
-                    $proposal->document_number_suffix
-                );
+                return;
             }
+
+            $proposal->document_number = $data['document_number'];
         });
 
         static::created(function ($proposal) {
@@ -181,7 +163,7 @@ class Proposal extends Model
             }
 
             $proposal->forceFill([
-                'slug' => self::generateSlug((int) $proposal->id, 'quo'),
+                'slug' => self::generateSlug((int) $proposal->id, (int) $proposal->document_number_raw),
             ])->saveQuietly();
         });
 
@@ -193,7 +175,6 @@ class Proposal extends Model
                 $proposal->issue_year = $date->year;
             }
 
-            // Regenerate document number with new suffix if overridden
             if ($proposal->document_number_override && $proposal->isDirty('document_number_manual') && filled($proposal->document_number_manual)) {
                 $proposal->document_number = $proposal->document_number_manual;
 
@@ -203,31 +184,21 @@ class Proposal extends Model
             if (
                 $proposal->document_number_override
                 && blank($proposal->document_number_manual)
-                && $proposal->isDirty('document_number_suffix')
+                && $proposal->isDirty('issue_date')
             ) {
                 $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
-                $proposal->document_number = DocumentNumberGenerator::regenerateWithSuffix(
+                $proposal->document_number = DocumentNumberGenerator::regenerate(
                     'QUO',
                     $proposal->document_number_raw,
                     $date,
-                    $proposal->document_number_suffix
                 );
             }
         });
     }
 
-    private static function generateSlug(int $id, string $prefix): string
+    private static function generateSlug(int $id, int $documentNumberRaw): string
     {
-        do {
-            $slug = sprintf(
-                '%s-%s-%s',
-                $prefix,
-                base_convert((string) $id, 10, 36),
-                Str::lower(Str::random(8)),
-            );
-        } while (self::query()->where('slug', $slug)->exists());
-
-        return $slug;
+        return sprintf('%d-%d', $id, $documentNumberRaw);
     }
 
 

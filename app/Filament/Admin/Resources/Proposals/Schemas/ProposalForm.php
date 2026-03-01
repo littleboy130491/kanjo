@@ -46,26 +46,18 @@ class ProposalForm
                                             ->dehydrated(false)
                                             ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
                                                 'QUO',
-                                                $get('document_number_suffix'),
                                                 $get('issue_date'),
-                                                'NEW',
                                             ))
                                             ->placeholder('Auto-generated'),
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
-                                            ->helperText('Pre-filled automatically. You can override it manually.')
-                                            ->default(fn (): string => 'quo-'.Str::lower(Str::random(10)))
+                                            ->helperText('Auto-generated as {id}-{document_number_raw} after save. You can override it manually.')
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(fn (?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
                                             ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Str::slug($state) : null),
-                                        TextInput::make('document_number_suffix')
-                                            ->label('Suffix')
-                                            ->default('NEW')
-                                            ->maxLength(10)
-                                            ->helperText('Default: NEW (e.g., REV for revision)'),
                                         Toggle::make('document_number_override')
                                             ->label('Override Document Number')
                                             ->helperText('Enable to manually set the full document number')
@@ -76,9 +68,7 @@ class ProposalForm
                                             ->maxLength(255)
                                             ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
                                                 'QUO',
-                                                $get('document_number_suffix'),
                                                 $get('issue_date'),
-                                                'NEW',
                                             ))
                                             ->visible(fn (Get $get): bool => $get('document_number_override'))
                                             ->required(fn (Get $get): bool => $get('document_number_override')),
@@ -877,13 +867,10 @@ class ProposalForm
 
     protected static function generateDocumentNumberPreview(
         string $type,
-        mixed $suffix,
         mixed $issueDate,
-        string $defaultSuffix,
     ): string {
         $date = filled($issueDate) ? Carbon::parse($issueDate) : now();
-        $resolvedSuffix = filled($suffix) ? (string) $suffix : $defaultSuffix;
 
-        return DocumentNumberGenerator::generate($type, $date, $resolvedSuffix)['document_number'];
+        return DocumentNumberGenerator::generate($type, $date)['document_number'];
     }
 }

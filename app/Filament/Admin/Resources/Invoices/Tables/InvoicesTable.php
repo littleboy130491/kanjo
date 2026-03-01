@@ -118,7 +118,6 @@ class InvoicesTable
                             'document_number',
                             'slug',
                             'document_number_raw',
-                            'document_number_suffix',
                             'issue_month',
                             'issue_year',
                             'created_at',

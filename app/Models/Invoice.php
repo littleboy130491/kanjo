@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
 
 class Invoice extends Model
@@ -26,7 +25,6 @@ class Invoice extends Model
         'document_number',
         'slug',
         'document_number_raw',
-        'document_number_suffix',
         'document_number_override',
         'document_number_manual',
         'issue_month',
@@ -120,29 +118,13 @@ class Invoice extends Model
 
             $invoice->document_number_raw = $data['document_number_raw'];
 
-            // If not overridden, use the generated suffix and full number
-            if (!$invoice->document_number_override) {
-                $invoice->document_number = $data['document_number'];
-                $invoice->document_number_suffix = $data['document_number_suffix'];
-            } else {
-                if (filled($invoice->document_number_manual)) {
-                    $invoice->document_number = $invoice->document_number_manual;
+            if ($invoice->document_number_override && filled($invoice->document_number_manual)) {
+                $invoice->document_number = $invoice->document_number_manual;
 
-                    return;
-                }
-
-                // If overridden but no suffix provided, use default
-                if (!$invoice->document_number_suffix) {
-                    $invoice->document_number_suffix = $data['document_number_suffix'];
-                }
-                // Generate the full number with the custom suffix
-                $invoice->document_number = DocumentNumberGenerator::regenerateWithSuffix(
-                    'INV',
-                    $data['document_number_raw'],
-                    $date,
-                    $invoice->document_number_suffix
-                );
+                return;
             }
+
+            $invoice->document_number = $data['document_number'];
         });
 
         static::created(function ($invoice) {
@@ -151,7 +133,7 @@ class Invoice extends Model
             }
 
             $invoice->forceFill([
-                'slug' => self::generateSlug((int) $invoice->id, 'inv'),
+                'slug' => self::generateSlug((int) $invoice->id, (int) $invoice->document_number_raw),
             ])->saveQuietly();
         });
 
@@ -163,7 +145,6 @@ class Invoice extends Model
                 $invoice->issue_year = $date->year;
             }
 
-            // Regenerate document number with new suffix if overridden
             if ($invoice->document_number_override && $invoice->isDirty('document_number_manual') && filled($invoice->document_number_manual)) {
                 $invoice->document_number = $invoice->document_number_manual;
 
@@ -173,31 +154,21 @@ class Invoice extends Model
             if (
                 $invoice->document_number_override
                 && blank($invoice->document_number_manual)
-                && $invoice->isDirty('document_number_suffix')
+                && $invoice->isDirty('issue_date')
             ) {
                 $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
-                $invoice->document_number = DocumentNumberGenerator::regenerateWithSuffix(
+                $invoice->document_number = DocumentNumberGenerator::regenerate(
                     'INV',
                     $invoice->document_number_raw,
                     $date,
-                    $invoice->document_number_suffix
                 );
             }
         });
     }
 
-    private static function generateSlug(int $id, string $prefix): string
+    private static function generateSlug(int $id, int $documentNumberRaw): string
     {
-        do {
-            $slug = sprintf(
-                '%s-%s-%s',
-                $prefix,
-                base_convert((string) $id, 10, 36),
-                Str::lower(Str::random(8)),
-            );
-        } while (self::query()->where('slug', $slug)->exists());
-
-        return $slug;
+        return sprintf('%d-%d', $id, $documentNumberRaw);
     }
 
     public function proposal()
