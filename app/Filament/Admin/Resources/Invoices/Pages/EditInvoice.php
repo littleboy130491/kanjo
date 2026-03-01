@@ -24,24 +24,26 @@ class EditInvoice extends EditRecord
                 ->label('Save')
                 ->icon('heroicon-o-check')
                 ->color('primary')
+                ->link()
                 ->action('save'),
             Action::make('create_service')
                 ->label('Generate Service')
                 ->icon('heroicon-o-wrench-screwdriver')
                 ->color('success')
-                ->visible(fn (): bool => filled($this->record->client_id) && blank($this->record->service_id))
+                ->link()
+                ->visible(fn(): bool => filled($this->record->client_id) && blank($this->record->service_id))
                 ->schema([
                     \Filament\Forms\Components\TextInput::make('name')
                         ->maxLength(255)
-                        ->default(fn (): string => (string) (data_get($this->record->items, '0.title') ?: $this->record->document_number)),
+                        ->default(fn(): string => (string) (data_get($this->record->items, '0.title') ?: $this->record->document_number)),
                     \Filament\Forms\Components\TextInput::make('domain')
                         ->maxLength(255),
                     \Filament\Forms\Components\TextInput::make('start_date')
                         ->maxLength(255)
-                        ->default(fn (): ?string => $this->record->issue_date?->toDateString()),
+                        ->default(fn(): ?string => $this->record->issue_date?->toDateString()),
                     \Filament\Forms\Components\TextInput::make('renewal_date')
                         ->maxLength(255)
-                        ->default(fn (): ?string => $this->record->due_date?->toDateString()),
+                        ->default(fn(): ?string => $this->record->due_date?->toDateString()),
                 ])
                 ->action(function (array $data) {
                     $service = Service::create([
@@ -59,35 +61,28 @@ class EditInvoice extends EditRecord
 
                     return redirect(ServiceResource::getUrl('edit', ['record' => $service]));
                 }),
-            Action::make('generate_invoice_from_service')
-                ->label('Generate Invoice from Service')
-                ->icon('heroicon-o-document-plus')
-                ->color('success')
-                ->visible(fn (): bool => filled($this->record->service_id))
-                ->action(function () {
-                    $invoice = $this->createInvoiceFromService();
-
-                    return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
-                }),
             Action::make('view_document')
                 ->label('View Document')
                 ->icon('heroicon-o-eye')
-                ->url(fn (): string => route('invoice.show', [
+                ->link()
+                ->url(fn(): string => route('invoice.show', [
                     'slug' => $this->record->slug ?: str_replace('/', '-', $this->record->document_number),
                 ]))
                 ->openUrlInNewTab(),
             Action::make('create_pdf')
                 ->label('Create PDF')
                 ->icon('heroicon-o-document-arrow-down')
-                ->url(fn (): string => route('pdf.invoice', [
+                ->link()
+                ->url(fn(): string => route('pdf.invoice', [
                     'slug' => $this->record->slug ?: str_replace('/', '-', $this->record->document_number),
                 ]))
                 ->openUrlInNewTab(),
             Action::make('view_proposal')
                 ->label('View Proposal')
                 ->icon('heroicon-o-eye')
-                ->visible(fn (): bool => filled($this->record->proposal_id))
-                ->url(fn (): string => ProposalResource::getUrl('edit', ['record' => $this->record->proposal_id])),
+                ->link()
+                ->visible(fn(): bool => filled($this->record->proposal_id))
+                ->url(fn(): string => ProposalResource::getUrl('edit', ['record' => $this->record->proposal_id])),
         ];
     }
 

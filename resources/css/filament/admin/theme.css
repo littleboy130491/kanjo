@@ -5,3 +5,25 @@
 @source '../../../../app/Filament/Admin/**/*';
 @source '../../../../resources/views/filament/admin/**/*';
 @source '../../../../vendor/awcodes/filament-curator/resources/**/*.blade.php';
+
+@layer components {
+    .fi-ac {
+        @apply flex flex-wrap;
+    }
+
+    .fi-ta-actions.sm\:fi-not-wrapped {
+        @apply sm:flex-wrap;
+    }
+
+    .fi-header {
+        @apply sm:flex-wrap;
+    }
+
+    .fi-header-actions-ctn {
+        @apply min-w-0 max-w-full shrink flex-wrap justify-end;
+    }
+
+    .fi-header-actions-ctn > .fi-ac {
+        @apply min-w-0 max-w-full flex-wrap justify-end;
+    }
+}
