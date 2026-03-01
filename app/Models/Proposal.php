@@ -22,6 +22,7 @@ class Proposal extends Model
         'document_number_raw',
         'document_number_suffix',
         'document_number_override',
+        'document_number_manual',
         'issue_month',
         'issue_year',
         'client_company',
@@ -142,6 +143,12 @@ class Proposal extends Model
                 $proposal->document_number = $data['document_number'];
                 $proposal->document_number_suffix = $data['document_number_suffix'];
             } else {
+                if (filled($proposal->document_number_manual)) {
+                    $proposal->document_number = $proposal->document_number_manual;
+
+                    return;
+                }
+
                 // If overridden but no suffix provided, use default
                 if (! $proposal->document_number_suffix) {
                     $proposal->document_number_suffix = $data['document_number_suffix'];
@@ -175,7 +182,17 @@ class Proposal extends Model
             }
 
             // Regenerate document number with new suffix if overridden
-            if ($proposal->document_number_override && $proposal->isDirty('document_number_suffix')) {
+            if ($proposal->document_number_override && $proposal->isDirty('document_number_manual') && filled($proposal->document_number_manual)) {
+                $proposal->document_number = $proposal->document_number_manual;
+
+                return;
+            }
+
+            if (
+                $proposal->document_number_override
+                && blank($proposal->document_number_manual)
+                && $proposal->isDirty('document_number_suffix')
+            ) {
                 $date = $proposal->issue_date ? Carbon::parse($proposal->issue_date) : now();
                 $proposal->document_number = DocumentNumberGenerator::regenerateWithSuffix(
                     'QUO',

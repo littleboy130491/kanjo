@@ -13,11 +13,13 @@ return new class extends Migration
 
             // Document numbering
             $table->string('document_number')->nullable()->index();
+            $table->string('slug')->nullable()->unique();
             $table->unsignedInteger('document_number_raw')->nullable();
             $table->unsignedTinyInteger('issue_month')->nullable();
             $table->unsignedSmallInteger('issue_year')->nullable();
             $table->string('document_number_suffix')->default('NEW');
             $table->boolean('document_number_override')->default(false);
+            $table->string('document_number_manual')->nullable();
             $table->unique(['document_number_raw', 'issue_month', 'issue_year'], 'invoices_doc_unique');
 
             // Client info (frozen snapshot)

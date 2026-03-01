@@ -23,6 +23,7 @@ class Invoice extends Model
         'document_number_raw',
         'document_number_suffix',
         'document_number_override',
+        'document_number_manual',
         'issue_month',
         'issue_year',
         'client_company',
@@ -112,6 +113,12 @@ class Invoice extends Model
                 $invoice->document_number = $data['document_number'];
                 $invoice->document_number_suffix = $data['document_number_suffix'];
             } else {
+                if (filled($invoice->document_number_manual)) {
+                    $invoice->document_number = $invoice->document_number_manual;
+
+                    return;
+                }
+
                 // If overridden but no suffix provided, use default
                 if (!$invoice->document_number_suffix) {
                     $invoice->document_number_suffix = $data['document_number_suffix'];
@@ -145,7 +152,17 @@ class Invoice extends Model
             }
 
             // Regenerate document number with new suffix if overridden
-            if ($invoice->document_number_override && $invoice->isDirty('document_number_suffix')) {
+            if ($invoice->document_number_override && $invoice->isDirty('document_number_manual') && filled($invoice->document_number_manual)) {
+                $invoice->document_number = $invoice->document_number_manual;
+
+                return;
+            }
+
+            if (
+                $invoice->document_number_override
+                && blank($invoice->document_number_manual)
+                && $invoice->isDirty('document_number_suffix')
+            ) {
                 $date = $invoice->issue_date ? Carbon::parse($invoice->issue_date) : now();
                 $invoice->document_number = DocumentNumberGenerator::regenerateWithSuffix(
                     'INV',
