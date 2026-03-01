@@ -8,6 +8,7 @@ use App\Filament\Admin\Resources\Portfolios\Schemas\PortfolioForm;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Portfolio;
+use App\Models\Proposal;
 use App\Models\ProposalContentDefault;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
@@ -53,6 +54,7 @@ class ProposalForm
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
                                             ->helperText('Auto-generated as {id}-{document_number_raw} after save. You can override it manually.')
+                                            ->default(fn (Get $get): string => self::generateSlugPreview($get('issue_date')))
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
                                             ->live(onBlur: true)
@@ -870,7 +872,28 @@ class ProposalForm
         mixed $issueDate,
     ): string {
         $date = filled($issueDate) ? Carbon::parse($issueDate) : now();
+        $raw = self::generateNextDocumentRaw($date);
+        $romanMonth = DocumentNumberGenerator::toRoman($date->month);
 
-        return DocumentNumberGenerator::generate($type, $date)['document_number'];
+        return sprintf('%s/%03d/%s/%s', $type, $raw, $romanMonth, $date->format('y'));
+    }
+
+    protected static function generateSlugPreview(mixed $issueDate): string
+    {
+        $date = filled($issueDate) ? Carbon::parse($issueDate) : now();
+        $nextId = ((int) Proposal::query()->max('id')) + 1;
+        $raw = self::generateNextDocumentRaw($date);
+
+        return sprintf('%d-%d', $nextId, $raw);
+    }
+
+    protected static function generateNextDocumentRaw(Carbon $date): int
+    {
+        $maxRaw = Proposal::query()
+            ->where('issue_month', $date->month)
+            ->where('issue_year', $date->year)
+            ->max('document_number_raw');
+
+        return $maxRaw ? ((int) $maxRaw + 1) : 1;
     }
 }
