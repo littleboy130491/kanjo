@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\Translatable\HasTranslations;
@@ -88,6 +89,8 @@ class Invoice extends Model
     protected static function booted()
     {
         static::saving(function ($invoice) {
+            self::recalculateTotals($invoice);
+
             if (blank($invoice->slug)) {
                 $invoice->slug = null;
 
@@ -204,6 +207,50 @@ class Invoice extends Model
         $suffix = trim((string) end($parts));
 
         return $suffix !== '' ? $suffix : null;
+    }
+
+    private static function recalculateTotals(self $invoice): void
+    {
+        $items = self::extractItemsForTotal($invoice->items);
+        $subtotal = collect($items)
+            ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0));
+
+        $taxRate = (float) ($invoice->tax_rate ?? 0);
+        $taxAmount = $subtotal * ($taxRate / 100);
+
+        $invoice->subtotal = round($subtotal, 2);
+        $invoice->tax_amount = round($taxAmount, 2);
+        $invoice->total = round($subtotal + $taxAmount, 2);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private static function extractItemsForTotal(mixed $items): array
+    {
+        if (! is_array($items)) {
+            return [];
+        }
+
+        if (Arr::isList($items)) {
+            return $items;
+        }
+
+        foreach (['en', 'id'] as $locale) {
+            $localeItems = $items[$locale] ?? null;
+
+            if (is_array($localeItems) && Arr::isList($localeItems)) {
+                return $localeItems;
+            }
+        }
+
+        foreach ($items as $value) {
+            if (is_array($value) && Arr::isList($value)) {
+                return $value;
+            }
+        }
+
+        return [];
     }
 
     public function proposal()

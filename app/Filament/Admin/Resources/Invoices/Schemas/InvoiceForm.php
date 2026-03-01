@@ -20,7 +20,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
@@ -184,6 +186,8 @@ class InvoiceForm
                                                             ->required()
                                                             ->numeric()
                                                             ->inputMode('decimal')
+                                                            ->live(onBlur: true)
+                                                            ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set))
                                                             ->columnSpan(1),
                                                         Textarea::make('description')
                                                             ->rows(2)
@@ -194,6 +198,8 @@ class InvoiceForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
+                                                    ->live()
+                                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set))
                                                     ->default([]),
                                             ])
                                             ->locales(['en', 'id'])
@@ -217,7 +223,9 @@ class InvoiceForm
                                             ->inputMode('decimal')
                                             ->default(0)
                                             ->required()
-                                            ->suffix('%'),
+                                            ->suffix('%')
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set)),
                                     ])
                                     ->columns(2),
 
@@ -308,5 +316,51 @@ class InvoiceForm
             ->max('document_number_raw');
 
         return $maxRaw ? ((int) $maxRaw + 1) : 1;
+    }
+
+    protected static function recalculateTotals(Get $get, Set $set): void
+    {
+        $items = self::extractItemsForTotal($get('items'));
+
+        $subtotal = collect($items)
+            ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0));
+
+        $taxRate = (float) ($get('tax_rate') ?? 0);
+        $taxAmount = $subtotal * ($taxRate / 100);
+        $total = $subtotal + $taxAmount;
+
+        $set('subtotal', round($subtotal, 2));
+        $set('tax_amount', round($taxAmount, 2));
+        $set('total', round($total, 2));
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected static function extractItemsForTotal(mixed $items): array
+    {
+        if (! is_array($items)) {
+            return [];
+        }
+
+        if (Arr::isList($items)) {
+            return $items;
+        }
+
+        foreach (['en', 'id'] as $locale) {
+            $localeItems = $items[$locale] ?? null;
+
+            if (is_array($localeItems) && Arr::isList($localeItems)) {
+                return $localeItems;
+            }
+        }
+
+        foreach ($items as $value) {
+            if (is_array($value) && Arr::isList($value)) {
+                return $value;
+            }
+        }
+
+        return [];
     }
 }
