@@ -170,23 +170,31 @@ class ProposalsTable
                     ->visible(fn (Proposal $record): bool => filled($record->client_id) && blank($record->service_id))
                     ->schema([
                         \Filament\Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->default(fn (Proposal $record): string => (string) ($record->offer_name_1 ?: $record->document_number)),
                         \Filament\Forms\Components\TextInput::make('domain')
                             ->maxLength(255),
+                        \Filament\Forms\Components\TextInput::make('start_date')
+                            ->maxLength(255)
+                            ->default(fn (Proposal $record): ?string => $record->issue_date?->toDateString()),
+                        \Filament\Forms\Components\TextInput::make('renewal_date')
+                            ->maxLength(255)
+                            ->default(fn (Proposal $record): ?string => $record->valid_until?->toDateString()),
                     ])
                     ->action(function (Proposal $record, array $data) {
                         $service = Service::create([
-                            'name' => $data['name'],
-                            'domain' => $data['domain'] ?? null,
+                            'name' => (string) ($data['name'] ?? ''),
+                            'domain' => $data['domain'] ?: null,
+                            'start_date' => $data['start_date'] ?: null,
+                            'renewal_date' => $data['renewal_date'] ?: null,
                             'client_id' => $record->client_id,
                             'status' => ServiceStatus::ON_GOING,
-                            'notes' => [],
+                            'notes' => is_array($record->notes) ? $record->notes : [],
                         ]);
 
                         $record->update(['service_id' => $service->id]);
 
-                        Notification::make()->title('Service created and linked.')->success()->send();
+                        Notification::make()->title('Service generated from proposal and linked.')->success()->send();
                     }),
                 Action::make('download_pdf')
                     ->label('Download PDF')

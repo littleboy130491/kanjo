@@ -4,58 +4,21 @@ namespace App\Filament\Admin\Resources\Invoices\Pages;
 
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
-use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Filament\Admin\Resources\Proposals\ProposalResource;
 use App\Models\Invoice;
-use App\Models\Service;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Actions\EditAction;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditInvoice extends EditRecord
+class ViewInvoice extends ViewRecord
 {
     protected static string $resource = InvoiceResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('save')
-                ->label('Save')
-                ->icon('heroicon-o-check')
-                ->color('primary')
-                ->action('save'),
-            Action::make('create_service')
-                ->label('Generate Service')
-                ->icon('heroicon-o-wrench-screwdriver')
-                ->color('success')
-                ->visible(fn (): bool => filled($this->record->client_id) && blank($this->record->service_id))
-                ->schema([
-                    \Filament\Forms\Components\TextInput::make('name')
-                        ->maxLength(255)
-                        ->default(fn (): string => (string) (data_get($this->record->items, '0.title') ?: $this->record->document_number)),
-                    \Filament\Forms\Components\TextInput::make('domain')
-                        ->maxLength(255),
-                    \Filament\Forms\Components\TextInput::make('start_date')
-                        ->maxLength(255)
-                        ->default(fn (): ?string => $this->record->issue_date?->toDateString()),
-                    \Filament\Forms\Components\TextInput::make('renewal_date')
-                        ->maxLength(255)
-                        ->default(fn (): ?string => $this->record->due_date?->toDateString()),
-                ])
-                ->action(function (array $data) {
-                    $service = Service::create([
-                        'name' => (string) ($data['name'] ?? ''),
-                        'domain' => $data['domain'] ?: null,
-                        'start_date' => $data['start_date'] ?: null,
-                        'renewal_date' => $data['renewal_date'] ?: null,
-                        'client_id' => $this->record->client_id,
-                        'status' => ServiceStatus::ON_GOING,
-                        'notes' => is_array($this->record->notes) ? $this->record->notes : [],
-                    ]);
-
-                    $this->record->update(['service_id' => $service->id]);
-                    $this->refreshFormData(['service_id']);
-                }),
+            EditAction::make(),
             Action::make('generate_invoice_from_service')
                 ->label('Generate Invoice from Service')
                 ->icon('heroicon-o-document-plus')
