@@ -175,7 +175,7 @@ class InvoiceForm
                                 Section::make('Invoice Items')
                                     ->schema([
                                         Translate::make()
-                                            ->schema(fn (string $locale): array => [
+                                            ->schema(fn(string $locale): array => [
                                                 self::configureTranslatedItemsRepeater(Repeater::make('items'), $locale)
                                                     ->schema([
                                                         TextInput::make('title')
@@ -202,10 +202,9 @@ class InvoiceForm
                                                     ->reorderable()
                                                     ->deletable()
                                                     ->live()
-                                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set))
+                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::recalculateTotals($get, $set))
                                                     ->default([]),
                                             ])
-                                            ->locales(['en', 'id'])
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -228,7 +227,7 @@ class InvoiceForm
                                             ->required()
                                             ->suffix('%')
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set)),
+                                            ->afterStateUpdated(fn(Get $get, Set $set) => self::recalculateTotals($get, $set)),
                                     ])
                                     ->columns(2),
 
@@ -333,7 +332,7 @@ class InvoiceForm
         );
 
         $subtotal = collect($items)
-            ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0));
+            ->sum(fn(mixed $item): float => (float) data_get($item, 'price', 0));
 
         $taxRate = (float) ($get('tax_rate') ?? 0);
         $taxAmount = $subtotal * ($taxRate / 100);
@@ -349,11 +348,11 @@ class InvoiceForm
         $deletedRowIndex = null;
 
         return $repeater
-            ->addAction(fn (Action $action): Action => $action
+            ->addAction(fn(Action $action): Action => $action
                 ->after(function (Repeater $component) use ($locale): void {
                     self::syncTranslatedItemsAddedRow($component, $locale);
                 }))
-            ->deleteAction(fn (Action $action): Action => $action
+            ->deleteAction(fn(Action $action): Action => $action
                 ->before(function (array $arguments, Repeater $component) use (&$deletedRowIndex): void {
                     $rawRows = $component->getRawState() ?? [];
                     $rawKeys = array_keys($rawRows);
@@ -372,7 +371,7 @@ class InvoiceForm
     {
         $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
 
-        if (! $targetRepeater) {
+        if (!$targetRepeater) {
             return;
         }
 
@@ -411,7 +410,7 @@ class InvoiceForm
     {
         $targetRepeater = self::getMirroredLocaleRepeater($component, $locale);
 
-        if (! $targetRepeater) {
+        if (!$targetRepeater) {
             return;
         }
 
@@ -425,11 +424,11 @@ class InvoiceForm
         $targetKeys = array_keys($targetRows);
         $index = $deletedRowIndex ?? count($currentRows);
 
-        if (! isset($targetKeys[$index])) {
+        if (!isset($targetKeys[$index])) {
             $index = array_key_last($targetKeys);
         }
 
-        if ($index === null || ! isset($targetKeys[$index])) {
+        if ($index === null || !isset($targetKeys[$index])) {
             return;
         }
 
@@ -459,7 +458,7 @@ class InvoiceForm
     {
         $targetPath = self::getMirroredLocaleStatePath($component, $currentLocale);
 
-        if (! $targetPath) {
+        if (!$targetPath) {
             return null;
         }
 
@@ -476,7 +475,7 @@ class InvoiceForm
         $targetLocale = $currentLocale === 'en' ? 'id' : 'en';
         $localeSuffix = ".{$currentLocale}";
 
-        if (! str_ends_with($currentPath, $localeSuffix)) {
+        if (!str_ends_with($currentPath, $localeSuffix)) {
             return null;
         }
 
@@ -505,7 +504,7 @@ class InvoiceForm
      */
     protected static function findItemRows(mixed $node): ?array
     {
-        if (! is_array($node)) {
+        if (!is_array($node)) {
             return null;
         }
 
@@ -533,7 +532,7 @@ class InvoiceForm
         $values = array_values($rows);
 
         foreach ($values as $value) {
-            if (! is_array($value) || ! self::isItemRow($value)) {
+            if (!is_array($value) || !self::isItemRow($value)) {
                 return false;
             }
         }

@@ -255,7 +255,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('brief', $locale))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -275,7 +275,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('core_services', $locale))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -301,7 +301,7 @@ class ProposalForm
                                                     ->columns(1)
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -321,7 +321,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('server', $locale))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -341,7 +341,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('assets', $locale))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -361,7 +361,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('security', $locale))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -381,7 +381,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('support', $locale))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -401,7 +401,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('additional_benefit', $locale))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -432,7 +432,7 @@ class ProposalForm
                                                     ->columns(2)
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -459,7 +459,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('payment', $locale))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -485,7 +485,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('terms_condition', $locale))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -515,7 +515,7 @@ class ProposalForm
                                                     ->columns(3)
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
 
@@ -542,7 +542,7 @@ class ProposalForm
                                                     ->columns(3)
                                                     ->columnSpanFull(),
                                             ])
-                                            ->locales(['en', 'id'])
+                                            
                                             ->suffixLocaleLabel(),
                                     ]),
                             ]),

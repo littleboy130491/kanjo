@@ -89,7 +89,6 @@ class CompanyForm
                                 ->rows(3)
                                 ->columnSpanFull(),
                         ])
-                        ->locales(["en", "id"])
                         ->suffixLocaleLabel(),
                 ])
                 ->columnSpanFull(),

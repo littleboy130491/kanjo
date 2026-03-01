@@ -14,17 +14,16 @@ class ProposalContentDefaultForm
     public static function configure(Schema $schema): Schema
     {
         $fieldSections = collect(ProposalContentDefault::FIELD_OPTIONS)
-            ->map(fn (string $label, string $fieldKey): Section => Section::make($label)
+            ->map(fn(string $label, string $fieldKey): Section => Section::make($label)
                 ->schema([
                     Translate::make()
                         ->exclude([
                             "value.en.{$fieldKey}",
                             "value.id.{$fieldKey}",
                         ])
-                        ->schema(fn (string $locale): array => [
+                        ->schema(fn(string $locale): array => [
                             self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value'),
                         ])
-                        ->locales(['en', 'id'])
                         ->suffixLocaleLabel(),
                 ]))
             ->all();
@@ -45,13 +44,13 @@ class ProposalContentDefaultForm
             ->rows(12)
             ->required()
             ->helperText('Must be a valid JSON array.')
-            ->formatStateUsing(fn ($state): string => json_encode($state ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
-            ->dehydrateStateUsing(fn (?string $state): array => json_decode($state ?: '[]', true) ?: [])
+            ->formatStateUsing(fn($state): string => json_encode($state ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
+            ->dehydrateStateUsing(fn(?string $state): array => json_decode($state ?: '[]', true) ?: [])
             ->rule(function () {
                 return function (string $attribute, $value, \Closure $fail): void {
                     $decoded = json_decode((string) $value, true);
 
-                    if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+                    if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
                         $fail('The value must be a valid JSON array.');
                     }
                 };
