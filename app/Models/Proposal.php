@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\DocumentStatus;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,6 +16,10 @@ use Spatie\Translatable\HasTranslations;
 class Proposal extends Model
 {
     use HasFactory, HasTranslations, SoftDeletes;
+
+    protected $appends = [
+        'document_number_final',
+    ];
 
     protected $fillable = [
         'document_number',
@@ -102,6 +107,13 @@ class Proposal extends Model
         'status' => DocumentStatus::class,
         'notes' => 'array',
     ];
+
+    protected function documentNumberFinal(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?string => $this->document_number,
+        );
+    }
 
     protected static function booted()
     {
