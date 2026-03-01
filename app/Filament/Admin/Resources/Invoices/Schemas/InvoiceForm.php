@@ -42,8 +42,9 @@ class InvoiceForm
                                             ->placeholder('Auto-generated'),
                                         TextInput::make('slug')
                                             ->label('Public Slug')
-                                            ->placeholder('Auto-generated after save')
-                                            ->helperText('Leave empty to auto-generate from ID + random token. Fill manually to disable auto-generation.')
+                                            ->placeholder('Auto-generated')
+                                            ->helperText('Pre-filled automatically. You can override it manually.')
+                                            ->default(fn (): string => 'inv-'.Str::lower(Str::random(10)))
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
                                             ->live(onBlur: true)
