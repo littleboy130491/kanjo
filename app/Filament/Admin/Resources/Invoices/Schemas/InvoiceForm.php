@@ -8,6 +8,8 @@ use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Service;
+use App\Services\DocumentNumberGenerator;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -39,6 +41,12 @@ class InvoiceForm
                                             ->label('Document Number')
                                             ->disabled()
                                             ->dehydrated(false)
+                                            ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
+                                                'INV',
+                                                $get('document_number_suffix'),
+                                                $get('issue_date'),
+                                                'NEW',
+                                            ))
                                             ->placeholder('Auto-generated'),
                                         TextInput::make('slug')
                                             ->label('Public Slug')
@@ -63,6 +71,12 @@ class InvoiceForm
                                         TextInput::make('document_number_manual')
                                             ->label('Manual Document Number')
                                             ->maxLength(255)
+                                            ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
+                                                'INV',
+                                                $get('document_number_suffix'),
+                                                $get('issue_date'),
+                                                'NEW',
+                                            ))
                                             ->visible(fn (Get $get): bool => $get('document_number_override'))
                                             ->required(fn (Get $get): bool => $get('document_number_override')),
                                     ])
@@ -288,5 +302,17 @@ class InvoiceForm
                     ->persistTabInQueryString()
                     ->columnSpanFull(),
             ]);
+    }
+
+    protected static function generateDocumentNumberPreview(
+        string $type,
+        mixed $suffix,
+        mixed $issueDate,
+        string $defaultSuffix,
+    ): string {
+        $date = filled($issueDate) ? Carbon::parse($issueDate) : now();
+        $resolvedSuffix = filled($suffix) ? (string) $suffix : $defaultSuffix;
+
+        return DocumentNumberGenerator::generate($type, $date, $resolvedSuffix)['document_number'];
     }
 }
