@@ -53,7 +53,9 @@ class ProposalForm
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
-                                            ->helperText('Auto-generated as {id}-{document_number_raw}{issue_month}{issue_year} after save. You can override it manually.')
+                                            ->helperText(fn (Get $get): string => 'Public URL: '.route('proposal.show', [
+                                                'slug' => Str::slug((string) ($get('slug') ?: self::generateSlugPreview($get('issue_date')))),
+                                            ]))
                                             ->default(fn (Get $get): string => self::generateSlugPreview($get('issue_date')))
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
@@ -582,7 +584,6 @@ class ProposalForm
                                             ->helperText('Leave empty to use global credentials'),
                                         TextInput::make('access_password')
                                             ->label('Access Password')
-                                            ->password()
                                             ->maxLength(255)
                                             ->nullable()
                                             ->helperText('Leave empty to use global credentials'),
