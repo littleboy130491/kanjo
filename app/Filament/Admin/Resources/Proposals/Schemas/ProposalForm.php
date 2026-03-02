@@ -242,74 +242,42 @@ class ProposalForm
                             ->schema([
                                 Section::make('Brief')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('brief'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('brief'),
                                     ]),
 
                                 Section::make('Core Services')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('core_services'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('core_services'),
                                     ]),
 
                                 Section::make('Features')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('features'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('features'),
                                     ]),
 
                                 Section::make('Server')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('server'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('server'),
                                     ]),
 
                                 Section::make('Assets')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('assets'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('assets'),
                                     ]),
 
                                 Section::make('Security')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('security'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('security'),
                                     ]),
 
                                 Section::make('Support')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('support'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('support'),
                                     ]),
 
                                 Section::make('Additional Benefits')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('additional_benefit'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('additional_benefit'),
                                     ]),
 
                                 Section::make('Add-ons')
@@ -350,38 +318,22 @@ class ProposalForm
 
                                 Section::make('Payment Terms')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('payment'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('payment'),
                                     ]),
 
                                 Section::make('Terms & Conditions')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('terms_condition'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('terms_condition'),
                                     ]),
 
                                 Section::make('Additional Info')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('additional_info'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('additional_info'),
                                     ]),
 
                                 Section::make('Extra Content Brief')
                                     ->schema([
-                                        Translate::make()
-                                            ->schema(fn(string $locale): array => [
-                                                self::makeRichEditor('extra_content_brief'),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                        self::makeTranslatedRichEditor('extra_content_brief'),
                                     ]),
 
                                 Section::make('Offer 1 Project Timeline')
@@ -517,13 +469,72 @@ class ProposalForm
             ]);
     }
 
-    protected static function makeRichEditor(string $name): RichEditor
+    protected static function makeTranslatedRichEditor(string $fieldKey): Translate
     {
-        return RichEditor::make($name)
+        return Translate::make()
+            ->exclude(self::translatedFieldPaths($fieldKey))
+            ->schema(fn(string $locale): array => [
+                self::makeRichEditor("{$fieldKey}.{$locale}", $fieldKey, $locale),
+            ]);
+    }
+
+    protected static function translatedFieldPaths(string $fieldKey): array
+    {
+        return collect(config('translatable.locales', ['en', 'id']))
+            ->map(fn(string $locale): string => "{$fieldKey}.{$locale}")
+            ->all();
+    }
+
+    protected static function makeRichEditor(string $statePath, string $fieldKey, string $locale): RichEditor
+    {
+        return RichEditor::make($statePath)
             ->enableToolbarButtons(['attachCuratorMedia'])
             ->plugins([AttachCuratorMediaPlugin::make()])
+            ->default(self::defaultRichTextContent($fieldKey, $locale))
             ->extraAttributes(['style' => 'min-height: 200px'])
             ->columnSpanFull();
+    }
+
+    protected static function defaultRichTextContent(string $fieldKey, string $locale): ?string
+    {
+        $globalDefault = ProposalContentDefault::query()
+            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY)
+            ->first();
+
+        if ($globalDefault instanceof ProposalContentDefault) {
+            $translations = $globalDefault->getTranslations('value');
+            $value = data_get($translations, "{$locale}.{$fieldKey}");
+
+            if (is_string($value)) {
+                return $value;
+            }
+
+            $legacyValue = data_get($globalDefault->getAttribute("value_{$locale}"), $fieldKey);
+
+            if (is_string($legacyValue)) {
+                return $legacyValue;
+            }
+        }
+
+        // Backward compatibility for earlier per-field records.
+        $legacyDefault = ProposalContentDefault::query()
+            ->where('field_key', $fieldKey)
+            ->first();
+
+        if ($legacyDefault instanceof ProposalContentDefault) {
+            $translations = $legacyDefault->getTranslations('value');
+            $value = data_get($translations, $locale);
+
+            if (is_string($value)) {
+                return $value;
+            }
+
+            $legacyValue = $legacyDefault->getAttribute("value_{$locale}");
+
+            return is_string($legacyValue) ? $legacyValue : null;
+        }
+
+        return null;
     }
 
     protected static function emptyTranslatedRepeaterRow(string $fieldKey): array

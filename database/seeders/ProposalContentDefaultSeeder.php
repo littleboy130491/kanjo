@@ -28,7 +28,7 @@ class ProposalContentDefaultSeeder extends Seeder
     private static function defaultValueEn(): array
     {
         return [
-            'brief' => '<p>This proposal outlines website development and launch deliverables.</p>',
+            'brief' => '<p>Thank you for requesting a quotation for your professional website needs. We hope to be the right partner for you.</p><p>Based on our discussion with the consulting team, here are your website requirements:</p><ol><li>Modern design that highlights the credibility and professionalism of your business or company</li><li>Responsive display that adapts to each device (desktop, mobile phone, and tablet), so the website layout always appears optimally</li><li>A fast and secure website for users to access</li></ol>',
             'core_services' => '<ul><li>Web Design &amp; Development</li><li>CMS Setup</li></ul>',
             'features' => '<ul><li><strong>Responsive Design</strong> — Optimized layout for desktop, tablet, and mobile.</li><li><strong>Admin Dashboard</strong> — Manage pages and content securely.</li></ul>',
             'server' => '<ul><li>Cloud hosting setup</li></ul>',
@@ -75,7 +75,7 @@ class ProposalContentDefaultSeeder extends Seeder
     private static function defaultValueId(): array
     {
         return [
-            'brief' => '<p>Proposal ini menjelaskan ruang lingkup pengembangan website hingga peluncuran.</p>',
+            'brief' => '<p>Terima kasih atas permintaan penawaran untuk kebutuhan website profesional Anda. Kami berharap dapat menjadi partner yang tepat untuk Anda.</p><p>Sesuai hasil diskusi dengan tim konsultan kami, berikut adalah kebutuhan website Anda:</p><ol><li>Desain modern yang menonjolkan kredibilitas dan profesionalisme bisnis / perusahaan</li><li>Tampilan responsive menyesuaikan device (desktop, handphone, dan tablet) sehingga layout website selalu tampil secara optimal</li><li>Website cepat dan aman untuk diakses</li></ol>',
             'core_services' => '<ul><li>Desain &amp; Pengembangan Website</li><li>Setup CMS</li></ul>',
             'features' => '<ul><li><strong>Desain Responsif</strong> — Tampilan optimal untuk desktop, tablet, dan mobile.</li><li><strong>Dashboard Admin</strong> — Kelola halaman dan konten dengan aman.</li></ul>',
             'server' => '<ul><li>Setup cloud hosting</li></ul>',

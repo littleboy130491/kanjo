@@ -38,8 +38,9 @@ class TranslatableRepeaterSync
      */
     public static function makeCopyToAllLocalesAction(
         string $fieldKey,
-        string $defaultLocale = 'en',
+        ?string $defaultLocale = null,
     ): Action {
+        $defaultLocale ??= config('app.locale', 'en');
         return Action::make('translatable_copy_to_all_' . $fieldKey)
             ->label('Copy to all languages')
             ->icon('heroicon-o-language')
