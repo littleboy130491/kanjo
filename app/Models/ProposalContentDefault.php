@@ -13,18 +13,20 @@ class ProposalContentDefault extends Model
 
     public const FIELD_OPTIONS = [
         'brief' => 'Brief',
+        'extra_content_brief' => 'Extra Content Brief',
         'core_services' => 'Core Services',
         'features' => 'Features',
         'server' => 'Server',
         'assets' => 'Assets',
         'security' => 'Security',
         'support' => 'Support',
-        'additional_benefit' => 'Additional Benefits',
         'add_on' => 'Add-ons',
-        'payment' => 'Payment Terms',
-        'terms_condition' => 'Terms & Conditions',
+        'additional_benefit' => 'Additional Benefits',
         'offer_1_project_timeline' => 'Offer 1 Project Timeline',
         'offer_2_project_timeline' => 'Offer 2 Project Timeline',
+        'payment' => 'Payment Terms',
+        'terms_condition' => 'Terms & Conditions',
+        'additional_info' => 'Additional Info',
     ];
 
     protected $fillable = [

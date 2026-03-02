@@ -37,7 +37,7 @@ return new class extends Migration
             $table->string('currency')->default('IDR');
             $table->decimal('tax_rate', 5, 2)->default(0);
 
-            // Translatable JSON fields
+            // Translatable rich-text fields (TipTap HTML, stored as JSON via Spatie Translatable)
             $table->json('brief')->nullable();
             $table->json('core_services')->nullable();
             $table->json('features')->nullable();
@@ -46,9 +46,13 @@ return new class extends Migration
             $table->json('security')->nullable();
             $table->json('support')->nullable();
             $table->json('additional_benefit')->nullable();
-            $table->json('add_on')->nullable();
             $table->json('payment')->nullable();
             $table->json('terms_condition')->nullable();
+            $table->json('additional_info')->nullable();
+            $table->json('extra_content_brief')->nullable();
+
+            // Translatable JSON repeater fields
+            $table->json('add_on')->nullable();
 
             // Offer 1
             $table->string('offer_name_1')->nullable();

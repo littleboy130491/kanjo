@@ -3,7 +3,9 @@
 namespace App\Filament\Admin\Resources\ProposalContentDefaults\Schemas;
 
 use App\Models\ProposalContentDefault;
+use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -11,10 +13,20 @@ use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
 class ProposalContentDefaultForm
 {
+    /**
+     * Fields that use JSON array repeaters (not rich text).
+     */
+    protected static array $jsonRepeaterFields = [
+        'add_on',
+        'offer_1_project_timeline',
+        'offer_2_project_timeline',
+    ];
+
     public static function configure(Schema $schema): Schema
     {
         $fieldSections = collect(ProposalContentDefault::FIELD_OPTIONS)
-            ->map(fn(string $label, string $fieldKey): Section => Section::make($label)
+            ->map(fn(string $label, string $fieldKey): Section => 
+                Section::make($label)
                 ->schema([
                     Translate::make()
                         ->exclude([
@@ -22,10 +34,13 @@ class ProposalContentDefaultForm
                             "value.id.{$fieldKey}",
                         ])
                         ->schema(fn(string $locale): array => [
-                            self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value'),
+                            in_array($fieldKey, self::$jsonRepeaterFields)
+                                ? self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value')
+                                : self::makeRichEditor("value.{$locale}.{$fieldKey}", 'Default Value'),
                         ])
                         ->suffixLocaleLabel(),
-                ]))
+                ])
+                ->columnSpanFull())
             ->all();
 
         return $schema
@@ -35,6 +50,16 @@ class ProposalContentDefaultForm
                     ->dehydrated(),
                 ...$fieldSections,
             ]);
+    }
+
+    protected static function makeRichEditor(string $statePath, string $label): RichEditor
+    {
+        return RichEditor::make($statePath)
+            ->label($label)
+            ->enableToolbarButtons(['attachCuratorMedia'])
+            ->plugins([AttachCuratorMediaPlugin::make()])
+            ->extraAttributes(['style' => 'min-height: 200px'])
+            ->columnSpanFull();
     }
 
     protected static function makeJsonTextarea(string $statePath, string $label): Textarea

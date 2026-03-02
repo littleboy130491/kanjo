@@ -23,60 +23,28 @@ class ProposalContentDefaultSeeder extends Seeder
     }
 
     /**
-     * @return array<string, array<int, array<string, string>>>
+     * @return array<string, mixed>
      */
     private static function defaultValueEn(): array
     {
         return [
-            'brief' => [
-                ['content' => 'This proposal outlines website development and launch deliverables.'],
-            ],
-            'core_services' => [
-                ['service' => 'Web Design & Development'],
-                ['service' => 'CMS Setup'],
-            ],
-            'features' => [
-                [
-                    'feature_name' => 'Responsive Design',
-                    'feature_description' => 'Optimized layout for desktop, tablet, and mobile.',
-                ],
-                [
-                    'feature_name' => 'Admin Dashboard',
-                    'feature_description' => 'Manage pages and content securely.',
-                ],
-            ],
-            'server' => [
-                ['item' => 'Cloud hosting setup'],
-            ],
-            'assets' => [
-                ['item' => 'Logo files and brand assets'],
-            ],
-            'security' => [
-                ['item' => 'Basic firewall and SSL'],
-            ],
-            'support' => [
-                ['item' => '30 days post-launch support'],
-            ],
-            'additional_benefit' => [
-                ['benefit' => 'Basic SEO setup included'],
-            ],
+            'brief' => '<p>This proposal outlines website development and launch deliverables.</p>',
+            'core_services' => '<ul><li>Web Design &amp; Development</li><li>CMS Setup</li></ul>',
+            'features' => '<ul><li><strong>Responsive Design</strong> — Optimized layout for desktop, tablet, and mobile.</li><li><strong>Admin Dashboard</strong> — Manage pages and content securely.</li></ul>',
+            'server' => '<ul><li>Cloud hosting setup</li></ul>',
+            'assets' => '<ul><li>Logo files and brand assets</li></ul>',
+            'security' => '<ul><li>Basic firewall and SSL</li></ul>',
+            'support' => '<ul><li>30 days post-launch support</li></ul>',
+            'additional_benefit' => '<ul><li>Basic SEO setup included</li></ul>',
+            'payment' => '<p>50% down payment to start, 50% before launch.</p>',
+            'terms_condition' => '<p><strong>Revision Scope</strong></p><p>Up to 2 minor revisions per approved page.</p>',
+            'additional_info' => '',
+            'extra_content_brief' => '',
             'add_on' => [
                 [
                     'name' => 'Monthly Maintenance',
                     'description' => 'Content updates, monitoring, and minor fixes.',
                     'price' => '1500000',
-                ],
-            ],
-            'payment' => [
-                [
-                    'info' => '50% down payment to start, 50% before launch.',
-                    'down_payment_amount' => '5000000',
-                ],
-            ],
-            'terms_condition' => [
-                [
-                    'title' => 'Revision Scope',
-                    'description' => 'Up to 2 minor revisions per approved page.',
                 ],
             ],
             'offer_1_project_timeline' => [
@@ -102,60 +70,28 @@ class ProposalContentDefaultSeeder extends Seeder
     }
 
     /**
-     * @return array<string, array<int, array<string, string>>>
+     * @return array<string, mixed>
      */
     private static function defaultValueId(): array
     {
         return [
-            'brief' => [
-                ['content' => 'Proposal ini menjelaskan ruang lingkup pengembangan website hingga peluncuran.'],
-            ],
-            'core_services' => [
-                ['service' => 'Desain & Pengembangan Website'],
-                ['service' => 'Setup CMS'],
-            ],
-            'features' => [
-                [
-                    'feature_name' => 'Desain Responsif',
-                    'feature_description' => 'Tampilan optimal untuk desktop, tablet, dan mobile.',
-                ],
-                [
-                    'feature_name' => 'Dashboard Admin',
-                    'feature_description' => 'Kelola halaman dan konten dengan aman.',
-                ],
-            ],
-            'server' => [
-                ['item' => 'Setup cloud hosting'],
-            ],
-            'assets' => [
-                ['item' => 'File logo dan aset brand'],
-            ],
-            'security' => [
-                ['item' => 'Firewall dasar dan SSL'],
-            ],
-            'support' => [
-                ['item' => 'Dukungan 30 hari setelah go-live'],
-            ],
-            'additional_benefit' => [
-                ['benefit' => 'Setup SEO dasar termasuk'],
-            ],
+            'brief' => '<p>Proposal ini menjelaskan ruang lingkup pengembangan website hingga peluncuran.</p>',
+            'core_services' => '<ul><li>Desain &amp; Pengembangan Website</li><li>Setup CMS</li></ul>',
+            'features' => '<ul><li><strong>Desain Responsif</strong> — Tampilan optimal untuk desktop, tablet, dan mobile.</li><li><strong>Dashboard Admin</strong> — Kelola halaman dan konten dengan aman.</li></ul>',
+            'server' => '<ul><li>Setup cloud hosting</li></ul>',
+            'assets' => '<ul><li>File logo dan aset brand</li></ul>',
+            'security' => '<ul><li>Firewall dasar dan SSL</li></ul>',
+            'support' => '<ul><li>Dukungan 30 hari setelah go-live</li></ul>',
+            'additional_benefit' => '<ul><li>Setup SEO dasar termasuk</li></ul>',
+            'payment' => '<p>DP 50% saat mulai, 50% sebelum go-live.</p>',
+            'terms_condition' => '<p><strong>Ruang Lingkup Revisi</strong></p><p>Maksimal 2 revisi minor per halaman yang sudah disetujui.</p>',
+            'additional_info' => '',
+            'extra_content_brief' => '',
             'add_on' => [
                 [
                     'name' => 'Maintenance Bulanan',
                     'description' => 'Update konten, monitoring, dan perbaikan minor.',
                     'price' => '1500000',
-                ],
-            ],
-            'payment' => [
-                [
-                    'info' => 'DP 50% saat mulai, 50% sebelum go-live.',
-                    'down_payment_amount' => '5000000',
-                ],
-            ],
-            'terms_condition' => [
-                [
-                    'title' => 'Ruang Lingkup Revisi',
-                    'description' => 'Maksimal 2 revisi minor per halaman yang sudah disetujui.',
                 ],
             ],
             'offer_1_project_timeline' => [

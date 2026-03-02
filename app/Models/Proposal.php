@@ -44,6 +44,8 @@ class Proposal extends Model
         'add_on',
         'payment',
         'terms_condition',
+        'additional_info',
+        'extra_content_brief',
         'offer_name_1',
         'offer_1_price',
         'offer_1_original_price',
@@ -78,6 +80,8 @@ class Proposal extends Model
         'add_on',
         'payment',
         'terms_condition',
+        'additional_info',
+        'extra_content_brief',
         'offer_1_project_timeline',
         'offer_2_project_timeline',
     ];

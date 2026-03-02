@@ -151,14 +151,19 @@ Represents the brands/companies that issue documents.
 | `issue_date` | date | no | Default from `created_at`, can override |
 | `valid_until` | date | no | Default: issue_date + 30 days. Set to `null` for infinite validity |
 | `currency` | string | no | Default `IDR` |
-| `brief` | JSON array | **yes** | |
+| `brief` | rich text (HTML) | **yes** | TipTap editor |
 | `portfolios` | JSON array | no | See structure below |
-| `core_services` | JSON array | **yes** | |
-| `features` | JSON array | **yes** | |
-| `server` | JSON array | **yes** | |
-| `assets` | JSON array | **yes** | |
-| `security` | JSON array | **yes** | |
-| `support` | JSON array | **yes** | |
+| `core_services` | rich text (HTML) | **yes** | TipTap editor |
+| `features` | rich text (HTML) | **yes** | TipTap editor |
+| `server` | rich text (HTML) | **yes** | TipTap editor |
+| `assets` | rich text (HTML) | **yes** | TipTap editor |
+| `security` | rich text (HTML) | **yes** | TipTap editor |
+| `support` | rich text (HTML) | **yes** | TipTap editor |
+| `additional_benefit` | rich text (HTML) | **yes** | TipTap editor |
+| `payment` | rich text (HTML) | **yes** | TipTap editor |
+| `terms_condition` | rich text (HTML) | **yes** | TipTap editor |
+| `additional_info` | rich text (HTML) | **yes** | TipTap editor |
+| `extra_content_brief` | rich text (HTML) | **yes** | TipTap editor |
 | `offer_name_1` | string | no | |
 | `offer_1_price` | decimal | no | Final price after discount |
 | `offer_1_original_price` | decimal | no | nullable, only if discounted |
@@ -169,10 +174,7 @@ Represents the brands/companies that issue documents.
 | `offer_2_original_price` | decimal | no | nullable |
 | `offer_2_renewal_price` | decimal | no | nullable |
 | `offer_2_project_timeline` | JSON array | **yes** | See structure below |
-| `additional_benefit` | JSON array | **yes** | |
 | `add_on` | JSON array | **yes** | See structure below |
-| `payment` | JSON array | **yes** | See structure below |
-| `terms_condition` | JSON array | **yes** | See structure below |
 | `tax_rate` | decimal | no | percentage, default 11 (PPN) |
 | `tax_amount` | decimal | no | computed |
 | `total_amount` | decimal | no | computed |

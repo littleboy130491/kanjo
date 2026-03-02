@@ -12,9 +12,11 @@ use App\Models\Proposal;
 use App\Models\ProposalContentDefault;
 use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Services\DocumentNumberGenerator;
+use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -241,25 +243,8 @@ class ProposalForm
                                 Section::make('Brief')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('brief'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('brief'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        Textarea::make('content')
-                                                            ->required()
-                                                            ->rows(3)
-                                                            ->columnSpanFull(),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('brief', $locale))
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('brief'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -267,24 +252,8 @@ class ProposalForm
                                 Section::make('Core Services')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('core_services'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('core_services'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('service')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('core_services', $locale))
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('core_services'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -292,30 +261,8 @@ class ProposalForm
                                 Section::make('Features')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('features'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('features'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('feature_name')
-                                                            ->label('Feature Name')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                        Textarea::make('feature_description')
-                                                            ->label('Description')
-                                                            ->rows(2)
-                                                            ->columnSpanFull(),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('features', $locale))
-                                                    ->columns(1)
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('features'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -323,24 +270,8 @@ class ProposalForm
                                 Section::make('Server')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('server'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('server'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('item')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('server', $locale))
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('server'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -348,24 +279,8 @@ class ProposalForm
                                 Section::make('Assets')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('assets'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('assets'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('item')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('assets', $locale))
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('assets'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -373,24 +288,8 @@ class ProposalForm
                                 Section::make('Security')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('security'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('security'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('item')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('security', $locale))
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('security'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -398,24 +297,8 @@ class ProposalForm
                                 Section::make('Support')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('support'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('support'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('item')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('support', $locale))
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('support'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -423,24 +306,8 @@ class ProposalForm
                                 Section::make('Additional Benefits')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('additional_benefit'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('additional_benefit'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('benefit')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('additional_benefit', $locale))
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('additional_benefit'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -484,31 +351,8 @@ class ProposalForm
                                 Section::make('Payment Terms')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('payment'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('payment'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        Textarea::make('info')
-                                                            ->label('Payment Info')
-                                                            ->required()
-                                                            ->rows(2)
-                                                            ->columnSpanFull(),
-                                                        TextInput::make('down_payment_amount')
-                                                            ->label('Down Payment Amount')
-                                                            ->numeric()
-                                                            ->prefix(fn(Get $get) => $get('currency'))
-                                                            ->nullable(),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('payment', $locale))
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('payment'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -516,30 +360,26 @@ class ProposalForm
                                 Section::make('Terms & Conditions')
                                     ->schema([
                                         Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('terms_condition'),
-                                            ])
                                             ->schema(fn(string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('terms_condition'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('title')
-                                                            ->label('Title')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                        Textarea::make('description')
-                                                            ->label('Description')
-                                                            ->required()
-                                                            ->rows(3)
-                                                            ->columnSpanFull(),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('terms_condition', $locale))
-                                                    ->columnSpanFull(),
+                                                self::makeRichEditor('terms_condition'),
+                                            ])
+                                            ->suffixLocaleLabel(),
+                                    ]),
+
+                                Section::make('Additional Info')
+                                    ->schema([
+                                        Translate::make()
+                                            ->schema(fn(string $locale): array => [
+                                                self::makeRichEditor('additional_info'),
+                                            ])
+                                            ->suffixLocaleLabel(),
+                                    ]),
+
+                                Section::make('Extra Content Brief')
+                                    ->schema([
+                                        Translate::make()
+                                            ->schema(fn(string $locale): array => [
+                                                self::makeRichEditor('extra_content_brief'),
                                             ])
                                             ->suffixLocaleLabel(),
                                     ]),
@@ -677,29 +517,22 @@ class ProposalForm
             ]);
     }
 
+    protected static function makeRichEditor(string $name): RichEditor
+    {
+        return RichEditor::make($name)
+            ->enableToolbarButtons(['attachCuratorMedia'])
+            ->plugins([AttachCuratorMediaPlugin::make()])
+            ->extraAttributes(['style' => 'min-height: 200px'])
+            ->columnSpanFull();
+    }
+
     protected static function emptyTranslatedRepeaterRow(string $fieldKey): array
     {
         return match ($fieldKey) {
-            'brief' => ['content' => ''],
-            'core_services' => ['service' => ''],
-            'features' => [
-                'feature_name' => '',
-                'feature_description' => '',
-            ],
-            'server', 'assets', 'security', 'support' => ['item' => ''],
-            'additional_benefit' => ['benefit' => ''],
             'add_on' => [
                 'name' => '',
                 'description' => '',
                 'price' => '',
-            ],
-            'payment' => [
-                'info' => '',
-                'down_payment_amount' => '',
-            ],
-            'terms_condition' => [
-                'title' => '',
-                'description' => '',
             ],
             'offer_1_project_timeline', 'offer_2_project_timeline' => [
                 'activity_name' => '',
@@ -760,42 +593,7 @@ class ProposalForm
 
     protected static function fallbackContentRows(string $fieldKey, string $locale): array
     {
-        $defaults = [
-            'en' => [
-                'features' => [
-                    [
-                        'feature_name' => 'Responsive Design',
-                        'feature_description' => 'Optimized display and usability on mobile, tablet, and desktop devices.',
-                    ],
-                    [
-                        'feature_name' => 'Admin Dashboard',
-                        'feature_description' => 'Secure dashboard to manage content, users, and key business data.',
-                    ],
-                    [
-                        'feature_name' => 'SEO Foundation',
-                        'feature_description' => 'Basic technical SEO setup for indexing, metadata, and performance readiness.',
-                    ],
-                ],
-            ],
-            'id' => [
-                'features' => [
-                    [
-                        'feature_name' => 'Desain Responsif',
-                        'feature_description' => 'Tampilan dan pengalaman yang optimal di perangkat mobile, tablet, dan desktop.',
-                    ],
-                    [
-                        'feature_name' => 'Dashboard Admin',
-                        'feature_description' => 'Dashboard aman untuk mengelola konten, pengguna, dan data bisnis utama.',
-                    ],
-                    [
-                        'feature_name' => 'Fondasi SEO',
-                        'feature_description' => 'Pengaturan SEO teknis dasar untuk indexing, metadata, dan kesiapan performa.',
-                    ],
-                ],
-            ],
-        ][$locale] ?? [];
-
-        return $defaults[$fieldKey] ?? [];
+        return [];
     }
 
     protected static function generateDocumentNumberPreview(
