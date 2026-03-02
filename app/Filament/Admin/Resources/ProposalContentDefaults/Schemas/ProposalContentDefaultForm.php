@@ -29,10 +29,11 @@ class ProposalContentDefaultForm
                 Section::make($label)
                 ->schema([
                     Translate::make()
-                        ->exclude([
-                            "value.en.{$fieldKey}",
-                            "value.id.{$fieldKey}",
-                        ])
+                        ->exclude(
+                            collect(config('translatable.locales'))
+                                ->map(fn(string $locale): string => "value.{$locale}.{$fieldKey}")
+                                ->all()
+                        )
                         ->schema(fn(string $locale): array => [
                             in_array($fieldKey, self::$jsonRepeaterFields)
                                 ? self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value')

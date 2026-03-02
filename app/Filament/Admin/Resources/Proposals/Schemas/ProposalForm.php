@@ -557,11 +557,7 @@ class ProposalForm
                 return $value;
             }
 
-            $legacyValue = match ($locale) {
-                'en' => data_get($globalDefault->getAttribute('value_en'), $fieldKey, []),
-                'id' => data_get($globalDefault->getAttribute('value_id'), $fieldKey, []),
-                default => [],
-            };
+            $legacyValue = data_get($globalDefault->getAttribute("value_{$locale}"), $fieldKey, []);
 
             if (is_array($legacyValue)) {
                 return $legacyValue;
@@ -581,11 +577,7 @@ class ProposalForm
                 return $value;
             }
 
-            return match ($locale) {
-                'en' => $legacyDefault->getAttribute('value_en') ?? [],
-                'id' => $legacyDefault->getAttribute('value_id') ?? [],
-                default => [],
-            };
+            return $legacyDefault->getAttribute("value_{$locale}") ?? [];
         }
 
         return self::fallbackContentRows($fieldKey, $locale);

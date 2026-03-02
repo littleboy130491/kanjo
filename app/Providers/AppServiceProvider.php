@@ -20,6 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        FilamentTranslateField::defaultLocales(['en', 'id']);
+        FilamentTranslateField::defaultLocales(config('translatable.locales'));
     }
 }
