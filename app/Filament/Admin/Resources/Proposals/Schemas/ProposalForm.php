@@ -248,7 +248,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('brief'),
                                                     $locale,
-                                                    emptyRowTemplate: ['content' => ''],
                                                 )
                                                     ->schema([
                                                         Textarea::make('content')
@@ -275,7 +274,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('core_services'),
                                                     $locale,
-                                                    emptyRowTemplate: ['service' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('service')
@@ -301,7 +299,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('features'),
                                                     $locale,
-                                                    emptyRowTemplate: ['feature_name' => '', 'feature_description' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('feature_name')
@@ -333,7 +330,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('server'),
                                                     $locale,
-                                                    emptyRowTemplate: ['item' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('item')
@@ -359,7 +355,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('assets'),
                                                     $locale,
-                                                    emptyRowTemplate: ['item' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('item')
@@ -385,7 +380,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('security'),
                                                     $locale,
-                                                    emptyRowTemplate: ['item' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('item')
@@ -411,7 +405,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('support'),
                                                     $locale,
-                                                    emptyRowTemplate: ['item' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('item')
@@ -437,7 +430,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('additional_benefit'),
                                                     $locale,
-                                                    emptyRowTemplate: ['benefit' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('benefit')
@@ -463,7 +455,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('add_on'),
                                                     $locale,
-                                                    emptyRowTemplate: ['name' => '', 'description' => '', 'price' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('name')
@@ -474,13 +465,11 @@ class ProposalForm
                                                             ->label('Description')
                                                             ->rows(2)
                                                             ->columnSpanFull(),
-                                                        TranslatableRepeaterSync::permanentlySynced(
-                                                            TextInput::make('price')
-                                                                ->label('Price')
-                                                                ->numeric()
-                                                                ->prefix(fn(Get $get) => $get('currency'))
-                                                                ->required()
-                                                        ),
+                                                        TextInput::make('price')
+                                                            ->label('Price')
+                                                            ->numeric()
+                                                            ->prefix(fn(Get $get) => $get('currency'))
+                                                            ->required(),
                                                     ])
                                                     ->addable()
                                                     ->reorderable()
@@ -502,7 +491,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('payment'),
                                                     $locale,
-                                                    emptyRowTemplate: ['info' => '', 'down_payment_amount' => ''],
                                                 )
                                                     ->schema([
                                                         Textarea::make('info')
@@ -535,7 +523,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('terms_condition'),
                                                     $locale,
-                                                    emptyRowTemplate: ['title' => '', 'description' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('title')
@@ -567,7 +554,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('offer_1_project_timeline'),
                                                     $locale,
-                                                    emptyRowTemplate: ['activity_name' => '', 'activity_pic' => '', 'activity_days' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('activity_name')
@@ -603,7 +589,6 @@ class ProposalForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('offer_2_project_timeline'),
                                                     $locale,
-                                                    emptyRowTemplate: ['activity_name' => '', 'activity_pic' => '', 'activity_days' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('activity_name')

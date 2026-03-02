@@ -182,21 +182,18 @@ class InvoiceForm
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('items'),
                                                     $locale,
-                                                    emptyRowTemplate: ['title' => '', 'price' => '', 'description' => ''],
                                                 )
                                                     ->schema([
                                                         TextInput::make('title')
                                                             ->required()
                                                             ->maxLength(255)
                                                             ->columnSpan(1),
-                                                        TranslatableRepeaterSync::permanentlySynced(
-                                                            TextInput::make('price')
-                                                                ->required()
-                                                                ->numeric()
-                                                                ->inputMode('decimal')
-                                                                ->afterStateUpdated(fn(Get $get, Set $set) => self::recalculateTotals($get, $set))
-                                                                ->columnSpan(1)
-                                                        ),
+                                                        TextInput::make('price')
+                                                            ->required()
+                                                            ->numeric()
+                                                            ->inputMode('decimal')
+                                                            ->afterStateUpdated(fn(Get $get, Set $set) => self::recalculateTotals($get, $set))
+                                                            ->columnSpan(1),
                                                         Textarea::make('description')
                                                             ->rows(2)
                                                             ->nullable()

@@ -13,8 +13,10 @@ class DocumentNumberGenerator
         9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII',
     ];
 
-    public static function generate(string $type, Carbon $date, string $suffix = 'NEW'): array
+    public static function generate(string $type, Carbon $date, ?string $suffix = 'NEW'): array
     {
+        $suffix ??= 'NEW';
+
         return DB::transaction(function () use ($type, $date, $suffix) {
             $tableName = $type === 'QUO' ? 'proposals' : 'invoices';
             
