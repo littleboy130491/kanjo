@@ -18,30 +18,33 @@ class ProposalContentDefaultForm
      */
     protected static array $jsonRepeaterFields = [
         'add_on',
-        'offer_1_project_timeline',
-        'offer_2_project_timeline',
+        'short_project_timeline',
+        'business_project_timeline',
+        'prime_project_timeline',
+        'corporate_project_timeline',
+        'custom_project_timeline',
     ];
 
     public static function configure(Schema $schema): Schema
     {
         $fieldSections = collect(ProposalContentDefault::FIELD_OPTIONS)
-            ->map(fn(string $label, string $fieldKey): Section => 
+            ->map(fn(string $label, string $fieldKey): Section =>
                 Section::make($label)
-                ->schema([
-                    Translate::make()
-                        ->exclude(
-                            collect(config('translatable.locales'))
-                                ->map(fn(string $locale): string => "value.{$locale}.{$fieldKey}")
-                                ->all()
-                        )
-                        ->schema(fn(string $locale): array => [
-                            in_array($fieldKey, self::$jsonRepeaterFields)
+                    ->schema([
+                        Translate::make()
+                            ->exclude(
+                                collect(config('translatable.locales'))
+                                    ->map(fn(string $locale): string => "value.{$locale}.{$fieldKey}")
+                                    ->all()
+                            )
+                            ->schema(fn(string $locale): array => [
+                                in_array($fieldKey, self::$jsonRepeaterFields)
                                 ? self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value')
                                 : self::makeRichEditor("value.{$locale}.{$fieldKey}", 'Default Value'),
-                        ])
-                        ->suffixLocaleLabel(),
-                ])
-                ->columnSpanFull())
+                            ])
+                            ->suffixLocaleLabel(),
+                    ])
+                    ->columnSpanFull())
             ->all();
 
         return $schema
