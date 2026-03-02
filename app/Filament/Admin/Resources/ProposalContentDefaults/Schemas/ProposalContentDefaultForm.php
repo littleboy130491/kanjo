@@ -40,7 +40,7 @@ class ProposalContentDefaultForm
                             ->schema(fn(string $locale): array => [
                                 in_array($fieldKey, self::$jsonRepeaterFields)
                                 ? self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value')
-                                : self::makeRichEditor("value.{$locale}.{$fieldKey}", 'Default Value'),
+                                : self::makeRichEditor("value.{$locale}.{$fieldKey}", ''),
                             ])
                             ->suffixLocaleLabel(),
                     ])

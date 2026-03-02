@@ -14,6 +14,7 @@ use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Services\DocumentNumberGenerator;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -302,8 +303,7 @@ class ProposalForm
                                                             ->columnSpanFull(),
                                                         TextInput::make('price')
                                                             ->label('Price')
-                                                            ->numeric()
-                                                            ->prefix(fn(Get $get) => $get('currency'))
+
                                                             ->required(),
                                                     ])
                                                     ->addable()
@@ -312,8 +312,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('add_on', $locale))
                                                     ->columns(2)
                                                     ->columnSpanFull(),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                            ]),
                                     ]),
 
                                 Section::make('Payment Terms')
@@ -337,6 +336,9 @@ class ProposalForm
                                     ]),
 
                                 Section::make('Offer 1 Project Timeline')
+                                    ->headerActions([
+                                        self::makeLoadTimelineTemplateAction('offer_1_project_timeline'),
+                                    ])
                                     ->schema([
                                         Translate::make()
                                             ->actions([
@@ -367,11 +369,13 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('offer_1_project_timeline', $locale))
                                                     ->columns(3)
                                                     ->columnSpanFull(),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                            ]),
                                     ]),
 
                                 Section::make('Offer 2 Project Timeline')
+                                    ->headerActions([
+                                        self::makeLoadTimelineTemplateAction('offer_2_project_timeline'),
+                                    ])
                                     ->schema([
                                         Translate::make()
                                             ->actions([
@@ -399,8 +403,7 @@ class ProposalForm
                                                     ->default(self::defaultContentRows('offer_2_project_timeline', $locale))
                                                     ->columns(3)
                                                     ->columnSpanFull(),
-                                            ])
-                                            ->suffixLocaleLabel(),
+                                            ]),
                                     ]),
                             ]),
 
@@ -488,6 +491,7 @@ class ProposalForm
     protected static function makeRichEditor(string $statePath, string $fieldKey, string $locale): RichEditor
     {
         return RichEditor::make($statePath)
+            ->hiddenLabel()
             ->enableToolbarButtons(['attachCuratorMedia'])
             ->plugins([AttachCuratorMediaPlugin::make()])
             ->default(self::defaultRichTextContent($fieldKey, $locale))
@@ -592,6 +596,38 @@ class ProposalForm
         }
 
         return self::fallbackContentRows($fieldKey, $locale);
+    }
+
+    protected static function makeLoadTimelineTemplateAction(string $targetField): Action
+    {
+        $timelineOptions = array_filter(
+            ProposalContentDefault::FIELD_OPTIONS,
+            fn(string $key): bool => str_ends_with($key, '_project_timeline'),
+            ARRAY_FILTER_USE_KEY,
+        );
+
+        return Action::make('load_timeline_template_' . $targetField)
+            ->label('Load Template')
+            ->icon('heroicon-o-arrow-down-tray')
+            ->color('gray')
+            ->form([
+                Select::make('template_key')
+                    ->label('Timeline Template')
+                    ->options($timelineOptions)
+                    ->required(),
+            ])
+            ->action(function (array $data, mixed $livewire) use ($targetField): void {
+                $templateKey = $data['template_key'];
+                $allLocales = config('translatable.locales', ['en', 'id']);
+                $livewireData = $livewire->data;
+
+                foreach ($allLocales as $locale) {
+                    $rows = static::defaultContentRows($templateKey, $locale);
+                    data_set($livewireData, "{$targetField}.{$locale}", $rows);
+                }
+
+                $livewire->data = $livewireData;
+            });
     }
 
     protected static function fallbackContentRows(string $fieldKey, string $locale): array
