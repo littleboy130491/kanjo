@@ -6,6 +6,7 @@ use App\Enums\ServiceStatus;
 use App\Models\Invoice;
 use App\Models\Service;
 use Filament\Forms\Components\TextInput;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceServiceSupport
 {
@@ -61,17 +62,28 @@ class InvoiceServiceSupport
 
     public static function createServiceFromInvoice(Invoice $invoice, array $data): Service
     {
-        return Service::create([
-            'name' => (string) ($data['name'] ?? ''),
-            'domain' => $data['domain'] ?: null,
-            'price' => (float) ($data['price'] ?? data_get($invoice->items, '0.price', 0)),
-            'currency' => (string) ($data['currency'] ?: $invoice->currency ?: 'IDR'),
-            'start_date' => $data['start_date'] ?: null,
-            'renewal_date' => $data['renewal_date'] ?: null,
-            'client_id' => $invoice->client_id,
-            'status' => ServiceStatus::ON_GOING,
-            'notes' => is_array($invoice->notes) ? $invoice->notes : [],
-        ]);
+        return DB::transaction(function () use ($invoice, $data): Service {
+            $service = Service::create([
+                'name' => (string) ($data['name'] ?? ''),
+                'domain' => $data['domain'] ?: null,
+                'price' => (float) ($data['price'] ?? data_get($invoice->items, '0.price', 0)),
+                'currency' => (string) ($data['currency'] ?: $invoice->currency ?: 'IDR'),
+                'start_date' => $data['start_date'] ?: null,
+                'renewal_date' => $data['renewal_date'] ?: null,
+                'client_id' => $invoice->client_id,
+                'status' => ServiceStatus::ON_GOING,
+                'notes' => is_array($invoice->notes) ? $invoice->notes : [],
+            ]);
+
+            // Keep proposal-service linkage intact for flow: proposal -> invoice -> service.
+            if ($invoice->proposal_id) {
+                $invoice->proposal()
+                    ->whereNull('service_id')
+                    ->update(['service_id' => $service->id]);
+            }
+
+            return $service;
+        });
     }
 
     private static function resolveInvoice(?Invoice $record, ?callable $recordResolver): ?Invoice

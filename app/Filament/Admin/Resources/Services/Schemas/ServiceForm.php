@@ -45,7 +45,8 @@ class ServiceForm
                         TextInput::make('currency')
                             ->label('Currency')
                             ->default('IDR')
-                            ->required()
+                            ->nullable()
+                            ->dehydrateStateUsing(fn (?string $state): string => filled($state) ? $state : 'IDR')
                             ->maxLength(10),
                     ])
                     ->columns(2),
