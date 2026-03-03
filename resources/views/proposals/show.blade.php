@@ -5,8 +5,34 @@
     $pdfMode = (bool) ($pdf ?? false);
     $logoUrl = is_string($companyLogo) && str_starts_with($companyLogo, 'http') ? $companyLogo : null;
 
-    $list = function (?array $items, string $key): array {
-        return collect($items ?? [])->pluck($key)->filter()->values()->all();
+    $asRows = function (mixed $items) use ($locale): array {
+        if (is_string($items)) {
+            $decoded = json_decode($items, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        if (! is_array($items)) {
+            return [];
+        }
+
+        if (array_key_exists($locale, $items)) {
+            $localized = $items[$locale];
+
+            if (is_string($localized)) {
+                $decoded = json_decode($localized, true);
+
+                return is_array($decoded) ? $decoded : [];
+            }
+
+            return is_array($localized) ? $localized : [];
+        }
+
+        return $items;
+    };
+
+    $list = function (mixed $items, string $key) use ($asRows): array {
+        return collect($asRows($items))->pluck($key)->filter()->values()->all();
     };
 @endphp
 <x-layout :locale="$locale" :title="$proposal->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
@@ -62,7 +88,7 @@
         @endforeach</ul>
     </section>
     <section>
-        <h2 class="mb-2 font-semibold">Features</h2>@foreach(($proposal->features ?? []) as $feature)<div class="mb-2">
+        <h2 class="mb-2 font-semibold">Features</h2>@foreach($asRows($proposal->features) as $feature)<div class="mb-2">
             <p class="font-medium">{{ $feature['feature_name'] ?? '-' }}</p>
             <p class="text-sm text-slate-600">{{ $feature['feature_description'] ?? '' }}</p>
         </div>@endforeach
@@ -132,19 +158,19 @@
         @endforeach</ul>
     </section>
     <section>
-        <h2 class="mb-2 font-semibold">Add-Ons</h2>@foreach(($proposal->add_on ?? []) as $addOn)<div class="mb-2">
+        <h2 class="mb-2 font-semibold">Add-Ons</h2>@foreach($asRows($proposal->add_on) as $addOn)<div class="mb-2">
             <p class="font-medium">{{ $addOn['item_name'] ?? '-' }} — {{ $toMoney($addOn['item_price'] ?? 0) }}</p>
             <p class="text-sm text-slate-600">{{ $addOn['item_description'] ?? '' }}</p>
         </div>@endforeach
     </section>
     <section>
-        <h2 class="mb-2 font-semibold">Payment Terms</h2>@foreach(($proposal->payment ?? []) as $payment)<p>
+        <h2 class="mb-2 font-semibold">Payment Terms</h2>@foreach($asRows($proposal->payment) as $payment)<p>
             {{ $payment['payment_name'] ?? '' }}
             {{ isset($payment['payment_percentage']) ? '(' . $payment['payment_percentage'] . '%)' : '' }}</p>
         @endforeach
     </section>
     <section>
-        <h2 class="mb-2 font-semibold">Terms & Conditions</h2>@foreach(($proposal->terms_condition ?? []) as $term)<div
+        <h2 class="mb-2 font-semibold">Terms & Conditions</h2>@foreach($asRows($proposal->terms_condition) as $term)<div
             class="mb-2">
             <p class="font-medium">{{ $term['title'] ?? '' }}</p>
             <p class="text-sm text-slate-600">{{ $term['description'] ?? '' }}</p>
