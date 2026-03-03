@@ -4,13 +4,12 @@ namespace App\Filament\Admin\Resources\Invoices\Tables;
 
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
-use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
+use App\Filament\Admin\Resources\Invoices\Support\InvoiceServiceSupport;
 use App\Filament\Admin\Resources\Proposals\ProposalResource;
 use App\Filament\Admin\Resources\Services\ServiceResource;
 use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\Service;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -177,29 +176,9 @@ class InvoicesTable
                     ->icon('heroicon-o-wrench-screwdriver')
                     ->color('success')
                     ->visible(fn (Invoice $record): bool => filled($record->client_id) && blank($record->service_id))
-                    ->schema([
-                        \Filament\Forms\Components\TextInput::make('name')
-                            ->maxLength(255)
-                            ->default(fn (Invoice $record): string => (string) (data_get($record->items, '0.title') ?: $record->document_number)),
-                        \Filament\Forms\Components\TextInput::make('domain')
-                            ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('start_date')
-                            ->maxLength(255)
-                            ->default(fn (Invoice $record): ?string => $record->issue_date?->toDateString()),
-                        \Filament\Forms\Components\TextInput::make('renewal_date')
-                            ->maxLength(255)
-                            ->default(fn (Invoice $record): ?string => $record->due_date?->toDateString()),
-                    ])
+                    ->schema(InvoiceServiceSupport::createServiceFormSchema())
                     ->action(function (Invoice $record, array $data) {
-                        $service = Service::create([
-                            'name' => (string) ($data['name'] ?? ''),
-                            'domain' => $data['domain'] ?: null,
-                            'start_date' => $data['start_date'] ?: null,
-                            'renewal_date' => $data['renewal_date'] ?: null,
-                            'client_id' => $record->client_id,
-                            'status' => ServiceStatus::ON_GOING,
-                            'notes' => is_array($record->notes) ? $record->notes : [],
-                        ]);
+                        $service = InvoiceServiceSupport::createServiceFromInvoice($record, $data);
 
                         $record->update(['service_id' => $service->id]);
                         Notification::make()->title('Service generated from invoice and linked.')->success()->send();
