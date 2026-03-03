@@ -53,7 +53,7 @@
 
 .section-row {
     border-top: 1px solid #dbeafe;
-    padding: 2.5rem;
+    padding: 2.5rem 1.5rem;
     display: block;
 }
 
@@ -67,48 +67,64 @@
 }
 
 .section-content {
-    width: 100%;
+    @apply w-full text-[13px] leading-[1.85] text-neutral-600 font-light;
+}
+
+.section-content p,
+.section-content ul,
+.section-content ol {
+    @apply mb-4;
+}
+
+.section-content span {
+    @apply text-inherit;
+}
+
+
+
+.section-content h1 {
+    @apply mt-8 mb-4 text-4xl leading-tight;
+}
+
+.section-content h2:not(.section-label) {
+    @apply mt-7 mb-3 text-3xl leading-tight;
+}
+
+.section-content h3 {
+    @apply mt-6 mb-3 text-lg leading-[1.25];
+}
+
+.section-content h4 {
+    @apply mt-5 mb-2 text-2xl leading-snug;
+}
+
+.section-content ol {
+    @apply list-decimal list-outside pl-[1.4rem];
+}
+
+.section-content ul {
+    @apply list-disc list-outside pl-[1.2rem];
+}
+
+.section-content li {
+    display: list-item;
+    @apply mb-[0.55rem];
+}
+
+.section-content .content-muted {
+    @apply text-neutral-500;
+}
+
+.section-content .content-lead {
+    @apply text-base md:text-lg text-neutral-700 font-normal;
+}
+
+.section-content .content-compact {
+    @apply text-xs leading-6;
 }
 
 .editorial-prose {
-    font-size: 13px;
-    line-height: 1.85;
-    color: #525252;
-    font-weight: 300;
-}
-
-.editorial-prose p,
-.editorial-prose ul,
-.editorial-prose ol {
-    margin-bottom: 1rem;
-}
-
-.editorial-prose ol,
-.editorial-prose .prose ol {
-    list-style-type: decimal !important;
-    list-style-position: outside;
-    padding-left: 1.4rem;
-}
-
-.editorial-prose ul,
-.editorial-prose .prose ul {
-    list-style-type: disc;
-    list-style-position: outside;
-    padding-left: 1.2rem;
-}
-
-.editorial-prose h3 {
-    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
-    font-size: 1.6rem;
-    line-height: 1.25;
-    color: #171717;
-    margin: 1.6rem 0 0.8rem;
-    font-weight: 500;
-}
-
-.editorial-prose li {
-    display: list-item;
-    margin-bottom: 0.55rem;
+    @apply text-[13px] leading-[1.85] text-neutral-600 font-light;
 }
 
 .portfolio-grid {
@@ -131,35 +147,43 @@
 }
 
 .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
+    @apply w-full table-fixed border-collapse text-[13px];
+}
+
+.table-wrap {
+    @apply mt-4 overflow-hidden rounded-sm border border-sky-100 bg-white;
 }
 
 .data-table thead {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    @apply text-[10px] uppercase tracking-[0.2em];
     color: var(--tone-deep);
     border-bottom: 1px solid var(--tone-deep);
     background: color-mix(in srgb, var(--tone-soft) 55%, #ffffff);
 }
 
 .data-table th {
-    text-align: left;
-    padding: 0.95rem 0.35rem;
-    font-weight: 500;
+    @apply px-3 py-3.5 text-left font-medium break-words;
 }
 
 .data-table td {
-    padding: 1rem 0.35rem;
+    @apply px-3 py-3.5 align-top break-words;
     border-bottom: 1px solid #e0ecff;
     color: #525252;
 }
 
+.data-table tbody tr:nth-child(even) {
+    @apply bg-sky-50/40;
+}
+
+.data-table tfoot th,
+.data-table tfoot td {
+    @apply px-3 py-3.5 font-semibold text-neutral-800;
+    background: color-mix(in srgb, var(--tone-soft) 40%, #ffffff);
+}
+
 .data-table td:last-child,
 .data-table th:last-child {
-    text-align: right;
+    @apply text-right;
 }
 
 .investment-block {
@@ -180,6 +204,22 @@
     font-size: 1.45rem;
     letter-spacing: 0;
     color: #171717;
+}
+
+.proposal-callout {
+    @apply relative mt-5 border border-[#cae6be] border-l-[5px] bg-[#dff0d8] p-[15px] text-left text-[#3c763d];
+}
+
+.proposal-callout-title {
+    @apply mb-1 text-sm font-semibold text-inherit;
+}
+
+.proposal-callout-text {
+    @apply mb-0 text-sm leading-relaxed text-inherit;
+}
+
+.proposal-callout-link {
+    @apply font-semibold underline decoration-current/60 underline-offset-2 transition hover:text-[#2f5f30];
 }
 
 .proposal-endcap {
@@ -216,6 +256,11 @@
 
 .endcap-summary {
     width: 100%;
+}
+
+h3.offer_name {
+      font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    @apply text-4xl font-light text-neutral-800;
 }
 
 .summary-row {
@@ -260,7 +305,7 @@
 @media (min-width: 768px) {
     .section-row,
     .proposal-endcap {
-        padding: 4.5rem 6rem;
+        padding: 4rem 6rem;
     }
 
     .portfolio-grid {

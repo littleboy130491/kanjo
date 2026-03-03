@@ -17,7 +17,6 @@ class Company extends Model
         'color_primary', 'color_secondary',
         'footer_text', 'bank', 'pic',
     ];
-
     protected $translatable = [
         'footer_text',
     ];

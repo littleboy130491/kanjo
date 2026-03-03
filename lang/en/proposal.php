@@ -5,8 +5,10 @@ return [
     'money_back_guarantee_title' => '100% Money-Back Guarantee',
     'money_back_guarantee_text' => 'Your project is protected by a 100% money-back guarantee.',
     'money_back_guarantee_terms_link' => 'See terms and conditions for more detailed information.',
-    'renewal_optional_note' => 'Optional, if you would like to renew the website.',
+    'renewal_optional_note' => 'Website renewal is optional.',
     'add_ons_title' => 'Add-ons / extras (optional)',
     'add_ons_description' => 'Below is a list of features / items that can be added based on your needs and are optional.',
     'scan_qr_website' => 'Scan this QR to visit our website.',
+    'first_year_fee' => 'First year fee',
+    'renewal_fee' => 'Annual renewal fee',
 ];
