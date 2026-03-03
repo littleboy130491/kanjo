@@ -111,18 +111,6 @@
     @apply mb-[0.55rem];
 }
 
-.section-content .content-muted {
-    @apply text-neutral-500;
-}
-
-.section-content .content-lead {
-    @apply text-base md:text-lg text-neutral-700 font-normal;
-}
-
-.section-content .content-compact {
-    @apply text-xs leading-6;
-}
-
 .editorial-prose {
     @apply text-[13px] leading-[1.85] text-neutral-600 font-light;
 }
@@ -254,47 +242,9 @@
     font-weight: 300;
 }
 
-.endcap-summary {
-    width: 100%;
-}
-
 h3.offer_name {
       font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
     @apply text-4xl font-light text-neutral-800;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: #a3a3a3;
-}
-
-.summary-row strong {
-    color: #ffffff;
-    font-weight: 500;
-    letter-spacing: 0.03em;
-    text-transform: none;
-}
-
-.summary-total {
-    border-top: 1px solid #404040;
-    margin-top: 1.5rem;
-    padding-top: 1.4rem;
-}
-
-.summary-total .label {
-    color: var(--tone-soft);
-}
-
-.summary-total .value {
-    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
-    font-size: clamp(2rem, 5vw, 2.8rem);
-    color: #ffffff;
-    letter-spacing: 0;
 }
 
 .print-separator {
@@ -328,9 +278,6 @@ h3.offer_name {
         justify-content: flex-end;
     }
 
-    .endcap-summary {
-        max-width: 420px;
-    }
 }
 
 @media print {
