@@ -134,9 +134,7 @@ class InvoicesTable
 
                         $duplicate->status = DocumentStatus::DRAFT;
                         $duplicate->payment_status = PaymentStatus::UNPAID;
-                        $duplicate->paid_amount = 0;
                         $duplicate->paid_at = null;
-                        $duplicate->payment_method = null;
                         $duplicate->document_number_override = false;
                         $duplicate->save();
 
@@ -147,30 +145,11 @@ class InvoicesTable
                     ->icon('heroicon-o-banknotes')
                     ->color('success')
                     ->visible(fn (Invoice $record): bool => in_array($record->payment_status, [PaymentStatus::UNPAID, PaymentStatus::PARTIALLY_PAID, PaymentStatus::OVERDUE], true))
-                    ->schema([
-                        \Filament\Forms\Components\TextInput::make('paid_amount')
-                            ->numeric()
-                            ->required()
-                            ->minValue(0),
-                        \Filament\Forms\Components\TextInput::make('payment_method')
-                            ->required()
-                            ->maxLength(255),
-                        \Filament\Forms\Components\DateTimePicker::make('paid_at')
-                            ->required()
-                            ->default(now()),
-                    ])
-                    ->action(function (Invoice $record, array $data) {
-                        $paidAmount = (float) $data['paid_amount'];
-
-                        $record->update([
-                            'paid_amount' => $paidAmount,
-                            'payment_method' => $data['payment_method'],
-                            'paid_at' => $data['paid_at'],
-                            'payment_status' => $paidAmount >= (float) $record->total
-                                ? PaymentStatus::PAID
-                                : PaymentStatus::PARTIALLY_PAID,
-                        ]);
-                    }),
+                    ->requiresConfirmation()
+                    ->action(fn (Invoice $record) => $record->update([
+                        'payment_status' => PaymentStatus::PAID,
+                        'paid_at' => now(),
+                    ])),
                 Action::make('view_proposal')
                     ->label('View Proposal')
                     ->icon('heroicon-o-eye')

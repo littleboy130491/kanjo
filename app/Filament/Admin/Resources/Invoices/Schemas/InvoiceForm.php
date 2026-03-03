@@ -88,7 +88,20 @@ class InvoiceForm
                                             ->options(PaymentStatus::class)
                                             ->enum(PaymentStatus::class)
                                             ->default(PaymentStatus::UNPAID)
-                                            ->required(),
+                                            ->required()
+                                            ->live()
+                                            ->afterStateUpdated(function (?string $state, Set $set) {
+                                                if ($state === PaymentStatus::PAID->value) {
+                                                    $set('paid_at', now()->toDateTimeString());
+                                                } else {
+                                                    $set('paid_at', null);
+                                                }
+                                            }),
+                                        \Filament\Forms\Components\DateTimePicker::make('paid_at')
+                                            ->label('Paid At')
+                                            ->nullable()
+                                            ->native(false)
+                                            ->helperText('Auto-filled when payment status is set to Paid'),
                                         DatePicker::make('issue_date')
                                             ->required()
                                             ->default(now()),

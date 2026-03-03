@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\Portfolios\Tables;
 
 use App\Filament\Admin\Resources\Portfolios\PortfolioResource;
-use Awcodes\Curator\Components\Tables\CuratorColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -17,10 +17,10 @@ class PortfoliosTable
                     ->label('Project Name')
                     ->searchable()
                     ->sortable(),
-                CuratorColumn::make('image_url')
+                ImageColumn::make('portfolio_image_url')
                     ->label('Image')
                     ->size(50)
-                    ->url(fn ($record) => $record->image?->url)
+                    ->url(fn ($record) => $record->portfolio_image_url)
                     ->openUrlInNewTab(),
                 TextColumn::make('url_link')
                     ->label('Project Link')

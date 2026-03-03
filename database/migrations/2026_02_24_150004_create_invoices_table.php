@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('invoices', function (Blueprint $table) {
@@ -43,6 +42,7 @@ return new class extends Migration
             // Status
             $table->enum('status', ['draft', 'published'])->default('draft');
             $table->enum('payment_status', ['unpaid', 'partially_paid', 'paid', 'overdue', 'cancelled'])->default('unpaid');
+            $table->timestamp('paid_at')->nullable();
 
             // Access
             $table->string('access_username')->nullable();

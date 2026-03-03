@@ -18,11 +18,19 @@ class PortfolioForm
                     ->required()
                     ->maxLength(255),
                 CuratorPicker::make("image_url")
-                    ->label("Portfolio Image")
+                    ->label("Portfolio Image (Curator)")
                     ->imageResizeMode("cover")
                     ->imageCropAspectRatio("16:9")
                     ->imageResizeTargetWidth("1200")
-                    ->imageResizeTargetHeight("675"),
+                    ->imageResizeTargetHeight("675")
+                    ->visible(fn($get) => !$get('use_external_image')),
+                TextInput::make("image_url_external")
+                    ->label("Portfolio Image (External URL)")
+                    ->url()
+                    ->nullable()
+                    ->maxLength(2048)
+                    ->placeholder("https://example.com/image.jpg")
+                    ->helperText("Paste a direct image URL from a CDN or external source"),
                 TextInput::make("url_link")
                     ->label("Project Link")
                     ->url()

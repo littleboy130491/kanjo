@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('portfolios', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('image_url')->nullable();   // compatible with curator
+            $table->string('image_url')->nullable();          // Curator media ID
+            $table->string('image_url_external')->nullable(); // External image URL (e.g. CDN, direct link)
             $table->string('url_link')->nullable();
             $table->softDeletes();
             $table->timestamps();

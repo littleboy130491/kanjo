@@ -216,9 +216,7 @@ Represents the brands/companies that issue documents.
 | `notes` | JSON array | no | Internal |
 | `status` | enum | no | `draft`, `published` |
 | `payment_status` | enum | no | `unpaid`, `partially_paid`, `paid`, `overdue`, `cancelled` |
-| `paid_amount` | decimal | no | Default 0 |
-| `paid_at` | timestamp | no | nullable |
-| `payment_method` | string | no | nullable |
+| `paid_at` | timestamp | no | nullable — auto-set to current datetime when `payment_status` changes to `paid` |
 | `access_username` | string | no | nullable, per-record override |
 | `access_password` | string | no | nullable, hashed, per-record override |
 | `proposal_id` | FK | no | nullable, link back to source proposal |
@@ -234,6 +232,31 @@ Represents the brands/companies that issue documents.
 ### 6. User (Admin/Author)
 
 Uses Filament's built-in user authentication. Standard fields: `name`, `email`, `password`, plus any Filament defaults.
+
+---
+
+### 7. Portfolio
+
+Reusable portfolio items shown inside proposals.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | bigint | PK |
+| `name` | string | Project name |
+| `image_url` | string | nullable — Curator media ID (uploaded via Curator plugin) |
+| `image_url_external` | string | nullable — Direct external image URL (e.g. CDN, remote link) |
+| `url_link` | string | nullable — Link to the live project or case study |
+| `deleted_at` | timestamp | Soft delete |
+| `created_at` | timestamp | |
+| `updated_at` | timestamp | |
+
+**Image source rules:**
+- Only one of `image_url` or `image_url_external` should be populated per record.
+- The Filament form uses a toggle to switch between Curator upload mode and external URL mode.
+- The table resolves the display URL as: `image->url` (Curator) → fallback `image_url_external`.
+
+**Relationships:**
+- `belongsToMany(Proposal)` via `portfolio_proposal` pivot table
 
 ---
 
