@@ -3,16 +3,12 @@
 namespace App\Filament\Admin\Resources\Services\Tables;
 
 use App\Enums\ServiceStatus;
-use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Filament\Admin\Resources\Services\Support\ServiceInvoiceSupport;
 use App\Models\Service;
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Throwable;
 
 class ServicesTable
 {
@@ -105,29 +101,9 @@ class ServicesTable
                     }),
             ])
             ->recordActions([
-                Action::make('create_renewal_invoice')
-                    ->label('Create Renewal Invoice')
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('primary')
-                    ->requiresConfirmation()
+                ServiceInvoiceSupport::makeCreateRenewalInvoiceAction()
                     ->visible(fn (Service $record): bool => filled($record->client_id))
-                    ->action(function (Service $record) {
-                        try {
-                            $invoice = ServiceInvoiceSupport::createRenewalInvoice($record);
-
-                            Notification::make()
-                                ->title('Renewal invoice created.')
-                                ->success()
-                                ->send();
-
-                            return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
-                        } catch (Throwable $exception) {
-                            Notification::make()
-                                ->title($exception->getMessage())
-                                ->danger()
-                                ->send();
-                        }
-                    }),
+                    ->action(fn (Service $record) => ServiceInvoiceSupport::executeCreateRenewalInvoiceAction($record)),
             ])
             ->bulkActions([
                 //

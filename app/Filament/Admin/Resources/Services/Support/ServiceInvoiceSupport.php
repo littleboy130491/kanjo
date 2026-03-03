@@ -4,14 +4,45 @@ namespace App\Filament\Admin\Resources\Services\Support;
 
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
+use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Service;
 use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Throwable;
 
 class ServiceInvoiceSupport
 {
+    public static function makeCreateRenewalInvoiceAction(): Action
+    {
+        return Action::make('create_renewal_invoice')
+            ->label('Create Renewal Invoice')
+            ->icon('heroicon-o-arrow-path')
+            ->color('primary')
+            ->requiresConfirmation();
+    }
+
+    public static function executeCreateRenewalInvoiceAction(Service $service)
+    {
+        try {
+            $invoice = self::createRenewalInvoice($service);
+
+            Notification::make()
+                ->title('Renewal invoice created.')
+                ->success()
+                ->send();
+
+            return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
+        } catch (Throwable $exception) {
+            Notification::make()
+                ->title($exception->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
     public static function createRenewalInvoice(Service $service): Invoice
     {
         $service->loadMissing('client');
