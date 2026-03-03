@@ -4,12 +4,10 @@ namespace App\Filament\Admin\Resources\Proposals\Pages;
 
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
-use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Filament\Admin\Resources\Proposals\ProposalResource;
 use App\Models\Invoice;
 use App\Models\Proposal;
-use App\Models\Service;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 
@@ -45,22 +43,6 @@ class EditProposal extends EditRecord
                         (float) $this->record->offer_1_price,
                         (string) $this->record->offer_name_1,
                         'DP',
-                    );
-
-                    return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
-                }),
-            Action::make('create_renewal_invoice')
-                ->label('Create Renewal Invoice')
-                ->icon('heroicon-o-arrow-path')
-                ->color('warning')
-                ->link()
-                ->visible(fn(): bool => filled($this->record->offer_1_renewal_price))
-                ->action(function () {
-                    $title = trim(($this->record->offer_name_1 ?: 'Service') . ' — Renewal');
-                    $invoice = $this->createInvoiceFromProposal(
-                        (float) $this->record->offer_1_renewal_price,
-                        $title,
-                        'REN',
                     );
 
                     return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
@@ -150,3 +132,4 @@ class EditProposal extends EditRecord
         return $invoice;
     }
 }
+

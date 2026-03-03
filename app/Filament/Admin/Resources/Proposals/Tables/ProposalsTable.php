@@ -123,22 +123,6 @@ class ProposalsTable
 
                         return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
                     }),
-                Action::make('create_renewal_invoice')
-                    ->label('Create Renewal Invoice')
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('warning')
-                    ->visible(fn(Proposal $record): bool => filled($record->offer_1_renewal_price))
-                    ->action(function (Proposal $record) {
-                        $title = trim(($record->offer_name_1 ?: 'Service') . ' — Renewal');
-                        $invoice = self::createInvoiceFromProposal(
-                            $record,
-                            (float) $record->offer_1_renewal_price,
-                            $title,
-                            'REN',
-                        );
-
-                        return redirect(InvoiceResource::getUrl('edit', ['record' => $invoice]));
-                    }),
                 Action::make('duplicate_proposal')
                     ->label('Duplicate')
                     ->icon('heroicon-o-document-duplicate')
@@ -296,3 +280,4 @@ class ProposalsTable
         return $invoice;
     }
 }
+
