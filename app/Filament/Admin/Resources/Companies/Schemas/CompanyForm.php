@@ -127,7 +127,6 @@ class CompanyForm
                                 ->maxLength(255),
                             CuratorPicker::make("pic_sign")
                                 ->label("Signature Image")
-                                ->directory("pic-signatures")
                                 ->imageResizeMode("cover"),
                         ])
                         ->addable()

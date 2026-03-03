@@ -3,6 +3,7 @@
 use App\Http\Controllers\InvoiceViewController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProposalViewController;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,11 +29,13 @@ Route::get('/invoice/{slug}/pdf', [PdfController::class, 'invoice'])
     ->name('pdf.invoice');
 
 // proxy image from runcloud
-Route::get('/proxy-image/{image_url}', function (string $image_url) {
+Route::get('/proxy-image/{encodedImageUrl}', function (string $encodedImageUrl) {
+    $imageUrl = rawurldecode($encodedImageUrl);
+
     $response = Http::withBasicAuth(config('app.runcloud_username'), config('app.runcloud_password'))
-        ->get($image_url);
+        ->get($imageUrl);
 
     return response($response->body(), 200)
         ->header('Content-Type', $response->header('Content-Type'))
         ->header('Cache-Control', 'public, max-age=86400');
-})->where('image_url', '.*');
+})->where('encodedImageUrl', '.*');

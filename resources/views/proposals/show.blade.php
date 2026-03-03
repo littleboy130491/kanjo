@@ -3,7 +3,13 @@
     $companyLogo = $company?->logo;
     $toMoney = fn($value) => $proposal->currency . ' ' . number_format((float) ($value ?? 0), 2);
     $pdfMode = (bool) ($pdf ?? false);
-    $logoUrl = is_string($companyLogo) && str_starts_with($companyLogo, 'http') ? $companyLogo : null;
+    $fallbackLogoPath = 'Logo-Imajiner-Baru-Black-1024x245.png';
+    $fallbackLogoUrl = file_exists(storage_path('app/public/' . $fallbackLogoPath))
+        ? asset('storage/' . $fallbackLogoPath)
+        : null;
+    $logoUrl = is_string($companyLogo) && $companyLogo !== ''
+        ? (str_starts_with($companyLogo, 'http') ? $companyLogo : asset('storage/' . ltrim($companyLogo, '/')))
+        : $fallbackLogoUrl;
 
     $asRows = function (mixed $items) use ($locale): array {
         if (is_string($items)) {

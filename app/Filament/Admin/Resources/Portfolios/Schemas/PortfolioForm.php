@@ -17,7 +17,7 @@ class PortfolioForm
                     ->label("Project Name")
                     ->required()
                     ->maxLength(255),
-                CuratorPicker::make("image_url")
+                CuratorPicker::make("image_media_id")
                     ->label("Portfolio Image (Curator)")
                     ->imageResizeMode("cover")
                     ->imageCropAspectRatio("16:9")

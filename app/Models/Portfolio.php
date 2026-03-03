@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
+ * @property int|null $image_media_id
  * @property string|null $image_url_external
  * @property-read string|null $portfolio_image_url
  */
@@ -18,7 +19,7 @@ class Portfolio extends Model
 
     protected $fillable = [
         'name',
-        'image_url',
+        'image_media_id',
         'image_url_external',
         'url_link',
     ];
@@ -30,13 +31,13 @@ class Portfolio extends Model
 
     public function image()
     {
-        return $this->belongsTo(Media::class, 'image_url');
+        return $this->belongsTo(Media::class, 'image_media_id');
     }
 
     protected function portfolioImageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->image?->url ?? ($this->image_url_external ? url("/proxy-image/{$this->image_url_external}") : null),
+            get: fn () => $this->image?->url ?? ($this->image_url_external ? url('/proxy-image/' . rawurlencode($this->image_url_external)) : null),
         );
     }
 }

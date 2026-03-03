@@ -8,7 +8,13 @@
         'overdue' => 'bg-red-100 text-red-700',
         default => 'bg-yellow-100 text-yellow-700',
     };
-    $logoUrl = is_string($companyLogo) && str_starts_with($companyLogo, 'http') ? $companyLogo : null;
+    $fallbackLogoPath = 'Logo-Imajiner-Baru-Black-1024x245.png';
+    $fallbackLogoUrl = file_exists(storage_path('app/public/' . $fallbackLogoPath))
+        ? asset('storage/' . $fallbackLogoPath)
+        : null;
+    $logoUrl = is_string($companyLogo) && $companyLogo !== ''
+        ? (str_starts_with($companyLogo, 'http') ? $companyLogo : asset('storage/' . ltrim($companyLogo, '/')))
+        : $fallbackLogoUrl;
     $pdfMode = (bool) ($pdf ?? false);
 @endphp
 <x-layout :locale="$locale" :title="$invoice->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
