@@ -96,16 +96,16 @@ class InvoiceForm
                                                     : (is_string($state) ? PaymentStatus::tryFrom($state) : null);
 
                                                 if ($paymentStatus === PaymentStatus::PAID) {
-                                                    $set('paid_at', now()->toDateTimeString());
+                                                    $set('paid_at', now()->toDateString());
                                                 } else {
                                                     $set('paid_at', null);
                                                 }
                                             }),
-                                        \Filament\Forms\Components\DateTimePicker::make('paid_at')
+                                        DatePicker::make('paid_at')
                                             ->label('Paid At')
                                             ->nullable()
                                             ->native(false)
-                                            ->helperText('Auto-filled when payment status is set to Paid'),
+                                            ->helperText('Date only. Auto-filled when payment status is set to Paid, and can be cleared.'),
                                         DatePicker::make('issue_date')
                                             ->required()
                                             ->default(now()),
