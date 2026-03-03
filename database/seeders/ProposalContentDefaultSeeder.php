@@ -172,6 +172,7 @@ class ProposalContentDefaultSeeder extends Seeder
 </ol>
 HTML,
             'additional_info' => '',
+            'marketing_program' => '<p>A 10% discount will be applied to the final payment invoice if you join our marketing program by leaving an honest review on our Google Business page (<a href="https://g.page/r/CSuQy97toImhEBM/review" target="_blank" rel="noopener">https://g.page/r/CSuQy97toImhEBM/review</a>) at the final payment stage before the website goes live.</p>',
             'extra_content_brief' => '',
             'add_on' => [
                 [
@@ -413,6 +414,7 @@ HTML,
 </ol>
 HTML,
             'additional_info' => '',
+            'marketing_program' => '<p>Diskon 10% akan diberikan pada invoice pelunasan apabila Anda mengikuti program marketing kami, yaitu dengan memberikan review jujur di Google Business kami (<a href="https://g.page/r/CSuQy97toImhEBM/review" target="_blank" rel="noopener">https://g.page/r/CSuQy97toImhEBM/review</a>) pada tahap pelunasan sebelum website ditayangkan (go live).</p>',
             'extra_content_brief' => '',
             'add_on' => [
                 [

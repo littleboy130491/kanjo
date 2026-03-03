@@ -59,6 +59,8 @@ class ServiceInvoiceSupport
             throw new \RuntimeException('Cannot create invoice: no company is available.');
         }
 
+        $issueDate = now()->toDateString();
+
         $invoice = new Invoice([
             'client_company' => (string) ($client?->company
                 ?? $latestInvoice?->client_company
@@ -83,8 +85,8 @@ class ServiceInvoiceSupport
             'proposal_id' => $latestInvoice?->proposal_id ?? $latestProposal?->id,
             'currency' => (string) ($service->currency ?: $latestInvoice?->currency ?: $latestProposal?->currency ?: 'IDR'),
             'tax_rate' => (float) ($latestInvoice?->tax_rate ?? $latestProposal?->tax_rate ?? 0),
-            'issue_date' => now()->toDateString(),
-            'due_date' => self::resolveDueDate($service->renewal_date),
+            'issue_date' => $issueDate,
+            'due_date' => self::resolveDueDate($issueDate),
             'items' => [
                 [
                     'title' => 'Renewal: ' . (string) ($service->name ?: 'Service'),
@@ -92,7 +94,7 @@ class ServiceInvoiceSupport
                     'description' => (string) ($service->domain ?? ''),
                 ],
             ],
-            'status' => DocumentStatus::DRAFT,
+            'status' => DocumentStatus::PUBLISHED,
             'payment_status' => PaymentStatus::UNPAID,
             'access_username' => $latestInvoice?->access_username ?? $latestProposal?->access_username,
             'access_password' => $latestInvoice?->access_password ?? $latestProposal?->access_password,
@@ -105,14 +107,14 @@ class ServiceInvoiceSupport
         return $invoice;
     }
 
-    private static function resolveDueDate(?string $renewalDate): string
+    private static function resolveDueDate(?string $issueDate): string
     {
-        if (blank($renewalDate)) {
+        if (blank($issueDate)) {
             return now()->addDays(30)->toDateString();
         }
 
         try {
-            return Carbon::parse($renewalDate)->toDateString();
+            return Carbon::parse($issueDate)->addDays(30)->toDateString();
         } catch (Throwable) {
             return now()->addDays(30)->toDateString();
         }

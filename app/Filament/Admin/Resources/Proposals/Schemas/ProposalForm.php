@@ -246,6 +246,11 @@ class ProposalForm
                                         self::makeTranslatedRichEditor('brief'),
                                     ]),
 
+                                Section::make('Extra Content Brief')
+                                    ->schema([
+                                        self::makeTranslatedRichEditor('extra_content_brief', 'ex: Figma link or barcode'),
+                                    ]),
+
                                 Section::make('Core Services')
                                     ->schema([
                                         self::makeTranslatedRichEditor('core_services'),
@@ -277,8 +282,11 @@ class ProposalForm
                                     ]),
 
                                 Section::make('Additional Benefits')
+                                    ->headerActions([
+                                        self::makeLoadRichTextTemplateAction('additional_benefit'),
+                                    ])
                                     ->schema([
-                                        self::makeTranslatedRichEditor('additional_benefit'),
+                                        self::makeTranslatedRichEditor('additional_benefit', 'Additional Benefits (For opsi 2)', false),
                                     ]),
 
                                 Section::make('Add-ons')
@@ -320,20 +328,15 @@ class ProposalForm
                                         self::makeTranslatedRichEditor('payment'),
                                     ]),
 
-                                Section::make('Terms & Conditions')
-                                    ->schema([
-                                        self::makeTranslatedRichEditor('terms_condition'),
-                                    ]),
 
                                 Section::make('Additional Info')
+                                    ->headerActions([
+                                        self::makeLoadRichTextTemplateAction('additional_info', 'marketing_program'),
+                                    ])
                                     ->schema([
-                                        self::makeTranslatedRichEditor('additional_info'),
+                                        self::makeTranslatedRichEditor('additional_info', 'ex: for marketing program'),
                                     ]),
 
-                                Section::make('Extra Content Brief')
-                                    ->schema([
-                                        self::makeTranslatedRichEditor('extra_content_brief'),
-                                    ]),
 
                                 Section::make('Offer 1 Project Timeline')
                                     ->headerActions([
@@ -405,6 +408,11 @@ class ProposalForm
                                                     ->columnSpanFull(),
                                             ]),
                                     ]),
+
+                                Section::make('Terms & Conditions')
+                                    ->schema([
+                                        self::makeTranslatedRichEditor('terms_condition'),
+                                    ]),
                             ]),
 
                         // Tab 5: Portfolios
@@ -472,12 +480,12 @@ class ProposalForm
             ]);
     }
 
-    protected static function makeTranslatedRichEditor(string $fieldKey): Translate
+    protected static function makeTranslatedRichEditor(string $fieldKey, ?string $label = null, bool $useDefault = true): Translate
     {
         return Translate::make()
             ->exclude(self::translatedFieldPaths($fieldKey))
-            ->schema(fn(string $locale): array => [
-                self::makeRichEditor("{$fieldKey}.{$locale}", $fieldKey, $locale),
+            ->schema(fn(string $locale) : array => [
+                self::makeRichEditor("{$fieldKey}.{$locale}", $fieldKey, $locale, $label, $useDefault),
             ]);
     }
 
@@ -488,15 +496,27 @@ class ProposalForm
             ->all();
     }
 
-    protected static function makeRichEditor(string $statePath, string $fieldKey, string $locale): RichEditor
+    protected static function makeRichEditor(
+        string $statePath,
+        string $fieldKey,
+        string $locale,
+        ?string $label = null,
+        bool $useDefault = true,
+    ): RichEditor
     {
-        return RichEditor::make($statePath)
-            ->hiddenLabel()
+        $editor = RichEditor::make($statePath)
             ->enableToolbarButtons(['attachCuratorMedia'])
             ->plugins([AttachCuratorMediaPlugin::make()])
-            ->default(self::defaultRichTextContent($fieldKey, $locale))
             ->extraAttributes(['style' => 'min-height: 200px'])
             ->columnSpanFull();
+
+        if ($useDefault) {
+            $editor->default(self::defaultRichTextContent($fieldKey, $locale));
+        }
+
+        return filled($label)
+            ? $editor->label($label)
+            : $editor->hiddenLabel();
     }
 
     protected static function defaultRichTextContent(string $fieldKey, string $locale): ?string
@@ -518,24 +538,6 @@ class ProposalForm
             if (is_string($legacyValue)) {
                 return $legacyValue;
             }
-        }
-
-        // Backward compatibility for earlier per-field records.
-        $legacyDefault = ProposalContentDefault::query()
-            ->where('field_key', $fieldKey)
-            ->first();
-
-        if ($legacyDefault instanceof ProposalContentDefault) {
-            $translations = $legacyDefault->getTranslations('value');
-            $value = data_get($translations, $locale);
-
-            if (is_string($value)) {
-                return $value;
-            }
-
-            $legacyValue = $legacyDefault->getAttribute("value_{$locale}");
-
-            return is_string($legacyValue) ? $legacyValue : null;
         }
 
         return null;
@@ -624,6 +626,27 @@ class ProposalForm
                 foreach ($allLocales as $locale) {
                     $rows = static::defaultContentRows($templateKey, $locale);
                     data_set($livewireData, "{$targetField}.{$locale}", $rows);
+                }
+
+                $livewire->data = $livewireData;
+            });
+    }
+
+    protected static function makeLoadRichTextTemplateAction(string $targetField, ?string $sourceField = null): Action
+    {
+        $lookupField = $sourceField ?? $targetField;
+
+        return Action::make('load_rich_text_template_' . $targetField)
+            ->label('Load Template')
+            ->icon('heroicon-o-arrow-down-tray')
+            ->color('gray')
+            ->action(function (mixed $livewire) use ($targetField, $lookupField): void {
+                $allLocales = config('translatable.locales', ['en', 'id']);
+                $livewireData = $livewire->data;
+
+                foreach ($allLocales as $locale) {
+                    $content = static::defaultRichTextContent($lookupField, $locale) ?? '';
+                    data_set($livewireData, "{$targetField}.{$locale}", $content);
                 }
 
                 $livewire->data = $livewireData;

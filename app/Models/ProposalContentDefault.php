@@ -30,6 +30,7 @@ class ProposalContentDefault extends Model
         'payment' => 'Payment Terms',
         'terms_condition' => 'Terms & Conditions',
         'additional_info' => 'Additional Info',
+        'marketing_program' => 'Marketing Program',
     ];
 
     protected $fillable = [
