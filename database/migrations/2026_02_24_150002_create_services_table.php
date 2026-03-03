@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('domain')->nullable();         // website URL
             $table->string('start_date')->nullable();     // when service became active
             $table->string('renewal_date')->nullable();   // date and month for renewal
+            $table->decimal('price', 15, 2)->default(0);
+            $table->string('currency')->default('IDR');
             $table->enum('status', ['terminated', 'on-going', 'suspended'])->default('on-going');
             $table->json('notes')->nullable();            // non-translatable JSON array
             $table->foreignId('client_id')->nullable()->constrained()->nullOnDelete();

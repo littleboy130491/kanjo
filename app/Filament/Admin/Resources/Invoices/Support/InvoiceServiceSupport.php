@@ -24,6 +24,20 @@ class InvoiceServiceSupport
                 }),
             TextInput::make('domain')
                 ->maxLength(255),
+            TextInput::make('price')
+                ->numeric()
+                ->default(function (?Invoice $record = null) use ($recordResolver): float {
+                    $invoice = self::resolveInvoice($record, $recordResolver);
+
+                    return (float) (data_get($invoice?->items, '0.price') ?? 0);
+                }),
+            TextInput::make('currency')
+                ->maxLength(10)
+                ->default(function (?Invoice $record = null) use ($recordResolver): string {
+                    $invoice = self::resolveInvoice($record, $recordResolver);
+
+                    return (string) ($invoice?->currency ?: 'IDR');
+                }),
             TextInput::make('start_date')
                 ->maxLength(255)
                 ->default(function (?Invoice $record = null) use ($recordResolver, $useCurrentDateDefaults): string {
@@ -50,6 +64,8 @@ class InvoiceServiceSupport
         return Service::create([
             'name' => (string) ($data['name'] ?? ''),
             'domain' => $data['domain'] ?: null,
+            'price' => (float) ($data['price'] ?? data_get($invoice->items, '0.price', 0)),
+            'currency' => (string) ($data['currency'] ?: $invoice->currency ?: 'IDR'),
             'start_date' => $data['start_date'] ?: null,
             'renewal_date' => $data['renewal_date'] ?: null,
             'client_id' => $invoice->client_id,

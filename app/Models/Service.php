@@ -16,12 +16,15 @@ class Service extends Model
         'domain',
         'start_date',
         'renewal_date',
+        'price',
+        'currency',
         'status',
         'notes',
         'client_id',
     ];
 
     protected $casts = [
+        'price' => 'decimal:2',
         'notes' => 'array',
         'status' => ServiceStatus::class,
     ];

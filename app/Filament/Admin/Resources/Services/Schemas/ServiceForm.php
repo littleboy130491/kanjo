@@ -37,6 +37,16 @@ class ServiceForm
                             ->options(ServiceStatus::class)
                             ->default(ServiceStatus::ON_GOING->value)
                             ->required(),
+                        TextInput::make('price')
+                            ->label('Price')
+                            ->numeric()
+                            ->default(0)
+                            ->required(),
+                        TextInput::make('currency')
+                            ->label('Currency')
+                            ->default('IDR')
+                            ->required()
+                            ->maxLength(10),
                     ])
                     ->columns(2),
 

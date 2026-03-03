@@ -120,6 +120,8 @@ Represents the brands/companies that issue documents.
 | `domain` | string | no | website url |
 | `start_date` | string | no | the time when the service is active |
 | `renewal_date` | string | no | date and month for renewal |
+| `price` | decimal | no | service price |
+| `currency` | string | no | default `IDR` |
 | `status` | enum | no | `terminated`, `on-going`, `suspended` |
 | `notes` | JSON array | no | non-translatable |
 | `client_id` | FK | no | has one client |

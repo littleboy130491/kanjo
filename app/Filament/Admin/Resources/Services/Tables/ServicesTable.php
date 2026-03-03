@@ -26,6 +26,14 @@ class ServicesTable
                     ->label('Client')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('price')
+                    ->label('Price')
+                    ->money(fn ($record): string => (string) ($record->currency ?: 'IDR'))
+                    ->sortable(),
+                TextColumn::make('currency')
+                    ->label('Currency')
+                    ->badge()
+                    ->sortable(),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
