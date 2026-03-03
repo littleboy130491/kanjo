@@ -6,8 +6,8 @@ use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Filament\Admin\Resources\Services\Support\ServiceInvoiceSupport;
 use App\Models\Service;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -104,7 +104,7 @@ class ServicesTable
                             );
                     }),
             ])
-            ->actions([
+            ->recordActions([
                 Action::make('create_renewal_invoice')
                     ->label('Create Renewal Invoice')
                     ->icon('heroicon-o-arrow-path')
