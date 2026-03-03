@@ -213,6 +213,26 @@ class InvoicesTable
 
                             $records->each(fn (Invoice $record): bool => $record->update(['status' => $status]));
                         }),
+                    BulkAction::make('change_payment_status')
+                        ->label('Change Payment Status')
+                        ->icon('heroicon-o-banknotes')
+                        ->form([
+                            Select::make('payment_status')
+                                ->label('Payment Status')
+                                ->options(collect(PaymentStatus::cases())->mapWithKeys(
+                                    fn (PaymentStatus $status): array => [$status->value => $status->getLabel()]
+                                )->all())
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $paymentStatus = PaymentStatus::from((string) $data['payment_status']);
+                            $paidAt = $paymentStatus === PaymentStatus::PAID ? now() : null;
+
+                            $records->each(fn (Invoice $record): bool => $record->update([
+                                'payment_status' => $paymentStatus,
+                                'paid_at' => $paidAt,
+                            ]));
+                        }),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                 ]),
