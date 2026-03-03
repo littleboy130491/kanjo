@@ -36,7 +36,7 @@ class Portfolio extends Model
     protected function portfolioImageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->image?->url ?? $this->image_url_external,
+            get: fn () => $this->image?->url ?? ($this->image_url_external ? url("/proxy-image/{$this->image_url_external}") : null),
         );
     }
 }
