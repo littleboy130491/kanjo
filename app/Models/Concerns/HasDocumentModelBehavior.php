@@ -5,7 +5,6 @@ namespace App\Models\Concerns;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 trait HasDocumentModelBehavior
@@ -98,19 +97,6 @@ trait HasDocumentModelBehavior
                 $model->document_number = $generatedDocumentNumber;
             }
         });
-    }
-
-    public function setAccessPasswordAttribute(?string $value): void
-    {
-        if (blank($value)) {
-            $this->attributes['access_password'] = null;
-
-            return;
-        }
-
-        $this->attributes['access_password'] = Hash::info($value)['algo'] !== null
-            ? $value
-            : Hash::make($value);
     }
 
     protected static function beforeDocumentSaving(Model $model): void

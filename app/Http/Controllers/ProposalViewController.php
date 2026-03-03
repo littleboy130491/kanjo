@@ -66,7 +66,6 @@ class ProposalViewController extends Controller
         $passwordMatches = DocumentAccessMiddleware::passwordsMatch(
             (string) $request->string('password'),
             $expectedPassword,
-            $isDocumentCredential,
         );
 
         if (! $usernameMatches || ! $passwordMatches) {

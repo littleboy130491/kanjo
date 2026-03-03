@@ -7,7 +7,6 @@ use App\Models\Invoice;
 use App\Models\Proposal;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
 class DocumentAccessMiddleware
@@ -50,12 +49,8 @@ class DocumentAccessMiddleware
         return "doc_auth_{$type}_{$id}";
     }
 
-    public static function passwordsMatch(string $input, string $expected, bool $expectedHashed): bool
+    public static function passwordsMatch(string $input, string $expected): bool
     {
-        if ($expectedHashed || Hash::info($expected)['algo'] !== null) {
-            return Hash::check($input, $expected);
-        }
-
         return hash_equals($expected, $input);
     }
 
