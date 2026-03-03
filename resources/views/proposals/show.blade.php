@@ -1,211 +1,489 @@
-@php
+﻿@php
     $company = $proposal->company;
     $companyLogo = $company?->logo;
-    $toMoney = fn($value) => $proposal->currency . ' ' . number_format((float) ($value ?? 0), 2);
     $pdfMode = (bool) ($pdf ?? false);
+
+    $toMoney = function (mixed $value) use ($proposal): string {
+        return $proposal->currency . ' ' . number_format((float) ($value ?? 0), 2);
+    };
+
     $fallbackLogoPath = 'Logo-Imajiner-Baru-Black-1024x245.png';
     $fallbackLogoUrl = file_exists(storage_path('app/public/' . $fallbackLogoPath))
         ? asset('storage/' . $fallbackLogoPath)
+        : null;
+    $footerBarcodePath = 'qrcode_imajiner.id.png';
+    $footerBarcodeUrl = file_exists(storage_path('app/public/' . $footerBarcodePath))
+        ? asset('storage/' . $footerBarcodePath)
+        : null;
+    $companyWebsiteUrl = filled($company?->website)
+        ? (str_starts_with((string) $company->website, 'http://') || str_starts_with((string) $company->website, 'https://')
+            ? (string) $company->website
+            : 'https://' . ltrim((string) $company->website, '/'))
         : null;
     $logoUrl = is_string($companyLogo) && $companyLogo !== ''
         ? (str_starts_with($companyLogo, 'http') ? $companyLogo : asset('storage/' . ltrim($companyLogo, '/')))
         : $fallbackLogoUrl;
 
-    $asRows = function (mixed $items) use ($locale): array {
-        if (is_string($items)) {
-            $decoded = json_decode($items, true);
-
-            return is_array($decoded) ? $decoded : [];
+    $valueByLocale = function (mixed $value) use ($locale): mixed {
+        if (is_array($value) && array_key_exists($locale, $value)) {
+            return $value[$locale];
         }
 
-        if (! is_array($items)) {
+        return $value;
+    };
+
+    $asHtml = function (mixed $value) use ($valueByLocale): string {
+        $resolved = $valueByLocale($value);
+
+        return is_string($resolved) ? trim($resolved) : '';
+    };
+
+    $asRows = function (mixed $value) use ($valueByLocale): array {
+        $resolved = $valueByLocale($value);
+
+        if (is_string($resolved)) {
+            $decoded = json_decode($resolved, true);
+
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $resolved = $decoded;
+            }
+        }
+
+        if (! is_array($resolved)) {
             return [];
         }
 
-        if (array_key_exists($locale, $items)) {
-            $localized = $items[$locale];
+        return collect($resolved)
+            ->filter(function ($row) {
+                if (! is_array($row)) {
+                    return filled($row);
+                }
 
-            if (is_string($localized)) {
-                $decoded = json_decode($localized, true);
+                foreach ($row as $item) {
+                    if (filled(is_string($item) ? trim($item) : $item)) {
+                        return true;
+                    }
+                }
 
-                return is_array($decoded) ? $decoded : [];
-            }
+                return false;
+            })
+            ->values()
+            ->all();
+    };
 
-            return is_array($localized) ? $localized : [];
+    $present = function (mixed $value): bool {
+        if (is_array($value)) {
+            return count($value) > 0;
         }
 
-        return $items;
+        if (! is_string($value)) {
+            return filled($value);
+        }
+
+        return trim(strip_tags($value)) !== '';
     };
 
-    $list = function (mixed $items, string $key) use ($asRows): array {
-        return collect($asRows($items))->pluck($key)->filter()->values()->all();
-    };
+    $briefHtml = $asHtml($proposal->brief);
+    $extraContentBriefHtml = $asHtml($proposal->extra_content_brief);
+    $coreServicesHtml = $asHtml($proposal->core_services);
+    $featuresHtml = $asHtml($proposal->features);
+    $serverHtml = $asHtml($proposal->server);
+    $assetsHtml = $asHtml($proposal->assets);
+    $securityHtml = $asHtml($proposal->security);
+    $supportHtml = $asHtml($proposal->support);
+    $additionalBenefitHtml = $asHtml($proposal->additional_benefit);
+    $paymentHtml = $asHtml($proposal->payment);
+    $termsConditionHtml = $asHtml($proposal->terms_condition);
+    $additionalInfoHtml = $asHtml($proposal->additional_info);
+    $footerTextHtml = trim((string) ($company?->getTranslation('footer_text', $locale, false) ?? ''));
+
+    $offer1Timeline = $asRows($proposal->offer_1_project_timeline);
+    $offer2Timeline = $asRows($proposal->offer_2_project_timeline);
+    $addOns = $asRows($proposal->add_on);
+
+    $bankRows = collect($company?->bank ?? [])
+        ->filter(fn($row) => filled($row['bank_name'] ?? null) || filled($row['account_name'] ?? null) || filled($row['account_number'] ?? null))
+        ->values()
+        ->all();
+
+    $picRows = collect($company?->pic ?? [])
+        ->filter(fn($row) => filled($row['pic_name'] ?? null) || filled($row['pic_role'] ?? null))
+        ->values()
+        ->all();
+    $companyEmails = collect([$company?->email_1, $company?->email_2])
+        ->filter(fn($value) => filled($value))
+        ->values()
+        ->all();
+    $companyPhones = collect([$company?->phone_1, $company?->phone_2])
+        ->filter(fn($value) => filled($value))
+        ->values()
+        ->all();
+
+    $sectionNo = 1;
 @endphp
 <x-layout :locale="$locale" :title="$proposal->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
     lang-route="proposal.show" pdf-route="pdf.proposal">
-
-    <section class="border-b pb-4">
-        <div class="flex items-start justify-between">
-            <div class="flex items-center gap-3">
+    <div class="proposal-frame proposal-doc mx-auto w-full max-w-[1000px]">
+        <section class="proposal-cover p-10 md:p-24 avoid-page-break">
+            <div class="flex flex-col items-start justify-between gap-8 md:flex-row">
                 @if($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-12 w-12 object-contain">
+                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain">
                 @endif
-                <div>
-                    <h1 class="text-2xl font-bold brand-title">{{ $company?->brand_name ?? $company?->company_name }}
-                    </h1>
-                    <p class="text-sm text-slate-500">{{ $proposal->document_number }}</p>
+                <div class="space-y-2 text-right">
+                    @if($proposal->issue_date)
+                        <p class="cover-meta">Date — <span>{{ $proposal->issue_date->format('d M Y') }}</span></p>
+                    @endif
+                    <p class="cover-meta">Valid — <span>{{ $proposal->valid_until?->format('d M Y') ?? 'No expiry' }}</span></p>
+                    <p class="cover-meta">No. — <span>{{ $proposal->document_number }}</span></p>
                 </div>
             </div>
-            <div class="text-right text-sm">
-                <p>Issue: {{ optional($proposal->issue_date)->format('d M Y') }}</p>
-                <p>Valid until: {{ optional($proposal->valid_until)->format('d M Y') ?? 'No expiry' }}</p>
+
+            <div class="my-8 md:my-8">
+                <span class="proposal-kicker mb-6 block text-[10px] font-medium uppercase tracking-[0.3em]">Project Proposal</span>
+                <h1 class="cover-title proposal-serif">
+                    Website<br>
+                    <span class="cover-subtitle">Design & Development</span>
+                </h1>
             </div>
-        </div>
-    </section>
 
-    <section>
-        <h2 class="mb-2 font-semibold">Client Info</h2>
-        <p>{{ $proposal->client_company }} — {{ $proposal->client_name }}</p>
-        <p>{{ $proposal->client_email }} | {{ $proposal->client_phone }}</p>
-    </section>
-    <section>
-        <h2 class="mb-2 font-semibold">Brief</h2>
-        <ul class="list-disc pl-5">@foreach($list($proposal->brief, 'content') as $row)<li>{{ $row }}</li>@endforeach
-        </ul>
-    </section>
-
-    <section>
-        <h2 class="mb-2 font-semibold">Portfolios</h2>
-        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-            @forelse($proposal->portfolios as $portfolio)
-                <div class="rounded border p-3">
-                    <p class="font-medium">{{ $portfolio->name }}</p><a class="text-sm text-blue-600"
-                        href="{{ $portfolio->url_link }}">{{ $portfolio->url_link }}</a>
+            @if(filled($proposal->client_company))
+                <div class="flex flex-col items-end justify-between gap-8 pt-8 md:flex-row">
+                    <div>
+                        <p class="mb-3 text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">Prepared For</p>
+                        <p class="proposal-serif text-3xl text-neutral-900">{{ $proposal->client_company }}</p>
+                    </div>
                 </div>
-            @empty
-                <p class="text-sm text-slate-500">No portfolio items.</p>
-            @endforelse
-        </div>
-    </section>
-
-    <section>
-        <h2 class="mb-2 font-semibold">Core Services</h2>
-        <ul class="list-disc pl-5">@foreach($list($proposal->core_services, 'service') as $row)<li>{{ $row }}</li>
-        @endforeach</ul>
-    </section>
-    <section>
-        <h2 class="mb-2 font-semibold">Features</h2>@foreach($asRows($proposal->features) as $feature)<div class="mb-2">
-            <p class="font-medium">{{ $feature['feature_name'] ?? '-' }}</p>
-            <p class="text-sm text-slate-600">{{ $feature['feature_description'] ?? '' }}</p>
-        </div>@endforeach
-    </section>
-    <section>
-        <h2 class="mb-2 font-semibold">Server</h2>
-        <ul class="list-disc pl-5">@foreach($list($proposal->server, 'item') as $row)<li>{{ $row }}</li>@endforeach</ul>
-    </section>
-    <section>
-        <h2 class="mb-2 font-semibold">Assets</h2>
-        <ul class="list-disc pl-5">@foreach($list($proposal->assets, 'item') as $row)<li>{{ $row }}</li>@endforeach</ul>
-    </section>
-    <section>
-        <h2 class="mb-2 font-semibold">Security</h2>
-        <ul class="list-disc pl-5">@foreach($list($proposal->security, 'item') as $row)<li>{{ $row }}</li>@endforeach
-        </ul>
-    </section>
-    <section>
-        <h2 class="mb-2 font-semibold">Support</h2>
-        <ul class="list-disc pl-5">@foreach($list($proposal->support, 'item') as $row)<li>{{ $row }}</li>@endforeach
-        </ul>
-    </section>
-
-    <section>
-        <h2 class="mb-2 font-semibold">Offer 1</h2>
-        <p>{{ $proposal->offer_name_1 }}</p>
-        <p>
-            @if($proposal->offer_1_original_price && $proposal->offer_1_original_price > $proposal->offer_1_price)
-                <span class="mr-1 line-through text-slate-500">{{ $toMoney($proposal->offer_1_original_price) }}</span>
             @endif
-            {{ $toMoney($proposal->offer_1_price) }}
-        </p>
-        <p>
-            Renewal:
-            @if($proposal->offer_1_original_renewal_price && $proposal->offer_1_original_renewal_price > $proposal->offer_1_renewal_price)
-                <span
-                    class="mr-1 line-through text-slate-500">{{ $toMoney($proposal->offer_1_original_renewal_price) }}</span>
-            @endif
-            {{ $toMoney($proposal->offer_1_renewal_price) }}
-        </p>
-    </section>
-
-    @if($proposal->offer_name_2)
-        <section>
-            <h2 class="mb-2 font-semibold">Offer 2</h2>
-            <p>{{ $proposal->offer_name_2 }}</p>
-            <p>
-                @if($proposal->offer_2_original_price && $proposal->offer_2_original_price > $proposal->offer_2_price)
-                    <span class="mr-1 line-through text-slate-500">{{ $toMoney($proposal->offer_2_original_price) }}</span>
-                @endif
-                {{ $toMoney($proposal->offer_2_price) }}
-            </p>
-            <p>
-                Renewal:
-                @if($proposal->offer_2_original_renewal_price && $proposal->offer_2_original_renewal_price > $proposal->offer_2_renewal_price)
-                    <span
-                        class="mr-1 line-through text-slate-500">{{ $toMoney($proposal->offer_2_original_renewal_price) }}</span>
-                @endif
-                {{ $toMoney($proposal->offer_2_renewal_price) }}
-            </p>
         </section>
-    @endif
 
-    <section>
-        <h2 class="mb-2 font-semibold">Additional Benefit</h2>
-        <ul class="list-disc pl-5">@foreach($list($proposal->additional_benefit, 'item') as $row)<li>{{ $row }}</li>
-        @endforeach</ul>
-    </section>
-    <section>
-        <h2 class="mb-2 font-semibold">Add-Ons</h2>@foreach($asRows($proposal->add_on) as $addOn)<div class="mb-2">
-            <p class="font-medium">{{ $addOn['item_name'] ?? '-' }} — {{ $toMoney($addOn['item_price'] ?? 0) }}</p>
-            <p class="text-sm text-slate-600">{{ $addOn['item_description'] ?? '' }}</p>
-        </div>@endforeach
-    </section>
-    <section>
-        <h2 class="mb-2 font-semibold">Payment Terms</h2>@foreach($asRows($proposal->payment) as $payment)<p>
-            {{ $payment['payment_name'] ?? '' }}
-            {{ isset($payment['payment_percentage']) ? '(' . $payment['payment_percentage'] . '%)' : '' }}</p>
-        @endforeach
-    </section>
-    <section>
-        <h2 class="mb-2 font-semibold">Terms & Conditions</h2>@foreach($asRows($proposal->terms_condition) as $term)<div
-            class="mb-2">
-            <p class="font-medium">{{ $term['title'] ?? '' }}</p>
-            <p class="text-sm text-slate-600">{{ $term['description'] ?? '' }}</p>
-        </div>@endforeach
-    </section>
+        @if($present($briefHtml) || $present($extraContentBriefHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Dear {{ $proposal->client_name }},</h2>
+                <div class="section-content editorial-prose">
+                    @if($present($briefHtml))
+                        <div class="prose max-w-none">{!! $briefHtml !!}</div>
+                    @endif
+                    @if($present($extraContentBriefHtml))
+                        <div class="prose max-w-none">{!! $extraContentBriefHtml !!}</div>
+                    @endif
+                </div>
+            </section>
+        @endif
 
-    <section class="rounded border p-4">
-        <h2 class="mb-2 font-semibold">Tax Summary</h2>
-        <p>Tax rate: {{ $proposal->tax_rate }}%</p>
-        <p>Tax amount: {{ $toMoney($proposal->tax_amount) }}</p>
-        <p class="font-semibold">Total: {{ $toMoney($proposal->total_amount) }}</p>
-    </section>
+        @if($proposal->portfolios->isNotEmpty())
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Portfolio</h2>
+                <p>{{ __('proposal.portfolio_reference_intro') }}</p>
+                <div class="section-content portfolio-grid">
+                    @foreach($proposal->portfolios as $portfolio)
+                        <article class="portfolio-card group cursor-pointer">
+                        <a href="{{ $portfolio->url_link }}" target="_blank" rel="noreferrer">
+                            <div class="mb-4 aspect-[4/3] overflow-hidden bg-neutral-100">
+                                @if($portfolio->portfolio_image_url)
+                                    <img src="{{ $portfolio->portfolio_image_url }}" alt="{{ $portfolio->name }}" class="h-full w-full object-cover">
+                                @endif
+                            </div>
+                            <p class="proposal-serif text-2xl text-neutral-900">{{ $portfolio->name }}</p>
+                            @if(filled($portfolio->url_link))
+                                <span class="proposal-kicker mt-2 inline-block text-[10px] uppercase tracking-[0.2em]">
+                                    View Live Site ->
+                                </span>
+                            @endif
+                            </a>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
 
-    <section class="border-t pt-4 text-sm text-slate-600">
-        <p>{{ $company?->getTranslation('footer_text', $locale, false) ?? '' }}</p>
-        <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div>
-                <p class="font-medium text-slate-800">Bank Details</p>
-                @foreach(($company?->bank ?? []) as $bank)
-                    <p>{{ $bank['bank_name'] ?? '-' }} - {{ $bank['account_number'] ?? '-' }}
-                        ({{ $bank['account_name'] ?? '-' }})</p>
-                @endforeach
+        @php
+            $hasOffer2 = filled($proposal->offer_name_2) || filled($proposal->offer_2_price) || filled($proposal->offer_2_renewal_price);
+            $hasInvestment = filled($proposal->offer_name_1) || filled($proposal->offer_1_price) || filled($proposal->offer_1_renewal_price)
+                || $hasOffer2
+                || count($addOns);
+        @endphp
+        @if($hasInvestment)
+            <section class="section-row avoid-page-break">
+                <h2 class="section-label">Pricing</h2>
+                <div class="section-content">
+                    <div class="investment-block">
+                        @if($hasOffer2)
+                            <span class="proposal-kicker mb-2 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer 01</span>
+                        @endif
+                        <h3 class="proposal-serif mb-8 text-4xl text-neutral-900">{{ $proposal->offer_name_1 ?: 'Main Offer' }}</h3>
+                        <div class="space-y-4">
+                            <div class="money-line flex items-end justify-between border-b border-neutral-100 pb-2">
+                                <span>Initial Investment</span>
+                                <span class="money-line-value">{{ $toMoney($proposal->offer_1_price) }}</span>
+                            </div>
+                            @if(filled($proposal->offer_1_renewal_price))
+                                <div class="money-line flex items-end justify-between border-b border-neutral-100 pb-2">
+                                    <span>Annual Renewal</span>
+                                    <span class="money-line-value">{{ $toMoney($proposal->offer_1_renewal_price) }}</span>
+                                    <span>{{ __('proposal.renewal_optional_note') }}</span>
+                                </div>
+                            @endif
+                        </div>
+                        <p>{{ __('proposal.money_back_guarantee_title') }}</p>
+<p>{{ __('proposal.money_back_guarantee_text') }} <a href="#garansi">{{ __('proposal.money_back_guarantee_terms_link') }}</a></p>
+                    </div>
+
+                    @if($hasOffer2)
+                        <div class="investment-block">
+                            <span class="proposal-kicker mb-2 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer 02</span>
+                            <h3 class="proposal-serif mb-8 text-4xl text-neutral-900">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
+                            <div class="space-y-4">
+                                @if(filled($proposal->offer_2_price))
+                                    <div class="money-line flex items-end justify-between border-b border-neutral-100 pb-2">
+                                        <span>Initial Investment</span>
+                                        <span class="money-line-value">{{ $toMoney($proposal->offer_2_price) }}</span>
+                                    </div>
+                                @endif
+                                @if(filled($proposal->offer_2_renewal_price))
+                                    <div class="money-line flex items-end justify-between border-b border-neutral-100 pb-2">
+                                        <span>Annual Renewal</span>
+                                        <span class="money-line-value">{{ $toMoney($proposal->offer_2_renewal_price) }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    @if(count($addOns))
+                    <p>{{ __('proposal.add_ons_title') }}</p>
+                    <p>{{ __('proposal.add_ons_description') }}</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($addOns as $row)
+                                    <tr>
+                                        <td>{{ $row['name'] ?? '-' }}</td>
+                                        <td>{{ $row['description'] ?? '-' }}</td>
+                                        <td>{{ $row['price'] ?? 0 }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
+            </section>
+        @endif
+
+        @if(count($offer1Timeline) || count($offer2Timeline))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Project Timeline</h2>
+                <div class="section-content space-y-10">
+                    @if(count($offer1Timeline))
+                        @php
+                            $hasOffer2Timeline = count($offer2Timeline) > 0;
+                            $offer1TotalDays = collect($offer1Timeline)->sum(function (array $row): int {
+                                $days = $row['activity_days'] ?? 0;
+
+                                return is_numeric($days) ? (int) $days : 0;
+                            });
+                        @endphp
+                        <div>
+                            @if($hasOffer2Timeline)
+                                <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">Offer 01 Timeline</p>
+                            @endif
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Activity</th>
+                                        <th>PIC</th>
+                                        <th>Day(s)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($offer1Timeline as $row)
+                                        <tr>
+                                            <td class="proposal-serif text-xl text-neutral-900">{{ $row['activity_name'] ?? '-' }}</td>
+                                            <td class="text-[10px] uppercase tracking-[0.16em]">{{ $row['activity_pic'] ?? '-' }}</td>
+                                            <td class="proposal-serif text-xl text-neutral-900">{{ $row['activity_days'] ?? '-' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="2" class="text-right">Total Days</th>
+                                        <th>{{ $offer1TotalDays }}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    @endif
+
+                    @if(count($offer2Timeline))
+                        <div>
+                            <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">Offer 02 Timeline</p>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Phase / Activity</th>
+                                        <th>Responsibility</th>
+                                        <th>Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($offer2Timeline as $row)
+                                        <tr>
+                                            <td class="proposal-serif text-xl text-neutral-900">{{ $row['activity_name'] ?? '-' }}</td>
+                                            <td class="text-[10px] uppercase tracking-[0.16em]">{{ $row['activity_pic'] ?? '-' }}</td>
+                                            <td class="proposal-serif text-xl text-neutral-900">{{ $row['activity_days'] ?? '-' }} Day{{ ((int) ($row['activity_days'] ?? 0)) > 1 ? 's' : '' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </section>
+        @endif
+
+        @if($present($coreServicesHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Core Services</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $coreServicesHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        @if($present($featuresHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Features</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $featuresHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        @if($present($serverHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Server</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $serverHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        @if($present($assetsHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Assets</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $assetsHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        @if($present($securityHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Security</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $securityHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        @if($present($supportHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Support</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $supportHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        @if($present($additionalBenefitHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Additional Benefits</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $additionalBenefitHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        @if($present($paymentHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Payment Terms</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $paymentHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        @if($present($termsConditionHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Terms & Conditions</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $termsConditionHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        @if($present($additionalInfoHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Additional Info</h2>
+                <div class="section-content editorial-prose">
+                    <div class="prose max-w-none">{!! $additionalInfoHtml !!}</div>
+                </div>
+            </section>
+        @endif
+
+        <section class="proposal-endcap print-separator avoid-page-break">
+            <div class="endcap-side">
+                @if($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="mb-10 h-8 object-contain invert">
+                @endif
+
+                @if(filled($company?->address) || count($companyEmails) || count($companyPhones))
+                    <p class="endcap-bank">
+                        @if(filled($company?->address))
+                            {{ $company->address }}<br>
+                        @endif
+                        @if(count($companyEmails))
+                            @foreach($companyEmails as $email)
+                                <a href="mailto:{{ $email }}" class="underline decoration-neutral-400/70 underline-offset-2">{{ $email }}</a>@if(! $loop->last) | @endif
+                            @endforeach
+                            <br>
+                        @endif
+                        @if(count($companyPhones))
+                            @foreach($companyPhones as $phone)
+                                @php
+                                    $phoneHref = preg_replace('/[^0-9+]/', '', (string) $phone);
+                                @endphp
+                                <a href="tel:{{ $phoneHref }}" class="underline decoration-neutral-400/70 underline-offset-2">{{ $phone }}</a>@if(! $loop->last) | @endif
+                            @endforeach
+                        @endif
+                    </p>
+                @endif
+
+                @if($present($footerTextHtml))
+                    <div class="editorial-prose mt-8 text-neutral-400">{!! $footerTextHtml !!}</div>
+                @endif
+                <p class="mt-6 text-xs text-neutral-500">&copy; {{ now()->year }} {{ $company?->company_name }}</p>
             </div>
-            <div>
-                <p class="font-medium text-slate-800">PIC</p>
-                @foreach(($company?->pic ?? []) as $pic)
-                    <p>{{ $pic['pic_name'] ?? '-' }} ({{ $pic['pic_role'] ?? '-' }})</p>
-                @endforeach
+            <div class="endcap-main">
+                @if($footerBarcodeUrl)
+                    <div class="w-full text-left md:text-right">
+                        <p class="endcap-label mb-3">{{ __('proposal.scan_qr_website') }}</p>
+                        @if($companyWebsiteUrl)
+                            <a href="{{ $companyWebsiteUrl }}" target="_blank" rel="noreferrer">
+                                <img src="{{ $footerBarcodeUrl }}" alt="QR Code" class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
+                            </a>
+                        @else
+                            <img src="{{ $footerBarcodeUrl }}" alt="QR Code" class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
+                        @endif
+                    </div>
+                @endif
             </div>
-        </div>
-    </section>
+
+        </section>
+    </div>
 </x-layout>

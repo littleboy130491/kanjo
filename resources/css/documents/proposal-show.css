@@ -1,0 +1,315 @@
+.proposal-doc {
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    color: #262626;
+    letter-spacing: 0.01em;
+    --tone-soft: #d0e1f9;
+    --tone-deep: #004258;
+}
+
+.proposal-frame {
+    background: #ffffff;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.1);
+}
+
+.proposal-serif {
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+}
+
+.proposal-kicker {
+    color: var(--tone-deep);
+}
+
+.proposal-cover {
+    min-height: 760px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.cover-meta {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.cover-meta span {
+    color: var(--tone-deep);
+}
+
+.cover-title {
+    font-size: clamp(52px, 9vw, 112px);
+    line-height: 0.88;
+    letter-spacing: -0.015em;
+    color: #171717;
+    font-weight: 400;
+}
+
+.cover-subtitle {
+    color: #64748b;
+    font-style: italic;
+    font-weight: 300;
+}
+
+.section-row {
+    border-top: 1px solid #dbeafe;
+    padding: 2.5rem;
+    display: block;
+}
+
+.section-label {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--tone-deep);
+    margin-bottom: 1.25rem;
+}
+
+.section-content {
+    width: 100%;
+}
+
+.editorial-prose {
+    font-size: 13px;
+    line-height: 1.85;
+    color: #525252;
+    font-weight: 300;
+}
+
+.editorial-prose p,
+.editorial-prose ul,
+.editorial-prose ol {
+    margin-bottom: 1rem;
+}
+
+.editorial-prose ol,
+.editorial-prose .prose ol {
+    list-style-type: decimal !important;
+    list-style-position: outside;
+    padding-left: 1.4rem;
+}
+
+.editorial-prose ul,
+.editorial-prose .prose ul {
+    list-style-type: disc;
+    list-style-position: outside;
+    padding-left: 1.2rem;
+}
+
+.editorial-prose h3 {
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    font-size: 1.6rem;
+    line-height: 1.25;
+    color: #171717;
+    margin: 1.6rem 0 0.8rem;
+    font-weight: 500;
+}
+
+.editorial-prose li {
+    display: list-item;
+    margin-bottom: 0.55rem;
+}
+
+.portfolio-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.portfolio-card {
+    border: 0;
+}
+
+.portfolio-card img {
+    filter: none;
+    transition: transform 0.6s ease;
+}
+
+.portfolio-card:hover img {
+    transform: scale(1.04);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.data-table thead {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--tone-deep);
+    border-bottom: 1px solid var(--tone-deep);
+    background: color-mix(in srgb, var(--tone-soft) 55%, #ffffff);
+}
+
+.data-table th {
+    text-align: left;
+    padding: 0.95rem 0.35rem;
+    font-weight: 500;
+}
+
+.data-table td {
+    padding: 1rem 0.35rem;
+    border-bottom: 1px solid #e0ecff;
+    color: #525252;
+}
+
+.data-table td:last-child,
+.data-table th:last-child {
+    text-align: right;
+}
+
+.investment-block {
+    border-bottom: 1px solid #dbeafe;
+    padding-bottom: 2.2rem;
+    margin-bottom: 2.2rem;
+}
+
+.money-line {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #737373;
+}
+
+.money-line-value {
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    font-size: 1.45rem;
+    letter-spacing: 0;
+    color: #171717;
+}
+
+.proposal-endcap {
+    background: #171717;
+    color: #ffffff;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.endcap-side {
+    width: 100%;
+}
+
+.endcap-main {
+    width: 100%;
+}
+
+.endcap-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #737373;
+    margin-bottom: 0.5rem;
+}
+
+.endcap-bank {
+    font-size: 13px;
+    line-height: 1.75;
+    color: #d4d4d4;
+    font-weight: 300;
+}
+
+.endcap-summary {
+    width: 100%;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #a3a3a3;
+}
+
+.summary-row strong {
+    color: #ffffff;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: none;
+}
+
+.summary-total {
+    border-top: 1px solid #404040;
+    margin-top: 1.5rem;
+    padding-top: 1.4rem;
+}
+
+.summary-total .label {
+    color: var(--tone-soft);
+}
+
+.summary-total .value {
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #ffffff;
+    letter-spacing: 0;
+}
+
+.print-separator {
+    break-before: page;
+    page-break-before: always;
+}
+
+@media (min-width: 768px) {
+    .section-row,
+    .proposal-endcap {
+        padding: 4.5rem 6rem;
+    }
+
+    .portfolio-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2.5rem;
+    }
+
+    .proposal-endcap {
+        flex-direction: row;
+        gap: 6rem;
+    }
+
+    .endcap-side {
+        width: 28%;
+    }
+
+    .endcap-main {
+        width: 72%;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .endcap-summary {
+        max-width: 420px;
+    }
+}
+
+@media print {
+    .proposal-frame {
+        box-shadow: none;
+    }
+
+    .proposal-doc .avoid-page-break {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .proposal-doc .allow-page-break {
+        break-inside: auto;
+        page-break-inside: auto;
+    }
+
+    .proposal-doc table thead {
+        display: table-header-group;
+    }
+
+    .proposal-doc table tr,
+    .proposal-doc .portfolio-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
