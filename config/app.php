@@ -137,5 +137,7 @@ return [
     'global_access_username' => env('GLOBAL_ACCESS_USERNAME'),
 
     'global_access_password' => env('GLOBAL_ACCESS_PASSWORD'),
+    'runcloud_username' => env('RUNCLOUD_USERNAME'),
+    'runcloud_password' => env('RUNCLOUD_PASSWORD'),
 
 ];

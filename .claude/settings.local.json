@@ -6,7 +6,13 @@
       "Bash(php:*)",
       "Bash(/c/Users/user/Herd/bin/php.exe:*)",
       "Bash(php.exe:*)",
-      "Bash(\"C:\\\\Users\\\\user\\\\.config\\\\herd\\\\bin\\\\php.bat\":*)"
+      "Bash(\"C:\\\\Users\\\\user\\\\.config\\\\herd\\\\bin\\\\php.bat\":*)",
+      "Bash(git add PRD.md app/Filament/Admin/Resources/Invoices/Schemas/InvoiceForm.php app/Filament/Admin/Resources/Invoices/Tables/InvoicesTable.php app/Filament/Admin/Resources/Portfolios/Schemas/PortfolioForm.php app/Filament/Admin/Resources/Portfolios/Tables/PortfoliosTable.php app/Models/Invoice.php app/Models/Portfolio.php database/migrations/2026_02_24_150004_create_invoices_table.php database/migrations/2026_02_24_150005_create_portfolios_table.php database/migrations/2026_02_24_150006_add_payment_fields_to_invoices_table.php)",
+      "Bash(git commit -m \"$\\(cat <<'EOF'\nfeat\\(portfolio,invoice\\): add external image URL support and simplify payment tracking\n\nPortfolio:\n- Add image_url_external column to migration for external/CDN image sources\n- Add toggle in form to switch between Curator upload and external URL input\n- Add portfolioImageUrl accessor \\(Curator url → fallback image_url_external\\)\n- Update table ImageColumn to use the new accessor\n\nInvoice:\n- Remove paid_amount and payment_method fields from model and migrations\n- Consolidate paid_at into the main invoices migration \\(drop separate migration\\)\n- Auto-set paid_at to current datetime when payment_status changes to paid \\(form\\)\n- Simplify mark_as_paid table action to a single confirmation \\(no modal form\\)\n\nPRD:\n- Add Portfolio entity section \\(§7\\) with image source rules documented\n- Update Invoice fields: remove paid_amount/payment_method, annotate paid_at behaviour\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)",
+      "Bash(wc -l portfolio_images.json && python3 -c \"import json; data=json.load\\(open\\('portfolio_images.json'\\)\\); print\\(type\\(data\\)\\); print\\(len\\(data\\) if isinstance\\(data, list\\) else list\\(data.keys\\(\\)\\)[:10]\\)\")",
+      "Bash(python3 -c \"import json; data=json.load\\(open\\('portfolio_images.json'\\)\\); print\\(json.dumps\\(data[:3], indent=2\\)\\)\")",
+      "Bash(python3 -c \"\nimport json\ndata = json.load\\(open\\('portfolio_images.json'\\)\\)\nphp_items = []\nfor item in data:\n    name = item['name'].replace\\(\\\\\"'\\\\\", \\\\\"\\\\\\\\\\\\\\\\'\\\\\" \\)\n    url_link = item['url_link'].replace\\(\\\\\"'\\\\\", \\\\\"\\\\\\\\\\\\\\\\'\\\\\" \\)\n    image_url = item['image_url_external'].replace\\(\\\\\"'\\\\\", \\\\\"\\\\\\\\\\\\\\\\'\\\\\" \\)\n    php_items.append\\(f\\\\\"            ['name' => '{name}', 'url_link' => '{url_link}', 'image_url_external' => '{image_url}'],\\\\\"\\)\nprint\\('\\\\n'.join\\(php_items[:5]\\)\\)\nprint\\('...'\\)\nprint\\(f'Total: {len\\(php_items\\)}'\\)\n\")"
     ]
   }
 }

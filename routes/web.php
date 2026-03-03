@@ -26,3 +26,13 @@ Route::post('/invoice/{slug}/auth', [InvoiceViewController::class, 'authenticate
 Route::get('/invoice/{slug}/pdf', [PdfController::class, 'invoice'])
     ->middleware('document.access:invoice')
     ->name('pdf.invoice');
+
+// proxy image from runcloud
+Route::get('/proxy-image/{image_url}', function (string $image_url) {
+    $response = Http::withBasicAuth(config('app.runcloud_username'), config('app.runcloud_password'))
+        ->get($image_url);
+
+    return response($response->body(), 200)
+        ->header('Content-Type', $response->header('Content-Type'))
+        ->header('Cache-Control', 'public, max-age=86400');
+})->where('image_url', '.*');
