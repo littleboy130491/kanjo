@@ -90,8 +90,12 @@ class InvoiceForm
                                             ->default(PaymentStatus::UNPAID)
                                             ->required()
                                             ->live()
-                                            ->afterStateUpdated(function (?string $state, Set $set) {
-                                                if ($state === PaymentStatus::PAID->value) {
+                                            ->afterStateUpdated(function (PaymentStatus|string|null $state, Set $set) {
+                                                $paymentStatus = $state instanceof PaymentStatus
+                                                    ? $state
+                                                    : (is_string($state) ? PaymentStatus::tryFrom($state) : null);
+
+                                                if ($paymentStatus === PaymentStatus::PAID) {
                                                     $set('paid_at', now()->toDateTimeString());
                                                 } else {
                                                     $set('paid_at', null);
