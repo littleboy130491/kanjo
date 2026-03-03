@@ -4,13 +4,11 @@ namespace App\Filament\Admin\Resources\Proposals\Tables;
 
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
-use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Filament\Admin\Resources\Proposals\ProposalResource;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Proposal;
-use App\Models\Service;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -166,39 +164,6 @@ class ProposalsTable
 
                         Notification::make()->title('Client created and linked.')->success()->send();
                     }),
-                Action::make('create_service')
-                    ->label('Create Service')
-                    ->icon('heroicon-o-wrench-screwdriver')
-                    ->color('success')
-                    ->visible(fn(Proposal $record): bool => filled($record->client_id) && blank($record->service_id))
-                    ->schema([
-                        \Filament\Forms\Components\TextInput::make('name')
-                            ->maxLength(255)
-                            ->default(fn(Proposal $record): string => (string) ($record->offer_name_1 ?: $record->document_number)),
-                        \Filament\Forms\Components\TextInput::make('domain')
-                            ->maxLength(255),
-                        \Filament\Forms\Components\TextInput::make('start_date')
-                            ->maxLength(255)
-                            ->default(fn(Proposal $record): ?string => $record->issue_date?->toDateString()),
-                        \Filament\Forms\Components\TextInput::make('renewal_date')
-                            ->maxLength(255)
-                            ->default(fn(Proposal $record): ?string => $record->valid_until?->toDateString()),
-                    ])
-                    ->action(function (Proposal $record, array $data) {
-                        $service = Service::create([
-                            'name' => (string) ($data['name'] ?? ''),
-                            'domain' => $data['domain'] ?: null,
-                            'start_date' => $data['start_date'] ?: null,
-                            'renewal_date' => $data['renewal_date'] ?: null,
-                            'client_id' => $record->client_id,
-                            'status' => ServiceStatus::ON_GOING,
-                            'notes' => is_array($record->notes) ? $record->notes : [],
-                        ]);
-
-                        $record->update(['service_id' => $service->id]);
-
-                        Notification::make()->title('Service generated from proposal and linked.')->success()->send();
-                    }),
                 Action::make('download_pdf')
                     ->label('Download PDF')
                     ->icon('heroicon-o-arrow-down-tray')
@@ -251,7 +216,6 @@ class ProposalsTable
             'client_id' => $proposal->client_id,
             'company_id' => $proposal->company_id,
             'user_id' => auth()->id() ?? $proposal->user_id,
-            'service_id' => $proposal->service_id,
             'currency' => $proposal->currency,
             'tax_rate' => $proposal->tax_rate,
             'tax_amount' => $taxAmount,

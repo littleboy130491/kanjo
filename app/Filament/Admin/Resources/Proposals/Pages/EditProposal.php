@@ -103,7 +103,6 @@ class EditProposal extends EditRecord
             'client_id' => $this->record->client_id,
             'company_id' => $this->record->company_id,
             'user_id' => auth()->id() ?? $this->record->user_id,
-            'service_id' => $this->record->service_id,
             'currency' => $this->record->currency,
             'tax_rate' => $this->record->tax_rate,
             'tax_amount' => $taxAmount,

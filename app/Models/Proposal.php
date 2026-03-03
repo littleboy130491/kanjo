@@ -6,6 +6,7 @@ use App\Enums\DocumentStatus;
 use App\Models\Concerns\HasDocumentModelBehavior;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
 
@@ -65,7 +66,6 @@ class Proposal extends Model
         'user_id',
         'company_id',
         'client_id',
-        'service_id',
     ];
 
     protected $translatable = [
@@ -130,9 +130,16 @@ class Proposal extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function service()
+    public function service(): HasOneThrough
     {
-        return $this->belongsTo(Service::class);
+        return $this->hasOneThrough(
+            Service::class,
+            Invoice::class,
+            'proposal_id',
+            'id',
+            'id',
+            'service_id',
+        );
     }
 
     public function portfolios()

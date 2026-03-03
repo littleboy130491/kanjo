@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\ServiceStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Service extends Model
@@ -34,9 +36,28 @@ class Service extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function proposals()
+    public function proposal(): HasOneThrough
     {
-        return $this->hasMany(Proposal::class);
+        return $this->hasOneThrough(
+            Proposal::class,
+            Invoice::class,
+            'service_id',
+            'id',
+            'id',
+            'proposal_id',
+        );
+    }
+
+    public function proposals(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Proposal::class,
+            Invoice::class,
+            'service_id',
+            'id',
+            'id',
+            'proposal_id',
+        )->distinct();
     }
 
     public function invoices()

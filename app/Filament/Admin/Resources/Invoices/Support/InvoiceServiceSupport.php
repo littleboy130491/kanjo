@@ -75,13 +75,6 @@ class InvoiceServiceSupport
                 'notes' => is_array($invoice->notes) ? $invoice->notes : [],
             ]);
 
-            // Keep proposal-service linkage intact for flow: proposal -> invoice -> service.
-            if ($invoice->proposal_id) {
-                $invoice->proposal()
-                    ->whereNull('service_id')
-                    ->update(['service_id' => $service->id]);
-            }
-
             return $service;
         });
     }
