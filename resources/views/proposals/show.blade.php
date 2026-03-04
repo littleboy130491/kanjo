@@ -487,7 +487,7 @@
         <section class="proposal-endcap print-separator avoid-page-break block">
             <div class="endcap-row-logo">
                 @if($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain">
+                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain invert grayscale">
                 @endif
             </div>
 
@@ -511,27 +511,24 @@
                                         @endforeach
                                     </span>
                                 </span>
-                                <br>
                             @endif
                             @if(count($companyPhones))
                                 @foreach($companyPhones as $phone)
-                                    <div class="endcap-phone-row">
-                                        <span class="endcap-contact-row">
-                                            <svg class="endcap-contact-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                                <path
-                                                    d="M7.5 4h3l1.4 3.6-1.8 1.8a14 14 0 0 0 4.3 4.3l1.8-1.8L20 13.5v3a2 2 0 0 1-2.2 2c-6.4-.7-11.6-5.9-12.3-12.3A2 2 0 0 1 7.5 4z"
-                                                    stroke="currentColor" stroke-width="1.6" />
-                                            </svg>
-                                            <span class="endcap-contact-list">
+                                    <span class="endcap-contact-row">
+                                        <svg class="endcap-contact-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                            <path
+                                                d="M7.5 4h3l1.4 3.6-1.8 1.8a14 14 0 0 0 4.3 4.3l1.8-1.8L20 13.5v3a2 2 0 0 1-2.2 2c-6.4-.7-11.6-5.9-12.3-12.3A2 2 0 0 1 7.5 4z"
+                                                stroke="currentColor" stroke-width="1.6" />
+                                        </svg>
+                                        <span class="endcap-contact-list">
 
-                                                @php
-                                                    $phoneHref = preg_replace('/[^0-9+]/', '', (string) $phone);
-                                                @endphp
-                                                <a href="tel:{{ $phoneHref }}" class="endcap-contact-link">{{ $phone }}</a>
+                                            @php
+                                                $phoneHref = preg_replace('/[^0-9+]/', '', (string) $phone);
+                                            @endphp
+                                            <a href="tel:{{ $phoneHref }}" class="endcap-contact-link">{{ $phone }}</a>
 
-                                            </span>
                                         </span>
-                                    </div>
+                                    </span>
                                 @endforeach
                             @endif
                         </p>
