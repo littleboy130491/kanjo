@@ -204,7 +204,7 @@
         @endif
 
         @if($present($coreServicesHtml))
-            <section class="section-row allow-page-break">
+            <section id="services" class="section-row allow-page-break">
                 <h2 class="section-label">Core Services</h2>
                 <div class="section-content">
                     {!! $coreServicesHtml !!}
@@ -264,7 +264,7 @@
             $hasAddOns = count($addOns) > 0;
         @endphp
         @if($hasInvestment)
-            <section class="section-row avoid-page-break">
+            <section id="price" class="section-row avoid-page-break">
                 <h2 class="section-label">Pricing</h2>
                 <div class="section-content">
                     <div class="pb-4 mb-4">
@@ -378,7 +378,7 @@
         @endif
 
         @if(count($offer1Timeline) || count($offer2Timeline))
-            <section class="section-row allow-page-break">
+            <section id="timeline" class="section-row allow-page-break">
                 <h2 class="section-label">Project Timeline</h2>
                 <div class="section-content space-y-10">
                     @if(count($offer1Timeline))
@@ -457,7 +457,7 @@
         @endif
 
         @if($present($paymentHtml))
-            <section class="section-row allow-page-break">
+            <section id="payment" class="section-row allow-page-break">
                 <h2 class="section-label">Payment Terms</h2>
                 <div class="section-content">
                     {!! $paymentHtml !!}
@@ -475,7 +475,7 @@
         @endif
 
         @if($present($termsConditionHtml))
-            <section class="section-row allow-page-break">
+            <section id="terms-and-conditions" class="section-row allow-page-break">
                 <h2 class="section-label">Terms & Conditions</h2>
                 <div class="section-content">
                     {!! $termsConditionHtml !!}
@@ -570,4 +570,13 @@
 
         </section>
     </div>
+    @if(! $pdfMode)
+        <nav class="floating-doc-nav" aria-label="Proposal Sections">
+            <a href="#services">Services</a>
+            <a href="#price">Price</a>
+            <a href="#timeline">Timeline</a>
+            <a href="#payment">Payment</a>
+            <a href="#terms-and-conditions">Terms & Conditions</a>
+        </nav>
+    @endif
 </x-layout>
