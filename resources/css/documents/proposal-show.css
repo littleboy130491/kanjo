@@ -73,7 +73,11 @@
 .section-content p,
 .section-content ul,
 .section-content ol {
-    @apply mb-4;
+    @apply mb-2;
+}
+
+.section-content a {
+    @apply underline;
 }
 
 .section-content span {
@@ -108,7 +112,6 @@
 
 .section-content li {
     display: list-item;
-    @apply mb-[0.55rem];
 }
 
 .editorial-prose {
@@ -174,12 +177,6 @@
     @apply text-right;
 }
 
-.investment-block {
-    border-bottom: 1px solid #dbeafe;
-    padding-bottom: 2.2rem;
-    margin-bottom: 2.2rem;
-}
-
 .money-line {
     font-size: 13px;
     letter-spacing: 0.2em;
@@ -194,16 +191,8 @@
     color: #171717;
 }
 
-.proposal-callout {
-    @apply relative mt-5 border border-[#cae6be] border-l-[5px] bg-[#dff0d8] p-[15px] text-left text-[#3c763d];
-}
-
 .proposal-callout-title {
     @apply mb-1 text-sm font-semibold text-inherit;
-}
-
-.proposal-callout-text {
-    @apply mb-0 text-sm leading-relaxed text-inherit;
 }
 
 .proposal-callout-link {
@@ -243,8 +232,8 @@
 }
 
 h3.offer_name {
-      font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
-    @apply text-4xl font-light text-neutral-800;
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    @apply text-4xl font-light text-neutral-800 mb-8;
 }
 
 .print-separator {

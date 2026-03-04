@@ -133,7 +133,6 @@
                     @if($proposal->issue_date)
                         <p class="cover-meta">Date — <span>{{ $proposal->issue_date->format('d M Y') }}</span></p>
                     @endif
-                    <p class="cover-meta">Valid — <span>{{ $proposal->valid_until?->format('d M Y') ?? 'No expiry' }}</span></p>
                     <p class="cover-meta">No. — <span>{{ $proposal->document_number }}</span></p>
                 </div>
             </div>
@@ -208,9 +207,9 @@
             <section class="section-row avoid-page-break">
                 <h2 class="section-label">Pricing</h2>
                 <div class="section-content">
-                    <div class="investment-block">
+                    <div class="pb-4 mb-4">
                         @if($hasOffer2)
-                            <span class="proposal-kicker mb-2 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer 01</span>
+                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer 01</span>
                         @endif
                         <h3 class="offer_name">{{ $proposal->offer_name_1 ?: 'Main Offer' }}</h3>
                         <div class="space-y-4">
@@ -220,38 +219,39 @@
                             </div>
                             @if(filled($proposal->offer_1_renewal_price))
                                 <div class="money-line flex items-end justify-between">
-                                         <span>{{ __('proposal.renewal_fee') }}</span>
+                                    <span>{{ __('proposal.renewal_fee') }}</span>
                                     <span>{{ $toMoney($proposal->offer_1_renewal_price) }}</span>
                                 </div>
-                                 <span>{{ __('proposal.renewal_optional_note') }}</span>
+                                <span class="italic text-sm">*{{ __('proposal.renewal_optional_note') }}</span>
                             @endif
-                        </div>
-                        <div class="proposal-callout">
-                        <p class="proposal-callout-title">{{ __('proposal.money_back_guarantee_title') }}</p>
-                        <p class="proposal-callout-text">{{ __('proposal.money_back_guarantee_text') }} <a class="proposal-callout-link" href="#garansi">{{ __('proposal.money_back_guarantee_terms_link') }}</a></p>
                         </div>
                     </div>
 
                     @if($hasOffer2)
-                        <div class="investment-block">
-                            <span class="proposal-kicker mb-2 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer 02</span>
-                            <h3 class="proposal-serif mb-8 text-4xl text-neutral-900">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
+                        <div class="pb-4 mb-4 pt-12 border-t border-neutral-200">
+                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer 02</span>
+                            <h3 class="offer_name">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
                             <div class="space-y-4">
                                 @if(filled($proposal->offer_2_price))
-                                    <div class="money-line flex items-end justify-between border-b border-neutral-100 pb-2">
-                                        <span>Initial Investment</span>
-                                        <span class="money-line-value">{{ $toMoney($proposal->offer_2_price) }}</span>
+                                    <div class="money-line flex items-end justify-between">
+                                          <span>{{ __('proposal.first_year_fee') }}</span>
+                                        <span>{{ $toMoney($proposal->offer_2_price) }}</span>
                                     </div>
                                 @endif
                                 @if(filled($proposal->offer_2_renewal_price))
-                                    <div class="money-line flex items-end justify-between border-b border-neutral-100 pb-2">
-                                        <span>Annual Renewal</span>
-                                        <span class="money-line-value">{{ $toMoney($proposal->offer_2_renewal_price) }}</span>
+                                    <div class="money-line flex items-end justify-between">
+                                        <span>{{ __('proposal.renewal_fee') }}</span>
+                                        <span>{{ $toMoney($proposal->offer_2_renewal_price) }}</span>
                                     </div>
+                                    <span class="italic text-sm">*{{ __('proposal.renewal_optional_note') }}</span>
                                 @endif
                             </div>
                         </div>
                     @endif
+
+                     <div class="relative mt-5 border border-[#cae6be] border-l-[5px] bg-[#dff0d8] p-4 text-left text-[#3c763d] mb-12">
+                        <p class="mb-0 text-sm leading-relaxed text-inherit">{{ __('proposal.money_back_guarantee_text') }} <br><a class="font-semibold underline decoration-current/60 underline-offset-2 transition hover:text-[#2f5f30]" href="#garansi">{{ __('proposal.money_back_guarantee_terms_link') }}</a></p>
+                    </div>
 
                     @if(count($addOns))
                     <h2 class="section-label">{{ __('proposal.add_ons_title') }}</h2>
@@ -297,7 +297,7 @@
                         @endphp
                         <div>
                             @if($hasOffer2Timeline)
-                                <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">Offer 01 Timeline</p>
+                                <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">{{ $proposal->offer_name_1 ?: 'Main Offer' }} Timeline</p>
                             @endif
                             <div class="table-wrap">
                             <table class="data-table">
@@ -330,22 +330,22 @@
 
                     @if(count($offer2Timeline))
                         <div>
-                            <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">Offer 02 Timeline</p>
+                            <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }} Timeline</p>
                             <div class="table-wrap">
                             <table class="data-table">
                                 <thead>
                                     <tr>
-                                        <th>Phase / Activity</th>
-                                        <th>Responsibility</th>
-                                        <th>Duration</th>
+                                        <th>Activity</th>
+                                        <th>PIC</th>
+                                        <th>Day(s)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($offer2Timeline as $row)
                                         <tr>
-                                            <td class="proposal-serif text-xl text-neutral-900">{{ $row['activity_name'] ?? '-' }}</td>
-                                            <td class="text-[10px] uppercase tracking-[0.16em]">{{ $row['activity_pic'] ?? '-' }}</td>
-                                            <td class="proposal-serif text-xl text-neutral-900">{{ $row['activity_days'] ?? '-' }} Day{{ ((int) ($row['activity_days'] ?? 0)) > 1 ? 's' : '' }}</td>
+                                           <td>{{ $row['activity_name'] ?? '-' }}</td>
+                                            <td>{{ $row['activity_pic'] ?? '-' }}</td>
+                                            <td>{{ $row['activity_days'] ?? '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
