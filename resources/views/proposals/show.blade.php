@@ -503,7 +503,6 @@
             <div class="endcap-main">
                 @if($footerBarcodeUrl)
                     <div class="w-full text-left md:text-right">
-                        <p class="endcap-label mb-3">{{ __('proposal.scan_qr_website') }}</p>
                         @if($companyWebsiteUrl)
                             <a href="{{ $companyWebsiteUrl }}/?utm_source=proposal&utm_medium=qr&utm_campaign={{ $proposal->slug }}" target="_blank" rel="noreferrer">
                                 <img src="{{ $footerBarcodeUrl }}" alt="QR Code" class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
@@ -511,6 +510,7 @@
                         @else
                             <img src="{{ $footerBarcodeUrl }}" alt="QR Code" class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
                         @endif
+                        <p class="endcap-label mt-3 mb-0">{{ __('proposal.scan_qr_website') }}</p>
                     </div>
                 @endif
             </div>
