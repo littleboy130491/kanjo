@@ -440,6 +440,13 @@
                     @endif
 
                     @if(count($offer2Timeline))
+                        @php
+                            $offer2TotalDays = collect($offer2Timeline)->sum(function (array $row): int {
+                                $days = $row['activity_days'] ?? 0;
+
+                                return is_numeric($days) ? (int) $days : 0;
+                            });
+                        @endphp
                         <div>
                             <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">
                                 {{ $proposal->offer_name_2 ?: 'Alternative Offer' }} Timeline
@@ -462,6 +469,12 @@
                                             </tr>
                                         @endforeach
                                     </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="2">Total Days</th>
+                                            <th>{{ $offer2TotalDays }}</th>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>
