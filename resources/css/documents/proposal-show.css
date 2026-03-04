@@ -191,6 +191,21 @@
     color: #171717;
 }
 
+.money-line-amounts {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.1rem;
+}
+
+.money-line-original {
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    font-size: 1rem;
+    letter-spacing: 0;
+    color: #9ca3af;
+    text-decoration: line-through;
+}
+
 .proposal-callout-title {
     @apply mb-1 text-sm font-semibold text-inherit;
 }

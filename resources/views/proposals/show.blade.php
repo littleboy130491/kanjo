@@ -215,12 +215,22 @@
                         <div class="space-y-4">
                             <div class="money-line flex items-end justify-between">
                                 <span>{{ __('proposal.first_year_fee') }}</span>
-                                <span>{{ $toMoney($proposal->offer_1_price) }}</span>
+                                <span class="money-line-amounts">
+                                    @if(filled($proposal->offer_1_original_price))
+                                        <span class="money-line-original">{{ $toMoney($proposal->offer_1_original_price) }}</span>
+                                    @endif
+                                    <span class="money-line-value">{{ $toMoney($proposal->offer_1_price) }}</span>
+                                </span>
                             </div>
                             @if(filled($proposal->offer_1_renewal_price))
                                 <div class="money-line flex items-end justify-between">
                                     <span>{{ __('proposal.renewal_fee') }}</span>
-                                    <span>{{ $toMoney($proposal->offer_1_renewal_price) }}</span>
+                                    <span class="money-line-amounts">
+                                        @if(filled($proposal->offer_1_original_renewal_price))
+                                            <span class="money-line-original">{{ $toMoney($proposal->offer_1_original_renewal_price) }}</span>
+                                        @endif
+                                        <span class="money-line-value">{{ $toMoney($proposal->offer_1_renewal_price) }}</span>
+                                    </span>
                                 </div>
                                 <span class="italic text-sm">*{{ __('proposal.renewal_optional_note') }}</span>
                             @endif
@@ -235,13 +245,23 @@
                                 @if(filled($proposal->offer_2_price))
                                     <div class="money-line flex items-end justify-between">
                                           <span>{{ __('proposal.first_year_fee') }}</span>
-                                        <span>{{ $toMoney($proposal->offer_2_price) }}</span>
+                                        <span class="money-line-amounts">
+                                            @if(filled($proposal->offer_2_original_price))
+                                                <span class="money-line-original">{{ $toMoney($proposal->offer_2_original_price) }}</span>
+                                            @endif
+                                            <span class="money-line-value">{{ $toMoney($proposal->offer_2_price) }}</span>
+                                        </span>
                                     </div>
                                 @endif
                                 @if(filled($proposal->offer_2_renewal_price))
                                     <div class="money-line flex items-end justify-between">
                                         <span>{{ __('proposal.renewal_fee') }}</span>
-                                        <span>{{ $toMoney($proposal->offer_2_renewal_price) }}</span>
+                                        <span class="money-line-amounts">
+                                            @if(filled($proposal->offer_2_original_renewal_price))
+                                                <span class="money-line-original">{{ $toMoney($proposal->offer_2_original_renewal_price) }}</span>
+                                            @endif
+                                            <span class="money-line-value">{{ $toMoney($proposal->offer_2_renewal_price) }}</span>
+                                        </span>
                                     </div>
                                     <span class="italic text-sm">*{{ __('proposal.renewal_optional_note') }}</span>
                                 @endif
