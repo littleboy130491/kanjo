@@ -480,7 +480,7 @@
                         @endif
                         @if(count($companyEmails))
                             @foreach($companyEmails as $email)
-                                <a href="mailto:{{ $email }}" class="underline decoration-neutral-400/70 underline-offset-2">{{ $email }}</a>@if(! $loop->last) | @endif
+                                <a href="mailto:{{ $email }}" class="endcap-contact-link">{{ $email }}</a>@if(! $loop->last) | @endif
                             @endforeach
                             <br>
                         @endif
@@ -489,7 +489,7 @@
                                 @php
                                     $phoneHref = preg_replace('/[^0-9+]/', '', (string) $phone);
                                 @endphp
-                                <a href="tel:{{ $phoneHref }}" class="underline decoration-neutral-400/70 underline-offset-2">{{ $phone }}</a>@if(! $loop->last) | @endif
+                                <a href="tel:{{ $phoneHref }}" class="endcap-contact-link">{{ $phone }}</a>@if(! $loop->last) | @endif
                             @endforeach
                         @endif
                     </p>

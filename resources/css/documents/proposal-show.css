@@ -266,6 +266,11 @@
     font-weight: 300;
 }
 
+.endcap-contact-link {
+    color: inherit;
+    text-decoration: none;
+}
+
 h3.offer_name {
     font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
     @apply text-4xl font-light text-neutral-800 mb-8;
@@ -289,15 +294,15 @@ h3.offer_name {
 
     .proposal-endcap {
         flex-direction: row;
-        gap: 6rem;
+        gap: 4rem;
     }
 
     .endcap-side {
-        width: 28%;
+        width: 48%;
     }
 
     .endcap-main {
-        width: 72%;
+        width: 52%;
         display: flex;
         justify-content: flex-end;
     }
