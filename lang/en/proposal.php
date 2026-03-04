@@ -11,4 +11,5 @@ return [
     'scan_qr_website' => 'Scan this QR to visit our website.',
     'first_year_fee' => 'First year fee',
     'renewal_fee' => 'Annual renewal fee',
+    'offer_2_additional_benefit_description' => 'Everything in :offer, with additional benefit.',
 ];

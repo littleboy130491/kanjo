@@ -263,6 +263,19 @@
             </section>
         @endif
 
+        @if($hasOffer2 && $present($additionalBenefitHtml))
+            <section class="section-row allow-page-break">
+                <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer
+                    02</span>
+                <h3 class="offer_name">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
+                <h2 class="section-label">Additional Benefits</h2>
+                <div class="section-content">
+                    <p>{{ __('proposal.offer_2_additional_benefit_description', ['offer' => ($proposal->offer_name_1 ?: 'Main Offer')]) }}</p>
+                    {!! $additionalBenefitHtml !!}
+                </div>
+            </section>
+        @endif
+
         @php
             $hasInvestment = filled($proposal->offer_name_1) || filled($proposal->offer_1_price) || filled($proposal->offer_1_renewal_price)
                 || $hasOffer2;
@@ -484,15 +497,6 @@
                 <h2 class="section-label">Terms & Conditions</h2>
                 <div class="section-content">
                     {!! $termsConditionHtml !!}
-                </div>
-            </section>
-        @endif
-
-        @if($present($additionalBenefitHtml))
-            <section class="section-row allow-page-break">
-                <h2 class="section-label">Additional Benefits</h2>
-                <div class="section-content">
-                    {!! $additionalBenefitHtml !!}
                 </div>
             </section>
         @endif

@@ -10,5 +10,6 @@ return [
     'add_ons_description' => 'Berikut adalah list fitur / item yang dapat ditambahkan sesuai kebutuhan dan bersifat opsional.',
     'scan_qr_website' => 'Scan QR ini untuk mengunjungi website kami.',
     'first_year_fee'    => 'Biaya tahun pertama',
-    'renewal_fee'       => 'Biaya perpanjangan tahunan'
+    'renewal_fee'       => 'Biaya perpanjangan tahunan',
+    'offer_2_additional_benefit_description' => 'Semua yang ada di :offer, dengan tambahan manfaat.',
 ];
