@@ -561,7 +561,7 @@
                     @endif
 
                     @if($present($footerTextHtml))
-                        <div class="editorial-prose mt-8 text-neutral-400">{!! $footerTextHtml !!}</div>
+                        <div class="editorial-prose mt-8">{!! $footerTextHtml !!}</div>
                     @endif
                 </div>
                 <div class="endcap-main">
@@ -583,7 +583,7 @@
                 </div>
             </div>
 
-            <p class="endcap-copyright text-xs text-neutral-500">&copy; {{ now()->year }} {{ $company?->company_name }}
+            <p class="endcap-copyright text-xs">&copy; {{ now()->year }} {{ $company?->company_name }}
             </p>
 
         </section>

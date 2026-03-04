@@ -235,9 +235,14 @@
 }
 
 .proposal-endcap {
-    background: rgb(0, 66, 88);
-    color: #ffffff;
+    background: #004258;
+    color: rgb(255, 255, 255);
     padding: 2.5rem;
+}
+
+.proposal-endcap,
+.proposal-endcap * {
+    color: rgb(255, 255, 255);
 }
 
 .endcap-row-logo {
@@ -267,14 +272,12 @@
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    color: #737373;
     margin-bottom: 0.5rem;
 }
 
 .endcap-bank {
     font-size: 13px;
     line-height: 1.75;
-    color: #d4d4d4;
     font-weight: 300;
 }
 
@@ -292,7 +295,6 @@
 .endcap-contact-icon {
     width: 0.9rem;
     height: 0.9rem;
-    color: #a3a3a3;
     flex: 0 0 auto;
     margin-top: 0.2rem;
 }
