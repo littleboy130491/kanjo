@@ -305,6 +305,7 @@ h3.offer_name {
         width: 52%;
         display: flex;
         justify-content: flex-end;
+        padding-top: 4.5rem;
     }
 
 }
