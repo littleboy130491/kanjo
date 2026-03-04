@@ -284,7 +284,7 @@
 }
 
 .endcap-contact-row {
-    display: inline-flex;
+    display: flex;
     align-items: flex-start;
     gap: 0.35rem;
 }
@@ -299,6 +299,10 @@
 
 .endcap-contact-list .endcap-contact-link {
     display: block;
+}
+
+.endcap-phone-row + .endcap-phone-row {
+    margin-top: 0.15rem;
 }
 
 h3.offer_name {

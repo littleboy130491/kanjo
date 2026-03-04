@@ -49,13 +49,13 @@
             }
         }
 
-        if (! is_array($resolved)) {
+        if (!is_array($resolved)) {
             return [];
         }
 
         return collect($resolved)
             ->filter(function ($row) {
-                if (! is_array($row)) {
+                if (!is_array($row)) {
                     return filled($row);
                 }
 
@@ -76,7 +76,7 @@
             return count($value) > 0;
         }
 
-        if (! is_string($value)) {
+        if (!is_string($value)) {
             return filled($value);
         }
 
@@ -138,7 +138,8 @@
             </div>
 
             <div class="my-8 md:my-8">
-                <span class="proposal-kicker mb-6 block text-[10px] font-medium uppercase tracking-[0.3em]">Project Proposal</span>
+                <span class="proposal-kicker mb-6 block text-[10px] font-medium uppercase tracking-[0.3em]">Project
+                    Proposal</span>
                 <h1 class="cover-title proposal-serif">
                     Website<br>
                     <span class="cover-subtitle">Design & Development</span>
@@ -173,23 +174,24 @@
             <section class="section-row allow-page-break">
                 <h2 class="section-label">Portfolio</h2>
                 <div class="section-content">
-                <p>{{ __('proposal.portfolio_reference_intro') }}</p>
+                    <p>{{ __('proposal.portfolio_reference_intro') }}</p>
                 </div>
                 <div class="section-content portfolio-grid">
                     @foreach($proposal->portfolios as $portfolio)
                         <article class="portfolio-card group cursor-pointer">
-                        <a href="{{ $portfolio->url_link }}" target="_blank" rel="noreferrer">
-                            <div class="mb-4 aspect-[4/3] overflow-hidden bg-neutral-100">
-                                @if($portfolio->portfolio_image_url)
-                                    <img src="{{ $portfolio->portfolio_image_url }}" alt="{{ $portfolio->name }}" class="h-full w-full object-cover">
+                            <a href="{{ $portfolio->url_link }}" target="_blank" rel="noreferrer">
+                                <div class="mb-4 aspect-[4/3] overflow-hidden bg-neutral-100">
+                                    @if($portfolio->portfolio_image_url)
+                                        <img src="{{ $portfolio->portfolio_image_url }}" alt="{{ $portfolio->name }}"
+                                            class="h-full w-full object-cover">
+                                    @endif
+                                </div>
+                                <p class="text-lg text-neutral-900">{{ $portfolio->name }}</p>
+                                @if(filled($portfolio->url_link))
+                                    <span class="proposal-kicker mt-2 inline-block text-[10px] uppercase tracking-[0.2em]">
+                                        View Live Site ->
+                                    </span>
                                 @endif
-                            </div>
-                            <p class="text-lg text-neutral-900">{{ $portfolio->name }}</p>
-                            @if(filled($portfolio->url_link))
-                                <span class="proposal-kicker mt-2 inline-block text-[10px] uppercase tracking-[0.2em]">
-                                    View Live Site ->
-                                </span>
-                            @endif
                             </a>
                         </article>
                     @endforeach
@@ -209,7 +211,8 @@
                 <div class="section-content">
                     <div class="pb-4 mb-4">
                         @if($hasOffer2)
-                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer 01</span>
+                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer
+                                01</span>
                         @endif
                         <h3 class="offer_name">{{ $proposal->offer_name_1 ?: 'Main Offer' }}</h3>
                         <div class="space-y-4">
@@ -217,7 +220,8 @@
                                 <span>{{ __('proposal.first_year_fee') }}</span>
                                 <span class="money-line-amounts">
                                     @if(filled($proposal->offer_1_original_price))
-                                        <span class="money-line-original">{{ $toMoney($proposal->offer_1_original_price) }}</span>
+                                        <span
+                                            class="money-line-original">{{ $toMoney($proposal->offer_1_original_price) }}</span>
                                     @endif
                                     <span class="money-line-value">{{ $toMoney($proposal->offer_1_price) }}</span>
                                 </span>
@@ -227,7 +231,8 @@
                                     <span>{{ __('proposal.renewal_fee') }}</span>
                                     <span class="money-line-amounts">
                                         @if(filled($proposal->offer_1_original_renewal_price))
-                                            <span class="money-line-original">{{ $toMoney($proposal->offer_1_original_renewal_price) }}</span>
+                                            <span
+                                                class="money-line-original">{{ $toMoney($proposal->offer_1_original_renewal_price) }}</span>
                                         @endif
                                         <span class="money-line-value">{{ $toMoney($proposal->offer_1_renewal_price) }}</span>
                                     </span>
@@ -239,15 +244,17 @@
 
                     @if($hasOffer2)
                         <div class="pb-4 mb-4 pt-12 border-t border-neutral-200">
-                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer 02</span>
+                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer
+                                02</span>
                             <h3 class="offer_name">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
                             <div class="space-y-4">
                                 @if(filled($proposal->offer_2_price))
                                     <div class="money-line flex items-end justify-between">
-                                          <span>{{ __('proposal.first_year_fee') }}</span>
+                                        <span>{{ __('proposal.first_year_fee') }}</span>
                                         <span class="money-line-amounts">
                                             @if(filled($proposal->offer_2_original_price))
-                                                <span class="money-line-original">{{ $toMoney($proposal->offer_2_original_price) }}</span>
+                                                <span
+                                                    class="money-line-original">{{ $toMoney($proposal->offer_2_original_price) }}</span>
                                             @endif
                                             <span class="money-line-value">{{ $toMoney($proposal->offer_2_price) }}</span>
                                         </span>
@@ -258,7 +265,8 @@
                                         <span>{{ __('proposal.renewal_fee') }}</span>
                                         <span class="money-line-amounts">
                                             @if(filled($proposal->offer_2_original_renewal_price))
-                                                <span class="money-line-original">{{ $toMoney($proposal->offer_2_original_renewal_price) }}</span>
+                                                <span
+                                                    class="money-line-original">{{ $toMoney($proposal->offer_2_original_renewal_price) }}</span>
                                             @endif
                                             <span class="money-line-value">{{ $toMoney($proposal->offer_2_renewal_price) }}</span>
                                         </span>
@@ -269,34 +277,39 @@
                         </div>
                     @endif
 
-                     <div class="relative mt-5 border border-[#cae6be] border-l-[5px] bg-[#dff0d8] p-4 text-left text-[#3c763d] mb-12">
-                        <p class="mb-0 text-sm leading-relaxed text-inherit">{{ __('proposal.money_back_guarantee_text') }} <br><a class="font-semibold underline decoration-current/60 underline-offset-2 transition hover:text-[#2f5f30]" href="#garansi">{{ __('proposal.money_back_guarantee_terms_link') }}</a></p>
+                    <div
+                        class="relative mt-5 border border-[#cae6be] border-l-[5px] bg-[#dff0d8] p-4 text-left text-[#3c763d] mb-12">
+                        <p class="mb-0 text-sm leading-relaxed text-inherit">{{ __('proposal.money_back_guarantee_text') }}
+                            <br><a
+                                class="font-semibold underline decoration-current/60 underline-offset-2 transition hover:text-[#2f5f30]"
+                                href="#garansi">{{ __('proposal.money_back_guarantee_terms_link') }}</a>
+                        </p>
                     </div>
 
                     @if(count($addOns))
-                    <h2 class="section-label">{{ __('proposal.add_ons_title') }}</h2>
-                    <p>{{ __('proposal.add_ons_description') }}</p>
-                    <div class="table-wrap">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Price</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($addOns as $row)
+                        <h2 class="section-label">{{ __('proposal.add_ons_title') }}</h2>
+                        <p>{{ __('proposal.add_ons_description') }}</p>
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
                                     <tr>
-                                        <td>
-                                            <b>{{ $row['name'] ?? '-' }}</b>
-                                            <br>{{ $row['description'] ?? '-' }}
-                                        </td>
-                                        <td>{{ $row['price'] ?? 0 }}</td>
+                                        <th>Item</th>
+                                        <th>Price</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    @foreach($addOns as $row)
+                                        <tr>
+                                            <td>
+                                                <b>{{ $row['name'] ?? '-' }}</b>
+                                                <br>{{ $row['description'] ?? '-' }}
+                                            </td>
+                                            <td>{{ $row['price'] ?? 0 }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     @endif
                 </div>
             </section>
@@ -317,59 +330,63 @@
                         @endphp
                         <div>
                             @if($hasOffer2Timeline)
-                                <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">{{ $proposal->offer_name_1 ?: 'Main Offer' }} Timeline</p>
+                                <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">
+                                    {{ $proposal->offer_name_1 ?: 'Main Offer' }} Timeline
+                                </p>
                             @endif
                             <div class="table-wrap">
-                            <table class="data-table timeline-table">
-                                <thead>
-                                    <tr>
-                                        <th>Activity</th>
-                                        <th>PIC</th>
-                                        <th>Day(s)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($offer1Timeline as $row)
+                                <table class="data-table timeline-table">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $row['activity_name'] ?? '-' }}</td>
-                                            <td>{{ $row['activity_pic'] ?? '-' }}</td>
-                                            <td>{{ $row['activity_days'] ?? '-' }}</td>
+                                            <th>Activity</th>
+                                            <th>PIC</th>
+                                            <th>Day(s)</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th colspan="2">Total Days</th>
-                                        <th>{{ $offer1TotalDays }}</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($offer1Timeline as $row)
+                                            <tr>
+                                                <td>{{ $row['activity_name'] ?? '-' }}</td>
+                                                <td>{{ $row['activity_pic'] ?? '-' }}</td>
+                                                <td>{{ $row['activity_days'] ?? '-' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="2">Total Days</th>
+                                            <th>{{ $offer1TotalDays }}</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </div>
                     @endif
 
                     @if(count($offer2Timeline))
                         <div>
-                            <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }} Timeline</p>
+                            <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">
+                                {{ $proposal->offer_name_2 ?: 'Alternative Offer' }} Timeline
+                            </p>
                             <div class="table-wrap">
-                            <table class="data-table timeline-table">
-                                <thead>
-                                    <tr>
-                                        <th>Activity</th>
-                                        <th>PIC</th>
-                                        <th>Day(s)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($offer2Timeline as $row)
+                                <table class="data-table timeline-table">
+                                    <thead>
                                         <tr>
-                                           <td>{{ $row['activity_name'] ?? '-' }}</td>
-                                            <td>{{ $row['activity_pic'] ?? '-' }}</td>
-                                            <td>{{ $row['activity_days'] ?? '-' }}</td>
+                                            <th>Activity</th>
+                                            <th>PIC</th>
+                                            <th>Day(s)</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($offer2Timeline as $row)
+                                            <tr>
+                                                <td>{{ $row['activity_name'] ?? '-' }}</td>
+                                                <td>{{ $row['activity_pic'] ?? '-' }}</td>
+                                                <td>{{ $row['activity_days'] ?? '-' }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     @endif
@@ -467,10 +484,10 @@
             </section>
         @endif
 
-        <section class="proposal-endcap print-separator avoid-page-break">
+        <section class="proposal-endcap print-separator avoid-page-break block">
             <div class="endcap-row-logo">
                 @if($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain invert">
+                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain">
                 @endif
             </div>
 
@@ -489,26 +506,33 @@
                                     </svg>
                                     <span>
                                         @foreach($companyEmails as $email)
-                                            <a href="mailto:{{ $email }}" class="endcap-contact-link">{{ $email }}</a>@if(! $loop->last) | @endif
+                                            <a href="mailto:{{ $email }}"
+                                                class="endcap-contact-link">{{ $email }}</a>@if(!$loop->last) | @endif
                                         @endforeach
                                     </span>
                                 </span>
                                 <br>
                             @endif
                             @if(count($companyPhones))
-                                <span class="endcap-contact-row">
-                                    <svg class="endcap-contact-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                        <path d="M7.5 4h3l1.4 3.6-1.8 1.8a14 14 0 0 0 4.3 4.3l1.8-1.8L20 13.5v3a2 2 0 0 1-2.2 2c-6.4-.7-11.6-5.9-12.3-12.3A2 2 0 0 1 7.5 4z" stroke="currentColor" stroke-width="1.6" />
-                                    </svg>
-                                    <span class="endcap-contact-list">
-                                        @foreach($companyPhones as $phone)
-                                            @php
-                                                $phoneHref = preg_replace('/[^0-9+]/', '', (string) $phone);
-                                            @endphp
-                                            <a href="tel:{{ $phoneHref }}" class="endcap-contact-link">{{ $phone }}</a>
-                                        @endforeach
-                                    </span>
-                                </span>
+                                @foreach($companyPhones as $phone)
+                                    <div class="endcap-phone-row">
+                                        <span class="endcap-contact-row">
+                                            <svg class="endcap-contact-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                <path
+                                                    d="M7.5 4h3l1.4 3.6-1.8 1.8a14 14 0 0 0 4.3 4.3l1.8-1.8L20 13.5v3a2 2 0 0 1-2.2 2c-6.4-.7-11.6-5.9-12.3-12.3A2 2 0 0 1 7.5 4z"
+                                                    stroke="currentColor" stroke-width="1.6" />
+                                            </svg>
+                                            <span class="endcap-contact-list">
+
+                                                @php
+                                                    $phoneHref = preg_replace('/[^0-9+]/', '', (string) $phone);
+                                                @endphp
+                                                <a href="tel:{{ $phoneHref }}" class="endcap-contact-link">{{ $phone }}</a>
+
+                                            </span>
+                                        </span>
+                                    </div>
+                                @endforeach
                             @endif
                         </p>
                     @endif
@@ -521,11 +545,14 @@
                     @if($footerBarcodeUrl)
                         <div class="w-full text-left md:text-right">
                             @if($companyWebsiteUrl)
-                                <a href="{{ $companyWebsiteUrl }}/?utm_source=proposal&utm_medium=qr&utm_campaign={{ $proposal->slug }}" target="_blank" rel="noreferrer">
-                                    <img src="{{ $footerBarcodeUrl }}" alt="QR Code" class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
+                                <a href="{{ $companyWebsiteUrl }}/?utm_source=proposal&utm_medium=qr&utm_campaign={{ $proposal->slug }}"
+                                    target="_blank" rel="noreferrer">
+                                    <img src="{{ $footerBarcodeUrl }}" alt="QR Code"
+                                        class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
                                 </a>
                             @else
-                                <img src="{{ $footerBarcodeUrl }}" alt="QR Code" class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
+                                <img src="{{ $footerBarcodeUrl }}" alt="QR Code"
+                                    class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
                             @endif
                             <p class="endcap-label mt-3 mb-0">{{ __('proposal.scan_qr_website') }}</p>
                         </div>
@@ -533,7 +560,8 @@
                 </div>
             </div>
 
-            <p class="endcap-copyright text-xs text-neutral-500">&copy; {{ now()->year }} {{ $company?->company_name }}</p>
+            <p class="endcap-copyright text-xs text-neutral-500">&copy; {{ now()->year }} {{ $company?->company_name }}
+            </p>
 
         </section>
     </div>
