@@ -156,16 +156,20 @@
             @endif
         </section>
 
-        @if($present($briefHtml) || $present($extraContentBriefHtml))
+        @if($present($briefHtml))
             <section class="section-row allow-page-break">
                 <h2 class="section-label">Dear {{ $proposal->client_name }},</h2>
                 <div class="section-content">
-                    @if($present($briefHtml))
-                        {!! $briefHtml !!}
-                    @endif
-                    @if($present($extraContentBriefHtml))
-                        {!! $extraContentBriefHtml !!}
-                    @endif
+                    {!! $briefHtml !!}
+                </div>
+            </section>
+        @endif
+
+        @if($present($extraContentBriefHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Extra Brief</h2>
+                <div class="section-content">
+                    {!! $extraContentBriefHtml !!}
                 </div>
             </section>
         @endif
@@ -173,7 +177,7 @@
         @if($proposal->portfolios->isNotEmpty())
             <section class="section-row allow-page-break">
                 <h2 class="section-label">Portfolio</h2>
-                <div class="section-content">
+                <div class="section-content mb-8">
                     <p>{{ __('proposal.portfolio_reference_intro') }}</p>
                 </div>
                 <div class="section-content portfolio-grid">
@@ -183,7 +187,7 @@
                                 <div class="mb-4 aspect-[4/3] overflow-hidden bg-neutral-100">
                                     @if($portfolio->portfolio_image_url)
                                         <img src="{{ $portfolio->portfolio_image_url }}" alt="{{ $portfolio->name }}"
-                                            class="h-full w-full object-cover">
+                                            class="h-full w-full object-cover object-top">
                                     @endif
                                 </div>
                                 <p class="text-lg text-neutral-900">{{ $portfolio->name }}</p>
@@ -199,11 +203,65 @@
             </section>
         @endif
 
+        @if($present($coreServicesHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Core Services</h2>
+                <div class="section-content">
+                    {!! $coreServicesHtml !!}
+                </div>
+            </section>
+        @endif
+
+        @if($present($featuresHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Features</h2>
+                <div class="section-content">
+                    {!! $featuresHtml !!}
+                </div>
+            </section>
+        @endif
+
+        @if($present($assetsHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Assets</h2>
+                <div class="section-content">
+                    {!! $assetsHtml !!}
+                </div>
+            </section>
+        @endif
+
+        @if($present($serverHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Server</h2>
+                <div class="section-content">
+                    {!! $serverHtml !!}
+                </div>
+            </section>
+        @endif
+
+        @if($present($securityHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Security</h2>
+                <div class="section-content">
+                    {!! $securityHtml !!}
+                </div>
+            </section>
+        @endif
+
+        @if($present($supportHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Support</h2>
+                <div class="section-content">
+                    {!! $supportHtml !!}
+                </div>
+            </section>
+        @endif
+
         @php
             $hasOffer2 = filled($proposal->offer_name_2) || filled($proposal->offer_2_price) || filled($proposal->offer_2_renewal_price);
             $hasInvestment = filled($proposal->offer_name_1) || filled($proposal->offer_1_price) || filled($proposal->offer_1_renewal_price)
-                || $hasOffer2
-                || count($addOns);
+                || $hasOffer2;
+            $hasAddOns = count($addOns) > 0;
         @endphp
         @if($hasInvestment)
             <section class="section-row avoid-page-break">
@@ -285,32 +343,36 @@
                                 href="#garansi">{{ __('proposal.money_back_guarantee_terms_link') }}</a>
                         </p>
                     </div>
+                </div>
+            </section>
+        @endif
 
-                    @if(count($addOns))
-                        <h2 class="section-label">{{ __('proposal.add_ons_title') }}</h2>
-                        <p>{{ __('proposal.add_ons_description') }}</p>
-                        <div class="table-wrap">
-                            <table class="data-table">
-                                <thead>
+        @if($hasAddOns)
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">{{ __('proposal.add_ons_title') }}</h2>
+                <div class="section-content">
+                    <p>{{ __('proposal.add_ons_description') }}</p>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($addOns as $row)
                                     <tr>
-                                        <th>Item</th>
-                                        <th>Price</th>
+                                        <td>
+                                            <b>{{ $row['name'] ?? '-' }}</b>
+                                            <br>{{ $row['description'] ?? '-' }}
+                                        </td>
+                                        <td>{{ $row['price'] ?? 0 }}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($addOns as $row)
-                                        <tr>
-                                            <td>
-                                                <b>{{ $row['name'] ?? '-' }}</b>
-                                                <br>{{ $row['description'] ?? '-' }}
-                                            </td>
-                                            <td>{{ $row['price'] ?? 0 }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
         @endif
@@ -394,74 +456,20 @@
             </section>
         @endif
 
-        @if($present($coreServicesHtml))
-            <section class="section-row allow-page-break">
-                <h2 class="section-label">Core Services</h2>
-                <div class="section-content">
-                    {!! $coreServicesHtml !!}
-                </div>
-            </section>
-        @endif
-
-        @if($present($featuresHtml))
-            <section class="section-row allow-page-break">
-                <h2 class="section-label">Features</h2>
-                <div class="section-content">
-                    {!! $featuresHtml !!}
-                </div>
-            </section>
-        @endif
-
-        @if($present($serverHtml))
-            <section class="section-row allow-page-break">
-                <h2 class="section-label">Server</h2>
-                <div class="section-content">
-                    {!! $serverHtml !!}
-                </div>
-            </section>
-        @endif
-
-        @if($present($assetsHtml))
-            <section class="section-row allow-page-break">
-                <h2 class="section-label">Assets</h2>
-                <div class="section-content">
-                    {!! $assetsHtml !!}
-                </div>
-            </section>
-        @endif
-
-        @if($present($securityHtml))
-            <section class="section-row allow-page-break">
-                <h2 class="section-label">Security</h2>
-                <div class="section-content">
-                    {!! $securityHtml !!}
-                </div>
-            </section>
-        @endif
-
-        @if($present($supportHtml))
-            <section class="section-row allow-page-break">
-                <h2 class="section-label">Support</h2>
-                <div class="section-content">
-                    {!! $supportHtml !!}
-                </div>
-            </section>
-        @endif
-
-        @if($present($additionalBenefitHtml))
-            <section class="section-row allow-page-break">
-                <h2 class="section-label">Additional Benefits</h2>
-                <div class="section-content">
-                    {!! $additionalBenefitHtml !!}
-                </div>
-            </section>
-        @endif
-
         @if($present($paymentHtml))
             <section class="section-row allow-page-break">
                 <h2 class="section-label">Payment Terms</h2>
                 <div class="section-content">
                     {!! $paymentHtml !!}
+                </div>
+            </section>
+        @endif
+
+        @if($present($additionalInfoHtml))
+            <section class="section-row allow-page-break">
+                <h2 class="section-label">Additional Info</h2>
+                <div class="section-content">
+                    {!! $additionalInfoHtml !!}
                 </div>
             </section>
         @endif
@@ -475,11 +483,11 @@
             </section>
         @endif
 
-        @if($present($additionalInfoHtml))
+        @if($present($additionalBenefitHtml))
             <section class="section-row allow-page-break">
-                <h2 class="section-label">Additional Info</h2>
+                <h2 class="section-label">Additional Benefits</h2>
                 <div class="section-content">
-                    {!! $additionalInfoHtml !!}
+                    {!! $additionalBenefitHtml !!}
                 </div>
             </section>
         @endif
