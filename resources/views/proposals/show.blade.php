@@ -320,7 +320,7 @@
                                 <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">{{ $proposal->offer_name_1 ?: 'Main Offer' }} Timeline</p>
                             @endif
                             <div class="table-wrap">
-                            <table class="data-table">
+                            <table class="data-table timeline-table">
                                 <thead>
                                     <tr>
                                         <th>Activity</th>
@@ -352,7 +352,7 @@
                         <div>
                             <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }} Timeline</p>
                             <div class="table-wrap">
-                            <table class="data-table">
+                            <table class="data-table timeline-table">
                                 <thead>
                                     <tr>
                                         <th>Activity</th>

@@ -177,6 +177,21 @@
     @apply text-right;
 }
 
+.timeline-table th:nth-child(1),
+.timeline-table td:nth-child(1) {
+    width: 56%;
+}
+
+.timeline-table th:nth-child(2),
+.timeline-table td:nth-child(2) {
+    width: 28%;
+}
+
+.timeline-table th:nth-child(3),
+.timeline-table td:nth-child(3) {
+    width: 16%;
+}
+
 .money-line {
     font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
     font-size: 13px;
