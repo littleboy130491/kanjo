@@ -178,6 +178,7 @@
 }
 
 .money-line {
+    font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
     font-size: 13px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
