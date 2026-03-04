@@ -157,20 +157,18 @@
             @endif
         </section>
 
-        @if($present($briefHtml))
+        @if($present($briefHtml) || $present($extraContentBriefHtml))
             <section class="section-row allow-page-break">
                 <h2 class="section-label">Dear {{ $proposal->client_name }},</h2>
                 <div class="section-content">
-                    {!! $briefHtml !!}
-                </div>
-            </section>
-        @endif
-
-        @if($present($extraContentBriefHtml))
-            <section class="section-row allow-page-break">
-                <h2 class="section-label">Extra Brief</h2>
-                <div class="section-content">
-                    {!! $extraContentBriefHtml !!}
+                    @if($present($briefHtml))
+                        {!! $briefHtml !!}
+                    @endif
+                    @if($present($extraContentBriefHtml))
+                        <div class="mt-6">
+                            {!! $extraContentBriefHtml !!}
+                        </div>
+                    @endif
                 </div>
             </section>
         @endif
@@ -206,11 +204,11 @@
 
         @if($present($coreServicesHtml))
             <section id="services" class="section-row allow-page-break">
-                @if($hasOffer2)
-                    <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer
-                        01</span>
-                    <h3 class="offer_name">{{ $proposal->offer_name_1 ?: 'Main Offer' }}</h3>
-                @endif
+            
+                    <h3 class="offer_name">
+                        @if($hasOffer2)Option 1: @endif {{ $proposal->offer_name_1 ?: 'Main Offer' }}
+                    </h3>
+           
                 <h2 class="section-label">Core Services</h2>
                 <div class="section-content">
                     {!! $coreServicesHtml !!}
@@ -265,9 +263,7 @@
 
         @if($hasOffer2 && $present($additionalBenefitHtml))
             <section class="section-row allow-page-break">
-                <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer
-                    02</span>
-                <h3 class="offer_name">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
+                <h3 class="offer_name">Option 2: {{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
                 <h2 class="section-label">Additional Benefits</h2>
                 <div class="section-content">
                     <p>{{ __('proposal.offer_2_additional_benefit_description', ['offer' => ($proposal->offer_name_1 ?: 'Main Offer')]) }}</p>
@@ -287,7 +283,7 @@
                 <div class="section-content">
                     <div class="pb-4 mb-4">
                         @if($hasOffer2)
-                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer
+                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Option
                                 01</span>
                         @endif
                         <h3 class="offer_name">{{ $proposal->offer_name_1 ?: 'Main Offer' }}</h3>
@@ -320,7 +316,7 @@
 
                     @if($hasOffer2)
                         <div class="pb-4 mb-4 pt-12 border-t border-neutral-200">
-                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer
+                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Option
                                 02</span>
                             <h3 class="offer_name">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
                             <div class="space-y-4">
