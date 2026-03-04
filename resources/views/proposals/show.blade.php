@@ -468,66 +468,71 @@
         @endif
 
         <section class="proposal-endcap print-separator avoid-page-break">
-            <div class="endcap-side">
+            <div class="endcap-row-logo">
                 @if($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="mb-10 h-8 object-contain invert">
-                @endif
-
-                @if(filled($company?->address) || count($companyEmails) || count($companyPhones))
-                    <p class="endcap-bank">
-                        @if(filled($company?->address))
-                            {{ $company->address }}<br>
-                        @endif
-                        @if(count($companyEmails))
-                            <span class="endcap-contact-row">
-                                <svg class="endcap-contact-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path d="M4 7h16v10H4V7z" stroke="currentColor" stroke-width="1.6" />
-                                    <path d="M4 8l8 6 8-6" stroke="currentColor" stroke-width="1.6" />
-                                </svg>
-                                <span>
-                                    @foreach($companyEmails as $email)
-                                        <a href="mailto:{{ $email }}" class="endcap-contact-link">{{ $email }}</a>@if(! $loop->last) | @endif
-                                    @endforeach
-                                </span>
-                            </span>
-                            <br>
-                        @endif
-                        @if(count($companyPhones))
-                            <span class="endcap-contact-row">
-                                <svg class="endcap-contact-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path d="M7.5 4h3l1.4 3.6-1.8 1.8a14 14 0 0 0 4.3 4.3l1.8-1.8L20 13.5v3a2 2 0 0 1-2.2 2c-6.4-.7-11.6-5.9-12.3-12.3A2 2 0 0 1 7.5 4z" stroke="currentColor" stroke-width="1.6" />
-                                </svg>
-                                <span class="endcap-contact-list">
-                                    @foreach($companyPhones as $phone)
-                                        @php
-                                            $phoneHref = preg_replace('/[^0-9+]/', '', (string) $phone);
-                                        @endphp
-                                        <a href="tel:{{ $phoneHref }}" class="endcap-contact-link">{{ $phone }}</a>
-                                    @endforeach
-                                </span>
-                            </span>
-                        @endif
-                    </p>
-                @endif
-
-                @if($present($footerTextHtml))
-                    <div class="editorial-prose mt-8 text-neutral-400">{!! $footerTextHtml !!}</div>
+                    <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain invert">
                 @endif
             </div>
-            <div class="endcap-main">
-                @if($footerBarcodeUrl)
-                    <div class="w-full text-left md:text-right">
-                        @if($companyWebsiteUrl)
-                            <a href="{{ $companyWebsiteUrl }}/?utm_source=proposal&utm_medium=qr&utm_campaign={{ $proposal->slug }}" target="_blank" rel="noreferrer">
+
+            <div class="endcap-row-body">
+                <div class="endcap-side">
+                    @if(filled($company?->address) || count($companyEmails) || count($companyPhones))
+                        <p class="endcap-bank">
+                            @if(filled($company?->address))
+                                {{ $company->address }}<br>
+                            @endif
+                            @if(count($companyEmails))
+                                <span class="endcap-contact-row">
+                                    <svg class="endcap-contact-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <path d="M4 7h16v10H4V7z" stroke="currentColor" stroke-width="1.6" />
+                                        <path d="M4 8l8 6 8-6" stroke="currentColor" stroke-width="1.6" />
+                                    </svg>
+                                    <span>
+                                        @foreach($companyEmails as $email)
+                                            <a href="mailto:{{ $email }}" class="endcap-contact-link">{{ $email }}</a>@if(! $loop->last) | @endif
+                                        @endforeach
+                                    </span>
+                                </span>
+                                <br>
+                            @endif
+                            @if(count($companyPhones))
+                                <span class="endcap-contact-row">
+                                    <svg class="endcap-contact-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <path d="M7.5 4h3l1.4 3.6-1.8 1.8a14 14 0 0 0 4.3 4.3l1.8-1.8L20 13.5v3a2 2 0 0 1-2.2 2c-6.4-.7-11.6-5.9-12.3-12.3A2 2 0 0 1 7.5 4z" stroke="currentColor" stroke-width="1.6" />
+                                    </svg>
+                                    <span class="endcap-contact-list">
+                                        @foreach($companyPhones as $phone)
+                                            @php
+                                                $phoneHref = preg_replace('/[^0-9+]/', '', (string) $phone);
+                                            @endphp
+                                            <a href="tel:{{ $phoneHref }}" class="endcap-contact-link">{{ $phone }}</a>
+                                        @endforeach
+                                    </span>
+                                </span>
+                            @endif
+                        </p>
+                    @endif
+
+                    @if($present($footerTextHtml))
+                        <div class="editorial-prose mt-8 text-neutral-400">{!! $footerTextHtml !!}</div>
+                    @endif
+                </div>
+                <div class="endcap-main">
+                    @if($footerBarcodeUrl)
+                        <div class="w-full text-left md:text-right">
+                            @if($companyWebsiteUrl)
+                                <a href="{{ $companyWebsiteUrl }}/?utm_source=proposal&utm_medium=qr&utm_campaign={{ $proposal->slug }}" target="_blank" rel="noreferrer">
+                                    <img src="{{ $footerBarcodeUrl }}" alt="QR Code" class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
+                                </a>
+                            @else
                                 <img src="{{ $footerBarcodeUrl }}" alt="QR Code" class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
-                            </a>
-                        @else
-                            <img src="{{ $footerBarcodeUrl }}" alt="QR Code" class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
-                        @endif
-                        <p class="endcap-label mt-3 mb-0">{{ __('proposal.scan_qr_website') }}</p>
-                    </div>
-                @endif
+                            @endif
+                            <p class="endcap-label mt-3 mb-0">{{ __('proposal.scan_qr_website') }}</p>
+                        </div>
+                    @endif
+                </div>
             </div>
+
             <p class="endcap-copyright text-xs text-neutral-500">&copy; {{ now()->year }} {{ $company?->company_name }}</p>
 
         </section>

@@ -238,10 +238,16 @@
     background: #171717;
     color: #ffffff;
     padding: 2.5rem;
+}
+
+.endcap-row-logo {
+    margin-bottom: 2.5rem;
+}
+
+.endcap-row-body {
     display: flex;
     flex-direction: column;
-    flex-wrap: wrap;
-    gap: 2.5rem;
+    gap: 2rem;
 }
 
 .endcap-side {
@@ -254,8 +260,7 @@
 
 .endcap-copyright {
     width: 100%;
-    flex-basis: 100%;
-    margin-top: 0.5rem;
+    margin-top: 2rem;
 }
 
 .endcap-label {
@@ -318,19 +323,24 @@ h3.offer_name {
     }
 
     .proposal-endcap {
+        display: block;
+    }
+
+    .endcap-row-body {
         flex-direction: row;
         gap: 4rem;
+        align-items: flex-start;
     }
 
     .endcap-side {
-        width: 48%;
+        width: 56%;
     }
 
     .endcap-main {
-        width: 52%;
+        width: 44%;
         display: flex;
         justify-content: flex-end;
-        padding-top: 4.5rem;
+        padding-top: 0;
     }
 
 }
