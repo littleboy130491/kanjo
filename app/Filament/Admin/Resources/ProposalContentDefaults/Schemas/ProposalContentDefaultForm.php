@@ -62,6 +62,9 @@ class ProposalContentDefaultForm
             ->label($label)
             ->enableToolbarButtons(['attachCuratorMedia'])
             ->plugins([AttachCuratorMediaPlugin::make()])
+            ->afterStateHydrated(function (RichEditor $component): void {
+                self::normalizeRichEditorRawState($component);
+            })
             ->extraAttributes(['style' => 'min-height: 200px'])
             ->columnSpanFull();
     }
@@ -84,5 +87,20 @@ class ProposalContentDefaultForm
                     }
                 };
             });
+    }
+
+    protected static function normalizeRichEditorRawState(RichEditor $component): void
+    {
+        $rawState = $component->getRawState();
+
+        if (is_array($rawState)) {
+            return;
+        }
+
+        foreach ($component->getStateCasts() as $stateCast) {
+            $rawState = $stateCast->set($rawState);
+        }
+
+        $component->rawState($rawState);
     }
 }

@@ -46,8 +46,10 @@ class DocumentNumberGenerator
         return self::$roman[$month] ?? '';
     }
 
-    public static function regenerate(string $type, int $raw, Carbon $date, string $suffix = 'NEW'): string
+    public static function regenerate(string $type, int $raw, Carbon $date, ?string $suffix = 'NEW'): string
     {
+        $suffix ??= 'NEW';
+
         $roman = self::toRoman($date->month);
         $yy = $date->format('y');
 

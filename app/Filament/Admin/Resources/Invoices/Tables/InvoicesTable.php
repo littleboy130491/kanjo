@@ -4,13 +4,13 @@ namespace App\Filament\Admin\Resources\Invoices\Tables;
 
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
-use App\Filament\Admin\Resources\Invoices\InvoiceResource;
-use App\Filament\Admin\Resources\Invoices\Support\InvoiceServiceSupport;
-use App\Filament\Admin\Resources\Proposals\ProposalResource;
-use App\Filament\Admin\Resources\Services\ServiceResource;
-use App\Models\Client;
+use App\Filament\Admin\Resources\Invoices\Actions\CreateServiceAction;
+use App\Filament\Admin\Resources\Invoices\Actions\CreateInvoiceClientAction;
+use App\Filament\Admin\Resources\Invoices\Actions\DownloadInvoicePdfAction;
+use App\Filament\Admin\Resources\Invoices\Actions\DuplicateInvoiceAction;
+use App\Filament\Admin\Resources\Invoices\Actions\MarkAsPaidAction;
+use App\Filament\Admin\Resources\Invoices\Actions\ViewProposalAction;
 use App\Models\Invoice;
-use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -18,7 +18,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -116,82 +115,12 @@ class InvoicesTable
                     }),
             ])
             ->recordActions([
-                Action::make('duplicate_invoice')
-                    ->label('Duplicate')
-                    ->icon('heroicon-o-document-duplicate')
-                    ->action(function (Invoice $record) {
-                        $duplicate = $record->replicate([
-                            'document_number',
-                            'slug',
-                            'document_number_raw',
-                            'issue_month',
-                            'issue_year',
-                            'created_at',
-                            'updated_at',
-                            'deleted_at',
-                        ]);
-
-                        $duplicate->status = DocumentStatus::DRAFT;
-                        $duplicate->payment_status = PaymentStatus::UNPAID;
-                        $duplicate->paid_at = null;
-                        $duplicate->document_number_override = false;
-                        $duplicate->save();
-
-                        return redirect(InvoiceResource::getUrl('edit', ['record' => $duplicate]));
-                    }),
-                Action::make('mark_as_paid')
-                    ->label('Mark as Paid')
-                    ->icon('heroicon-o-banknotes')
-                    ->color('success')
-                    ->visible(fn (Invoice $record): bool => in_array($record->payment_status, [PaymentStatus::UNPAID, PaymentStatus::PARTIALLY_PAID, PaymentStatus::OVERDUE], true))
-                    ->requiresConfirmation()
-                    ->action(fn (Invoice $record) => $record->update([
-                        'payment_status' => PaymentStatus::PAID,
-                        'paid_at' => now(),
-                    ])),
-                Action::make('view_proposal')
-                    ->label('View Proposal')
-                    ->icon('heroicon-o-eye')
-                    ->visible(fn (Invoice $record): bool => filled($record->proposal_id))
-                    ->url(fn (Invoice $record): string => ProposalResource::getUrl('edit', ['record' => $record->proposal_id])),
-                Action::make('create_client')
-                    ->label('Create Client')
-                    ->icon('heroicon-o-user-plus')
-                    ->color('success')
-                    ->visible(fn (Invoice $record): bool => blank($record->client_id))
-                    ->action(function (Invoice $record) {
-                        $client = Client::create([
-                            'name' => $record->client_name,
-                            'company' => $record->client_company,
-                            'email' => $record->client_email,
-                            'phone' => $record->client_phone,
-                            'notes' => [],
-                        ]);
-
-                        $record->update(['client_id' => $client->id]);
-                        Notification::make()->title('Client created and linked.')->success()->send();
-                    }),
-                Action::make('create_service')
-                    ->label('Create Service')
-                    ->icon('heroicon-o-wrench-screwdriver')
-                    ->color('success')
-                    ->visible(fn (Invoice $record): bool => filled($record->client_id) && blank($record->service_id))
-                    ->schema(InvoiceServiceSupport::createServiceFormSchema())
-                    ->action(function (Invoice $record, array $data) {
-                        $service = InvoiceServiceSupport::createServiceFromInvoice($record, $data);
-
-                        $record->update(['service_id' => $service->id]);
-                        Notification::make()->title('Service generated from invoice and linked.')->success()->send();
-
-                        return redirect(ServiceResource::getUrl('edit', ['record' => $service]));
-                    }),
-                Action::make('download_pdf')
-                    ->label('Download PDF')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn (Invoice $record): string => route('pdf.invoice', [
-                        'slug' => $record->slug ?: str_replace('/', '-', $record->document_number),
-                    ]))
-                    ->openUrlInNewTab(),
+                DuplicateInvoiceAction::make(),
+                MarkAsPaidAction::make(),
+                ViewProposalAction::make(),
+                CreateInvoiceClientAction::make(),
+                CreateServiceAction::make(),
+                DownloadInvoicePdfAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

@@ -507,6 +507,9 @@ class ProposalForm
         $editor = RichEditor::make($statePath)
             ->enableToolbarButtons(['attachCuratorMedia'])
             ->plugins([AttachCuratorMediaPlugin::make()])
+            ->afterStateHydrated(function (RichEditor $component): void {
+                self::normalizeRichEditorRawState($component);
+            })
             ->extraAttributes(['style' => 'min-height: 200px'])
             ->columnSpanFull();
 
@@ -541,6 +544,21 @@ class ProposalForm
         }
 
         return null;
+    }
+
+    protected static function normalizeRichEditorRawState(RichEditor $component): void
+    {
+        $rawState = $component->getRawState();
+
+        if (is_array($rawState)) {
+            return;
+        }
+
+        foreach ($component->getStateCasts() as $stateCast) {
+            $rawState = $stateCast->set($rawState);
+        }
+
+        $component->rawState($rawState);
     }
 
     protected static function emptyTranslatedRepeaterRow(string $fieldKey): array

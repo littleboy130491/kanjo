@@ -16,10 +16,136 @@ class ProposalContentDefaultSeeder extends Seeder
             'field_key' => ProposalContentDefault::GLOBAL_FIELD_KEY,
         ], [
             'value' => [
-                'en' => self::defaultValueEn(),
-                'id' => self::defaultValueId(),
+                'en' => self::normalizeRichTextDefaults(self::defaultValueEn()),
+                'id' => self::normalizeRichTextDefaults(self::defaultValueId()),
             ],
         ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $values
+     * @return array<string, mixed>
+     */
+    private static function normalizeRichTextDefaults(array $values): array
+    {
+        foreach ($values as $key => $value) {
+            if (is_array($value)) {
+                $values[$key] = self::normalizeRichTextDefaults($value);
+
+                continue;
+            }
+
+            if (! is_string($value)) {
+                continue;
+            }
+
+            $values[$key] = self::wrapListItemTextWithParagraphs($value);
+        }
+
+        return $values;
+    }
+
+    private static function wrapListItemTextWithParagraphs(string $html): string
+    {
+        if (
+            ! str_contains($html, '<ol')
+            && ! str_contains($html, '<ul')
+            && ! str_contains($html, '<li')
+        ) {
+            return $html;
+        }
+
+        $internalErrors = libxml_use_internal_errors(true);
+
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $encodedHtml = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+        $document->loadHTML(
+            "<!DOCTYPE html><html><body>{$encodedHtml}</body></html>",
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+        );
+
+        $listItems = $document->getElementsByTagName('li');
+
+        foreach ($listItems as $listItem) {
+            $children = [];
+
+            foreach ($listItem->childNodes as $childNode) {
+                $children[] = $childNode;
+            }
+
+            $paragraph = null;
+
+            foreach ($children as $childNode) {
+                if (self::isBlockElement($childNode)) {
+                    $paragraph = null;
+
+                    continue;
+                }
+
+                $isLeadingWhitespaceText = $childNode->nodeType === XML_TEXT_NODE
+                    && trim((string) $childNode->nodeValue) === ''
+                    && $paragraph === null;
+
+                if ($isLeadingWhitespaceText) {
+                    continue;
+                }
+
+                if ($paragraph === null) {
+                    $paragraph = $document->createElement('p');
+                    $listItem->insertBefore($paragraph, $childNode);
+                }
+
+                $paragraph->appendChild($childNode);
+            }
+        }
+
+        $body = $document->getElementsByTagName('body')->item(0);
+
+        if (! $body) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($internalErrors);
+
+            return $html;
+        }
+
+        $normalized = '';
+
+        foreach ($body->childNodes as $childNode) {
+            $normalized .= $document->saveHTML($childNode);
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($internalErrors);
+
+        return $normalized;
+    }
+
+    private static function isBlockElement(\DOMNode $node): bool
+    {
+        if ($node->nodeType !== XML_ELEMENT_NODE) {
+            return false;
+        }
+
+        return in_array(strtolower((string) $node->nodeName), [
+            'p',
+            'ol',
+            'ul',
+            'table',
+            'thead',
+            'tbody',
+            'tr',
+            'td',
+            'th',
+            'blockquote',
+            'pre',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'div',
+        ], true);
     }
 
     /**
@@ -94,7 +220,7 @@ class ProposalContentDefaultSeeder extends Seeder
 </ol>
 <p>Reference: <a href="https://developers.google.com/search/docs/fundamentals/seo-starter-guide" target="_blank" rel="noopener">https://developers.google.com/search/docs/fundamentals/seo-starter-guide</a></p>
 <div id="garansi">
-    <h3>5. Warranty</h3>
+    <a href="#garansi" class="anchor" aria-hidden="true"><h3>5. Warranty</h3></a>
     <ol>
         <li>The client may request a 100% refund if the outcome at the "Framework Creation" stage does not meet expectations, by filling in the form at the <a href="https://docs.google.com/document/d/1_Uho2L0Wb2nRbR5Y-qtDLMJR9SiN2xBC/edit" target="_blank" rel="noopener">following link</a>.</li>
         <li>The client receives a 100% refund warranty if we cannot fulfill the agreed scope listed in the proposal.</li>
@@ -336,7 +462,7 @@ HTML,
 </ol>
 <p>Referensi: <a href="https://developers.google.com/search/docs/fundamentals/seo-starter-guide" target="_blank" rel="noopener">https://developers.google.com/search/docs/fundamentals/seo-starter-guide</a></p>
 <div id="garansi">
-    <h3>5. Garansi</h3>
+    <a href="#garansi" class="anchor" aria-hidden="true"><h3>5. Garansi</h3></a>
     <ol>
         <li>Klien diperbolehkan mengajukan refund 100% uang kembali apabila hasil pada tahap "Pembuatan Kerangka" tidak sesuai harapan, dengan mengisi form yang terdapat pada <a href="https://docs.google.com/document/d/1_Uho2L0Wb2nRbR5Y-qtDLMJR9SiN2xBC/edit" target="_blank" rel="noopener">link berikut</a>.</li>
         <li>Klien mendapatkan garansi 100% uang kembali, apabila pihak kami tidak dapat memenuhi pekerjaan sesuai yang sudah disepakati dan tercantum pada proposal.</li>
