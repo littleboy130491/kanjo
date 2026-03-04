@@ -8,6 +8,8 @@
     'pdfRoute' => null,
 ])
 @php
+    use Illuminate\Support\Facades\Vite;
+
     $bodyClass = $pdfMode
         ? 'bg-white p-0'
         : 'bg-slate-100 px-4 py-6 md:px-8 md:py-8';
@@ -21,8 +23,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-    @vite('resources/css/app.css')
-    <script src="https://cdn.tailwindcss.com"></script>
+    @if($pdfMode)
+        <style>{!! Vite::content('resources/css/app.css') !!}</style>
+    @else
+        @vite('resources/css/app.css')
+        <script src="https://cdn.tailwindcss.com"></script>
+    @endif
     <style>
         :root { --color-primary: {{ $company?->color_primary ?? '#0f172a' }}; --color-secondary: {{ $company?->color_secondary ?? '#334155' }}; }
         .brand-title { color: var(--color-primary); }
