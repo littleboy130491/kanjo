@@ -100,6 +100,7 @@
     $offer1Timeline = $asRows($proposal->offer_1_project_timeline);
     $offer2Timeline = $asRows($proposal->offer_2_project_timeline);
     $addOns = $asRows($proposal->add_on);
+    $hasOffer2 = filled($proposal->offer_name_2) || filled($proposal->offer_2_price) || filled($proposal->offer_2_renewal_price);
 
     $bankRows = collect($company?->bank ?? [])
         ->filter(fn($row) => filled($row['bank_name'] ?? null) || filled($row['account_name'] ?? null) || filled($row['account_number'] ?? null))
@@ -205,6 +206,11 @@
 
         @if($present($coreServicesHtml))
             <section id="services" class="section-row allow-page-break">
+                @if($hasOffer2)
+                    <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Offer
+                        01</span>
+                    <h3 class="offer_name">{{ $proposal->offer_name_1 ?: 'Main Offer' }}</h3>
+                @endif
                 <h2 class="section-label">Core Services</h2>
                 <div class="section-content">
                     {!! $coreServicesHtml !!}
@@ -258,7 +264,6 @@
         @endif
 
         @php
-            $hasOffer2 = filled($proposal->offer_name_2) || filled($proposal->offer_2_price) || filled($proposal->offer_2_renewal_price);
             $hasInvestment = filled($proposal->offer_name_1) || filled($proposal->offer_1_price) || filled($proposal->offer_1_renewal_price)
                 || $hasOffer2;
             $hasAddOns = count($addOns) > 0;
