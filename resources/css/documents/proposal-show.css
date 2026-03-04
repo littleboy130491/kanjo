@@ -186,7 +186,7 @@
 
 .money-line-value {
     font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-    font-size: 1.45rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0;
     color: #171717;
@@ -204,7 +204,7 @@
 
 .money-line-original {
     font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-    font-size: 1.45rem;
+    font-size: 1rem;
     letter-spacing: 0;
     color: rgb(82, 82, 82);
     text-decoration: line-through;
