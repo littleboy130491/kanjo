@@ -343,6 +343,10 @@ h3.offer_name {
     color: #004258;
 }
 
+.floating-doc-flyout {
+    display: none;
+}
+
 @media (min-width: 768px) {
     .section-row,
     .proposal-endcap {
@@ -385,15 +389,69 @@ h3.offer_name {
 
 @media (max-width: 900px) {
     .floating-doc-nav {
-        top: auto;
+        display: none;
+    }
+
+    .floating-doc-flyout {
+        display: block;
+        position: fixed;
+        right: 1rem;
         bottom: 1rem;
-        left: 50%;
-        right: auto;
-        width: min(92vw, 380px);
-        transform: translateX(-50%);
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.1rem 0.35rem;
+        z-index: 45;
+    }
+
+    .floating-doc-flyout > summary {
+        list-style: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border: 1px solid #dbeafe;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 18px 36px -22px rgba(0, 0, 0, 0.45);
+        padding: 0.55rem 0.7rem;
+        font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #334155;
+    }
+
+    .floating-doc-flyout > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .floating-doc-flyout > summary svg {
+        width: 0.95rem;
+        height: 0.95rem;
+        transition: transform 0.2s ease;
+    }
+
+    .floating-doc-flyout[open] > summary svg {
+        transform: rotate(180deg);
+    }
+
+    .floating-doc-flyout nav {
+        margin-top: 0.5rem;
+        width: min(88vw, 240px);
+        border: 1px solid #dbeafe;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 18px 36px -22px rgba(0, 0, 0, 0.45);
+        padding: 0.4rem;
+    }
+
+    .floating-doc-flyout nav a {
+        display: block;
+        font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #475569;
+        text-decoration: none;
+        padding: 0.5rem 0.45rem;
+    }
+
+    .floating-doc-flyout nav a:hover {
+        color: #004258;
     }
 }
 
@@ -403,6 +461,10 @@ h3.offer_name {
     }
 
     .floating-doc-nav {
+        display: none !important;
+    }
+
+    .floating-doc-flyout {
         display: none !important;
     }
 
