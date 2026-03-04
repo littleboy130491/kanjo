@@ -271,6 +271,19 @@
     text-decoration: none;
 }
 
+.endcap-contact-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.endcap-contact-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+    color: #a3a3a3;
+    flex: 0 0 auto;
+}
+
 h3.offer_name {
     font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
     @apply text-4xl font-light text-neutral-800 mb-8;
