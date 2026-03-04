@@ -597,12 +597,23 @@
                 </svg>
             </summary>
             <nav aria-label="Proposal Sections Mobile">
-                <a href="#services">Services</a>
-                <a href="#price">Price</a>
-                <a href="#timeline">Timeline</a>
-                <a href="#payment">Payment</a>
-                <a href="#terms-and-conditions">Terms & Conditions</a>
+                <a href="#services" class="js-flyout-link">Services</a>
+                <a href="#price" class="js-flyout-link">Price</a>
+                <a href="#timeline" class="js-flyout-link">Timeline</a>
+                <a href="#payment" class="js-flyout-link">Payment</a>
+                <a href="#terms-and-conditions" class="js-flyout-link">Terms & Conditions</a>
             </nav>
         </details>
+
+        <script>
+            document.querySelectorAll('.js-flyout-link').forEach((link) => {
+                link.addEventListener('click', () => {
+                    const flyout = link.closest('.floating-doc-flyout');
+                    if (flyout) {
+                        flyout.removeAttribute('open');
+                    }
+                });
+            });
+        </script>
     @endif
 </x-layout>
