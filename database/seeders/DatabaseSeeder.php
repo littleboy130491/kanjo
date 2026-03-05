@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ClientSeeder::class,
             PortfolioSeeder::class,
             ProposalContentDefaultSeeder::class,
+            ProposalSeeder::class,
         ]);
     }
 }

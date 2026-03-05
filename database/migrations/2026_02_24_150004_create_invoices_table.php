@@ -38,6 +38,7 @@ return new class extends Migration {
 
             // Items (translatable sub-fields)
             $table->json('items')->nullable();
+            $table->json('additional_info')->nullable();
 
             // Status
             $table->enum('status', ['draft', 'published'])->default('draft');

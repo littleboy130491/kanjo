@@ -38,6 +38,7 @@ class Invoice extends Model
         'subtotal',
         'total',
         'items',
+        'additional_info',
         'status',
         'payment_status',
         'paid_at',
@@ -53,6 +54,7 @@ class Invoice extends Model
 
     protected $translatable = [
         'items',
+        'additional_info',
     ];
 
     protected $casts = [

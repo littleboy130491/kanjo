@@ -14,6 +14,7 @@ use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -227,6 +228,17 @@ class InvoiceForm
                                             ->suffixLocaleLabel(),
                                     ]),
 
+                                Section::make('Additional Info')
+                                    ->schema([
+                                        Translate::make()
+                                            ->exclude(self::translatedFieldPaths('additional_info'))
+                                            ->schema(fn(string $locale): array => [
+                                                RichEditor::make("additional_info.{$locale}")
+                                                    ->hiddenLabel()
+                                                    ->columnSpanFull(),
+                                            ]),
+                                    ]),
+
                                 Section::make('Currency & Tax')
                                     ->schema([
                                         Select::make('currency')
@@ -360,6 +372,13 @@ class InvoiceForm
         $set('subtotal', round($subtotal, 2));
         $set('tax_amount', round($taxAmount, 2));
         $set('total', round($total, 2));
+    }
+
+    protected static function translatedFieldPaths(string $fieldKey): array
+    {
+        return collect(config('translatable.locales', ['en', 'id']))
+            ->map(fn(string $locale): string => "{$fieldKey}.{$locale}")
+            ->all();
     }
 
     /**
