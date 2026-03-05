@@ -77,7 +77,7 @@
 <x-layout :locale="$locale" :title="$invoice->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
     lang-route="invoice.show" pdf-route="pdf.invoice">
     <div class="proposal-frame proposal-doc mx-auto w-full max-w-[1000px] space-y-8">
-        <section class="proposal-cover p-10 md:p-16 avoid-page-break">
+        <section class="proposal-cover p-10 md:p-24 avoid-page-break">
             <div class="flex flex-col items-start justify-between gap-8 md:flex-row">
                 @if($logoUrl)
                     <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain">
@@ -120,7 +120,7 @@
             </div>
         </section>
 
-        <section class="p-10 pt-0 md:px-16 avoid-page-break">
+        <section class="px-6 pb-10 pt-0 md:px-24 avoid-page-break">
             <span class="proposal-kicker mb-3 block text-[10px] font-medium uppercase tracking-[0.3em]">Items</span>
             <div class="overflow-hidden rounded-2xl border border-neutral-200">
                 <table class="w-full text-sm">
@@ -149,7 +149,7 @@
         </section>
 
         @if(! empty($bankRows) || filled($footerTextHtml))
-            <section class="p-10 pt-0 text-sm text-neutral-600 md:px-16">
+            <section class="px-6 pb-10 pt-0 text-sm text-neutral-600 md:px-24">
                 @if(filled($footerTextHtml))
                     <div class="prose prose-sm max-w-none">{!! $footerTextHtml !!}</div>
                 @endif

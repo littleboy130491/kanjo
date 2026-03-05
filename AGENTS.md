@@ -316,6 +316,21 @@ Verification workflow when uncertain:
 
 ---
 
+## Frontend Rules (Proposal & Invoice Documents)
+
+Apply these rules when building or updating `resources/views/proposals/show.blade.php` and `resources/views/invoices/show.blade.php`:
+
+1. Use Tailwind CSS as the default styling approach.
+2. If more than one element shares the same style, extract it into a reusable CSS class (do not duplicate long utility strings everywhere).
+3. In document stylesheet files, use Tailwind `@apply` wherever possible for reusable classes.
+4. Treat documents as print-first output:
+   - CSS must be compatible with print/PDF rendering (Browsershot/Chromium).
+   - Prefer stable layout primitives and explicit spacing.
+   - Include/maintain `@media print` behavior for page breaks, table headers, and overflow handling.
+   - Avoid depending on effects that are unreliable in PDF output.
+
+---
+
 ## File Structure (Expected)
 
 ```text
