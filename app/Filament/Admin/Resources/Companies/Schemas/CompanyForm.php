@@ -85,7 +85,6 @@ class CompanyForm
                     Translate::make()
                         ->schema([
                             Textarea::make("footer_text")
-                                ->required()
                                 ->rows(3)
                                 ->columnSpanFull(),
                         ])

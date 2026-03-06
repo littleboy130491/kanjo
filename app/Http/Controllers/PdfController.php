@@ -34,7 +34,7 @@ class PdfController extends Controller
         $pdf = Browsershot::html($html)
             ->noSandbox()
             ->format('A4')
-            ->margins(15, 15, 15, 15)
+            ->margins(10, 10, 10, 10)
             ->showBackground()
             ->pdf();
 
@@ -68,7 +68,7 @@ class PdfController extends Controller
         $pdf = Browsershot::html($html)
             ->noSandbox()
             ->format('A4')
-            ->margins(15, 15, 15, 15)
+            ->margins(10, 10, 10, 10)
             ->showBackground()
             ->pdf();
 

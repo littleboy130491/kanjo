@@ -69,13 +69,23 @@ class InvoiceForm
                                     ->schema([
                                         Select::make('company_id')
                                             ->label('Company')
-                                            ->options(fn() => Company::pluck('brand_name', 'id'))
+                                            ->options(fn() => Company::query()
+                                                ->orderBy('brand_name')
+                                                ->get()
+                                                ->mapWithKeys(fn(Company $company) => [
+                                                    $company->getKey() => (string) ($company->brand_name ?: $company->company_name ?: 'Untitled company'),
+                                                ]))
                                             ->default(fn() => Company::first()?->id)
                                             ->required()
                                             ->searchable(),
                                         Select::make('proposal_id')
                                             ->label('Proposal (Optional)')
-                                            ->options(fn() => \App\Models\Proposal::pluck('document_number', 'id'))
+                                            ->options(fn() => \App\Models\Proposal::query()
+                                                ->orderByDesc('created_at')
+                                                ->get()
+                                                ->mapWithKeys(fn(\App\Models\Proposal $proposal) => [
+                                                    $proposal->getKey() => (string) ($proposal->document_number ?: $proposal->slug ?: 'Proposal #' . $proposal->getKey()),
+                                                ]))
                                             ->searchable()
                                             ->preload()
                                             ->placeholder('Not linked to a proposal')
@@ -124,7 +134,12 @@ class InvoiceForm
                                     ->schema([
                                         Select::make('client_id')
                                             ->label('Load from Client Database')
-                                            ->options(fn() => Client::orderBy('company')->pluck('company', 'id'))
+                                            ->options(fn() => Client::query()
+                                                ->orderBy('company')
+                                                ->get()
+                                                ->mapWithKeys(fn(Client $client) => [
+                                                    $client->getKey() => (string) ($client->company ?: $client->name ?: 'Client #' . $client->getKey()),
+                                                ]))
                                             ->searchable()
                                             ->live()
                                             ->preload()
@@ -177,8 +192,8 @@ class InvoiceForm
                                             ->label('Link to Service')
                                             ->options(fn() => Service::with('client')
                                                 ->get()
-                                                ->mapWithKeys(fn($service) => [
-                                                    $service->id => $service->name . ' - ' . ($service->client?->company ?? 'No Client')
+                                                ->mapWithKeys(fn(Service $service) => [
+                                                    $service->getKey() => (string) (($service->name ?: 'Service #' . $service->getKey()) . ' - ' . ($service->client?->company ?: $service->client?->name ?: 'No Client'))
                                                 ]))
                                             ->searchable()
                                             ->preload()

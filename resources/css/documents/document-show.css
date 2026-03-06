@@ -1,4 +1,4 @@
-.proposal-doc {
+.document-view {
     font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
     color: #262626;
     letter-spacing: 0.01em;
@@ -14,20 +14,20 @@
     @apply space-y-8;
 }
 
-.proposal-frame {
+.document-frame {
     @apply bg-white;
     box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.1);
 }
 
-.proposal-serif {
+.document-serif {
     font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
 }
 
-.proposal-kicker {
+.document-accent {
     color: var(--tone-deep);
 }
 
-.proposal-cover {
+.document-cover {
     min-height: 760px;
     @apply flex flex-col justify-between;
 }
@@ -110,13 +110,15 @@
     @apply mt-4;
 }
 
-.document-bank-title {
-    @apply mb-2 font-semibold text-neutral-900;
-}
 
 .document-bank-list {
     @apply space-y-1;
 }
+
+.document-bank-entry + .document-bank-entry {
+    @apply mt-3;
+}
+
 
 .section-content {
     @apply w-full text-[14px] leading-[1.55] text-neutral-600 md:text-[16px] md:leading-normal;
@@ -185,7 +187,6 @@
 .data-table thead {
     @apply text-[10px] uppercase tracking-[0.2em];
     color: var(--tone-deep);
-    border-bottom: 1px solid var(--tone-deep);
     background: color-mix(in srgb, var(--tone-soft) 55%, #ffffff);
 }
 
@@ -195,7 +196,6 @@
 
 .data-table td {
     @apply px-3 py-3.5 align-top break-words;
-    border-bottom: 1px solid #e0ecff;
     color: #525252;
 }
 
@@ -203,10 +203,13 @@
     @apply bg-sky-50/40;
 }
 
-.data-table tfoot th,
-.data-table tfoot td {
-    @apply px-3 py-3.5 font-semibold text-neutral-800;
-    background: color-mix(in srgb, var(--tone-soft) 40%, #ffffff);
+.data-table tfoot th {
+    @apply px-3 py-3.5 bg-gray-50;
+}
+
+.data-table tfoot th.total {
+    @apply font-bold;
+    background: color-mix(in srgb, var(--tone-soft) 40%, #ffffff)
 }
 
 .data-table td:last-child,
@@ -267,18 +270,18 @@
     @apply mb-4 border-t border-neutral-200 pb-4 pt-12;
 }
 
-.proposal-alert {
+.document-alert {
     @apply relative mb-12 mt-5 border border-[#cae6be] border-l-[5px] bg-[#dff0d8] p-4 text-left text-[#3c763d];
 }
 
-.proposal-endcap {
+.document-endcap {
     @apply p-10;
     background: #004258;
     color: rgb(255, 255, 255);
 }
 
-.proposal-endcap,
-.proposal-endcap * {
+.document-endcap,
+.document-endcap * {
     color: rgb(255, 255, 255);
 }
 
@@ -372,11 +375,11 @@ h3.offer_name {
     display: none;
 }
 
-.proposal-cover-header {
+.document-cover-header {
     @apply flex w-full flex-row items-start justify-between;
 }
 
-.proposal-cover-header .document-meta-stack {
+.document-cover-header .document-meta-stack {
     @apply ml-auto text-right;
 }
 
@@ -447,19 +450,111 @@ h3.offer_name {
 
 
 .invoice-company-block {
-    @apply space-y-1 text-sm text-neutral-600 md:text-right;
+    @apply space-y-1 text-sm text-neutral-600;
+}
+
+.invoice-issuer-block {
+    @apply text-xs;
+}
+
+.invoice-contact-row {
+    @apply flex items-start gap-[0.35rem];
+}
+
+.invoice-contact-icon {
+    @apply h-[0.9rem] w-[0.9rem];
+    flex: 0 0 auto;
+    margin-top: 0.2rem;
+}
+
+.invoice-contact-list .invoice-contact-link {
+    @apply inline;
+}
+
+.invoice-contact-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.invoice-contact-link:hover {
+    @apply text-neutral-900;
 }
 
 .invoice-client-block {
     @apply space-y-1;
 }
 
+.invoice-doc-layout {
+    @apply pt-10 md:pt-16;
+}
+
+.invoice-row {
+    @apply mb-6;
+}
+
+.invoice-row:last-child {
+    @apply mb-0;
+}
+
+.invoice-row-logo {
+    @apply mb-5;
+}
+
+.invoice-row-section {
+    @apply pb-6 md:pb-8;
+}
+
+.invoice-meta-grid {
+    @apply grid grid-cols-2 gap-2;
+}
+
+.invoice-document-block,
+.invoice-company-block {
+    @apply min-w-0;
+}
+
+.invoice-document-title,
+.invoice-company-name,
+.invoice-client-title {
+    @apply text-3xl text-neutral-900 md:text-4xl;
+    line-height: 1.05;
+}
+
+.invoice-meta-list {
+    @apply mt-4 space-y-2;
+}
+
+.invoice-company-name {
+    @apply mb-4;
+}
+
 .invoice-client-name {
-    @apply mt-2 text-sm text-neutral-600;
+    @apply mt-2 text-base text-neutral-700;
 }
 
 .invoice-client-meta {
     @apply text-sm text-neutral-600;
+}
+
+.invoice-additional-info-content,
+.invoice-payment-info,
+.invoice-footer-text-content {
+    @apply text-xs;
+}
+
+.invoice-prepared-by {
+    @apply text-xs;
+}
+
+.invoice-additional-info-content p,
+.invoice-additional-info-content ul,
+.invoice-additional-info-content ol,
+.invoice-payment-info p,
+.invoice-prepared-by p,
+.invoice-footer-text-content p,
+.invoice-footer-text-content ul,
+.invoice-footer-text-content ol {
+    @apply mb-2;
 }
 
 .invoice-summary-card {
@@ -484,48 +579,72 @@ h3.offer_name {
     @apply text-2xl text-neutral-900;
 }
 
-.invoice-table-wrap {
-    @apply overflow-hidden rounded-2xl border border-neutral-200;
+.invoice-items-table th:nth-child(1),
+.invoice-items-table td:nth-child(1) {
+    width: 70%;
 }
 
-.invoice-table {
-    @apply w-full text-sm;
+.invoice-items-table th:nth-child(2),
+.invoice-items-table td:nth-child(2) {
+    width: 30%;
 }
 
-.invoice-table thead {
-    @apply bg-neutral-100 text-neutral-700;
+.invoice-item-stack {
+    @apply flex flex-col gap-1;
 }
 
-.invoice-table th {
-    @apply px-4 py-3 text-left font-medium;
+.invoice-item-title {
+    @apply text-neutral-900;
 }
 
-.invoice-table td {
-    @apply px-4 py-3;
-}
-
-.invoice-table tbody tr {
-    @apply border-t border-neutral-200 align-top;
-}
-
-.invoice-table-description {
+.invoice-item-description {
     @apply text-neutral-600;
-}
-
-.invoice-table-price {
-    @apply text-right font-medium;
 }
 
 .invoice-empty-state {
     @apply text-neutral-500;
 }
 
+@media (max-width: 767px) {
+    .invoice-cover-meta {
+        font-size: 9px;
+        letter-spacing: 0.18em;
+    }
+
+    .invoice-row {
+        @apply mb-5;
+    }
+
+    .invoice-row-logo {
+        @apply mb-4;
+    }
+}
+
 @media print {
-    .proposal-frame {
+    .document-frame {
         box-shadow: none;
     }
 
-    .proposal-doc .proposal-cover-header {
+    .document-view h3.offer_name {
+        font-size: 2rem;
+        line-height: 1.1;
+    }
+
+    .document-view .money-line {
+        font-size: 13px;
+        letter-spacing: 0.2em;
+    }
+
+    .document-view .money-line-original,
+    .document-view .money-line-value {
+        font-size: 1rem;
+    }
+
+    .document-view .money-line-amounts {
+        gap: 0.75rem;
+    }
+
+    .document-view .document-cover-header {
         display: flex;
         width: 100%;
         flex-direction: row;
@@ -533,39 +652,39 @@ h3.offer_name {
         justify-content: space-between;
     }
 
-    .proposal-doc .proposal-cover-header .document-meta-stack {
+    .document-view .document-cover-header .document-meta-stack {
         margin-left: auto;
         text-align: right;
     }
 
-    .proposal-doc .proposal-cover {
+    .document-view .document-cover {
         min-height: 267mm;
         break-after: page;
         page-break-after: always;
     }
 
-    .proposal-doc .portfolio-grid {
+    .document-view .portfolio-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 2.5rem;
     }
 
-    .proposal-doc .proposal-cover + .section-row {
+    .document-view .document-cover + .section-row {
         border-top: 0;
     }
 
-    .proposal-doc .proposal-endcap {
+    .document-view .document-endcap {
         background: #ffffff;
         color: #262626;
         border-top: 1px solid #dbeafe;
     }
 
-    .proposal-doc .proposal-endcap,
-    .proposal-doc .proposal-endcap * {
+    .document-view .document-endcap,
+    .document-view .document-endcap * {
         color: inherit;
     }
 
-    .proposal-doc .proposal-endcap img.invert,
-    .proposal-doc .proposal-endcap img.grayscale {
+    .document-view .document-endcap img.invert,
+    .document-view .document-endcap img.grayscale {
         filter: none;
     }
 
@@ -577,22 +696,22 @@ h3.offer_name {
         display: none !important;
     }
 
-    .proposal-doc .avoid-page-break {
+    .document-view .avoid-page-break {
         break-inside: avoid;
         page-break-inside: avoid;
     }
 
-    .proposal-doc .allow-page-break {
+    .document-view .allow-page-break {
         break-inside: auto;
         page-break-inside: auto;
     }
 
-    .proposal-doc table thead {
+    .document-view table thead {
         display: table-header-group;
     }
 
-    .proposal-doc table tr,
-    .proposal-doc .portfolio-grid > * {
+    .document-view table tr,
+    .document-view .portfolio-grid > * {
         break-inside: avoid;
         page-break-inside: avoid;
     }

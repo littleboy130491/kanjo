@@ -76,11 +76,14 @@
             return count($value) > 0;
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return filled($value);
         }
 
-        return trim(strip_tags($value)) !== '';
+        $text = html_entity_decode(strip_tags($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace('/[\x{00A0}\x{200B}-\x{200D}\x{FEFF}]/u', '', $text) ?? $text;
+
+        return trim($text) !== '';
     };
 
     $briefHtml = $asHtml($proposal->brief);
@@ -124,9 +127,9 @@
 @endphp
 <x-layout :locale="$locale" :title="$proposal->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
     lang-route="proposal.show" pdf-route="pdf.proposal">
-    <div class="proposal-frame proposal-doc document-shell">
-        <section class="proposal-cover document-cover-pad avoid-page-break">
-            <div class="proposal-cover-header flex flex-col items-start justify-between gap-8 md:flex-row">
+    <div class="document-frame document-view document-shell">
+        <section class="document-cover document-cover-pad avoid-page-break">
+            <div class="document-cover-header flex flex-col items-start justify-between gap-8 md:flex-row">
                 @if($logoUrl)
                     <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain">
                 @endif
@@ -139,9 +142,9 @@
             </div>
 
             <div class="my-8 md:my-8">
-                <span class="proposal-kicker document-kicker mb-6">Project
+                <span class="document-accent document-kicker mb-6">Project
                     Proposal</span>
-                <h1 class="cover-title proposal-serif">
+                <h1 class="cover-title document-serif">
                     Website<br>
                     <span class="cover-subtitle">Design & Development</span>
                 </h1>
@@ -191,7 +194,7 @@
                                 </div>
                                 <p class="text-sm text-neutral-900 md:text-lg">{{ $portfolio->name }}</p>
                                 @if(filled($portfolio->url_link))
-                                    <span class="proposal-kicker mt-2 inline-block text-[10px] uppercase tracking-[0.2em]">
+                                    <span class="document-accent mt-2 inline-block text-[10px] uppercase tracking-[0.2em]">
                                         View Live Site ->
                                     </span>
                                 @endif
@@ -283,7 +286,7 @@
                 <div class="section-content">
                     <div class="pricing-option">
                         @if($hasOffer2)
-                            <span class="proposal-kicker document-kicker -mb-4">Option
+                            <span class="document-accent document-kicker -mb-4">Option
                                 01</span>
                         @endif
                         <h3 class="offer_name">{{ $proposal->offer_name_1 ?: 'Main Offer' }}</h3>
@@ -316,7 +319,7 @@
 
                     @if($hasOffer2)
                         <div class="pricing-option-divider">
-                            <span class="proposal-kicker document-kicker -mb-4">Option
+                            <span class="document-accent document-kicker -mb-4">Option
                                 02</span>
                             <h3 class="offer_name">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
                             <div class="space-y-4">
@@ -349,11 +352,8 @@
                         </div>
                     @endif
 
-                    <div class="proposal-alert">
-                        <p class="mb-0 text-xs leading-relaxed md:text-inherit">{{ __('proposal.money_back_guarantee_text') }}
-                            <br><a
-                                class="font-semibold underline decoration-current/60 underline-offset-2 transition hover:text-[#2f5f30]"
-                                href="#garansi">{{ __('proposal.money_back_guarantee_terms_link') }}</a>
+                    <div class="document-alert">
+                        <p class="mb-0 text-xs leading-relaxed md:text-inherit">{{ __('proposal.money_back_guarantee_text') }} {{ __('proposal.money_back_guarantee_terms_link') }}
                         </p>
                     </div>
                 </div>
@@ -405,7 +405,7 @@
                         @endphp
                         <div>
                             @if($hasOffer2Timeline)
-                                <p class="proposal-kicker document-subkicker">
+                                <p class="document-accent document-subkicker">
                                     {{ $proposal->offer_name_1 ?: 'Main Offer' }} Timeline
                                 </p>
                             @endif
@@ -447,7 +447,7 @@
                             });
                         @endphp
                         <div>
-                            <p class="proposal-kicker document-subkicker">
+                            <p class="document-accent document-subkicker">
                                 {{ $proposal->offer_name_2 ?: 'Alternative Offer' }} Timeline
                             </p>
                             <div class="table-wrap">
@@ -509,7 +509,7 @@
             </section>
         @endif
 
-        <section class="proposal-endcap print-separator avoid-page-break block">
+        <section class="document-endcap print-separator avoid-page-break block">
             <div class="endcap-row-logo">
                 @if($logoUrl)
                     <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain invert grayscale">
