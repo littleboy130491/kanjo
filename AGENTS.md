@@ -322,8 +322,9 @@ Apply these rules when building or updating `resources/views/proposals/show.blad
 
 1. Use Tailwind CSS as the default styling approach.
 2. If more than one element shares the same style, extract it into a reusable CSS class (do not duplicate long utility strings everywhere).
-3. In document stylesheet files, use Tailwind `@apply` wherever possible for reusable classes.
-4. Treat documents as print-first output:
+3. Do not create a custom document CSS class for a style used by only one element in one view. Keep single-use styling inline with Tailwind utilities unless the class is required for print behavior, JavaScript hooks, or a clearly named document region/component.
+4. In document stylesheet files, use Tailwind `@apply` wherever possible for reusable classes.
+5. Treat documents as print-first output:
    - CSS must be compatible with print/PDF rendering (Browsershot/Chromium).
    - Prefer stable layout primitives and explicit spacing.
    - Include/maintain `@media print` behavior for page breaks, table headers, and overflow handling.

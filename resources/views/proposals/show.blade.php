@@ -124,13 +124,13 @@
 @endphp
 <x-layout :locale="$locale" :title="$proposal->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
     lang-route="proposal.show" pdf-route="pdf.proposal">
-    <div class="proposal-frame proposal-doc mx-auto w-full max-w-[1000px]">
-        <section class="proposal-cover p-10 md:p-24 avoid-page-break">
-            <div class="flex flex-col items-start justify-between gap-8 md:flex-row">
+    <div class="proposal-frame proposal-doc document-shell">
+        <section class="proposal-cover document-cover-pad avoid-page-break">
+            <div class="proposal-cover-header flex flex-col items-start justify-between gap-8 md:flex-row">
                 @if($logoUrl)
                     <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain">
                 @endif
-                <div class="space-y-2 text-right">
+                <div class="document-meta-stack">
                     @if($proposal->issue_date)
                         <p class="cover-meta">Date — <span>{{ $proposal->issue_date->format('d M Y') }}</span></p>
                     @endif
@@ -139,7 +139,7 @@
             </div>
 
             <div class="my-8 md:my-8">
-                <span class="proposal-kicker mb-6 block text-[10px] font-medium uppercase tracking-[0.3em]">Project
+                <span class="proposal-kicker document-kicker mb-6">Project
                     Proposal</span>
                 <h1 class="cover-title proposal-serif">
                     Website<br>
@@ -150,8 +150,8 @@
             @if(filled($proposal->client_company))
                 <div class="flex flex-col items-end justify-between gap-8 pt-8 md:flex-row">
                     <div>
-                        <p class="mb-3 text-[10px] font-medium uppercase tracking-[0.3em] text-neutral-400">Prepared For</p>
-                        <p class="proposal-serif text-3xl text-neutral-900">{{ $proposal->client_company }}</p>
+                        <p class="document-kicker text-neutral-400">Prepared For</p>
+                        <p class="text-xl md:text-2xl text-neutral-900 font-bold">{{ $proposal->client_company }}</p>
                     </div>
                 </div>
             @endif
@@ -181,15 +181,15 @@
                 </div>
                 <div class="section-content portfolio-grid">
                     @foreach($proposal->portfolios as $portfolio)
-                        <article class="portfolio-card group cursor-pointer">
-                            <a href="{{ $portfolio->url_link }}" target="_blank" rel="noreferrer">
+                        <article class="group cursor-pointer border-0">
+                            <a style="text-decoration: none !important;" href="{{ $portfolio->url_link }}" target="_blank" rel="noreferrer">
                                 <div class="mb-4 aspect-[4/3] overflow-hidden bg-neutral-100">
                                     @if($portfolio->portfolio_image_url)
                                         <img src="{{ $portfolio->portfolio_image_url }}" alt="{{ $portfolio->name }}"
-                                            class="h-full w-full object-cover object-top">
+                                            class="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105">
                                     @endif
                                 </div>
-                                <p class="text-lg text-neutral-900">{{ $portfolio->name }}</p>
+                                <p class="text-sm text-neutral-900 md:text-lg">{{ $portfolio->name }}</p>
                                 @if(filled($portfolio->url_link))
                                     <span class="proposal-kicker mt-2 inline-block text-[10px] uppercase tracking-[0.2em]">
                                         View Live Site ->
@@ -281,14 +281,14 @@
             <section id="price" class="section-row avoid-page-break">
                 <h2 class="section-label">Pricing</h2>
                 <div class="section-content">
-                    <div class="pb-4 mb-4">
+                    <div class="pricing-option">
                         @if($hasOffer2)
-                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Option
+                            <span class="proposal-kicker document-kicker -mb-4">Option
                                 01</span>
                         @endif
                         <h3 class="offer_name">{{ $proposal->offer_name_1 ?: 'Main Offer' }}</h3>
                         <div class="space-y-4">
-                            <div class="money-line flex items-end justify-between">
+                            <div class="money-line money-line-row">
                                 <span>{{ __('proposal.first_year_fee') }}</span>
                                 <span class="money-line-amounts">
                                     @if(filled($proposal->offer_1_original_price))
@@ -299,7 +299,7 @@
                                 </span>
                             </div>
                             @if(filled($proposal->offer_1_renewal_price))
-                                <div class="money-line flex items-end justify-between">
+                                <div class="money-line money-line-row">
                                     <span>{{ __('proposal.renewal_fee') }}</span>
                                     <span class="money-line-amounts">
                                         @if(filled($proposal->offer_1_original_renewal_price))
@@ -309,19 +309,19 @@
                                         <span class="money-line-value">{{ $toMoney($proposal->offer_1_renewal_price) }}</span>
                                     </span>
                                 </div>
-                                <span class="italic text-sm">*{{ __('proposal.renewal_optional_note') }}</span>
+                                <span class="italic text-[10px] md:text-sm">*{{ __('proposal.renewal_optional_note') }}</span>
                             @endif
                         </div>
                     </div>
 
                     @if($hasOffer2)
-                        <div class="pb-4 mb-4 pt-12 border-t border-neutral-200">
-                            <span class="proposal-kicker -mb-4 block text-[10px] font-medium uppercase tracking-[0.3em]">Option
+                        <div class="pricing-option-divider">
+                            <span class="proposal-kicker document-kicker -mb-4">Option
                                 02</span>
                             <h3 class="offer_name">{{ $proposal->offer_name_2 ?: 'Alternative Offer' }}</h3>
                             <div class="space-y-4">
                                 @if(filled($proposal->offer_2_price))
-                                    <div class="money-line flex items-end justify-between">
+                                    <div class="money-line money-line-row">
                                         <span>{{ __('proposal.first_year_fee') }}</span>
                                         <span class="money-line-amounts">
                                             @if(filled($proposal->offer_2_original_price))
@@ -333,7 +333,7 @@
                                     </div>
                                 @endif
                                 @if(filled($proposal->offer_2_renewal_price))
-                                    <div class="money-line flex items-end justify-between">
+                                    <div class="money-line money-line-row">
                                         <span>{{ __('proposal.renewal_fee') }}</span>
                                         <span class="money-line-amounts">
                                             @if(filled($proposal->offer_2_original_renewal_price))
@@ -343,15 +343,14 @@
                                             <span class="money-line-value">{{ $toMoney($proposal->offer_2_renewal_price) }}</span>
                                         </span>
                                     </div>
-                                    <span class="italic text-sm">*{{ __('proposal.renewal_optional_note') }}</span>
+                                    <span class="italic text-[10px] md:text-sm">*{{ __('proposal.renewal_optional_note') }}</span>
                                 @endif
                             </div>
                         </div>
                     @endif
 
-                    <div
-                        class="relative mt-5 border border-[#cae6be] border-l-[5px] bg-[#dff0d8] p-4 text-left text-[#3c763d] mb-12">
-                        <p class="mb-0 text-sm leading-relaxed text-inherit">{{ __('proposal.money_back_guarantee_text') }}
+                    <div class="proposal-alert">
+                        <p class="mb-0 text-xs leading-relaxed md:text-inherit">{{ __('proposal.money_back_guarantee_text') }}
                             <br><a
                                 class="font-semibold underline decoration-current/60 underline-offset-2 transition hover:text-[#2f5f30]"
                                 href="#garansi">{{ __('proposal.money_back_guarantee_terms_link') }}</a>
@@ -406,7 +405,7 @@
                         @endphp
                         <div>
                             @if($hasOffer2Timeline)
-                                <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">
+                                <p class="proposal-kicker document-subkicker">
                                     {{ $proposal->offer_name_1 ?: 'Main Offer' }} Timeline
                                 </p>
                             @endif
@@ -448,7 +447,7 @@
                             });
                         @endphp
                         <div>
-                            <p class="proposal-kicker mb-4 text-[10px] uppercase tracking-[0.25em]">
+                            <p class="proposal-kicker document-subkicker">
                                 {{ $proposal->offer_name_2 ?: 'Alternative Offer' }} Timeline
                             </p>
                             <div class="table-wrap">
@@ -595,6 +594,7 @@
             <a href="#timeline">Timeline</a>
             <a href="#payment">Payment</a>
             <a href="#terms-and-conditions">Terms & Conditions</a>
+            <a href="{{ route('pdf.proposal', ['slug' => $slug, 'lang' => $locale]) }}">Download PDF</a>
         </nav>
 
         <details class="floating-doc-flyout">
@@ -611,6 +611,7 @@
                 <a href="#timeline" class="js-flyout-link">Timeline</a>
                 <a href="#payment" class="js-flyout-link">Payment</a>
                 <a href="#terms-and-conditions" class="js-flyout-link">Terms & Conditions</a>
+                <a href="{{ route('pdf.proposal', ['slug' => $slug, 'lang' => $locale]) }}">Download PDF</a>
             </nav>
         </details>
 

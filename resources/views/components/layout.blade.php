@@ -13,6 +13,9 @@
     $bodyClass = $pdfMode
         ? 'bg-white p-0'
         : 'bg-slate-100 px-4 py-6 md:px-8 md:py-8';
+    $containerClass = $pdfMode
+        ? 'mx-auto w-full max-w-[180mm] space-y-6'
+        : 'mx-auto w-full max-w-[210mm] space-y-6';
 @endphp
 <!doctype html>
 <html lang="{{ $locale }}">
@@ -35,13 +38,13 @@
         .brand-bg { background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); }
         @media print {
             .no-print { display: none !important; }
-            @page { margin: 20mm; }
+            @page { margin: 15mm; }
             section { break-inside: avoid; }
         }
     </style>
 </head>
 <body class="{{ $bodyClass }}">
-<div class="mx-auto w-full max-w-[210mm] space-y-6">
+<div class="{{ $containerClass }}">
     @if(! $pdfMode && $slug && $langRoute && $pdfRoute)
         <div class="no-print flex justify-end">
             <a class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"

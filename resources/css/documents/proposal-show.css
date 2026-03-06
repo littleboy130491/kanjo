@@ -1,13 +1,21 @@
 .proposal-doc {
-    font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
     color: #262626;
     letter-spacing: 0.01em;
     --tone-soft: #d0e1f9;
     --tone-deep: #004258;
 }
 
+.document-shell {
+    @apply mx-auto w-full max-w-[1000px];
+}
+
+.document-shell-spaced {
+    @apply space-y-8;
+}
+
 .proposal-frame {
-    background: #ffffff;
+    @apply bg-white;
     box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.1);
 }
 
@@ -21,16 +29,16 @@
 
 .proposal-cover {
     min-height: 760px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    @apply flex flex-col justify-between;
+}
+
+.document-cover-pad {
+    @apply p-10 md:p-24;
 }
 
 .cover-meta {
-    font-size: 10px;
+    @apply text-[10px] uppercase text-slate-500;
     letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: #6b7280;
 }
 
 .cover-meta span {
@@ -46,28 +54,72 @@
 }
 
 .cover-subtitle {
-    color: #64748b;
-    font-style: italic;
-    font-weight: 300;
+    @apply italic font-light text-slate-500;
 }
 
 .section-row {
-    border-top: 1px solid #dbeafe;
-    padding: 2.5rem 1.5rem;
-    display: block;
+    @apply block border-t border-sky-100 px-6 py-10 md:px-24 md:py-16;
 }
 
 .section-label {
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
+    @apply mb-5 text-[14px] font-semibold uppercase;
     letter-spacing: 0.22em;
     color: var(--tone-deep);
-    margin-bottom: 1.25rem;
+}
+
+.document-kicker {
+    @apply mb-3 block text-[10px] font-medium uppercase tracking-[0.3em];
+}
+
+.document-subkicker {
+    @apply mb-4 text-[10px] uppercase tracking-[0.25em];
+}
+
+.document-meta-stack {
+    @apply space-y-2 text-right;
+}
+
+.document-section-pad {
+    @apply px-6 pb-10 pt-0 md:px-24;
+}
+
+.document-richtext {
+    @apply max-w-none text-sm text-neutral-700;
+    line-height: 1.7;
+}
+
+.document-richtext p,
+.document-richtext ul,
+.document-richtext ol {
+    @apply mb-3;
+}
+
+.document-richtext ul {
+    @apply list-disc pl-5;
+}
+
+.document-richtext ol {
+    @apply list-decimal pl-5;
+}
+
+.document-richtext a {
+    @apply underline;
+}
+
+.document-bank-details {
+    @apply mt-4;
+}
+
+.document-bank-title {
+    @apply mb-2 font-semibold text-neutral-900;
+}
+
+.document-bank-list {
+    @apply space-y-1;
 }
 
 .section-content {
-    @apply w-full text-[16px] leading-normal text-neutral-600;
+    @apply w-full text-[14px] leading-[1.55] text-neutral-600 md:text-[16px] md:leading-normal;
 }
 
 .section-content p,
@@ -111,7 +163,7 @@
 }
 
 .section-content li {
-    display: list-item;
+    @apply list-item;
 }
 
 .editorial-prose {
@@ -119,22 +171,7 @@
 }
 
 .portfolio-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-}
-
-.portfolio-card {
-    border: 0;
-}
-
-.portfolio-card img {
-    filter: none;
-    transition: transform 0.6s ease;
-}
-
-.portfolio-card:hover img {
-    transform: scale(1.04);
+    @apply grid grid-cols-2 gap-4 md:gap-10;
 }
 
 .data-table {
@@ -179,7 +216,7 @@
 
 .timeline-table th:nth-child(1),
 .timeline-table td:nth-child(1) {
-    width: 56%;
+    width: 54%;
 }
 
 .timeline-table th:nth-child(2),
@@ -189,55 +226,55 @@
 
 .timeline-table th:nth-child(3),
 .timeline-table td:nth-child(3) {
-    width: 16%;
+    width: 18%;
 }
 
 .money-line {
-    font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-    font-size: 13px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #737373;
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    @apply text-[9px] uppercase text-neutral-500 md:text-[13px];
+    letter-spacing: 0.14em;
+}
+
+.money-line-row {
+    @apply flex items-end justify-between;
 }
 
 .money-line-value {
-    font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    @apply text-[13px] font-bold text-neutral-900 md:text-base;
     letter-spacing: 0;
-    color: #171717;
 }
 
 .money-line-amounts {
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    justify-content: flex-end;
-    gap: 0.75rem;
+    @apply flex flex-row items-baseline justify-end gap-2 md:gap-3;
     text-transform: none;
     letter-spacing: 0;
 }
 
 .money-line-original {
-    font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-    font-size: 1rem;
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    @apply text-[13px] md:text-base;
     letter-spacing: 0;
     color: rgb(82, 82, 82);
     text-decoration: line-through;
 }
 
-.proposal-callout-title {
-    @apply mb-1 text-sm font-semibold text-inherit;
+.pricing-option {
+    @apply mb-4 pb-4;
 }
 
-.proposal-callout-link {
-    @apply font-semibold underline decoration-current/60 underline-offset-2 transition hover:text-[#2f5f30];
+.pricing-option-divider {
+    @apply mb-4 border-t border-neutral-200 pb-4 pt-12;
+}
+
+.proposal-alert {
+    @apply relative mb-12 mt-5 border border-[#cae6be] border-l-[5px] bg-[#dff0d8] p-4 text-left text-[#3c763d];
 }
 
 .proposal-endcap {
+    @apply p-10;
     background: #004258;
     color: rgb(255, 255, 255);
-    padding: 2.5rem;
 }
 
 .proposal-endcap,
@@ -246,39 +283,33 @@
 }
 
 .endcap-row-logo {
-    margin-bottom: 2.5rem;
+    @apply mb-10;
 }
 
 .endcap-row-body {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    @apply flex flex-col gap-8 md:flex-row md:items-start md:gap-16;
 }
 
 .endcap-side {
-    width: 100%;
+    @apply w-full md:w-[56%];
 }
 
 .endcap-main {
-    width: 100%;
+    @apply w-full md:w-[44%] md:flex md:justify-end md:pt-0;
 }
 
 .endcap-copyright {
-    width: 100%;
-    margin-top: 2rem;
+    @apply mt-8 w-full;
 }
 
 .endcap-label {
-    font-size: 10px;
-    text-transform: uppercase;
+    @apply mb-2 text-[10px] uppercase;
     letter-spacing: 0.2em;
-    margin-bottom: 0.5rem;
 }
 
 .endcap-bank {
-    font-size: 13px;
+    @apply text-[13px] font-light;
     line-height: 1.75;
-    font-weight: 300;
 }
 
 .endcap-contact-link {
@@ -287,29 +318,23 @@
 }
 
 .endcap-contact-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.35rem;
+    @apply flex items-start gap-[0.35rem];
 }
 
 .endcap-contact-icon {
-    width: 0.9rem;
-    height: 0.9rem;
+    @apply h-[0.9rem] w-[0.9rem];
     flex: 0 0 auto;
     margin-top: 0.2rem;
 }
 
 .endcap-contact-list .endcap-contact-link {
-    display: block;
-}
-
-.endcap-phone-row + .endcap-phone-row {
-    margin-top: 0.15rem;
+    @apply block;
 }
 
 h3.offer_name {
     font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
-    @apply text-4xl font-light text-neutral-800 mb-4;
+    @apply mb-4 text-2xl font-light text-neutral-800 md:text-4xl;
+    line-height: 1.15;
 }
 
 .print-separator {
@@ -331,14 +356,12 @@ h3.offer_name {
 }
 
 .floating-doc-nav a {
-    display: block;
-    font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-    font-size: 10px;
+    @apply block px-[0.35rem] py-[0.45rem] text-[10px];
+    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #475569;
     text-decoration: none;
-    padding: 0.45rem 0.35rem;
 }
 
 .floating-doc-nav a:hover {
@@ -349,39 +372,14 @@ h3.offer_name {
     display: none;
 }
 
-@media (min-width: 768px) {
-    .section-row,
-    .proposal-endcap {
-        padding: 4rem 6rem;
-    }
-
-    .portfolio-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 2.5rem;
-    }
-
-    .proposal-endcap {
-        display: block;
-    }
-
-    .endcap-row-body {
-        flex-direction: row;
-        gap: 4rem;
-        align-items: flex-start;
-    }
-
-    .endcap-side {
-        width: 56%;
-    }
-
-    .endcap-main {
-        width: 44%;
-        display: flex;
-        justify-content: flex-end;
-        padding-top: 0;
-    }
-
+.proposal-cover-header {
+    @apply flex w-full flex-row items-start justify-between;
 }
+
+.proposal-cover-header .document-meta-stack {
+    @apply ml-auto text-right;
+}
+
 
 @media (max-width: 1279px) {
     .floating-doc-nav {
@@ -395,24 +393,17 @@ h3.offer_name {
     }
 
     .floating-doc-flyout {
-        display: block;
-        position: fixed;
-        right: 1rem;
-        bottom: 1rem;
+        @apply fixed right-4 bottom-4 block;
         z-index: 45;
     }
 
     .floating-doc-flyout > summary {
         list-style: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
+        @apply inline-flex items-center gap-[0.35rem] px-[0.7rem] py-[0.55rem] text-[10px];
         border: 1px solid #dbeafe;
         background: rgba(255, 255, 255, 0.96);
         box-shadow: 0 18px 36px -22px rgba(0, 0, 0, 0.45);
-        padding: 0.55rem 0.7rem;
-        font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-        font-size: 10px;
+        font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
         letter-spacing: 0.16em;
         text-transform: uppercase;
         color: #334155;
@@ -433,23 +424,20 @@ h3.offer_name {
     }
 
     .floating-doc-flyout nav {
-        margin-top: 0.5rem;
+        @apply mt-2 p-[0.4rem];
         width: min(88vw, 240px);
         border: 1px solid #dbeafe;
         background: rgba(255, 255, 255, 0.98);
         box-shadow: 0 18px 36px -22px rgba(0, 0, 0, 0.45);
-        padding: 0.4rem;
     }
 
     .floating-doc-flyout nav a {
-        display: block;
-        font-family: 'Roboto', ui-sans-serif, system-ui, sans-serif;
-        font-size: 10px;
+        @apply block px-[0.45rem] py-[0.5rem] text-[10px];
+        font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
         letter-spacing: 0.16em;
         text-transform: uppercase;
         color: #475569;
         text-decoration: none;
-        padding: 0.5rem 0.45rem;
     }
 
     .floating-doc-flyout nav a:hover {
@@ -457,9 +445,128 @@ h3.offer_name {
     }
 }
 
+
+.invoice-company-block {
+    @apply space-y-1 text-sm text-neutral-600 md:text-right;
+}
+
+.invoice-client-block {
+    @apply space-y-1;
+}
+
+.invoice-client-name {
+    @apply mt-2 text-sm text-neutral-600;
+}
+
+.invoice-client-meta {
+    @apply text-sm text-neutral-600;
+}
+
+.invoice-summary-card {
+    @apply rounded-2xl border border-neutral-200 bg-white p-6;
+}
+
+.invoice-summary-label {
+    @apply text-sm text-neutral-600;
+}
+
+.invoice-summary-value {
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    @apply text-xl text-neutral-900;
+}
+
+.invoice-summary-total-label {
+    @apply mt-4 border-t border-neutral-200 pt-4 text-sm text-neutral-600;
+}
+
+.invoice-summary-total {
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    @apply text-2xl text-neutral-900;
+}
+
+.invoice-table-wrap {
+    @apply overflow-hidden rounded-2xl border border-neutral-200;
+}
+
+.invoice-table {
+    @apply w-full text-sm;
+}
+
+.invoice-table thead {
+    @apply bg-neutral-100 text-neutral-700;
+}
+
+.invoice-table th {
+    @apply px-4 py-3 text-left font-medium;
+}
+
+.invoice-table td {
+    @apply px-4 py-3;
+}
+
+.invoice-table tbody tr {
+    @apply border-t border-neutral-200 align-top;
+}
+
+.invoice-table-description {
+    @apply text-neutral-600;
+}
+
+.invoice-table-price {
+    @apply text-right font-medium;
+}
+
+.invoice-empty-state {
+    @apply text-neutral-500;
+}
+
 @media print {
     .proposal-frame {
         box-shadow: none;
+    }
+
+    .proposal-doc .proposal-cover-header {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+
+    .proposal-doc .proposal-cover-header .document-meta-stack {
+        margin-left: auto;
+        text-align: right;
+    }
+
+    .proposal-doc .proposal-cover {
+        min-height: 267mm;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .proposal-doc .portfolio-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2.5rem;
+    }
+
+    .proposal-doc .proposal-cover + .section-row {
+        border-top: 0;
+    }
+
+    .proposal-doc .proposal-endcap {
+        background: #ffffff;
+        color: #262626;
+        border-top: 1px solid #dbeafe;
+    }
+
+    .proposal-doc .proposal-endcap,
+    .proposal-doc .proposal-endcap * {
+        color: inherit;
+    }
+
+    .proposal-doc .proposal-endcap img.invert,
+    .proposal-doc .proposal-endcap img.grayscale {
+        filter: none;
     }
 
     .floating-doc-nav {
@@ -485,7 +592,7 @@ h3.offer_name {
     }
 
     .proposal-doc table tr,
-    .proposal-doc .portfolio-card {
+    .proposal-doc .portfolio-grid > * {
         break-inside: avoid;
         page-break-inside: avoid;
     }

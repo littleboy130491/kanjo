@@ -95,8 +95,8 @@
 
 <x-layout :locale="$locale" :title="$invoice->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
     lang-route="invoice.show" pdf-route="pdf.invoice">
-    <div class="proposal-frame proposal-doc mx-auto w-full max-w-[1000px] space-y-8">
-        <section class="proposal-cover p-10 md:p-24 avoid-page-break">
+    <div class="proposal-frame proposal-doc document-shell document-shell-spaced">
+        <section class="proposal-cover document-cover-pad avoid-page-break">
             <div class="flex flex-col items-start justify-between gap-8 md:flex-row">
                 <div class="space-y-3">
                     @if($logoUrl)
@@ -118,7 +118,7 @@
                     </div>
                 </div>
 
-                <div class="space-y-1 text-sm text-neutral-600 md:text-right">
+                <div class="invoice-company-block">
                     @if(filled($company?->company_name))
                         <p class="text-neutral-900">{{ $company->company_name }}</p>
                     @endif
@@ -151,47 +151,47 @@
                 </div>
             </div>
             <div class="mt-10 grid gap-6 md:grid-cols-2">
-                <div>
-                    <span class="proposal-kicker mb-2 block text-[10px] font-medium uppercase tracking-[0.3em]">Invoice To</span>
+                <div class="invoice-client-block">
+                    <span class="proposal-kicker document-kicker mb-2">Invoice To</span>
                     <h1 class="proposal-serif text-3xl text-neutral-900">{{ $invoice->client_company }}</h1>
-                    <p class="mt-2 text-sm text-neutral-600">{{ $invoice->client_name }}</p>
-                    <p class="text-sm text-neutral-600">{{ $invoice->client_email }}</p>
+                    <p class="invoice-client-name">{{ $invoice->client_name }}</p>
+                    <p class="invoice-client-meta">{{ $invoice->client_email }}</p>
                     @if(filled($invoice->client_phone))
-                        <p class="text-sm text-neutral-600">{{ $invoice->client_phone }}</p>
+                        <p class="invoice-client-meta">{{ $invoice->client_phone }}</p>
                     @endif
                 </div>
-                <div class="rounded-2xl border border-neutral-200 bg-white p-6">
-                    <p class="text-sm text-neutral-600">Subtotal</p>
-                    <p class="proposal-serif text-xl text-neutral-900">{{ $toMoney($invoice->subtotal) }}</p>
+                <div class="invoice-summary-card">
+                    <p class="invoice-summary-label">Subtotal</p>
+                    <p class="invoice-summary-value">{{ $toMoney($invoice->subtotal) }}</p>
                     <p class="mt-3 text-sm text-neutral-600">Tax ({{ number_format((float) $invoice->tax_rate, 2) }}%)</p>
                     <p class="proposal-serif text-lg text-neutral-900">{{ $toMoney($invoice->tax_amount) }}</p>
-                    <p class="mt-4 border-t border-neutral-200 pt-4 text-sm text-neutral-600">Total</p>
-                    <p class="proposal-serif text-2xl text-neutral-900">{{ $toMoney($invoice->total) }}</p>
+                    <p class="invoice-summary-total-label">Total</p>
+                    <p class="invoice-summary-total">{{ $toMoney($invoice->total) }}</p>
                 </div>
             </div>
         </section>
 
-        <section class="px-6 pb-10 pt-0 md:px-24 avoid-page-break">
-            <span class="proposal-kicker mb-3 block text-[10px] font-medium uppercase tracking-[0.3em]">Items</span>
-            <div class="overflow-hidden rounded-2xl border border-neutral-200">
-                <table class="w-full text-sm">
-                    <thead class="bg-neutral-100 text-neutral-700">
+        <section class="document-section-pad avoid-page-break">
+            <span class="proposal-kicker document-kicker">Items</span>
+            <div class="invoice-table-wrap">
+                <table class="invoice-table">
+                    <thead>
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium">Title</th>
-                            <th class="px-4 py-3 text-left font-medium">Description</th>
-                            <th class="px-4 py-3 text-right font-medium">Price</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th class="text-right">Price</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($items as $item)
-                            <tr class="border-t border-neutral-200 align-top">
-                                <td class="px-4 py-3">{{ $item['title'] ?? '-' }}</td>
-                                <td class="px-4 py-3 text-neutral-600">{{ $item['description'] ?? '-' }}</td>
-                                <td class="px-4 py-3 text-right font-medium">{{ $toMoney($item['price'] ?? 0) }}</td>
+                            <tr>
+                                <td>{{ $item['title'] ?? '-' }}</td>
+                                <td class="invoice-table-description">{{ $item['description'] ?? '-' }}</td>
+                                <td class="invoice-table-price">{{ $toMoney($item['price'] ?? 0) }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td class="px-4 py-3 text-neutral-500" colspan="3">No items available.</td>
+                                <td class="invoice-empty-state" colspan="3">No items available.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -200,24 +200,24 @@
         </section>
 
         @if($additionalInfoHtml !== '')
-            <section class="px-6 pb-10 pt-0 md:px-24">
-                <span class="proposal-kicker mb-3 block text-[10px] font-medium uppercase tracking-[0.3em]">Additional Info</span>
-                <div class="prose prose-sm max-w-none text-neutral-700">
+            <section class="document-section-pad">
+                <span class="proposal-kicker document-kicker">Additional Info</span>
+                <div class="document-richtext">
                     {!! $additionalInfoHtml !!}
                 </div>
             </section>
         @endif
 
         @if(! empty($bankRows) || filled($footerTextHtml))
-            <section class="px-6 pb-10 pt-0 text-sm text-neutral-600 md:px-24">
+            <section class="document-section-pad text-sm text-neutral-600">
                 @if(filled($footerTextHtml))
-                    <div class="prose prose-sm max-w-none">{!! $footerTextHtml !!}</div>
+                    <div class="document-richtext">{!! $footerTextHtml !!}</div>
                 @endif
 
                 @if(! empty($bankRows))
-                    <div class="mt-4">
-                        <p class="mb-2 font-semibold text-neutral-900">Bank Details</p>
-                        <div class="space-y-1">
+                    <div class="document-bank-details">
+                        <p class="document-bank-title">Bank Details</p>
+                        <div class="document-bank-list">
                             @foreach($bankRows as $bank)
                                 <p>
                                     {{ $bank['bank_name'] ?? '-' }} - {{ $bank['account_number'] ?? '-' }}
