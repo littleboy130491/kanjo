@@ -25,6 +25,24 @@ class RoleAndPermissionSeeder extends Seeder
         'User',
     ];
 
+    /**
+     * @var array<int, string>
+     */
+    private const EDITOR_RESTRICTED_DESTRUCTIVE_SUBJECTS = [
+        'Client',
+        'Service',
+    ];
+
+    /**
+     * @var array<int, string>
+     */
+    private const EDITOR_RESTRICTED_DESTRUCTIVE_ACTIONS = [
+        'Delete',
+        'DeleteAny',
+        'ForceDelete',
+        'ForceDeleteAny',
+    ];
+
     public function run(): void
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
@@ -61,8 +79,14 @@ class RoleAndPermissionSeeder extends Seeder
 
     private function isRestrictedPermission(string $permission): bool
     {
+        $action = Str::of($permission)->before(':')->toString();
         $subject = Str::of($permission)->after(':')->toString();
 
-        return in_array($subject, self::RESTRICTED_PERMISSION_SUBJECTS, true);
+        if (in_array($subject, self::RESTRICTED_PERMISSION_SUBJECTS, true)) {
+            return true;
+        }
+
+        return in_array($subject, self::EDITOR_RESTRICTED_DESTRUCTIVE_SUBJECTS, true)
+            && in_array($action, self::EDITOR_RESTRICTED_DESTRUCTIVE_ACTIONS, true);
     }
 }
