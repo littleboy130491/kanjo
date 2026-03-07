@@ -161,7 +161,6 @@
                     ->width(240)
                     ->height(120)
                     ->fit('contain')
-                    ->format('webp')
                     ->toUrl($preparedByMedia->path);
         } elseif (is_array($picSign) && filled($picSign['path'] ?? null)) {
             $preparedBySignatureUrl = $pdfMode
@@ -170,7 +169,6 @@
                     ->width(240)
                     ->height(120)
                     ->fit('contain')
-                    ->format('webp')
                     ->toUrl($picSign['path']);
         } elseif (is_string($picSign) && filled($picSign) && ! is_numeric($picSign)) {
             $preparedBySignatureUrl = $pdfMode && ! str_starts_with($picSign, 'http')
