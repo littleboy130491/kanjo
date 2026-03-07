@@ -5,8 +5,6 @@ namespace App\Providers;
 use App\Policies\ActivityPolicy;
 use App\Policies\MediaPolicy;
 use App\Policies\RolePolicy;
-use Awcodes\Curator\Facades\Glide;
-use Awcodes\Curator\Glide\SymfonyResponseFactory;
 use Awcodes\Curator\Models\Media;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -21,15 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        Glide::serverConfig([
-            'driver' => 'imagick',
-            'response' => new SymfonyResponseFactory(app('request')),
-            'source' => storage_path('app'),
-            'source_path_prefix' => 'public',
-            'cache' => storage_path('app'),
-            'cache_path_prefix' => '.cache',
-            'max_image_size' => 2000 * 2000,
-        ]);
+        //
     }
 
     /**
