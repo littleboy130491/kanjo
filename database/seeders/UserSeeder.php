@@ -15,19 +15,10 @@ class UserSeeder extends Seeder
     {
         // Create admin user
         User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
+            'name' => 'Admin',
+            'email' => 'webmaster.imajiner@gmail.com',
             'password' => Hash::make('password'),
-        ]);
+        ])->assignRole('super_admin');
 
-        // Create test user
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => Hash::make('password'),
-        ]);
-
-        // Create additional users
-        User::factory(3)->create();
     }
 }
