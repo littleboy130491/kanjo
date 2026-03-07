@@ -68,7 +68,7 @@ class CreateInvoiceAction
                     'description' => '',
                 ],
             ],
-            'status' => DocumentStatus::DRAFT,
+            'status' => DocumentStatus::PUBLISHED,
             'payment_status' => PaymentStatus::UNPAID,
             'proposal_id' => $proposal->id,
             'notes' => [],
