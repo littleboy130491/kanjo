@@ -26,7 +26,6 @@ class ServiceForm
                             ->maxLength(255),
                         TextInput::make('domain')
                             ->label('Domain/Website URL')
-                            ->url()
                             ->nullable()
                             ->maxLength(255),
                         Select::make('client_id')
