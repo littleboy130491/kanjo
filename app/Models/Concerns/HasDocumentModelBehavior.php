@@ -16,6 +16,7 @@ trait HasDocumentModelBehavior
                 $model->updated_by = auth()->id();
             }
 
+            static::syncAccessCredentialVersion($model);
             static::beforeDocumentSaving($model);
 
             if (blank($model->slug)) {
@@ -109,6 +110,15 @@ trait HasDocumentModelBehavior
 
     protected static function beforeDocumentSaving(Model $model): void
     {
+    }
+
+    protected static function syncAccessCredentialVersion(Model $model): void
+    {
+        if (! $model->isDirty('access_username') && ! $model->isDirty('access_password')) {
+            return;
+        }
+
+        $model->access_credentials_updated_at = now();
     }
 
     protected static function resolveDocumentSuffixForCreate(Model $model): ?string

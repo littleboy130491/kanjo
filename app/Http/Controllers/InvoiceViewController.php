@@ -74,7 +74,10 @@ class InvoiceViewController extends Controller
             ])->withInput();
         }
 
-        $request->session()->put(DocumentAccessMiddleware::sessionKey('invoice', $invoice->id), true);
+        $request->session()->put([
+            DocumentAccessMiddleware::sessionKey('invoice', $invoice->id) => true,
+            DocumentAccessMiddleware::versionKey('invoice', $invoice->id) => DocumentAccessMiddleware::credentialVersion($invoice),
+        ]);
 
         return redirect()->route('invoice.show', [
             'slug' => $slug,

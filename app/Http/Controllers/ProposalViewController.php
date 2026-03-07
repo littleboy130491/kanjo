@@ -74,7 +74,10 @@ class ProposalViewController extends Controller
             ])->withInput();
         }
 
-        $request->session()->put(DocumentAccessMiddleware::sessionKey('proposal', $proposal->id), true);
+        $request->session()->put([
+            DocumentAccessMiddleware::sessionKey('proposal', $proposal->id) => true,
+            DocumentAccessMiddleware::versionKey('proposal', $proposal->id) => DocumentAccessMiddleware::credentialVersion($proposal),
+        ]);
 
         return redirect()->route('proposal.show', [
             'slug' => $slug,

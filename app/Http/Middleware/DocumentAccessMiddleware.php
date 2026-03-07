@@ -27,8 +27,15 @@ class DocumentAccessMiddleware
         }
 
         $sessionKey = $this->sessionKey($type, $document->id);
+        $versionKey = $this->versionKey($type, $document->id);
+        $expectedVersion = self::credentialVersion($document);
 
-        if (! $request->session()->get($sessionKey, false)) {
+        if (
+            ! $request->session()->get($sessionKey, false)
+            || $request->session()->get($versionKey) !== $expectedVersion
+        ) {
+            $request->session()->forget([$sessionKey, $versionKey]);
+
             return response()->view('auth.document-access', [
                 'document' => $document,
                 'documentType' => $type,
@@ -47,6 +54,16 @@ class DocumentAccessMiddleware
     public static function sessionKey(string $type, int $id): string
     {
         return "doc_auth_{$type}_{$id}";
+    }
+
+    public static function versionKey(string $type, int $id): string
+    {
+        return "doc_auth_{$type}_{$id}_version";
+    }
+
+    public static function credentialVersion(Proposal|Invoice $document): string
+    {
+        return $document->access_credentials_updated_at?->toIso8601String() ?? 'initial';
     }
 
     public static function passwordsMatch(string $input, string $expected): bool
