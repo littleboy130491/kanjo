@@ -35,7 +35,7 @@ class DocumentStatsWidget extends StatsOverviewWidget
             ->where('payment_status', PaymentStatus::PAID)
             ->whereMonth('paid_at', now()->month)
             ->whereYear('paid_at', now()->year)
-            ->sum('paid_amount');
+            ->sum('total');
 
         return [
             Stat::make('Total Outstanding', $this->formatIdr($totalOutstanding))
