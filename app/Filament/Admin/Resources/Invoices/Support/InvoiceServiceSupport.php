@@ -5,13 +5,14 @@ namespace App\Filament\Admin\Resources\Invoices\Support;
 use App\Enums\ServiceStatus;
 use App\Models\Invoice;
 use App\Models\Service;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceServiceSupport
 {
     /**
-     * @return array<int, TextInput>
+     * @return array<int, TextInput|DatePicker>
      */
     public static function createServiceFormSchema(?callable $recordResolver = null, bool $useCurrentDateDefaults = false): array
     {
@@ -39,8 +40,9 @@ class InvoiceServiceSupport
 
                     return (string) ($invoice?->currency ?: 'IDR');
                 }),
-            TextInput::make('start_date')
-                ->maxLength(255)
+            DatePicker::make('start_date')
+                ->native(false)
+                ->displayFormat('F j, Y')
                 ->default(function (?Invoice $record = null) use ($recordResolver, $useCurrentDateDefaults): string {
                     $invoice = self::resolveInvoice($record, $recordResolver);
 
@@ -48,8 +50,10 @@ class InvoiceServiceSupport
                         ? now()->toDateString()
                         : (string) ($invoice?->issue_date?->toDateString() ?: '');
                 }),
-            TextInput::make('renewal_date')
-                ->maxLength(255)
+            DatePicker::make('renewal_date')
+                ->native(false)
+                ->displayFormat('F j, Y')
+                ->helperText('Stored as a real date so the Service renewal-month filter works correctly.')
                 ->default(function (?Invoice $record = null) use ($recordResolver, $useCurrentDateDefaults): string {
                     $invoice = self::resolveInvoice($record, $recordResolver);
 

@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Clients\RelationManagers;
 use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Services\ServiceResource;
 use App\Models\Service;
+use App\Support\ServiceDate;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -35,9 +36,11 @@ class ServicesRelationManager extends RelationManager
                     ->color(fn (ServiceStatus $state): string => $state->getColor())
                     ->sortable(),
                 TextColumn::make('start_date')
-                    ->sortable(),
+                    ->sortable()
+                    ->formatStateUsing(fn (?string $state): ?string => ServiceDate::format($state)),
                 TextColumn::make('renewal_date')
-                    ->sortable(),
+                    ->sortable()
+                    ->formatStateUsing(fn (?string $state): ?string => ServiceDate::format($state, includeYear: false)),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([])

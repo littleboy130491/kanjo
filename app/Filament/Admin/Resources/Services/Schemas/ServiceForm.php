@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\Services\Schemas;
 
 use App\Enums\ServiceStatus;
 use App\Models\Client;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -74,16 +75,18 @@ class ServiceForm
 
                 Section::make('Dates')
                     ->schema([
-                        TextInput::make('start_date')
+                        DatePicker::make('start_date')
                             ->label('Start Date')
-                            ->placeholder('e.g., 2024-01-15')
                             ->nullable()
-                            ->maxLength(255),
-                        TextInput::make('renewal_date')
+                            ->native(false)
+                            ->displayFormat('F j, Y')
+                            ->helperText('Select a real date instead of free text so service dates stay consistent.'),
+                        DatePicker::make('renewal_date')
                             ->label('Renewal Date')
-                            ->placeholder('e.g., January 15')
                             ->nullable()
-                            ->maxLength(255),
+                            ->native(false)
+                            ->displayFormat('F j, Y')
+                            ->helperText('Use a real date so the Renewal Month table filter can match this field reliably.'),
                     ])
                     ->columns(2),
 

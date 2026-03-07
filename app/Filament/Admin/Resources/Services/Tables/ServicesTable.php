@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Services\Tables;
 use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Services\Support\ServiceInvoiceSupport;
 use App\Models\Service;
+use App\Support\ServiceDate;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -41,9 +42,11 @@ class ServicesTable
                     ->badge()
                     ->color(fn ($state): string => $state instanceof ServiceStatus ? $state->getColor() : 'gray'),
                 TextColumn::make('renewal_date')
-                    ->label('Renewal Date'),
+                    ->label('Renewal Date')
+                    ->formatStateUsing(fn (?string $state): ?string => ServiceDate::format($state, includeYear: false)),
                 TextColumn::make('start_date')
-                    ->label('Start Date'),
+                    ->label('Start Date')
+                    ->formatStateUsing(fn (?string $state): ?string => ServiceDate::format($state)),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -78,7 +81,10 @@ class ServicesTable
                             return $query;
                         }
 
-                        return $query->whereMonth('renewal_date', $data['month']);
+                        return $query->whereRaw(
+                            "MONTH(STR_TO_DATE(renewal_date, '%Y-%m-%d')) = ?",
+                            [$data['month']],
+                        );
                     }),
                 Filter::make('start_date')
                     ->label('Start Date')
