@@ -21,7 +21,7 @@ class CreateInvoiceAction
                 $invoice = self::createInvoiceFromProposal(
                     $record,
                     (float) $record->offer_1_price,
-                    (string) $record->offer_name_1,
+                    self::formatInvoiceItemTitle($record, (string) $record->offer_name_1),
                     'DP',
                 );
 
@@ -78,5 +78,16 @@ class CreateInvoiceAction
         $invoice->save();
 
         return $invoice;
+    }
+
+    private static function formatInvoiceItemTitle(Proposal $proposal, string $title): string
+    {
+        $baseTitle = filled($title) ? $title : 'Quotation';
+
+        if (blank($proposal->document_number)) {
+            return $baseTitle;
+        }
+
+        return sprintf('%s (%s)', $baseTitle, $proposal->document_number);
     }
 }
