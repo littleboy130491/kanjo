@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\DocumentAuthThrottleMiddleware;
+use App\Http\Middleware\NoIndexMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use App\Http\Middleware\DocumentAccessMiddleware;
@@ -12,8 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(NoIndexMiddleware::class);
+
         $middleware->alias([
             'document.access' => DocumentAccessMiddleware::class,
+            'document.auth.throttle' => DocumentAuthThrottleMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

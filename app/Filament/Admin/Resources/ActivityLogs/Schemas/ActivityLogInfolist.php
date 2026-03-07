@@ -39,14 +39,16 @@ class ActivityLogInfolist
                             ->label('Activity')
                             ->badge()
                             ->default('-'),
-                        TextEntry::make('subject_type')
+                        TextEntry::make('associated_model')
                             ->label('Model Associated')
-                            ->formatStateUsing(fn (?string $state): string => filled($state) ? class_basename($state) : '-'),
-                        TextEntry::make('subject_id')
+                            ->state(fn (Activity $record): string => self::resolveAssociatedModel($record))
+                            ->copyable(),
+                        TextEntry::make('associated_record')
                             ->label('Record Associated')
-                            ->default('-')
+                            ->state(fn (Activity $record): string => self::resolveAssociatedRecord($record))
                             ->url(fn (Activity $record): ?string => self::resolveSubjectEditUrl($record))
-                            ->openUrlInNewTab(),
+                            ->openUrlInNewTab()
+                            ->copyable(),
                         TextEntry::make('created_at')
                             ->label('Date')
                             ->dateTime('d M Y H:i:s'),
@@ -85,6 +87,40 @@ class ActivityLogInfolist
             ]);
     }
 
+    public static function resolveAssociatedModel(Activity $record): string
+    {
+        if (filled($record->subject_type)) {
+            return class_basename($record->subject_type);
+        }
+
+        $documentType = $record->properties->get('document_type');
+
+        if (filled($documentType)) {
+            return ucfirst((string) $documentType);
+        }
+
+        return '-';
+    }
+
+    public static function resolveAssociatedRecord(Activity $record): string
+    {
+        if (filled($record->subject_id)) {
+            $label = self::resolveSubjectLabel($record);
+
+            return filled($label)
+                ? $record->subject_id . ' - ' . $label
+                : (string) $record->subject_id;
+        }
+
+        $slug = $record->properties->get('slug');
+
+        if (filled($slug)) {
+            return (string) $slug;
+        }
+
+        return '-';
+    }
+
     public static function resolveSubjectEditUrl(Activity $record): ?string
     {
         $resource = self::resolveSubjectResourceClass($record->subject_type);
@@ -96,6 +132,24 @@ class ActivityLogInfolist
         return $resource::getUrl('edit', ['record' => $record->subject]);
     }
 
+    protected static function resolveSubjectLabel(Activity $record): ?string
+    {
+        $subject = $record->subject;
+
+        if ($subject === null) {
+            return null;
+        }
+
+        foreach (['document_number', 'company_name', 'brand_name', 'name', 'title', 'email'] as $attribute) {
+            $value = data_get($subject, $attribute);
+
+            if (filled($value)) {
+                return (string) $value;
+            }
+        }
+
+        return null;
+    }
     protected static function resolveSubjectResourceClass(?string $subjectType): ?string
     {
         return match ($subjectType) {

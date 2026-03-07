@@ -25,13 +25,15 @@ class ActivityLogsTable
                     ->label('Activity')
                     ->badge()
                     ->sortable(),
-                TextColumn::make('subject_type')
+                TextColumn::make('associated_model')
                     ->label('Model Associated')
-                    ->formatStateUsing(fn (?string $state): string => filled($state) ? class_basename($state) : '-')
+                    ->state(fn (Activity $record): string => ActivityLogInfolist::resolveAssociatedModel($record))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('subject_id')
+                TextColumn::make('associated_record')
                     ->label('Record Associated')
+                    ->state(fn (Activity $record): string => ActivityLogInfolist::resolveAssociatedRecord($record))
+                    ->searchable()
                     ->sortable()
                     ->url(fn (Activity $record): ?string => ActivityLogInfolist::resolveSubjectEditUrl($record))
                     ->openUrlInNewTab(),
@@ -58,6 +60,7 @@ class ActivityLogsTable
                         'updated' => 'Updated',
                         'deleted' => 'Deleted',
                         'restored' => 'Restored',
+                        'rate_limited' => 'Rate Limited',
                     ]),
                 Filter::make('created_at')
                     ->label('Date')

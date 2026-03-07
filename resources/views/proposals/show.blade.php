@@ -188,7 +188,7 @@
                 <div class="section-content portfolio-grid">
                     @foreach($proposal->portfolios as $portfolio)
                         <article class="group cursor-pointer border-0">
-                            <a style="text-decoration: none !important;" href="{{ $portfolio->url_link }}" target="_blank" rel="noreferrer">
+                            <a style="text-decoration: none !important;" href="{{ $portfolio->url_link }}" target="_blank" rel="nofollow noopener noreferrer">
                                 <div class="mb-4 aspect-[4/3] overflow-hidden bg-neutral-100">
                                     @if($portfolio->portfolio_image_url)
                                         <img src="{{ $portfolio->portfolio_image_url }}" alt="{{ $portfolio->name }}"
@@ -571,7 +571,7 @@
                         <div class="w-full text-left md:text-right">
                             @if($companyWebsiteUrl)
                                 <a href="{{ $companyWebsiteUrl }}/?utm_source=proposal&utm_medium=qr&utm_campaign={{ $proposal->slug }}"
-                                    target="_blank" rel="noreferrer">
+                                    target="_blank" rel="nofollow noopener noreferrer">
                                     <img src="{{ $footerBarcodeUrl }}" alt="QR Code"
                                         class="h-24 w-24 rounded-sm bg-white p-1 object-contain md:ml-auto">
                                 </a>

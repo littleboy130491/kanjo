@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\DocumentStatus;
+use App\Enums\UserRole;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use Closure;
@@ -18,6 +19,12 @@ class DocumentAccessMiddleware
 
         if (! $document || $document->status !== DocumentStatus::PUBLISHED) {
             abort(404);
+        }
+
+        if ($this->canBypassDocumentAccess()) {
+            $request->attributes->set('document', $document);
+
+            return $next($request);
         }
 
         [$username, $password, $useDocumentCredentials] = $this->resolveCredentials($document);
@@ -69,6 +76,20 @@ class DocumentAccessMiddleware
     public static function passwordsMatch(string $input, string $expected): bool
     {
         return hash_equals($expected, $input);
+    }
+
+    private function canBypassDocumentAccess(): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasAnyRole([
+            UserRole::SuperAdmin->value,
+            UserRole::Editor->value,
+        ]);
     }
 
     private function resolveDocument(string $type, string $slug): Proposal|Invoice|null

@@ -14,6 +14,8 @@ Route::get('/proposal/{slug}', [ProposalViewController::class, 'show'])
     ->middleware('document.access:proposal')
     ->name('proposal.show');
 Route::post('/proposal/{slug}/auth', [ProposalViewController::class, 'authenticate'])
+    ->defaults('document_type', 'proposal')
+    ->middleware('document.auth.throttle')
     ->name('proposal.auth');
 Route::get('/proposal/{slug}/pdf', [PdfController::class, 'proposal'])
     ->middleware('document.access:proposal')
@@ -23,6 +25,8 @@ Route::get('/invoice/{slug}', [InvoiceViewController::class, 'show'])
     ->middleware('document.access:invoice')
     ->name('invoice.show');
 Route::post('/invoice/{slug}/auth', [InvoiceViewController::class, 'authenticate'])
+    ->defaults('document_type', 'invoice')
+    ->middleware('document.auth.throttle')
     ->name('invoice.auth');
 Route::get('/invoice/{slug}/pdf', [PdfController::class, 'invoice'])
     ->middleware('document.access:invoice')

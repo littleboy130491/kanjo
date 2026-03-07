@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Middleware\DocumentAccessMiddleware;
+use App\Http\Middleware\DocumentAuthThrottleMiddleware;
 use App\Models\Proposal;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class ProposalViewController extends Controller
 {
@@ -69,10 +71,17 @@ class ProposalViewController extends Controller
         );
 
         if (! $usernameMatches || ! $passwordMatches) {
+            RateLimiter::hit(
+                DocumentAuthThrottleMiddleware::key($request),
+                DocumentAuthThrottleMiddleware::DECAY_SECONDS,
+            );
+
             return back()->withErrors([
                 'credentials' => 'Invalid credentials.',
             ])->withInput();
         }
+
+        RateLimiter::clear(DocumentAuthThrottleMiddleware::key($request));
 
         $request->session()->put([
             DocumentAccessMiddleware::sessionKey('proposal', $proposal->id) => true,
