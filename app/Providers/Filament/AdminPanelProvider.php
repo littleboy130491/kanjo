@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Admin\Widgets\DocumentStatsWidget;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -25,25 +26,25 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->id("admin")
+            ->id('admin')
             ->default()
-            ->path("admin")
-            ->viteTheme("resources/css/filament/admin/theme.css")
+            ->path('admin')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
             ->colors([
-                "primary" => Color::Amber,
+                'primary' => Color::Amber,
             ])
             ->discoverResources(
-                in: app_path("Filament/Admin/Resources"),
+                in: app_path('Filament/Admin/Resources'),
                 for: "App\Filament\Admin\Resources",
             )
             ->discoverPages(
-                in: app_path("Filament/Admin/Pages"),
+                in: app_path('Filament/Admin/Pages'),
                 for: "App\Filament\Admin\Pages",
             )
             ->pages([Dashboard::class])
             ->discoverWidgets(
-                in: app_path("Filament/Admin/Widgets"),
+                in: app_path('Filament/Admin/Widgets'),
                 for: "App\Filament\Admin\Widgets",
             )
             ->widgets([AccountWidget::class, DocumentStatsWidget::class, FilamentInfoWidget::class])
@@ -59,7 +60,14 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([Authenticate::class])
-            ->plugins([\Awcodes\Curator\CuratorPlugin::make()])
+            ->plugins([
+                \Awcodes\Curator\CuratorPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->navigationGroup('Settings')
+                    ->navigationLabel('Roles & Permissions')
+                    ->navigationIcon('heroicon-o-shield-check')
+                    ->navigationSort(1),
+            ])
             ->unsavedChangesAlerts()
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([

@@ -2,8 +2,10 @@
 
 namespace App\Filament\Admin\Resources\Users\Schemas;
 
-use Filament\Forms\Components\Section;
+use App\Enums\UserRole;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Validation\Rules\Password;
 
@@ -31,6 +33,12 @@ class UserForm
                             ->rule(Password::default())
                             ->dehydrated(fn ($state) => filled($state))
                             ->dehydrateStateUsing(fn ($state) => bcrypt($state)),
+                        Select::make('roles')
+                            ->relationship('roles', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->visible(fn (): bool => auth()->user()?->hasRole(UserRole::SuperAdmin->value) ?? false),
                     ])
                     ->columns(2),
             ]);
