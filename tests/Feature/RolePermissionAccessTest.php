@@ -17,6 +17,7 @@ use App\Filament\Admin\Resources\Users\UserResource;
 use App\Models\User;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
@@ -101,5 +102,42 @@ class RolePermissionAccessTest extends TestCase
             ->assertCanSeeTableRecords([$admin, $editor])
             ->assertTableColumnExists('roles.name')
             ->assertTableColumnFormattedStateSet('roles.name', UserRole::Editor->value, $editor);
+    }
+
+    public function test_production_panel_access_is_limited_to_super_admin_and_editor(): void
+    {
+        $this->seed(RoleAndPermissionSeeder::class);
+
+        $panel = Filament::getPanel('admin');
+
+        config()->set('app.env', 'production');
+        $this->app['env'] = 'production';
+
+        $superAdmin = User::query()->where('email', 'admin@example.com')->firstOrFail();
+
+        $editor = User::factory()->create();
+        $editor->assignRole(Role::findByName(UserRole::Editor->value, 'web'));
+
+        $everyAccess = User::factory()->create();
+        $everyAccess->assignRole(Role::findByName(UserRole::EveryAccess->value, 'web'));
+
+        $this->assertTrue($superAdmin->canAccessPanel($panel));
+        $this->assertTrue($editor->canAccessPanel($panel));
+        $this->assertFalse($everyAccess->canAccessPanel($panel));
+    }
+
+    public function test_non_production_panel_access_still_allows_every_access(): void
+    {
+        $this->seed(RoleAndPermissionSeeder::class);
+
+        $panel = Filament::getPanel('admin');
+
+        config()->set('app.env', 'local');
+        $this->app['env'] = 'local';
+
+        $everyAccess = User::factory()->create();
+        $everyAccess->assignRole(Role::findByName(UserRole::EveryAccess->value, 'web'));
+
+        $this->assertTrue($everyAccess->canAccessPanel($panel));
     }
 }
