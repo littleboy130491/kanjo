@@ -10,6 +10,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -118,8 +119,10 @@ class ServicesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
+                    ForceDeleteBulkAction::make()
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab === 'trash'),
                 ]),
             ]);
     }

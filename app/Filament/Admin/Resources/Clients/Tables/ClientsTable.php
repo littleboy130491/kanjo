@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -53,8 +54,10 @@ class ClientsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
+                    ForceDeleteBulkAction::make()
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab === 'trash'),
                 ]),
             ]);
     }
