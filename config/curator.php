@@ -44,5 +44,5 @@ return [
             'table' => Awcodes\Curator\Resources\Media\Tables\MediaTable::class,
         ],
     ],
-    'url_provider' => App\Support\CuratorUrlProvider::class,
+    'url_provider' => Awcodes\Curator\Providers\GlideUrlProvider::class,
 ];
