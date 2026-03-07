@@ -6,6 +6,7 @@
     'slug' => null,
     'langRoute' => null,
     'pdfRoute' => null,
+    'editUrl' => null,
 ])
 @php
     use Illuminate\Support\Facades\Vite;
@@ -46,7 +47,15 @@
 <body class="{{ $bodyClass }}">
 <div class="{{ $containerClass }}">
     @if(! $pdfMode && $slug && $langRoute && $pdfRoute)
-        <div class="no-print flex justify-end">
+        <div class="no-print flex justify-end gap-3">
+            @auth
+                @if($editUrl)
+                    <a class="rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-green-700"
+                        href="{{ $editUrl }}">
+                        Edit Document
+                    </a>
+                @endif
+            @endauth
             <a class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
                 href="{{ route($pdfRoute, ['slug' => $slug, 'lang' => $locale]) }}">
                 Download PDF

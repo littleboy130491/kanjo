@@ -15,6 +15,9 @@
     $footerBarcodeUrl = file_exists(storage_path('app/public/' . $footerBarcodePath))
         ? asset('storage/' . $footerBarcodePath)
         : null;
+    $editUrl = auth()->check()
+        ? \App\Filament\Admin\Resources\Proposals\ProposalResource::getUrl('edit', ['record' => $proposal])
+        : null;
     $companyWebsiteUrl = filled($company?->website)
         ? (str_starts_with((string) $company->website, 'http://') || str_starts_with((string) $company->website, 'https://')
             ? (string) $company->website
@@ -126,7 +129,7 @@
     $sectionNo = 1;
 @endphp
 <x-layout :locale="$locale" :title="$proposal->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
-    lang-route="proposal.show" pdf-route="pdf.proposal">
+    :edit-url="$editUrl" lang-route="proposal.show" pdf-route="pdf.proposal">
     <div class="document-frame document-view document-shell">
         <section class="document-cover document-cover-pad avoid-page-break">
             <div class="document-cover-header flex flex-col items-start justify-between gap-8 md:flex-row">

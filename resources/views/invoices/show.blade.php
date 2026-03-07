@@ -33,6 +33,9 @@
     $logoUrl = is_string($companyLogo) && $companyLogo !== ''
         ? (str_starts_with($companyLogo, 'http') ? $companyLogo : asset('storage/' . ltrim($companyLogo, '/')))
         : $fallbackLogoUrl;
+    $editUrl = auth()->check()
+        ? \App\Filament\Admin\Resources\Invoices\InvoiceResource::getUrl('edit', ['record' => $invoice])
+        : null;
     $companyEmails = collect([$company?->email_1, $company?->email_2])
         ->filter(fn ($value) => filled($value))
         ->values()
@@ -180,7 +183,7 @@
 @endphp
 
 <x-layout :locale="$locale" :title="$invoice->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
-    lang-route="invoice.show" pdf-route="pdf.invoice">
+    :edit-url="$editUrl" lang-route="invoice.show" pdf-route="pdf.invoice">
     <div class="document-frame document-view document-shell">
         <section class="document-section-pad pt-10 md:pt-24 avoid-page-break">
             <div class="invoice-row invoice-row-logo">
@@ -368,4 +371,3 @@
         @endif
     </div>
 </x-layout>
-
