@@ -24,6 +24,7 @@ class DuplicateProposalAction
                     'document_number',
                     'slug',
                     'document_number_raw',
+                    'document_number_override',
                     'issue_month',
                     'issue_year',
                     'invoices_count',
@@ -33,6 +34,10 @@ class DuplicateProposalAction
                 ]);
 
                 $duplicate->status = DocumentStatus::DRAFT;
+                $duplicate->document_number = null;
+                $duplicate->document_number_raw = null;
+                $duplicate->issue_month = null;
+                $duplicate->issue_year = null;
                 $duplicate->document_number_override = false;
                 $duplicate->save();
                 $duplicate->portfolios()->sync($record->portfolios->modelKeys());
