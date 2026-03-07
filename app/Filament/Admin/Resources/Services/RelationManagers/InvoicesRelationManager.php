@@ -5,7 +5,10 @@ namespace App\Filament\Admin\Resources\Services\RelationManagers;
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
+use App\Filament\Admin\Resources\Services\Actions\UnlinkInvoiceServiceAction;
+use App\Filament\Admin\Resources\Services\Actions\UnlinkInvoiceServiceBulkAction;
 use App\Models\Invoice;
+use Filament\Actions\BulkActionGroup;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -52,7 +55,13 @@ class InvoicesRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
-            ->recordActions([])
-            ->toolbarActions([]);
+            ->recordActions([
+                UnlinkInvoiceServiceAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    UnlinkInvoiceServiceBulkAction::make(),
+                ]),
+            ]);
     }
 }
