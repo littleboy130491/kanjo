@@ -26,6 +26,8 @@ class DuplicateInvoiceAction
                     'document_number_raw',
                     'issue_month',
                     'issue_year',
+                    'payment_status',
+                    'paid_at',
                     'created_at',
                     'updated_at',
                     'deleted_at',
