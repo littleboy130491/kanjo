@@ -32,8 +32,8 @@ class RolePermissionAccessTest extends TestCase
         $this->seed(RoleAndPermissionSeeder::class);
 
         $this->assertDatabaseHas('roles', ['name' => UserRole::SuperAdmin->value]);
-        $this->assertDatabaseHas('roles', ['name' => UserRole::EveryAccess->value]);
         $this->assertDatabaseHas('roles', ['name' => UserRole::Editor->value]);
+        $this->assertDatabaseMissing('roles', ['name' => UserRole::EveryAccess->value]);
 
         $admin = User::query()->where('email', 'admin@example.com')->first();
 
@@ -61,28 +61,26 @@ class RolePermissionAccessTest extends TestCase
         $this->assertTrue(PortfolioResource::canViewAny());
     }
 
-    public function test_every_access_and_editor_cannot_access_sensitive_resources_but_can_access_operational_resources(): void
+    public function test_editor_cannot_access_sensitive_resources_but_can_access_operational_resources(): void
     {
         $this->seed(RoleAndPermissionSeeder::class);
 
-        foreach ([UserRole::EveryAccess, UserRole::Editor] as $role) {
-            $user = User::factory()->create();
-            $user->assignRole(Role::findByName($role->value, 'web'));
+        $user = User::factory()->create();
+        $user->assignRole(Role::findByName(UserRole::Editor->value, 'web'));
 
-            $this->actingAs($user);
+        $this->actingAs($user);
 
-            $this->assertFalse(UserResource::canViewAny(), $role->value.' should not access users');
-            $this->assertFalse(CompanyResource::canViewAny(), $role->value.' should not access companies');
-            $this->assertFalse(ProposalContentDefaultResource::canViewAny(), $role->value.' should not access proposal content defaults');
-            $this->assertFalse(ActivityLogResource::canViewAny(), $role->value.' should not access activity logs');
-            $this->assertFalse(RoleResource::canViewAny(), $role->value.' should not access roles');
+        $this->assertFalse(UserResource::canViewAny(), 'editor should not access users');
+        $this->assertFalse(CompanyResource::canViewAny(), 'editor should not access companies');
+        $this->assertFalse(ProposalContentDefaultResource::canViewAny(), 'editor should not access proposal content defaults');
+        $this->assertFalse(ActivityLogResource::canViewAny(), 'editor should not access activity logs');
+        $this->assertFalse(RoleResource::canViewAny(), 'editor should not access roles');
 
-            $this->assertTrue(ProposalResource::canViewAny(), $role->value.' should access proposals');
-            $this->assertTrue(InvoiceResource::canViewAny(), $role->value.' should access invoices');
-            $this->assertTrue(ClientResource::canViewAny(), $role->value.' should access clients');
-            $this->assertTrue(ServiceResource::canViewAny(), $role->value.' should access services');
-            $this->assertTrue(PortfolioResource::canViewAny(), $role->value.' should access portfolios');
-        }
+        $this->assertTrue(ProposalResource::canViewAny(), 'editor should access proposals');
+        $this->assertTrue(InvoiceResource::canViewAny(), 'editor should access invoices');
+        $this->assertTrue(ClientResource::canViewAny(), 'editor should access clients');
+        $this->assertTrue(ServiceResource::canViewAny(), 'editor should access services');
+        $this->assertTrue(PortfolioResource::canViewAny(), 'editor should access portfolios');
     }
 
     public function test_super_admin_can_manage_roles_from_the_filament_user_resource(): void
@@ -118,8 +116,10 @@ class RolePermissionAccessTest extends TestCase
         $editor = User::factory()->create();
         $editor->assignRole(Role::findByName(UserRole::Editor->value, 'web'));
 
+        $everyAccessRole = Role::findOrCreate(UserRole::EveryAccess->value, 'web');
+
         $everyAccess = User::factory()->create();
-        $everyAccess->assignRole(Role::findByName(UserRole::EveryAccess->value, 'web'));
+        $everyAccess->assignRole($everyAccessRole);
 
         $this->assertTrue($superAdmin->canAccessPanel($panel));
         $this->assertTrue($editor->canAccessPanel($panel));
@@ -135,8 +135,10 @@ class RolePermissionAccessTest extends TestCase
         config()->set('app.env', 'local');
         $this->app['env'] = 'local';
 
+        $everyAccessRole = Role::findOrCreate(UserRole::EveryAccess->value, 'web');
+
         $everyAccess = User::factory()->create();
-        $everyAccess->assignRole(Role::findByName(UserRole::EveryAccess->value, 'web'));
+        $everyAccess->assignRole($everyAccessRole);
 
         $this->assertTrue($everyAccess->canAccessPanel($panel));
     }

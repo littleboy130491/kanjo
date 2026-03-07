@@ -36,7 +36,6 @@ class RoleAndPermissionSeeder extends Seeder
             ->map(fn (string $permission): Permission => Permission::findOrCreate($permission, 'web'));
 
         $superAdminRole = Role::findOrCreate(UserRole::SuperAdmin->value, 'web');
-        $everyAccessRole = Role::findOrCreate(UserRole::EveryAccess->value, 'web');
         $editorRole = Role::findOrCreate(UserRole::Editor->value, 'web');
 
         $superAdminRole->syncPermissions($permissions);
@@ -45,7 +44,6 @@ class RoleAndPermissionSeeder extends Seeder
             fn (Permission $permission): bool => $this->isRestrictedPermission($permission->name),
         );
 
-        $everyAccessRole->syncPermissions($nonSensitivePermissions);
         $editorRole->syncPermissions($nonSensitivePermissions);
 
         $adminUser = User::query()->firstOrCreate(
