@@ -89,7 +89,7 @@ class ServiceInvoiceSupport
             'due_date' => self::resolveDueDate($issueDate),
             'items' => [
                 [
-                    'title' => 'Renewal: ' . (string) ($service->name ?: 'Service'),
+                    'title' => self::formatRenewalItemTitle($service),
                     'price' => (float) ($service->price ?? 0),
                     'description' => (string) ($service->domain ?? ''),
                 ],
@@ -118,5 +118,16 @@ class ServiceInvoiceSupport
         } catch (Throwable) {
             return now()->addDays(30)->toDateString();
         }
+    }
+
+    private static function formatRenewalItemTitle(Service $service): string
+    {
+        $title = 'Renewal: ' . (string) ($service->name ?: 'Service');
+
+        if (blank($service->domain)) {
+            return $title;
+        }
+
+        return sprintf('%s (%s)', $title, $service->domain);
     }
 }
