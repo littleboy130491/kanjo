@@ -17,7 +17,10 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Select;
+use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -122,7 +125,10 @@ class InvoicesTable
                 CreateServiceAction::make(),
                 DownloadInvoicePdfAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
+                RestoreAction::make()
+                    ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab === 'trash'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -141,7 +147,8 @@ class InvoicesTable
                             $status = DocumentStatus::from((string) $data['status']);
 
                             $records->each(fn (Invoice $record): bool => $record->update(['status' => $status]));
-                        }),
+                        })
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
                     BulkAction::make('change_payment_status')
                         ->label('Change Payment Status')
                         ->icon('heroicon-o-banknotes')
@@ -161,9 +168,14 @@ class InvoicesTable
                                 'payment_status' => $paymentStatus,
                                 'paid_at' => $paidAt,
                             ]));
-                        }),
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
+                        })
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
+                    DeleteBulkAction::make()
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
+                    RestoreBulkAction::make()
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab === 'trash'),
+                    ForceDeleteBulkAction::make()
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab === 'trash'),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

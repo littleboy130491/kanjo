@@ -6,6 +6,8 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -50,12 +52,17 @@ class ClientsTable
                 //
             ])
             ->recordActions([
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
+                RestoreAction::make()
+                    ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab === 'trash'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
+                    RestoreBulkAction::make()
+                        ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab === 'trash'),
                     ForceDeleteBulkAction::make()
                         ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab === 'trash'),
                 ]),
