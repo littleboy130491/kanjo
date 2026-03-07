@@ -84,6 +84,7 @@ return new class extends Migration
 
             // Relations
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignId('client_id')->nullable()->constrained()->nullOnDelete();
 

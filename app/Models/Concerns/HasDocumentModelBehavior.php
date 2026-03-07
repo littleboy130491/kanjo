@@ -12,6 +12,10 @@ trait HasDocumentModelBehavior
     protected static function bootHasDocumentModelBehavior(): void
     {
         static::saving(function (Model $model): void {
+            if (auth()->check()) {
+                $model->updated_by = auth()->id();
+            }
+
             static::beforeDocumentSaving($model);
 
             if (blank($model->slug)) {
@@ -26,6 +30,10 @@ trait HasDocumentModelBehavior
         static::creating(function (Model $model): void {
             if (empty($model->user_id) && auth()->check()) {
                 $model->user_id = auth()->id();
+            }
+
+            if (empty($model->updated_by) && auth()->check()) {
+                $model->updated_by = auth()->id();
             }
 
             static::syncIssuePeriodOnCreate($model);

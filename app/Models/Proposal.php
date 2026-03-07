@@ -6,6 +6,7 @@ use App\Enums\DocumentStatus;
 use App\Models\Concerns\HasDocumentModelBehavior;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
@@ -64,6 +65,7 @@ class Proposal extends Model
         'access_password',
         'notes',
         'user_id',
+        'updated_by',
         'company_id',
         'client_id',
     ];
@@ -110,14 +112,24 @@ class Proposal extends Model
         return 'QUO';
     }
 
-    public function company()
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function invoices()
@@ -125,7 +137,7 @@ class Proposal extends Model
         return $this->hasMany(Invoice::class);
     }
 
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }

@@ -7,6 +7,7 @@ use App\Enums\PaymentStatus;
 use App\Models\Concerns\HasDocumentModelBehavior;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
 
@@ -47,6 +48,7 @@ class Invoice extends Model
         'notes',
         'proposal_id',
         'user_id',
+        'updated_by',
         'company_id',
         'client_id',
         'service_id',
@@ -208,27 +210,37 @@ class Invoice extends Model
             || array_key_exists('description', $row);
     }
 
-    public function proposal()
+    public function proposal(): BelongsTo
     {
         return $this->belongsTo(Proposal::class);
     }
 
-    public function company()
+    public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function client()
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
     }
 
-    public function service()
+    public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }

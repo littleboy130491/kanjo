@@ -13,6 +13,7 @@ use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -331,6 +332,23 @@ class InvoiceForm
                                             ->default([])
                                             ->columnSpanFull(),
                                     ]),
+
+                                Section::make('Audit Information')
+                                    ->schema([
+                                        Placeholder::make('created_at_info')
+                                            ->label('Created At')
+                                            ->content(fn (?Invoice $record): string => $record?->created_at?->format('d M Y H:i:s') ?? '-'),
+                                        Placeholder::make('created_by_info')
+                                            ->label('Created By')
+                                            ->content(fn (?Invoice $record): string => $record?->createdBy?->name ?? '-'),
+                                        Placeholder::make('updated_at_info')
+                                            ->label('Updated At')
+                                            ->content(fn (?Invoice $record): string => $record?->updated_at?->format('d M Y H:i:s') ?? '-'),
+                                        Placeholder::make('updated_by_info')
+                                            ->label('Updated By')
+                                            ->content(fn (?Invoice $record): string => $record?->updatedBy?->name ?? '-'),
+                                    ])
+                                    ->columns(2),
                             ]),
                     ])
                     ->persistTabInQueryString()

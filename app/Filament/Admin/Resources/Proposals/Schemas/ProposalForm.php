@@ -16,6 +16,7 @@ use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -473,6 +474,23 @@ class ProposalForm
                                             ->default([])
                                             ->columnSpanFull(),
                                     ]),
+
+                                Section::make('Audit Information')
+                                    ->schema([
+                                        Placeholder::make('created_at_info')
+                                            ->label('Created At')
+                                            ->content(fn (?Proposal $record): string => $record?->created_at?->format('d M Y H:i:s') ?? '-'),
+                                        Placeholder::make('created_by_info')
+                                            ->label('Created By')
+                                            ->content(fn (?Proposal $record): string => $record?->createdBy?->name ?? '-'),
+                                        Placeholder::make('updated_at_info')
+                                            ->label('Updated At')
+                                            ->content(fn (?Proposal $record): string => $record?->updated_at?->format('d M Y H:i:s') ?? '-'),
+                                        Placeholder::make('updated_by_info')
+                                            ->label('Updated By')
+                                            ->content(fn (?Proposal $record): string => $record?->updatedBy?->name ?? '-'),
+                                    ])
+                                    ->columns(2),
                             ]),
                     ])
                     ->persistTabInQueryString()
