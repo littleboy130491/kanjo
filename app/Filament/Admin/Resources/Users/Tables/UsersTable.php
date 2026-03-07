@@ -2,6 +2,9 @@
 
 namespace App\Filament\Admin\Resources\Users\Tables;
 
+use App\Enums\UserRole;
+use App\Models\User;
+use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Arr;
@@ -30,6 +33,13 @@ class UsersTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->recordActions([
+                DeleteAction::make()
+                    ->visible(fn (User $record): bool => auth()->user()?->hasRole(UserRole::SuperAdmin->value) === true
+                        && auth()->id() !== $record->getKey())
+                    ->authorize(fn (User $record): bool => auth()->user()?->hasRole(UserRole::SuperAdmin->value) === true
+                        && auth()->id() !== $record->getKey()),
             ]);
     }
 }
