@@ -4,7 +4,9 @@ namespace App\Filament\Admin\Resources\ActivityLogs\Tables;
 
 use App\Filament\Admin\Resources\ActivityLogs\Schemas\ActivityLogInfolist;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Spatie\Activitylog\Models\Activity;
@@ -57,6 +59,25 @@ class ActivityLogsTable
                         'deleted' => 'Deleted',
                         'restored' => 'Restored',
                     ]),
+                Filter::make('created_at')
+                    ->label('Date')
+                    ->form([
+                        DatePicker::make('from')
+                            ->label('From'),
+                        DatePicker::make('until')
+                            ->label('Until'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when(
+                                $data['from'] ?? null,
+                                fn ($query, $date) => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'] ?? null,
+                                fn ($query, $date) => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
             ])
             ->recordActions([
                 ViewAction::make(),
