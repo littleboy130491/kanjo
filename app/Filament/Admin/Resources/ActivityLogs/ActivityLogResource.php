@@ -21,8 +21,6 @@ class ActivityLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Data';
-
     protected static ?int $navigationSort = 40;
 
     public static function getNavigationLabel(): string

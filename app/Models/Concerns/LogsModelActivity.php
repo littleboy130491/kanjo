@@ -18,6 +18,7 @@ trait LogsModelActivity
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->dontLogIfAttributesChangedOnly(['updated_at'])
+            ->useAttributeRawValues($this->activityLogRawAttributes())
             ->logExcept($this->activityLogExceptAttributes())
             ->setDescriptionForEvent(fn (string $eventName): string => $eventName);
     }
@@ -39,5 +40,20 @@ trait LogsModelActivity
             'updated_at',
             'deleted_at',
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function activityLogRawAttributes(): array
+    {
+        if (! method_exists($this, 'getTranslatableAttributes')) {
+            return [];
+        }
+
+        /** @var array<int, string> $attributes */
+        $attributes = $this->getTranslatableAttributes();
+
+        return $attributes;
     }
 }

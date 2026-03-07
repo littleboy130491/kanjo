@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Client;
+use App\Models\ProposalContentDefault;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Activitylog\Models\Activity;
@@ -60,5 +61,32 @@ class ActivityLogTest extends TestCase
         $this->assertNotNull($activity);
         $this->assertArrayNotHasKey('password', $activity->changes()->get('attributes', []));
         $this->assertArrayNotHasKey('remember_token', $activity->changes()->get('attributes', []));
+    }
+
+    public function test_it_logs_full_translation_payload_for_translatable_attributes(): void
+    {
+        $default = ProposalContentDefault::query()->create([
+            'field_key' => 'brief',
+            'value' => [
+                'en' => 'English content',
+                'id' => 'Konten Indonesia',
+            ],
+        ]);
+
+        $activity = Activity::query()
+            ->where('subject_type', ProposalContentDefault::class)
+            ->where('subject_id', $default->getKey())
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($activity);
+
+        $rawTranslationPayload = data_get($activity->changes()->all(), 'attributes.value');
+
+        $this->assertIsString($rawTranslationPayload);
+        $this->assertSame([
+            'en' => 'English content',
+            'id' => 'Konten Indonesia',
+        ], json_decode($rawTranslationPayload, true));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\ActivityLogs\Tables;
 
+use App\Filament\Admin\Resources\ActivityLogs\Schemas\ActivityLogInfolist;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -29,7 +30,9 @@ class ActivityLogsTable
                     ->sortable(),
                 TextColumn::make('subject_id')
                     ->label('Record Associated')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn (Activity $record): ?string => ActivityLogInfolist::resolveSubjectEditUrl($record))
+                    ->openUrlInNewTab(),
                 TextColumn::make('created_at')
                     ->label('Date')
                     ->dateTime('d M Y H:i:s')
