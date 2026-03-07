@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\Invoices\Pages;
 
 use App\Filament\Admin\Resources\Invoices\Actions\CreateServiceAction;
 use App\Filament\Admin\Resources\Invoices\Actions\DownloadInvoicePdfAction;
+use App\Filament\Admin\Resources\Invoices\Actions\DuplicateInvoiceAction;
 use App\Filament\Admin\Resources\Invoices\Actions\ViewInvoiceDocumentAction;
 use App\Filament\Admin\Resources\Invoices\Actions\ViewProposalAction;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
@@ -25,6 +26,7 @@ class EditInvoice extends EditRecord
                 ->color('primary')
                 ->link()
                 ->action('save'),
+            DuplicateInvoiceAction::make(name: 'duplicate', asLink: true),
             CreateServiceAction::make(
                 asLink: true,
                 recordResolver: fn () => $this->record,

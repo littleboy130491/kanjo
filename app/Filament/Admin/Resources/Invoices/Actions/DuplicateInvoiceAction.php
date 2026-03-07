@@ -10,10 +10,14 @@ use Filament\Actions\Action;
 
 class DuplicateInvoiceAction
 {
-    public static function make(): Action
+    public static function make(
+        string $name = 'duplicate_invoice',
+        string $label = 'Duplicate',
+        bool $asLink = false,
+    ): Action
     {
-        return Action::make('duplicate_invoice')
-            ->label('Duplicate')
+        $action = Action::make($name)
+            ->label($label)
             ->icon('heroicon-o-document-duplicate')
             ->action(function (Invoice $record) {
                 $duplicate = $record->replicate([
@@ -35,5 +39,11 @@ class DuplicateInvoiceAction
 
                 return redirect(InvoiceResource::getUrl('edit', ['record' => $duplicate]));
             });
+
+        if ($asLink) {
+            $action->link();
+        }
+
+        return $action;
     }
 }
