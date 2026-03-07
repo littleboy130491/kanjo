@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command(CheckOverdueDocuments::class)->daily();
+Schedule::command('activity-log:prune 365')->dailyAt('00:00');

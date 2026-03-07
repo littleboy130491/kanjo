@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
 use App\Models\Concerns\HasDocumentModelBehavior;
+use App\Models\Concerns\LogsModelActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,7 @@ class Invoice extends Model
 {
     use HasDocumentModelBehavior;
     use HasFactory;
+    use LogsModelActivity;
     use HasTranslations;
     use SoftDeletes;
 
@@ -243,5 +245,19 @@ class Invoice extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function activityLogExceptAttributes(): array
+    {
+        return array_merge([
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ], [
+            'access_password',
+        ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\DocumentStatus;
 use App\Models\Concerns\HasDocumentModelBehavior;
+use App\Models\Concerns\LogsModelActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,7 @@ class Proposal extends Model
 {
     use HasDocumentModelBehavior;
     use HasFactory;
+    use LogsModelActivity;
     use HasTranslations;
     use SoftDeletes;
 
@@ -157,5 +159,19 @@ class Proposal extends Model
     public function portfolios()
     {
         return $this->belongsToMany(Portfolio::class);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function activityLogExceptAttributes(): array
+    {
+        return array_merge([
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ], [
+            'access_password',
+        ]);
     }
 }

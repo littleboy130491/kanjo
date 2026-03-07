@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsModelActivity;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 
 class ProposalContentDefault extends Model
 {
+    use LogsModelActivity;
     use HasTranslations;
 
     public const GLOBAL_FIELD_KEY = '__all__';

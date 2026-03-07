@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsModelActivity;
 use Awcodes\Curator\Models\Media;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Portfolio extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use LogsModelActivity;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
