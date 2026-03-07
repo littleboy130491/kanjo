@@ -5,6 +5,8 @@ namespace App\Filament\Admin\Resources\Clients\Pages;
 use App\Filament\Admin\Resources\Clients\ClientResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListClients extends ListRecords
 {
@@ -14,6 +16,15 @@ class ListClients extends ListRecords
     {
         return [
             CreateAction::make(),
+        ];
+    }
+
+    public function getTabs(): array
+    {
+        return [
+            'active' => Tab::make('Active'),
+            'trash' => Tab::make('Trash')
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->onlyTrashed()),
         ];
     }
 }
