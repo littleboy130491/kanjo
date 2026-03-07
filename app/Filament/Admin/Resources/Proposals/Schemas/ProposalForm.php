@@ -143,7 +143,6 @@ class ProposalForm
                                         TextInput::make('client_email')
                                             ->label('Email')
                                             ->email()
-                                            ->required()
                                             ->maxLength(255),
                                         TextInput::make('client_phone')
                                             ->label('Phone')
@@ -479,16 +478,16 @@ class ProposalForm
                                     ->schema([
                                         Placeholder::make('created_at_info')
                                             ->label('Created At')
-                                            ->content(fn (?Proposal $record): string => $record?->created_at?->format('d M Y H:i:s') ?? '-'),
+                                            ->content(fn(?Proposal $record): string => $record?->created_at?->format('d M Y H:i:s') ?? '-'),
                                         Placeholder::make('created_by_info')
                                             ->label('Created By')
-                                            ->content(fn (?Proposal $record): string => $record?->createdBy?->name ?? '-'),
+                                            ->content(fn(?Proposal $record): string => $record?->createdBy?->name ?? '-'),
                                         Placeholder::make('updated_at_info')
                                             ->label('Updated At')
-                                            ->content(fn (?Proposal $record): string => $record?->updated_at?->format('d M Y H:i:s') ?? '-'),
+                                            ->content(fn(?Proposal $record): string => $record?->updated_at?->format('d M Y H:i:s') ?? '-'),
                                         Placeholder::make('updated_by_info')
                                             ->label('Updated By')
-                                            ->content(fn (?Proposal $record): string => $record?->updatedBy?->name ?? '-'),
+                                            ->content(fn(?Proposal $record): string => $record?->updatedBy?->name ?? '-'),
                                     ])
                                     ->columns(2),
                             ]),
@@ -502,7 +501,7 @@ class ProposalForm
     {
         return Translate::make()
             ->exclude(self::translatedFieldPaths($fieldKey))
-            ->schema(fn(string $locale) : array => [
+            ->schema(fn(string $locale): array => [
                 self::makeRichEditor("{$fieldKey}.{$locale}", $fieldKey, $locale, $label, $useDefault),
             ]);
     }
@@ -520,8 +519,7 @@ class ProposalForm
         string $locale,
         ?string $label = null,
         bool $useDefault = true,
-    ): RichEditor
-    {
+    ): RichEditor {
         $editor = RichEditor::make($statePath)
             ->enableToolbarButtons(['attachCuratorMedia'])
             ->plugins([AttachCuratorMediaPlugin::make()])
