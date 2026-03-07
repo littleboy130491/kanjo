@@ -3,6 +3,9 @@
 namespace App\Filament\Admin\Resources\Portfolios\Tables;
 
 use App\Filament\Admin\Resources\Portfolios\PortfolioResource;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -38,11 +41,13 @@ class PortfoliosTable
             ->filters([
                 //
             ])
-            ->actions([
-                //
+            ->recordActions([
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                //
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }
