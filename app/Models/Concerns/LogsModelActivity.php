@@ -12,15 +12,25 @@ trait LogsModelActivity
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()
+        $options = LogOptions::defaults()
             ->useLogName('activity')
-            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->dontLogIfAttributesChangedOnly(['updated_at'])
-            ->useAttributeRawValues($this->activityLogRawAttributes())
             ->logExcept($this->activityLogExceptAttributes())
             ->setDescriptionForEvent(fn (string $eventName): string => $eventName);
+
+        if ($this->shouldUseSimpleActivityLogging()) {
+            return $options->logOnly($this->activityLogSimpleAttributes());
+        }
+
+        $options->logAll();
+
+        if ($this->shouldUseRawActivityLogging()) {
+            $options->useAttributeRawValues($this->activityLogRawAttributes());
+        }
+
+        return $options;
     }
 
     public function tapActivity(ActivityContract $activity, string $eventName): void
@@ -55,5 +65,28 @@ trait LogsModelActivity
         $attributes = $this->getTranslatableAttributes();
 
         return $attributes;
+    }
+
+    protected function activityLogLevel(): string
+    {
+        return 'detailed';
+    }
+
+    protected function shouldUseRawActivityLogging(): bool
+    {
+        return $this->activityLogLevel() === 'detailed';
+    }
+
+    protected function shouldUseSimpleActivityLogging(): bool
+    {
+        return $this->activityLogLevel() === 'simple';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function activityLogSimpleAttributes(): array
+    {
+        return [];
     }
 }

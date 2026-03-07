@@ -174,4 +174,44 @@ class Proposal extends Model
             'access_password',
         ]);
     }
+
+    protected function activityLogLevel(): string
+    {
+        $level = config('activitylog.document_log_level', 'detailed');
+
+        return in_array($level, ['detailed', 'normal', 'simple'], true)
+            ? $level
+            : 'detailed';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function activityLogSimpleAttributes(): array
+    {
+        return [
+            'document_number',
+            'client_company',
+            'client_name',
+            'client_email',
+            'client_phone',
+            'issue_date',
+            'valid_until',
+            'currency',
+            'tax_rate',
+            'tax_amount',
+            'total_amount',
+            'offer_name_1',
+            'offer_1_price',
+            'offer_1_renewal_price',
+            'offer_name_2',
+            'offer_2_price',
+            'offer_2_renewal_price',
+            'status',
+            'company_id',
+            'client_id',
+            'user_id',
+            'updated_by',
+        ];
+    }
 }

@@ -89,4 +89,46 @@ class ActivityLogTest extends TestCase
             'id' => 'Konten Indonesia',
         ], json_decode($rawTranslationPayload, true));
     }
+
+    public function test_document_models_use_detailed_logging_by_default(): void
+    {
+        config()->set('activitylog.document_log_level', 'detailed');
+
+        $proposal = new \App\Models\Proposal();
+        $invoice = new \App\Models\Invoice();
+
+        $this->assertContains('brief', $proposal->getActivitylogOptions()->attributeRawValues);
+        $this->assertContains('items', $invoice->getActivitylogOptions()->attributeRawValues);
+    }
+
+    public function test_document_models_can_use_normal_logging_without_raw_translation_payloads(): void
+    {
+        config()->set('activitylog.document_log_level', 'normal');
+
+        $proposal = new \App\Models\Proposal();
+        $invoice = new \App\Models\Invoice();
+
+        $this->assertSame([], $proposal->getActivitylogOptions()->attributeRawValues);
+        $this->assertSame([], $invoice->getActivitylogOptions()->attributeRawValues);
+        $this->assertSame(['*'], $proposal->getActivitylogOptions()->logAttributes);
+        $this->assertSame(['*'], $invoice->getActivitylogOptions()->logAttributes);
+    }
+
+    public function test_document_models_can_use_simple_logging_with_curated_fields_only(): void
+    {
+        config()->set('activitylog.document_log_level', 'simple');
+
+        $proposal = new \App\Models\Proposal();
+        $invoice = new \App\Models\Invoice();
+
+        $this->assertContains('document_number', $proposal->getActivitylogOptions()->logAttributes);
+        $this->assertContains('total_amount', $proposal->getActivitylogOptions()->logAttributes);
+        $this->assertNotContains('brief', $proposal->getActivitylogOptions()->logAttributes);
+
+        $this->assertContains('document_number', $invoice->getActivitylogOptions()->logAttributes);
+        $this->assertContains('total', $invoice->getActivitylogOptions()->logAttributes);
+        $this->assertNotContains('items', $invoice->getActivitylogOptions()->logAttributes);
+        $this->assertSame([], $proposal->getActivitylogOptions()->attributeRawValues);
+        $this->assertSame([], $invoice->getActivitylogOptions()->attributeRawValues);
+    }
 }

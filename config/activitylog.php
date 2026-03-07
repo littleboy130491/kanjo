@@ -49,4 +49,15 @@ return [
      * Laravel's database.default will be used instead.
      */
     'database_connection' => env('ACTIVITY_LOGGER_DB_CONNECTION'),
+
+    /*
+     * Controls how much change payload is logged for document models
+     * such as proposals and invoices.
+     *
+     * Supported values:
+     * - detailed: log all dirty attributes, including raw translatable JSON
+     * - normal: log all dirty attributes using resolved model values
+     * - simple: log only a curated subset of business-critical attributes
+     */
+    'document_log_level' => env('ACTIVITY_LOG_DOCUMENT_LEVEL', 'detailed'),
 ];

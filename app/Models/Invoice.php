@@ -260,4 +260,43 @@ class Invoice extends Model
             'access_password',
         ]);
     }
+
+    protected function activityLogLevel(): string
+    {
+        $level = config('activitylog.document_log_level', 'detailed');
+
+        return in_array($level, ['detailed', 'normal', 'simple'], true)
+            ? $level
+            : 'detailed';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function activityLogSimpleAttributes(): array
+    {
+        return [
+            'document_number',
+            'client_company',
+            'client_name',
+            'client_email',
+            'client_phone',
+            'issue_date',
+            'due_date',
+            'currency',
+            'tax_rate',
+            'tax_amount',
+            'subtotal',
+            'total',
+            'status',
+            'payment_status',
+            'paid_at',
+            'proposal_id',
+            'company_id',
+            'client_id',
+            'service_id',
+            'user_id',
+            'updated_by',
+        ];
+    }
 }
