@@ -6,6 +6,9 @@ use App\Enums\ServiceStatus;
 use App\Filament\Admin\Resources\Services\Support\ServiceInvoiceSupport;
 use App\Models\Service;
 use App\Support\ServiceDate;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -110,9 +113,12 @@ class ServicesTable
                 ServiceInvoiceSupport::makeCreateRenewalInvoiceAction()
                     ->visible(fn (Service $record): bool => filled($record->client_id))
                     ->action(fn (Service $record) => ServiceInvoiceSupport::executeCreateRenewalInvoiceAction($record)),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                //
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }
