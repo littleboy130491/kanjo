@@ -15,6 +15,10 @@ trait RefreshesListRecords
 
     public function bootedRefreshesListRecords(): void
     {
-        $this->poll('$wire.$refresh()', $this->getListRefreshInterval());
+        $this->poll(
+            static::class . '.list-refresh',
+            '$wire.$refresh()',
+            $this->getListRefreshInterval(),
+        );
     }
 }

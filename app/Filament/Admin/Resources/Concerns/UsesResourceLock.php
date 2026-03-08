@@ -157,6 +157,19 @@ trait UsesResourceLock
         return $this->getResource()::getUrl('index');
     }
 
+    protected function startResourceLockPolling(): void
+    {
+        if (! $this->record || $this->isResourceLocked || ! $this->isLockKeepAliveEnabled()) {
+            return;
+        }
+
+        $this->poll(
+            static::class . '.resource-lock.' . $this->record->getKey(),
+            "\$wire.dispatch('refresh-resource-lock')",
+            $this->getLockPollingInterval(),
+        );
+    }
+
     protected function getLockActions(): array
     {
         return [
@@ -172,6 +185,7 @@ trait UsesResourceLock
                     $this->record->forceAcquireLock(auth()->id(), $this->lockTimeoutSeconds);
                     $this->isResourceLocked = false;
                     $this->resourceLockedBy = null;
+                    $this->startResourceLockPolling();
                     Notification::make()
                         ->title('Lock Taken Over')
                         ->body('You now have exclusive access to edit this resource.')
@@ -194,9 +208,7 @@ trait UsesResourceLock
 
     public function bootedUsesResourceLock(): void
     {
-        if ($this->isLockKeepAliveEnabled() && $this->record && ! $this->isResourceLocked) {
-            $this->poll("\$wire.dispatch('refresh-resource-lock')", $this->getLockPollingInterval());
-        }
+        $this->startResourceLockPolling();
     }
 
 }
