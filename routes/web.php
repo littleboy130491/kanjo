@@ -7,10 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::get('/proposal/{slug}', [ProposalViewController::class, 'show'])
     ->middleware('document.access:proposal')
     ->name('proposal.show');
@@ -37,7 +33,7 @@ Route::get('/invoice/{slug}/pdf', [PdfController::class, 'invoice'])
 $proxyImageHandler = function (Request $request, ?string $encodedImageUrl = null) {
     $imageUrl = $request->query('url');
 
-    if (! is_string($imageUrl) || $imageUrl === '') {
+    if (!is_string($imageUrl) || $imageUrl === '') {
         $imageUrl = $encodedImageUrl ? rawurldecode($encodedImageUrl) : null;
     }
 
