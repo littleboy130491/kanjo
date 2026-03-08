@@ -36,7 +36,10 @@ class InvoicesTable
             ->columns([
                 TextColumn::make('document_number')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->description(fn (Invoice $record): ?string => $record->resourceLock?->isActive()
+                        ? (($record->resourceLock->user?->name ?? 'Someone') . ' is editing this record')
+                        : null),
                 TextColumn::make('client_company')
                     ->searchable()
                     ->sortable(),

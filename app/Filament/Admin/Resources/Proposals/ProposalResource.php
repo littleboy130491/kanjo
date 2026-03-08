@@ -13,6 +13,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class ProposalResource extends Resource
@@ -33,6 +34,11 @@ class ProposalResource extends Resource
     public static function table(Table $table): Table
     {
         return ProposalsTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['resourceLock.user']);
     }
 
     public static function getRelations(): array

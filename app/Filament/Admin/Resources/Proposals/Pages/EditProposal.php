@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Proposals\Pages;
 
+use App\Filament\Admin\Resources\Concerns\UsesResourceLock;
 use App\Filament\Admin\Resources\Proposals\Actions\CreateInvoiceAction;
 use App\Filament\Admin\Resources\Proposals\Actions\DownloadProposalPdfAction;
 use App\Filament\Admin\Resources\Proposals\Actions\DuplicateProposalAction;
@@ -12,11 +13,13 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditProposal extends EditRecord
 {
+    use UsesResourceLock;
+
     protected static string $resource = ProposalResource::class;
 
     protected function getHeaderActions(): array
     {
-        return [
+        return $this->mergeLockActions([
             Action::make('save')
                 ->label('Save')
                 ->icon('heroicon-o-check')
@@ -28,7 +31,6 @@ class EditProposal extends EditRecord
             ViewProposalDocumentAction::make(asLink: true),
             DownloadProposalPdfAction::make(name: 'create_pdf', label: 'Create PDF', asLink: true)
                 ->icon('heroicon-o-document-arrow-down'),
-        ];
+        ]);
     }
 }
-

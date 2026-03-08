@@ -12,6 +12,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class InvoiceResource extends Resource
@@ -32,6 +33,11 @@ class InvoiceResource extends Resource
     public static function table(Table $table): Table
     {
         return InvoicesTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['resourceLock.user']);
     }
 
     public static function getPages(): array

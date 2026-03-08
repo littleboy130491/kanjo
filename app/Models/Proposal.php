@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\DocumentStatus;
 use App\Models\Concerns\HasDocumentModelBehavior;
+use App\Models\Concerns\HasLocks;
 use App\Models\Concerns\LogsModelActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,8 +17,9 @@ class Proposal extends Model
 {
     use HasDocumentModelBehavior;
     use HasFactory;
-    use LogsModelActivity;
+    use HasLocks;
     use HasTranslations;
+    use LogsModelActivity;
     use SoftDeletes;
 
     protected $fillable = [

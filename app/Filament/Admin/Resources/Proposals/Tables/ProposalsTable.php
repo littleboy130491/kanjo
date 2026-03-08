@@ -36,6 +36,9 @@ class ProposalsTable
                 TextColumn::make('document_number')
                     ->searchable()
                     ->sortable()
+                    ->description(fn (Proposal $record): ?string => $record->resourceLock?->isActive()
+                        ? (($record->resourceLock->user?->name ?? 'Someone') . ' is editing this record')
+                        : null)
                     ->weight('font-bold'),
                 TextColumn::make('client_company')
                     ->searchable()
