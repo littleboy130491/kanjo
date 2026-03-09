@@ -80,16 +80,17 @@ class ProposalsTable
             ->filters([
                 SelectFilter::make('status')
                     ->options(DocumentStatus::class),
-                SelectFilter::make('company_id')
-                    ->label('Issuing Company')
-                    ->relationship('company', 'brand_name')
-                    ->searchable()
-                    ->preload(),
                 TernaryFilter::make('has_invoice')
                     ->label('Has Invoice')
                     ->queries(
                         true: fn(Builder $query) => $query->whereHas('invoices'),
                         false: fn(Builder $query) => $query->whereDoesntHave('invoices'),
+                    ),
+                TernaryFilter::make('has_offer_2')
+                    ->label('Has Offer 2')
+                    ->queries(
+                        true: fn(Builder $query) => $query->whereNotNull('offer_name_2'),
+                        false: fn(Builder $query) => $query->whereNull('offer_name_2'),
                     ),
                 Filter::make('issue_date')
                     ->form([
