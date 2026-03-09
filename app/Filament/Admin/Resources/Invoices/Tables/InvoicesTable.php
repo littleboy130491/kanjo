@@ -89,11 +89,6 @@ class InvoicesTable
                     ->options(DocumentStatus::class),
                 SelectFilter::make('payment_status')
                     ->options(PaymentStatus::class),
-                SelectFilter::make('company_id')
-                    ->label('Company')
-                    ->relationship('company', 'brand_name')
-                    ->searchable()
-                    ->preload(),
                 TernaryFilter::make('has_proposal')
                     ->label('Has Proposal')
                     ->placeholder('All invoices')
