@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Spatie\Browsershot\Browsershot;
 
 class PdfController extends Controller
@@ -40,7 +41,10 @@ class PdfController extends Controller
 
         return response($pdf, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.str_replace('/', '-', $proposal->document_number).'.pdf"',
+            'Content-Disposition' => 'attachment; filename="'.$this->buildFilename(
+                $proposal->client_company,
+                $proposal->document_number,
+            ).'"',
         ]);
     }
 
@@ -74,8 +78,26 @@ class PdfController extends Controller
 
         return response($pdf, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.str_replace('/', '-', $invoice->document_number).'.pdf"',
+            'Content-Disposition' => 'attachment; filename="'.$this->buildFilename(
+                $invoice->client_company,
+                $invoice->document_number,
+            ).'"',
         ]);
+    }
+
+    private function buildFilename(?string $clientCompany, string $documentNumber): string
+    {
+        $company = Str::of($clientCompany ?: 'client')
+            ->replaceMatches('/[^\pL\pN]+/u', '-')
+            ->trim('-')
+            ->upper();
+
+        $number = Str::of($documentNumber)
+            ->replace('/', '-')
+            ->replaceMatches('/[^\pL\pN-]+/u', '-')
+            ->trim('-');
+
+        return "{$company}-{$number}.pdf";
     }
 
     private function resolveLocale(Request $request): string
