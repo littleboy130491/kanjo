@@ -57,17 +57,12 @@ class CreateInvoiceAction
             'tax_amount' => $taxAmount,
             'subtotal' => $subtotal,
             'total' => $subtotal + $taxAmount,
+            'additional_info' => $proposal->getTranslations('additional_info'),
             'access_username' => $proposal->access_username,
             'access_password' => $proposal->access_password,
             'issue_date' => now()->toDateString(),
             'due_date' => now()->addDays(30)->toDateString(),
-            'items' => [
-                [
-                    'title' => $title,
-                    'price' => $price,
-                    'description' => '',
-                ],
-            ],
+            'items' => self::makeTranslatedItemsPayload($title, $price),
             'status' => DocumentStatus::PUBLISHED,
             'payment_status' => PaymentStatus::UNPAID,
             'proposal_id' => $proposal->id,
@@ -89,5 +84,25 @@ class CreateInvoiceAction
         }
 
         return sprintf('%s (%s)', $baseTitle, $proposal->document_number);
+    }
+
+    /**
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    private static function makeTranslatedItemsPayload(string $title, float $price): array
+    {
+        $item = [
+            'title' => $title,
+            'price' => $price,
+            'description' => '',
+        ];
+
+        $payload = [];
+
+        foreach (config('translatable.locales', ['en', 'id']) as $locale) {
+            $payload[$locale] = [$item];
+        }
+
+        return $payload;
     }
 }

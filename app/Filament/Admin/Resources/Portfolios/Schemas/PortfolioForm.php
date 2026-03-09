@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Portfolios\Schemas;
 
 use Awcodes\Curator\Components\Forms\CuratorPicker;
+use Awcodes\Curator\Enums\MimeType;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -18,14 +19,20 @@ class PortfolioForm
                     ->required()
                     ->maxLength(255),
                 CuratorPicker::make("image_media_id")
-                    ->label("Portfolio Image (Curator)")
-                    ->imageResizeMode("cover")
-                    ->imageCropAspectRatio("16:9")
-                    ->imageResizeTargetWidth("1200")
-                    ->imageResizeTargetHeight("675")
-                    ->visible(fn($get) => !$get('use_external_image')),
+                    ->label("Portfolio Image")
+                    ->acceptedFileTypes([
+                        MimeType::ImageAvif->value,
+                        MimeType::ImageBmp->value,
+                        MimeType::ImageGif->value,
+                        MimeType::ImageJpeg->value,
+                        MimeType::ImagePng->value,
+                        MimeType::ImageSvgXml->value,
+                        MimeType::ImageTiff->value,
+                        MimeType::ImageVndMicrosoftIcon->value,
+                        MimeType::ImageWebp->value,
+                    ]),
                 TextInput::make("image_url_external")
-                    ->label("Portfolio Image (External URL)")
+                    ->label("Portfolio Image (from External URL)")
                     ->url()
                     ->nullable()
                     ->maxLength(2048)

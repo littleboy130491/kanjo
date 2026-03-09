@@ -38,8 +38,7 @@ class ProposalsTable
                     ->sortable()
                     ->description(fn (Proposal $record): ?string => $record->resourceLock?->isActive()
                         ? (($record->resourceLock->user?->name ?? 'Someone') . ' is editing this record')
-                        : null)
-                    ->weight('font-bold'),
+                        : null),
                 TextColumn::make('client_company')
                     ->searchable()
                     ->sortable()
