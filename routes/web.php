@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/proposal/{slug}', [ProposalViewController::class, 'show'])
     ->middleware('document.access:proposal')
     ->name('proposal.show');
+Route::get('/proposal/{slug}/auth', [ProposalViewController::class, 'authenticateRedirect'])
+    ->name('proposal.auth.redirect');
 Route::post('/proposal/{slug}/auth', [ProposalViewController::class, 'authenticate'])
     ->defaults('document_type', 'proposal')
     ->middleware('document.auth.throttle')
@@ -21,6 +23,8 @@ Route::get('/proposal/{slug}/pdf', [PdfController::class, 'proposal'])
 Route::get('/invoice/{slug}', [InvoiceViewController::class, 'show'])
     ->middleware('document.access:invoice')
     ->name('invoice.show');
+Route::get('/invoice/{slug}/auth', [InvoiceViewController::class, 'authenticateRedirect'])
+    ->name('invoice.auth.redirect');
 Route::post('/invoice/{slug}/auth', [InvoiceViewController::class, 'authenticate'])
     ->defaults('document_type', 'invoice')
     ->middleware('document.auth.throttle')

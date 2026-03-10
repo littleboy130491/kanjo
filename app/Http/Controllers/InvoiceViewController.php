@@ -32,6 +32,18 @@ class InvoiceViewController extends Controller
         ]);
     }
 
+    /**
+     * Handle GET requests to auth route - redirect to document show page.
+     * The middleware will handle showing auth form if needed.
+     */
+    public function authenticateRedirect(Request $request, string $slug): RedirectResponse
+    {
+        return redirect()->route('invoice.show', [
+            'slug' => $slug,
+            'lang' => $request->query('lang'),
+        ]);
+    }
+
     public function authenticate(Request $request, string $slug): RedirectResponse
     {
         $request->validate([
