@@ -22,7 +22,15 @@ class RoleAndPermissionSeeder extends Seeder
         'Company',
         'ProposalContentDefault',
         'Role',
-        'User',
+        'ResourceLock',
+    ];
+
+    /**
+     * @var array<int, string>
+     */
+    private const EDITOR_ALLOWED_USER_ACTIONS = [
+        'View',
+        'Update',
     ];
 
     /**
@@ -81,6 +89,10 @@ class RoleAndPermissionSeeder extends Seeder
     {
         $action = Str::of($permission)->before(':')->toString();
         $subject = Str::of($permission)->after(':')->toString();
+
+        if ($subject === 'User') {
+            return ! in_array($action, self::EDITOR_ALLOWED_USER_ACTIONS, true);
+        }
 
         if (in_array($subject, self::RESTRICTED_PERMISSION_SUBJECTS, true)) {
             return true;

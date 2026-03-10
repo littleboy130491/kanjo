@@ -7,8 +7,10 @@ use App\Filament\Admin\Resources\Users\Pages\EditUser;
 use App\Filament\Admin\Resources\Users\Pages\ListUsers;
 use App\Filament\Admin\Resources\Users\Schemas\UserForm;
 use App\Filament\Admin\Resources\Users\Tables\UsersTable;
+use App\Enums\UserRole;
 use App\Models\User;
 use BackedEnum;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -41,5 +43,17 @@ class UserResource extends Resource
             'create' => CreateUser::route('/create'),
             'edit' => EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user?->hasRole(UserRole::SuperAdmin->value)) {
+            return $query;
+        }
+
+        return $query->whereKey($user?->getAuthIdentifier());
     }
 }

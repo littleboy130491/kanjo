@@ -17,6 +17,9 @@
     $containerClass = $pdfMode
         ? 'mx-auto w-full max-w-[180mm] space-y-6'
         : 'mx-auto w-full max-w-[210mm] space-y-6';
+    $trackingSetting = ! $pdfMode && auth()->guest()
+        ? rescue(fn () => app(\App\Settings\TrackingSettings::class), report: false)
+        : null;
 @endphp
 <!doctype html>
 <html lang="{{ $locale }}">
@@ -45,8 +48,14 @@
             section { break-inside: avoid; }
         }
     </style>
+    @if($trackingSetting)
+        <x-tracking-snippets placement="head" :tracking-setting="$trackingSetting" />
+    @endif
 </head>
 <body class="{{ $bodyClass }}">
+@if($trackingSetting)
+    <x-tracking-snippets placement="body" :tracking-setting="$trackingSetting" />
+@endif
 <div class="{{ $containerClass }}">
     @if(! $pdfMode && $slug && $langRoute && $pdfRoute)
         <div class="no-print flex justify-end gap-3">
