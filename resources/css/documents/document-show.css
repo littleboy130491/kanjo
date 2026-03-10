@@ -581,12 +581,12 @@ h3.offer_name {
 
 .invoice-items-table th:nth-child(1),
 .invoice-items-table td:nth-child(1) {
-    width: 70%;
+    width: 65%;
 }
 
 .invoice-items-table th:nth-child(2),
 .invoice-items-table td:nth-child(2) {
-    width: 30%;
+    width: 35%;
 }
 
 .invoice-item-stack {
