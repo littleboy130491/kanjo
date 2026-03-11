@@ -53,6 +53,7 @@ class CreateInvoiceAction
             'company_id' => $proposal->company_id,
             'user_id' => auth()->id() ?? $proposal->user_id,
             'currency' => $proposal->currency,
+            'activate_translation' => $proposal->activate_translation,
             'tax_rate' => $proposal->tax_rate,
             'tax_amount' => $taxAmount,
             'subtotal' => $subtotal,

@@ -2,6 +2,7 @@
     $company = $invoice->company;
     $companyLogo = $company?->logo;
     $pdfMode = (bool) ($pdf ?? false);
+    $activateTranslation = (bool) $invoice->activate_translation;
     $storageFileToDataUri = function (?string $path): ?string {
         if (! filled($path)) {
             return null;
@@ -52,6 +53,11 @@
     $companyWebsiteLabel = filled($company?->website)
         ? preg_replace('#^https?://#i', '', (string) $company->website)
         : null;
+    $pdfRouteParameters = ['slug' => $slug];
+
+    if ($activateTranslation) {
+        $pdfRouteParameters['lang'] = $locale;
+    }
 
     $valueByLocale = function (mixed $value) use ($locale): mixed {
         if (is_array($value) && array_key_exists($locale, $value)) {
@@ -181,7 +187,7 @@
 @endphp
 
 <x-layout :locale="$locale" :title="$invoice->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
-    :edit-url="$editUrl" lang-route="invoice.show" pdf-route="pdf.invoice">
+    :edit-url="$editUrl" :activate-translation="$activateTranslation" lang-route="invoice.show" pdf-route="pdf.invoice">
     <div class="document-frame document-view document-shell">
         <section class="document-section-pad pt-10 md:pt-24 avoid-page-break">
             <div class="invoice-row invoice-row-logo">

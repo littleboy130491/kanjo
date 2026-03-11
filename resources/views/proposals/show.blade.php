@@ -2,6 +2,12 @@
     $company = $proposal->company;
     $companyLogo = $company?->logo;
     $pdfMode = (bool) ($pdf ?? false);
+    $activateTranslation = (bool) $proposal->activate_translation;
+    $pdfRouteParameters = ['slug' => $slug];
+
+    if ($activateTranslation) {
+        $pdfRouteParameters['lang'] = $locale;
+    }
 
     $toMoney = function (mixed $value) use ($proposal): string {
         return 'Rp. ' . number_format((float) ($value ?? 0), 0, ',', '.');
@@ -129,7 +135,7 @@
     $sectionNo = 1;
 @endphp
 <x-layout :locale="$locale" :title="$proposal->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
-    :edit-url="$editUrl" lang-route="proposal.show" pdf-route="pdf.proposal">
+    :edit-url="$editUrl" :activate-translation="$activateTranslation" lang-route="proposal.show" pdf-route="pdf.proposal">
     <div class="document-frame document-view document-shell">
         <section class="document-cover document-cover-pad avoid-page-break">
             <div class="document-cover-header flex flex-col items-start justify-between gap-8 md:flex-row">
@@ -607,7 +613,7 @@
             <a href="#timeline">Timeline</a>
             <a href="#payment">Payment</a>
             <a href="#terms-and-conditions">Terms & Conditions</a>
-            <a href="{{ route('pdf.proposal', ['slug' => $slug, 'lang' => $locale]) }}">Download PDF</a>
+            <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
         </nav>
 
         <details class="floating-doc-flyout">
@@ -624,7 +630,7 @@
                 <a href="#timeline" class="js-flyout-link">Timeline</a>
                 <a href="#payment" class="js-flyout-link">Payment</a>
                 <a href="#terms-and-conditions" class="js-flyout-link">Terms & Conditions</a>
-                <a href="{{ route('pdf.proposal', ['slug' => $slug, 'lang' => $locale]) }}">Download PDF</a>
+                <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
             </nav>
         </details>
 

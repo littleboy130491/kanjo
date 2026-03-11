@@ -7,6 +7,7 @@
     'langRoute' => null,
     'pdfRoute' => null,
     'editUrl' => null,
+    'activateTranslation' => false,
 ])
 @php
     use Illuminate\Support\Facades\Vite;
@@ -20,6 +21,11 @@
     $trackingSetting = ! $pdfMode && auth()->guest()
         ? rescue(fn () => app(\App\Settings\TrackingSettings::class), report: false)
         : null;
+    $pdfRouteParameters = ['slug' => $slug];
+
+    if ($activateTranslation) {
+        $pdfRouteParameters['lang'] = $locale;
+    }
 @endphp
 <!doctype html>
 <html lang="{{ $locale }}">
@@ -67,7 +73,7 @@
                 @endif
             @endauth
             <a class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-                href="{{ route($pdfRoute, ['slug' => $slug, 'lang' => $locale]) }}">
+                href="{{ route($pdfRoute, $pdfRouteParameters) }}">
                 Download PDF
             </a>
         </div>

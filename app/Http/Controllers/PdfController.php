@@ -13,15 +13,15 @@ class PdfController extends Controller
 {
     public function proposal(Request $request, string $slug): Response
     {
-        $locale = $this->resolveLocale($request);
-        app()->setLocale($locale);
-
         /** @var Proposal|null $proposal */
         $proposal = $request->attributes->get('document');
 
         if (! $proposal) {
             abort(404);
         }
+
+        $locale = $this->resolveLocale($request, $proposal);
+        app()->setLocale($locale);
 
         $proposal->loadMissing(['company', 'portfolios']);
 
@@ -50,15 +50,15 @@ class PdfController extends Controller
 
     public function invoice(Request $request, string $slug): Response
     {
-        $locale = $this->resolveLocale($request);
-        app()->setLocale($locale);
-
         /** @var Invoice|null $invoice */
         $invoice = $request->attributes->get('document');
 
         if (! $invoice) {
             abort(404);
         }
+
+        $locale = $this->resolveLocale($request, $invoice);
+        app()->setLocale($locale);
 
         $invoice->loadMissing(['company']);
 
@@ -100,8 +100,12 @@ class PdfController extends Controller
         return "{$company}-{$number}.pdf";
     }
 
-    private function resolveLocale(Request $request): string
+    private function resolveLocale(Request $request, Proposal|Invoice|null $document = null): string
     {
+        if (! ($document?->activate_translation)) {
+            return config('app.locale', 'en');
+        }
+
         $supported = config('app.supported_locales', ['en', 'id']);
         $locale = (string) $request->query('lang', config('app.locale', 'en'));
 

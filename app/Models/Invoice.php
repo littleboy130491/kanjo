@@ -38,6 +38,7 @@ class Invoice extends Model
         'issue_date',
         'due_date',
         'currency',
+        'activate_translation',
         'tax_rate',
         'tax_amount',
         'subtotal',
@@ -66,6 +67,7 @@ class Invoice extends Model
 
     protected $casts = [
         'document_number_override' => 'boolean',
+        'activate_translation' => 'boolean',
         'issue_date' => 'date',
         'due_date' => 'date',
         'paid_at' => 'datetime',

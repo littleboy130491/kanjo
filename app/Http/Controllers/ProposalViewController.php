@@ -13,15 +13,15 @@ class ProposalViewController extends Controller
 {
     public function show(Request $request, string $slug)
     {
-        $locale = $this->resolveLocale($request);
-        app()->setLocale($locale);
-
         /** @var Proposal|null $proposal */
         $proposal = $request->attributes->get('document');
 
         if (! $proposal) {
             abort(404);
         }
+
+        $locale = $this->resolveLocale($request, $proposal);
+        app()->setLocale($locale);
 
         $proposal->loadMissing(['company', 'portfolios']);
 
@@ -38,10 +38,11 @@ class ProposalViewController extends Controller
      */
     public function authenticateRedirect(Request $request, string $slug): RedirectResponse
     {
-        return redirect()->route('proposal.show', [
-            'slug' => $slug,
-            'lang' => $request->query('lang'),
-        ]);
+        return redirect()->route('proposal.show', $this->buildRouteParameters(
+            $slug,
+            $this->resolveDocument($slug),
+            $request->query('lang'),
+        ));
     }
 
     public function authenticate(Request $request, string $slug): RedirectResponse
@@ -100,17 +101,47 @@ class ProposalViewController extends Controller
             DocumentAccessMiddleware::versionKey('proposal', $proposal->id) => DocumentAccessMiddleware::credentialVersion($proposal),
         ]);
 
-        return redirect()->route('proposal.show', [
-            'slug' => $slug,
-            'lang' => $request->input('lang'),
-        ]);
+        return redirect()->route('proposal.show', $this->buildRouteParameters(
+            $slug,
+            $proposal,
+            $request->input('lang'),
+        ));
     }
 
-    private function resolveLocale(Request $request): string
+    private function resolveLocale(Request $request, ?Proposal $proposal = null): string
     {
+        if (! ($proposal?->activate_translation)) {
+            return config('app.locale', 'en');
+        }
+
         $supported = config('app.supported_locales', ['en', 'id']);
         $locale = (string) $request->query('lang', config('app.locale', 'en'));
 
         return in_array($locale, $supported, true) ? $locale : config('app.locale', 'en');
+    }
+
+    private function resolveDocument(string $slug): ?Proposal
+    {
+        $documentNumber = str_replace('-', '/', $slug);
+
+        return Proposal::query()
+            ->where(fn ($query) => $query
+                ->where('slug', $slug)
+                ->orWhere('document_number', $documentNumber))
+            ->first();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function buildRouteParameters(string $slug, ?Proposal $proposal, mixed $lang): array
+    {
+        $parameters = ['slug' => $slug];
+
+        if ($proposal?->activate_translation && is_string($lang) && $lang !== '') {
+            $parameters['lang'] = $lang;
+        }
+
+        return $parameters;
     }
 }

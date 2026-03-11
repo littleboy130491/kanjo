@@ -22,6 +22,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -241,6 +242,14 @@ class ProposalForm
                         Tab::make('Content (EN/ID)')
                             ->icon('heroicon-o-language')
                             ->schema([
+                                Section::make('Translation Settings')
+                                    ->schema([
+                                        Toggle::make('activate_translation')
+                                            ->label('Activate Translation')
+                                            ->helperText('Enable EN/ID document language switching for this proposal.')
+                                            ->default(false),
+                                    ]),
+
                                 Section::make('Brief')
                                     ->schema([
                                         self::makeTranslatedRichEditor('brief'),

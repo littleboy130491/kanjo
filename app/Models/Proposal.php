@@ -36,6 +36,7 @@ class Proposal extends Model
         'issue_date',
         'valid_until',
         'currency',
+        'activate_translation',
         'tax_rate',
         'tax_amount',
         'total_amount',
@@ -95,6 +96,7 @@ class Proposal extends Model
 
     protected $casts = [
         'document_number_override' => 'boolean',
+        'activate_translation' => 'boolean',
         'issue_date' => 'date',
         'valid_until' => 'date',
         'access_credentials_updated_at' => 'datetime',

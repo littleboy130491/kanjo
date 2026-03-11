@@ -48,7 +48,9 @@ class DocumentAccessMiddleware
                 'documentType' => $type,
                 'slug' => $slug,
                 'authRoute' => route($type.'.auth', ['slug' => $slug]),
-                'lang' => $request->query('lang', config('app.locale', 'en')),
+                'lang' => $document->activate_translation
+                    ? $request->query('lang', config('app.locale', 'en'))
+                    : config('app.locale', 'en'),
                 'usesDocumentCredentials' => $useDocumentCredentials,
             ]);
         }

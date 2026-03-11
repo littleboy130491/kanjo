@@ -42,7 +42,9 @@
                 @unless ($isRateLimited)
                     <form method="POST" action="{{ $authRoute }}" class="mt-10 max-w-xl space-y-5 pt-8">
                         @csrf
-                        <input type="hidden" name="lang" value="{{ $lang }}">
+                        @if(($document->activate_translation ?? false) && filled($lang))
+                            <input type="hidden" name="lang" value="{{ $lang }}">
+                        @endif
 
                         <div>
                             <label for="username" class="auth-label">Username</label>
