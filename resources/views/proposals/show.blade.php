@@ -180,6 +180,9 @@
         @endif
 
         @if($proposal->portfolios->isNotEmpty())
+            @php
+                $portfolioArchiveUrl = 'https://imajiner.id/portfolio/?utm_source=proposal_qr&utm_medium=document&utm_campaign=portfolio_archive';
+            @endphp
             <section class="section-row allow-page-break">
                 <h2 class="section-label">Portfolio</h2>
                 <div class="section-content mb-8">
@@ -204,6 +207,13 @@
                             </a>
                         </article>
                     @endforeach
+                </div>
+                <div class="section-content mt-8">
+                    <p>
+                        {{ __('proposal.portfolio_archive_intro') }}
+                        <a href="{{ $portfolioArchiveUrl }}" target="_blank" rel="nofollow noopener noreferrer"
+                            class="underline underline-offset-4">{{ __('proposal.portfolio_archive_link') }}</a>.
+                    </p>
                 </div>
             </section>
         @endif

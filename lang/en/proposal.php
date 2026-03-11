@@ -2,6 +2,8 @@
 
 return [
     'portfolio_reference_intro' => 'Here are some examples from our portfolio that can be used as references for this project.',
+    'portfolio_archive_intro' => 'You may explore more of our portfolio',
+    'portfolio_archive_link' => 'here',
     'money_back_guarantee_title' => '100% Money-Back Guarantee',
     'money_back_guarantee_text' => 'Your project is protected by a 100% money-back guarantee.',
     'money_back_guarantee_terms_link' => 'See the terms and conditions for more detailed information.',
