@@ -36,7 +36,6 @@
         <style>{!! Vite::content('resources/css/app.css') !!}</style>
     @else
         @vite('resources/css/app.css')
-        <script src="https://cdn.tailwindcss.com"></script>
     @endif
     <style>
         :root { --color-primary: {{ $company?->color_primary ?? '#0f172a' }}; --color-secondary: {{ $company?->color_secondary ?? '#334155' }}; }
