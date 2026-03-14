@@ -540,7 +540,7 @@
                     @if(filled($company?->address) || count($companyEmails) || count($companyPhones))
                         <p class="endcap-bank">
                             @if(filled($company?->address))
-                                {{ $company->address }}<br>
+                                {!! $company->address !!}
                             @endif
                             @if(count($companyEmails))
                                 <span class="endcap-contact-row">
