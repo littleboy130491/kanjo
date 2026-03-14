@@ -138,7 +138,7 @@
     :edit-url="$editUrl" :activate-translation="$activateTranslation" lang-route="proposal.show" pdf-route="pdf.proposal">
     <div class="document-frame document-view document-shell">
         <section class="document-cover document-cover-pad avoid-page-break">
-            <div class="document-cover-header flex flex-col items-start justify-between gap-8 md:flex-row">
+            <div class="document-cover-header">
                 @if($logoUrl)
                     <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain">
                 @endif
@@ -196,7 +196,7 @@
                 </div>
                 <div class="section-content portfolio-grid">
                     @foreach($proposal->portfolios as $portfolio)
-                        <article class="group cursor-pointer border-0">
+                        <article class="portfolio-card group cursor-pointer border-0">
                             <a style="text-decoration: none !important;" href="{{ $portfolio->url_link }}" target="_blank" rel="nofollow noopener noreferrer">
                                 <div class="mb-4 aspect-[4/3] overflow-hidden bg-neutral-100">
                                     @if($portfolio->portfolio_image_url)
@@ -204,9 +204,9 @@
                                             class="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105">
                                     @endif
                                 </div>
-                                <p class="text-sm text-neutral-900 md:text-lg">{{ $portfolio->name }}</p>
+                                <p class="portfolio-card-title text-sm text-neutral-900 md:text-lg">{{ $portfolio->name }}</p>
                                 @if(filled($portfolio->url_link))
-                                    <span class="document-accent mt-2 inline-block text-[10px] uppercase tracking-[0.2em]">
+                                    <span class="portfolio-card-link document-accent mt-2 inline-block text-[10px] uppercase tracking-[0.2em]">
                                         View Live Site ->
                                     </span>
                                 @endif

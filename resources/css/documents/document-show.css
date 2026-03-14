@@ -173,7 +173,17 @@
 }
 
 .portfolio-grid {
-    @apply grid grid-cols-2 gap-4 md:gap-10;
+    @apply grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-10;
+}
+
+.portfolio-card {
+    min-width: 0;
+}
+
+.portfolio-card-title,
+.portfolio-card-link {
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .data-table {
@@ -376,11 +386,11 @@ h3.offer_name {
 }
 
 .document-cover-header {
-    @apply flex w-full flex-row items-start justify-between;
+    @apply flex w-full flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8;
 }
 
 .document-cover-header .document-meta-stack {
-    @apply ml-auto text-right;
+    @apply text-left md:ml-auto md:text-right;
 }
 
 
