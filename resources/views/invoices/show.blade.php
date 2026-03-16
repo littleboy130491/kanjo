@@ -188,8 +188,8 @@
 
 <x-layout :locale="$locale" :title="$invoice->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
     :edit-url="$editUrl" :activate-translation="$activateTranslation" lang-route="invoice.show" pdf-route="pdf.invoice">
-    <div class="document-frame document-view document-shell">
-        <section class="document-section-pad pt-10 md:pt-24 avoid-page-break">
+    <div class="document-frame document-view document-shell pt-10 pb-10 md:pt-24 md:pb-24">
+        <section class="document-section-pad avoid-page-break">
             <div class="invoice-row invoice-row-logo">
                 @if($logoUrl)
                     <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain">
@@ -369,7 +369,7 @@
         @endif
 
         @if($present($footerTextHtml))
-            <section class="document-section-pad invoice-row-section pb-10 md:pb-24 invoice-footer-text text-neutral-600">
+            <section class="document-section-pad invoice-row-section invoice-footer-text text-neutral-600">
                 <div class="document-richtext invoice-footer-text-content">{!! $footerTextHtml !!}</div>
             </section>
         @endif
