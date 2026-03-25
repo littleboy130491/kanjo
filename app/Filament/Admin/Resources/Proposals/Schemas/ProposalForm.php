@@ -4,10 +4,8 @@ namespace App\Filament\Admin\Resources\Proposals\Schemas;
 
 use App\Enums\DocumentStatus;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
-use App\Filament\Admin\Resources\Portfolios\Schemas\PortfolioForm;
 use App\Models\Client;
 use App\Models\Company;
-use App\Models\Portfolio;
 use App\Models\Proposal;
 use App\Models\ProposalContentDefault;
 use App\Filament\Admin\Support\TranslatableRepeaterSync;
@@ -436,15 +434,7 @@ class ProposalForm
                                             ->multiple()
                                             ->preload()
                                             ->searchable()
-                                            ->createOptionUsing(function (array $data): int {
-                                                $portfolio = Portfolio::create($data);
-
-                                                return $portfolio->getKey();
-                                            })
-                                            ->createOptionForm(schema: [
-                                                PortfolioForm::getPortfolioInformationSection(),
-                                            ])
-                                            ->helperText('Link portfolios from your portfolio database to this proposal'),
+                                            ->helperText('Link portfolios from your portfolio database to this proposal. Create new portfolios from the Portfolios resource.'),
                                     ]),
                             ]),
 
@@ -570,7 +560,6 @@ class ProposalForm
 
         return null;
     }
-
     protected static function normalizeRichEditorRawState(RichEditor $component): void
     {
         $rawState = $component->getRawState();
