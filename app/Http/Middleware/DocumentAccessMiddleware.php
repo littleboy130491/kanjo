@@ -17,7 +17,7 @@ class DocumentAccessMiddleware
         $slug = (string) $request->route('slug');
         $document = $this->resolveDocument($type, $slug);
 
-        if (! $document || $document->status !== DocumentStatus::PUBLISHED) {
+        if (! $document) {
             abort(404);
         }
 
@@ -25,6 +25,10 @@ class DocumentAccessMiddleware
             $request->attributes->set('document', $document);
 
             return $next($request);
+        }
+
+        if ($document->status !== DocumentStatus::PUBLISHED) {
+            abort(404);
         }
 
         [$username, $password, $useDocumentCredentials] = $this->resolveCredentials($document);

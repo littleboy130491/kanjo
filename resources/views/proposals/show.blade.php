@@ -1,4 +1,4 @@
-﻿@php
+@php
     $company = $proposal->company;
     $companyLogo = $company?->logo;
     $pdfMode = (bool) ($pdf ?? false);
@@ -135,7 +135,7 @@
     $sectionNo = 1;
 @endphp
 <x-layout :locale="$locale" :title="$proposal->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
-    :edit-url="$editUrl" :activate-translation="$activateTranslation" lang-route="proposal.show" pdf-route="pdf.proposal">
+    :edit-url="$editUrl" :activate-translation="$activateTranslation" :is-draft="$proposal->status->value === 'draft'" lang-route="proposal.show" pdf-route="pdf.proposal">
     <div class="document-frame document-view document-shell">
         <section class="document-cover document-cover-pad avoid-page-break">
             <div class="document-cover-header">

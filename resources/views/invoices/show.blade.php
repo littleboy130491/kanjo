@@ -1,4 +1,4 @@
-﻿@php
+@php
     $company = $invoice->company;
     $companyLogo = $company?->logo;
     $pdfMode = (bool) ($pdf ?? false);
@@ -187,7 +187,7 @@
 @endphp
 
 <x-layout :locale="$locale" :title="$invoice->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
-    :edit-url="$editUrl" :activate-translation="$activateTranslation" lang-route="invoice.show" pdf-route="pdf.invoice">
+    :edit-url="$editUrl" :activate-translation="$activateTranslation" :is-draft="$invoice->status->value === 'draft'" lang-route="invoice.show" pdf-route="pdf.invoice">
     <div class="document-frame document-view document-shell pt-10 pb-10 md:pt-24 md:pb-24">
         <section class="document-section-pad avoid-page-break">
             <div class="invoice-row invoice-row-logo">

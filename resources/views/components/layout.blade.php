@@ -8,6 +8,7 @@
     'pdfRoute' => null,
     'editUrl' => null,
     'activateTranslation' => false,
+    'isDraft' => false,
 ])
 @php
     use Illuminate\Support\Facades\Vite;
@@ -62,6 +63,11 @@
     <x-tracking-snippets placement="body" :tracking-setting="$trackingSetting" />
 @endif
 <div class="{{ $containerClass }}">
+    @if(! $pdfMode && $isDraft)
+        <div class="no-print rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm font-medium text-amber-800">
+            This document is a <span class="uppercase tracking-wide font-bold">Draft</span> and has not been published yet.
+        </div>
+    @endif
     @if(! $pdfMode && $slug && $langRoute && $pdfRoute)
         <div class="no-print flex justify-end gap-3">
             @auth
