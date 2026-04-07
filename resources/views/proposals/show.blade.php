@@ -29,6 +29,7 @@
             ? (string) $company->website
             : 'https://' . ltrim((string) $company->website, '/'))
         : null;
+    $portfolioArchiveUrl = 'https://imajiner.id/portfolio/?utm_source=proposal&utm_medium=link&utm_campaign=' . urlencode((string) $proposal->document_number);
     $logoUrl = is_string($companyLogo) && $companyLogo !== ''
         ? (str_starts_with($companyLogo, 'http') ? $companyLogo : asset('storage/' . ltrim($companyLogo, '/')))
         : $fallbackLogoUrl;
@@ -186,9 +187,6 @@
         @endif
 
         @if($proposal->portfolios->isNotEmpty())
-            @php
-                $portfolioArchiveUrl = 'https://imajiner.id/portfolio/?utm_source=proposal_qr&utm_medium=document&utm_campaign=portfolio_archive';
-            @endphp
             <section class="section-row allow-page-break">
                 <h2 class="section-label">Portfolio</h2>
                 <div class="section-content mb-8">
