@@ -29,7 +29,7 @@
             ? (string) $company->website
             : 'https://' . ltrim((string) $company->website, '/'))
         : null;
-    $portfolioArchiveUrl = 'https://imajiner.id/portfolio/?utm_source=proposal&utm_medium=link&utm_campaign=' . urlencode((string) $proposal->document_number);
+    $portfolioArchiveUrl = 'https://imajiner.id/portfolio/?utm_source=proposal&utm_medium=link&utm_campaign=' . urlencode((string) $proposal->slug);
     $logoUrl = is_string($companyLogo) && $companyLogo !== ''
         ? (str_starts_with($companyLogo, 'http') ? $companyLogo : asset('storage/' . ltrim($companyLogo, '/')))
         : $fallbackLogoUrl;
