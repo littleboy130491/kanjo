@@ -726,3 +726,7 @@ h3.offer_name {
         page-break-inside: avoid;
     }
 }
+
+p {
+    min-height: 1rem;
+}
