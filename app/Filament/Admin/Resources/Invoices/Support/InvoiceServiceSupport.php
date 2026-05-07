@@ -31,7 +31,7 @@ class InvoiceServiceSupport
                 ->default(function (?Invoice $record = null) use ($recordResolver): float {
                     $invoice = self::resolveInvoice($record, $recordResolver);
 
-                    return (float) (data_get($invoice?->items, '0.price') ?? 0);
+                    return self::resolveServicePrice($invoice);
                 }),
             TextInput::make('currency')
                 ->maxLength(10)
@@ -70,7 +70,7 @@ class InvoiceServiceSupport
             $service = Service::create([
                 'name' => (string) ($data['name'] ?? ''),
                 'domain' => $data['domain'] ?: null,
-                'price' => (float) ($data['price'] ?? data_get($invoice->items, '0.price', 0)),
+                'price' => self::resolveSubmittedPrice($data, $invoice),
                 'currency' => (string) ($data['currency'] ?: $invoice->currency ?: 'IDR'),
                 'start_date' => $data['start_date'] ?: null,
                 'renewal_date' => $data['renewal_date'] ?: null,
@@ -96,5 +96,27 @@ class InvoiceServiceSupport
         $resolved = $recordResolver();
 
         return $resolved instanceof Invoice ? $resolved : null;
+    }
+
+    private static function resolveSubmittedPrice(array $data, Invoice $invoice): float
+    {
+        if (array_key_exists('price', $data) && $data['price'] !== null && $data['price'] !== '') {
+            return (float) $data['price'];
+        }
+
+        return self::resolveServicePrice($invoice);
+    }
+
+    private static function resolveServicePrice(?Invoice $invoice): float
+    {
+        if (! $invoice instanceof Invoice) {
+            return 0;
+        }
+
+        return (float) (
+            $invoice->proposal?->offer_1_renewal_price
+            ?? data_get($invoice->items, '0.price')
+            ?? 0
+        );
     }
 }
