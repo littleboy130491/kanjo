@@ -63,6 +63,33 @@ class DuplicateDocumentNumberingTest extends TestCase
         $this->assertSame('INV/003/V/26/NEW', $duplicate->document_number);
     }
 
+    public function test_proposal_create_respects_manual_raw_number(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-05-11 09:00:00'));
+
+        [$user, $company] = $this->createUserAndCompany();
+
+        $proposal = Proposal::query()->create([
+            'document_number_raw' => 7,
+            'client_company' => 'Client Co',
+            'client_name' => 'Client Name',
+            'client_email' => 'client@example.test',
+            'client_phone' => '0800000000',
+            'issue_date' => '2026-05-11',
+            'valid_until' => '2026-06-10',
+            'currency' => 'IDR',
+            'tax_rate' => 11,
+            'offer_name_1' => 'Website Package',
+            'offer_1_price' => 1000000,
+            'status' => DocumentStatus::PUBLISHED,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        $this->assertSame(7, $proposal->document_number_raw);
+        $this->assertSame('QUO/007/V/26/NEW', $proposal->document_number);
+    }
+
     /**
      * @return array{0: User, 1: Company}
      */

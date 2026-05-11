@@ -40,14 +40,26 @@ trait HasDocumentModelBehavior
             static::syncIssuePeriodOnCreate($model);
 
             $date = $model->issue_date ? Carbon::parse($model->issue_date) : now();
-            $data = DocumentNumberGenerator::generate(
-                static::documentNumberType(),
-                $date,
-                static::resolveDocumentSuffixForCreate($model),
-            );
+            $suffix = static::resolveDocumentSuffixForCreate($model);
 
-            $generatedDocumentNumber = $data['document_number'];
-            $model->document_number_raw = $data['document_number_raw'];
+            if (filled($model->document_number_raw)) {
+                $model->document_number_raw = (int) $model->document_number_raw;
+                $generatedDocumentNumber = DocumentNumberGenerator::regenerate(
+                    static::documentNumberType(),
+                    (int) $model->document_number_raw,
+                    $date,
+                    $suffix,
+                );
+            } else {
+                $data = DocumentNumberGenerator::generate(
+                    static::documentNumberType(),
+                    $date,
+                    $suffix,
+                );
+
+                $generatedDocumentNumber = $data['document_number'];
+                $model->document_number_raw = $data['document_number_raw'];
+            }
 
             if (blank($model->document_number)) {
                 $model->document_number = $generatedDocumentNumber;
@@ -88,6 +100,14 @@ trait HasDocumentModelBehavior
                 $date,
                 static::resolveDocumentSuffixForUpdate($model),
             );
+
+            if ($model->isDirty('document_number_raw')) {
+                $model->document_number_raw = (int) $model->document_number_raw;
+                $model->document_number = $generatedDocumentNumber;
+                $model->document_number_override = false;
+
+                return;
+            }
 
             if ($model->isDirty('document_number')) {
                 if (blank($model->document_number)) {

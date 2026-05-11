@@ -25,8 +25,10 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
 class ProposalForm
@@ -45,14 +47,36 @@ class ProposalForm
                                     ->schema([
                                         TextInput::make('document_number')
                                             ->label('Document Number')
-                                            ->helperText('Defaults to the next auto-generated number. You can edit it directly to override.')
+                                            ->helperText('Generated from the raw number and issue date.')
                                             ->maxLength(255)
                                             ->default(fn(Get $get): string => self::generateDocumentNumberPreview(
                                                 'QUO',
                                                 $get('issue_date'),
                                             ))
                                             ->placeholder('Auto-generated')
-                                            ->live(onBlur: true),
+                                            ->readonly()
+                                            ->dehydrated(false),
+                                        TextInput::make('document_number_raw')
+                                            ->label('Raw Number')
+                                            ->helperText('Editable sequence number for the selected issue month.')
+                                            ->numeric()
+                                            ->minValue(1)
+                                            ->default(fn(Get $get): int => self::generateNextDocumentRaw(
+                                                filled($get('issue_date')) ? Carbon::parse($get('issue_date')) : now(),
+                                            ))
+                                            ->required()
+                                            ->rules(fn(Get $get, ?Proposal $record): array => [
+                                                Rule::unique('proposals', 'document_number_raw')
+                                                    ->where(fn($query) => $query
+                                                        ->where('issue_month', self::resolveIssueDate($get('issue_date'))->month)
+                                                        ->where('issue_year', self::resolveIssueDate($get('issue_date'))->year))
+                                                    ->ignore($record?->getKey()),
+                                            ])
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(fn($state, Get $get, Set $set) => $set(
+                                                'document_number',
+                                                self::generateDocumentNumberFromRaw('QUO', $state, $get('issue_date')),
+                                            )),
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
@@ -66,7 +90,7 @@ class ProposalForm
                                             ->afterStateUpdated(fn(?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
                                             ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? Str::slug($state) : null),
                                     ])
-                                    ->columns(2),
+                                    ->columns(3),
 
                                 Section::make('Document Settings')
                                     ->schema([
@@ -84,7 +108,12 @@ class ProposalForm
                                         DatePicker::make('issue_date')
                                             ->label('Issue Date')
                                             ->default(now())
-                                            ->required(),
+                                            ->required()
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(fn($state, Get $get, Set $set) => $set(
+                                                'document_number',
+                                                self::generateDocumentNumberFromRaw('QUO', $get('document_number_raw'), $state),
+                                            )),
                                         DatePicker::make('valid_until')
                                             ->label('Valid Until')
                                             ->helperText('Leave empty for infinite validity')
@@ -701,6 +730,17 @@ class ProposalForm
         return sprintf('%s/%03d/%s/%s/NEW', $type, $raw, $romanMonth, $date->format('y'));
     }
 
+    protected static function generateDocumentNumberFromRaw(
+        string $type,
+        mixed $raw,
+        mixed $issueDate,
+    ): string {
+        $date = self::resolveIssueDate($issueDate);
+        $raw = filled($raw) ? (int) $raw : self::generateNextDocumentRaw($date);
+
+        return DocumentNumberGenerator::regenerate($type, $raw, $date);
+    }
+
     protected static function generateSlugPreview(mixed $issueDate): string
     {
         $date = filled($issueDate) ? Carbon::parse($issueDate) : now();
@@ -718,5 +758,10 @@ class ProposalForm
             ->max('document_number_raw');
 
         return $maxRaw ? ((int) $maxRaw + 1) : 1;
+    }
+
+    protected static function resolveIssueDate(mixed $issueDate): Carbon
+    {
+        return filled($issueDate) ? Carbon::parse($issueDate) : now();
     }
 }

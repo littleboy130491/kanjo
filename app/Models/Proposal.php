@@ -120,6 +120,16 @@ class Proposal extends Model
         return 'QUO';
     }
 
+    protected static function resolveDocumentSuffixForCreate(Model $model): ?string
+    {
+        return self::extractSuffixFromDocumentNumber($model->document_number) ?? 'NEW';
+    }
+
+    protected static function resolveDocumentSuffixForUpdate(Model $model): ?string
+    {
+        return self::extractSuffixFromDocumentNumber($model->document_number) ?? 'NEW';
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
