@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Proposal;
 use App\Models\ProposalContentDefault;
+use App\Enums\UserRole;
 use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Services\DocumentNumberGenerator;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
@@ -64,14 +65,16 @@ class ProposalForm
                                             ->default(fn(Get $get): int => self::generateNextDocumentRaw(
                                                 filled($get('issue_date')) ? Carbon::parse($get('issue_date')) : now(),
                                             ))
-                                            ->required()
-                                            ->rules(fn(Get $get, ?Proposal $record): array => [
+                                            ->required(fn(): bool => self::canEditDocumentRawNumber())
+                                            ->visible(fn(): bool => self::canEditDocumentRawNumber())
+                                            ->dehydrated(fn(): bool => self::canEditDocumentRawNumber())
+                                            ->rules(fn(Get $get, ?Proposal $record): array => self::canEditDocumentRawNumber() ? [
                                                 Rule::unique('proposals', 'document_number_raw')
                                                     ->where(fn($query) => $query
                                                         ->where('issue_month', self::resolveIssueDate($get('issue_date'))->month)
                                                         ->where('issue_year', self::resolveIssueDate($get('issue_date'))->year))
                                                     ->ignore($record?->getKey()),
-                                            ])
+                                            ] : [])
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(fn($state, Get $get, Set $set) => $set(
                                                 'document_number',
@@ -763,5 +766,10 @@ class ProposalForm
     protected static function resolveIssueDate(mixed $issueDate): Carbon
     {
         return filled($issueDate) ? Carbon::parse($issueDate) : now();
+    }
+
+    protected static function canEditDocumentRawNumber(): bool
+    {
+        return auth()->user()?->hasRole(UserRole::SuperAdmin->value) ?? false;
     }
 }
