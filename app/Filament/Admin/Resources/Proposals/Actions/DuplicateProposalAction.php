@@ -18,29 +18,7 @@ class DuplicateProposalAction
             ->label($label)
             ->icon('heroicon-o-document-duplicate')
             ->action(function (Proposal $record) {
-                $record->loadMissing('portfolios');
-
-                $duplicate = $record->replicate([
-                    'document_number',
-                    'slug',
-                    'document_number_raw',
-                    'document_number_override',
-                    'issue_month',
-                    'issue_year',
-                    'invoices_count',
-                    'created_at',
-                    'updated_at',
-                    'deleted_at',
-                ]);
-
-                $duplicate->status = DocumentStatus::DRAFT;
-                $duplicate->document_number = null;
-                $duplicate->document_number_raw = null;
-                $duplicate->issue_month = null;
-                $duplicate->issue_year = null;
-                $duplicate->document_number_override = false;
-                $duplicate->save();
-                $duplicate->portfolios()->sync($record->portfolios->modelKeys());
+                $duplicate = self::duplicate($record);
 
                 return redirect(ProposalResource::getUrl('edit', ['record' => $duplicate]));
             });
@@ -50,5 +28,38 @@ class DuplicateProposalAction
         }
 
         return $action;
+    }
+
+    public static function duplicate(Proposal $record): Proposal
+    {
+        $record->loadMissing('portfolios');
+
+        $duplicate = $record->replicate([
+            'document_number',
+            'slug',
+            'document_number_raw',
+            'document_number_override',
+            'issue_month',
+            'issue_year',
+            'invoices_count',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ]);
+
+        $issueDate = now();
+
+        $duplicate->status = DocumentStatus::DRAFT;
+        $duplicate->document_number = null;
+        $duplicate->document_number_raw = null;
+        $duplicate->issue_month = null;
+        $duplicate->issue_year = null;
+        $duplicate->document_number_override = false;
+        $duplicate->issue_date = $issueDate->toDateString();
+        $duplicate->valid_until = $issueDate->copy()->addDays(30)->toDateString();
+        $duplicate->save();
+        $duplicate->portfolios()->sync($record->portfolios->modelKeys());
+
+        return $duplicate;
     }
 }
