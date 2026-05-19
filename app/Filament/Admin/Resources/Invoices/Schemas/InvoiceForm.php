@@ -77,12 +77,7 @@ class InvoiceForm
                                                         ->where('issue_month', self::resolveIssueDate($get('issue_date'))->month)
                                                         ->where('issue_year', self::resolveIssueDate($get('issue_date'))->year))
                                                     ->ignore($record?->getKey()),
-                                            ] : [])
-                                            ->live(onBlur: true)
-                                            ->afterStateUpdated(function ($state, Get $get, Set $set): void {
-                                                $set('document_number', self::generateDocumentNumberFromRaw('INV', $state, $get('issue_date')));
-                                                $set('document_number_override', false);
-                                            }),
+                                            ] : []),
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
