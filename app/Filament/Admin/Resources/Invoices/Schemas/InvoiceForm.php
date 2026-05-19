@@ -14,6 +14,7 @@ use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -46,15 +47,19 @@ class InvoiceForm
                                     ->schema([
                                         TextInput::make('document_number')
                                             ->label('Document Number')
-                                            ->helperText('Generated from the raw number and issue date.')
+                                            ->helperText('Auto-generated unless edited manually.')
                                             ->maxLength(255)
                                             ->default(fn(Get $get): string => self::generateDocumentNumberPreview(
                                                 'INV',
                                                 $get('issue_date'),
                                             ))
                                             ->placeholder('Auto-generated')
-                                            ->readonly()
-                                            ->dehydrated(false),
+                                            ->required()
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(fn(?string $state, Set $set) => $set('document_number_override', filled($state))),
+                                        Hidden::make('document_number_override')
+                                            ->default(false)
+                                            ->dehydrated(),
                                         TextInput::make('document_number_raw')
                                             ->label('Raw Number')
                                             ->helperText('Editable sequence number for the selected issue month.')
@@ -74,10 +79,10 @@ class InvoiceForm
                                                     ->ignore($record?->getKey()),
                                             ] : [])
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn($state, Get $get, Set $set) => $set(
-                                                'document_number',
-                                                self::generateDocumentNumberFromRaw('INV', $state, $get('issue_date')),
-                                            )),
+                                            ->afterStateUpdated(function ($state, Get $get, Set $set): void {
+                                                $set('document_number', self::generateDocumentNumberFromRaw('INV', $state, $get('issue_date')));
+                                                $set('document_number_override', false);
+                                            }),
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
@@ -149,10 +154,13 @@ class InvoiceForm
                                             ->required()
                                             ->default(now())
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn($state, Get $get, Set $set) => $set(
-                                                'document_number',
-                                                self::generateDocumentNumberFromRaw('INV', $get('document_number_raw'), $state),
-                                            )),
+                                            ->afterStateUpdated(function ($state, Get $get, Set $set): void {
+                                                if ($get('document_number_override')) {
+                                                    return;
+                                                }
+
+                                                $set('document_number', self::generateDocumentNumberFromRaw('INV', $get('document_number_raw'), $state));
+                                            }),
                                         DatePicker::make('due_date')
                                             ->required()
                                             ->default(now()->addDays(30)),

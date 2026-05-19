@@ -15,6 +15,7 @@ use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -48,15 +49,19 @@ class ProposalForm
                                     ->schema([
                                         TextInput::make('document_number')
                                             ->label('Document Number')
-                                            ->helperText('Generated from the raw number and issue date.')
+                                            ->helperText('Auto-generated unless edited manually.')
                                             ->maxLength(255)
                                             ->default(fn(Get $get): string => self::generateDocumentNumberPreview(
                                                 'QUO',
                                                 $get('issue_date'),
                                             ))
                                             ->placeholder('Auto-generated')
-                                            ->readonly()
-                                            ->dehydrated(false),
+                                            ->required()
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(fn(?string $state, Set $set) => $set('document_number_override', filled($state))),
+                                        Hidden::make('document_number_override')
+                                            ->default(false)
+                                            ->dehydrated(),
                                         TextInput::make('document_number_raw')
                                             ->label('Raw Number')
                                             ->helperText('Editable sequence number for the selected issue month.')
@@ -76,10 +81,10 @@ class ProposalForm
                                                     ->ignore($record?->getKey()),
                                             ] : [])
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn($state, Get $get, Set $set) => $set(
-                                                'document_number',
-                                                self::generateDocumentNumberFromRaw('QUO', $state, $get('issue_date')),
-                                            )),
+                                            ->afterStateUpdated(function ($state, Get $get, Set $set): void {
+                                                $set('document_number', self::generateDocumentNumberFromRaw('QUO', $state, $get('issue_date')));
+                                                $set('document_number_override', false);
+                                            }),
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
@@ -113,10 +118,13 @@ class ProposalForm
                                             ->default(now())
                                             ->required()
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn($state, Get $get, Set $set) => $set(
-                                                'document_number',
-                                                self::generateDocumentNumberFromRaw('QUO', $get('document_number_raw'), $state),
-                                            )),
+                                            ->afterStateUpdated(function ($state, Get $get, Set $set): void {
+                                                if ($get('document_number_override')) {
+                                                    return;
+                                                }
+
+                                                $set('document_number', self::generateDocumentNumberFromRaw('QUO', $get('document_number_raw'), $state));
+                                            }),
                                         DatePicker::make('valid_until')
                                             ->label('Valid Until')
                                             ->helperText('Leave empty for infinite validity')

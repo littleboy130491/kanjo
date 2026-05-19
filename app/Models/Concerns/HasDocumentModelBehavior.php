@@ -61,7 +61,7 @@ trait HasDocumentModelBehavior
                 $model->document_number_raw = $data['document_number_raw'];
             }
 
-            if (blank($model->document_number)) {
+            if (blank($model->document_number) || ! $model->document_number_override) {
                 $model->document_number = $generatedDocumentNumber;
                 $model->document_number_override = false;
 
