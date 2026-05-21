@@ -34,6 +34,17 @@
         ? (str_starts_with($companyLogo, 'http') ? $companyLogo : asset('storage/' . ltrim($companyLogo, '/')))
         : $fallbackLogoUrl;
 
+    $htmlHasContent = function (mixed $value): bool {
+        if (! is_string($value)) {
+            return filled($value);
+        }
+
+        $text = html_entity_decode(strip_tags($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace('/[\x{00A0}\x{200B}-\x{200D}\x{FEFF}]/u', '', $text) ?? $text;
+
+        return trim($text) !== '';
+    };
+
     $valueByLocale = function (mixed $value) use ($locale): mixed {
         if (is_array($value) && array_key_exists($locale, $value)) {
             return $value[$locale];
@@ -46,6 +57,44 @@
         $resolved = $valueByLocale($value);
 
         return is_string($resolved) ? trim($resolved) : '';
+    };
+
+    $asHtmlWithLocaleFallback = function (mixed $value) use ($locale, $htmlHasContent): string {
+        if (! is_array($value)) {
+            return is_string($value) ? trim($value) : '';
+        }
+
+        $localized = $value[$locale] ?? null;
+
+        if (is_string($localized) && $htmlHasContent($localized)) {
+            return trim($localized);
+        }
+
+        $fallbackLocales = array_unique(array_filter([
+            config('app.locale', 'id'),
+            config('app.fallback_locale', 'en'),
+            ...config('translatable.locales', ['id', 'en']),
+        ]));
+
+        foreach ($fallbackLocales as $fallbackLocale) {
+            if ($fallbackLocale === $locale) {
+                continue;
+            }
+
+            $fallback = $value[$fallbackLocale] ?? null;
+
+            if (is_string($fallback) && $htmlHasContent($fallback)) {
+                return trim($fallback);
+            }
+        }
+
+        foreach ($value as $fallback) {
+            if (is_string($fallback) && $htmlHasContent($fallback)) {
+                return trim($fallback);
+            }
+        }
+
+        return is_string($localized) ? trim($localized) : '';
     };
 
     $asRows = function (mixed $value) use ($valueByLocale): array {
@@ -81,19 +130,12 @@
             ->all();
     };
 
-    $present = function (mixed $value): bool {
+    $present = function (mixed $value) use ($htmlHasContent): bool {
         if (is_array($value)) {
             return count($value) > 0;
         }
 
-        if (! is_string($value)) {
-            return filled($value);
-        }
-
-        $text = html_entity_decode(strip_tags($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $text = preg_replace('/[\x{00A0}\x{200B}-\x{200D}\x{FEFF}]/u', '', $text) ?? $text;
-
-        return trim($text) !== '';
+        return $htmlHasContent($value);
     };
 
     $briefHtml = $asHtml($proposal->brief);
@@ -108,7 +150,21 @@
     $paymentHtml = $asHtml($proposal->payment);
     $termsConditionHtml = $asHtml($proposal->terms_condition);
     $additionalInfoHtml = $asHtml($proposal->additional_info);
-    $faqHtml = $asHtml($proposal->faq);
+    $faqHtml = $asHtmlWithLocaleFallback($proposal->faq);
+
+    if (! $present($faqHtml) && blank($proposal->getRawOriginal('faq'))) {
+        $proposalContentDefault = \App\Models\ProposalContentDefault::query()
+            ->where('field_key', \App\Models\ProposalContentDefault::GLOBAL_FIELD_KEY)
+            ->first();
+        $defaultTranslations = $proposalContentDefault?->getTranslations('value') ?? [];
+        $defaultFaq = collect(config('translatable.locales', ['id', 'en']))
+            ->mapWithKeys(fn (string $defaultLocale): array => [
+                $defaultLocale => data_get($defaultTranslations, "{$defaultLocale}.faq"),
+            ])
+            ->all();
+
+        $faqHtml = $asHtmlWithLocaleFallback($defaultFaq);
+    }
     $footerTextHtml = trim((string) ($company?->getTranslation('footer_text', $locale, false) ?? ''));
 
     $offer1Timeline = $asRows($proposal->offer_1_project_timeline);
@@ -620,7 +676,9 @@
             <a href="#price">Price</a>
             <a href="#timeline">Timeline</a>
             <a href="#payment">Payment</a>
-            <a href="#faq">FAQ</a>
+            @if($present($faqHtml))
+                <a href="#faq">FAQ</a>
+            @endif
             <a href="#terms-and-conditions">Terms & Conditions</a>
             <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
         </nav>
@@ -638,7 +696,9 @@
                 <a href="#price" class="js-flyout-link">Price</a>
                 <a href="#timeline" class="js-flyout-link">Timeline</a>
                 <a href="#payment" class="js-flyout-link">Payment</a>
-                <a href="#faq" class="js-flyout-link">FAQ</a>
+                @if($present($faqHtml))
+                    <a href="#faq" class="js-flyout-link">FAQ</a>
+                @endif
                 <a href="#terms-and-conditions" class="js-flyout-link">Terms & Conditions</a>
                 <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
             </nav>

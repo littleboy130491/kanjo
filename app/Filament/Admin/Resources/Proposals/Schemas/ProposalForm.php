@@ -380,6 +380,9 @@ class ProposalForm
                                     ]),
 
                                 Section::make('FAQ')
+                                    ->headerActions([
+                                        self::makeLoadRichTextTemplateAction('faq'),
+                                    ])
                                     ->schema([
                                         self::makeTranslatedRichEditor('faq'),
                                     ]),
