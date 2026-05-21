@@ -574,20 +574,20 @@
             </section>
         @endif
 
-        @if($present($faqHtml))
-            <section id="faq" class="section-row allow-page-break">
-                <h2 class="section-label">FAQ</h2>
-                <div class="section-content">
-                    {!! $faqHtml !!}
-                </div>
-            </section>
-        @endif
-
         @if($present($termsConditionHtml))
             <section id="terms-and-conditions" class="section-row allow-page-break">
                 <h2 class="section-label">Terms & Conditions</h2>
                 <div class="section-content">
                     {!! $termsConditionHtml !!}
+                </div>
+            </section>
+        @endif
+
+        @if($present($faqHtml))
+            <section id="faq" class="section-row allow-page-break">
+                <h2 class="section-label">Frequently Asked Questions</h2>
+                <div class="section-content">
+                    {!! $faqHtml !!}
                 </div>
             </section>
         @endif
@@ -676,10 +676,10 @@
             <a href="#price">Price</a>
             <a href="#timeline">Timeline</a>
             <a href="#payment">Payment</a>
+            <a href="#terms-and-conditions">Terms & Conditions</a>
             @if($present($faqHtml))
                 <a href="#faq">FAQ</a>
             @endif
-            <a href="#terms-and-conditions">Terms & Conditions</a>
             <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
         </nav>
 
@@ -696,10 +696,10 @@
                 <a href="#price" class="js-flyout-link">Price</a>
                 <a href="#timeline" class="js-flyout-link">Timeline</a>
                 <a href="#payment" class="js-flyout-link">Payment</a>
+                <a href="#terms-and-conditions" class="js-flyout-link">Terms & Conditions</a>
                 @if($present($faqHtml))
                     <a href="#faq" class="js-flyout-link">FAQ</a>
                 @endif
-                <a href="#terms-and-conditions" class="js-flyout-link">Terms & Conditions</a>
                 <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
             </nav>
         </details>
