@@ -32,6 +32,7 @@ class ProposalContentDefault extends Model
         'payment' => 'Payment Terms',
         'terms_condition' => 'Terms & Conditions',
         'additional_info' => 'Additional Info',
+        'faq' => 'FAQ',
         'marketing_program' => 'Marketing Program',
     ];
 

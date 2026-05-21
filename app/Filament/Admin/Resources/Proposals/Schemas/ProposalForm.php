@@ -379,6 +379,11 @@ class ProposalForm
                                         self::makeTranslatedRichEditor('additional_info', 'ex: for marketing program'),
                                     ]),
 
+                                Section::make('FAQ')
+                                    ->schema([
+                                        self::makeTranslatedRichEditor('faq'),
+                                    ]),
+
 
                                 Section::make('Offer 1 Project Timeline')
                                     ->headerActions([

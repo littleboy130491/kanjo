@@ -298,6 +298,11 @@ class ProposalContentDefaultSeeder extends Seeder
 </ol>
 HTML,
             'additional_info' => '',
+            'faq' => <<<'HTML'
+<details><summary>What do we need to prepare before the project starts?</summary><div data-type="detailsContent"><p>Please prepare the website copy, logo, brand assets, photos, product or service information, and any reference websites you want us to review.</p></div></details>
+<details><summary>Can the project timeline change?</summary><div data-type="detailsContent"><p>Yes. The timeline can change if there are additional requests, delayed materials, delayed reviews, or scope changes during the project.</p></div></details>
+<details><summary>Can we request additional features after the proposal is approved?</summary><div data-type="detailsContent"><p>Additional features can be discussed after approval. If they are outside the agreed scope, they may be treated as add-ons and quoted separately.</p></div></details>
+HTML,
             'marketing_program' => '<p>A 10% discount will be applied to the final payment invoice if you participate in our marketing program by leaving an honest review on our Google Business page (<a href="https://g.page/r/CSuQy97toImhEBM/review" target="_blank" rel="noopener">https://g.page/r/CSuQy97toImhEBM/review</a>) at the final payment stage before the website goes live.</p>',
             'extra_content_brief' => '',
             'add_on' => [
@@ -540,6 +545,11 @@ HTML,
 </ol>
 HTML,
             'additional_info' => '',
+            'faq' => <<<'HTML'
+<details><summary>Apa saja yang perlu disiapkan sebelum proyek dimulai?</summary><div data-type="detailsContent"><p>Silakan siapkan copy website, logo, aset brand, foto, informasi produk atau layanan, serta referensi website yang ingin ditinjau oleh tim kami.</p></div></details>
+<details><summary>Apakah timeline proyek dapat berubah?</summary><div data-type="detailsContent"><p>Ya. Timeline dapat berubah apabila ada permintaan tambahan, keterlambatan materi, keterlambatan review, atau perubahan scope selama proyek berjalan.</p></div></details>
+<details><summary>Apakah kami dapat meminta fitur tambahan setelah proposal disetujui?</summary><div data-type="detailsContent"><p>Fitur tambahan dapat didiskusikan setelah proposal disetujui. Jika berada di luar scope yang disepakati, fitur tersebut dapat dianggap sebagai add-on dan dibuatkan penawaran terpisah.</p></div></details>
+HTML,
             'marketing_program' => '<p>Diskon 10% akan diberikan pada invoice pelunasan apabila Anda mengikuti program marketing kami, yaitu dengan memberikan review jujur di Google Business kami (<a href="https://g.page/r/CSuQy97toImhEBM/review" target="_blank" rel="noopener">https://g.page/r/CSuQy97toImhEBM/review</a>) pada tahap pelunasan sebelum website ditayangkan (go live).</p>',
             'extra_content_brief' => '',
             'add_on' => [

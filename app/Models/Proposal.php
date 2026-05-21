@@ -53,6 +53,7 @@ class Proposal extends Model
         'terms_condition',
         'additional_info',
         'extra_content_brief',
+        'faq',
         'offer_name_1',
         'offer_1_price',
         'offer_1_original_price',
@@ -90,6 +91,7 @@ class Proposal extends Model
         'terms_condition',
         'additional_info',
         'extra_content_brief',
+        'faq',
         'offer_1_project_timeline',
         'offer_2_project_timeline',
     ];

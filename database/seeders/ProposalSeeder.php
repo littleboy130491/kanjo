@@ -146,6 +146,11 @@ class ProposalSeeder extends Seeder
                     'extra_content_brief',
                     '<p>Seeded extra brief content.</p>',
                 ),
+                'faq' => self::translatedFromDefaults(
+                    $translations,
+                    'faq',
+                    '<details><summary>Seeded question?</summary><div data-type="detailsContent"><p>Seeded answer.</p></div></details>',
+                ),
                 'add_on' => self::translatedFromDefaults(
                     $translations,
                     'add_on',
