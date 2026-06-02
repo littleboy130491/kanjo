@@ -299,6 +299,12 @@ class ProposalForm
                                     ]),
 
                                 Section::make('Features')
+                                    ->headerActions([
+                                        self::makeLoadRichTextTemplateAction('features', sourceOptions: [
+                                            'features' => 'Default Features',
+                                            'ecommerce_features' => 'E-commerce Features',
+                                        ]),
+                                    ])
                                     ->schema([
                                         self::makeTranslatedRichEditor('features'),
                                     ]),
@@ -707,20 +713,41 @@ class ProposalForm
             });
     }
 
-    protected static function makeLoadRichTextTemplateAction(string $targetField, ?string $sourceField = null): Action
+    /**
+     * @param  array<string, string>|null  $sourceOptions
+     */
+    protected static function makeLoadRichTextTemplateAction(
+        string $targetField,
+        ?string $sourceField = null,
+        ?array $sourceOptions = null,
+    ): Action
     {
         $lookupField = $sourceField ?? $targetField;
-
-        return Action::make('load_rich_text_template_' . $targetField)
+        $action = Action::make('load_rich_text_template_' . $targetField)
             ->label('Load Template')
             ->icon('heroicon-o-arrow-down-tray')
-            ->color('gray')
-            ->action(function (mixed $livewire) use ($targetField, $lookupField): void {
+            ->color('gray');
+
+        if ($sourceOptions !== null) {
+            $action->form([
+                Select::make('template_key')
+                    ->label('Template')
+                    ->options($sourceOptions)
+                    ->default($lookupField)
+                    ->required(),
+            ]);
+        }
+
+        return $action
+            ->action(function (array $data, mixed $livewire) use ($targetField, $lookupField, $sourceOptions): void {
+                $selectedLookupField = $sourceOptions !== null
+                    ? $data['template_key']
+                    : $lookupField;
                 $allLocales = config('translatable.locales', ['en', 'id']);
                 $livewireData = $livewire->data;
 
                 foreach ($allLocales as $locale) {
-                    $content = static::defaultRichTextContent($lookupField, $locale) ?? '';
+                    $content = static::defaultRichTextContent($selectedLookupField, $locale) ?? '';
                     data_set($livewireData, "{$targetField}.{$locale}", $content);
                 }
 

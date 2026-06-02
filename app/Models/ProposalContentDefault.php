@@ -18,6 +18,7 @@ class ProposalContentDefault extends Model
         'extra_content_brief' => 'Extra Content Brief',
         'core_services' => 'Core Services',
         'features' => 'Features',
+        'ecommerce_features' => 'E-commerce Features',
         'server' => 'Server',
         'assets' => 'Assets',
         'security' => 'Security',
