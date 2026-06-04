@@ -10,8 +10,12 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\User;
+use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use ReflectionMethod;
 use Tests\TestCase;
 
 class DuplicateDocumentNumberingTest extends TestCase
@@ -90,6 +94,112 @@ class DuplicateDocumentNumberingTest extends TestCase
         $this->assertSame('QUO/007/V/26/NEW', $proposal->document_number);
     }
 
+    public function test_editing_proposal_issue_date_does_not_move_numbering_period(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-05-11 09:00:00'));
+
+        [$user, $company] = $this->createUserAndCompany();
+
+        $aprilProposal = Proposal::query()->create([
+            'document_number_raw' => 19,
+            'client_company' => 'Client Co',
+            'client_name' => 'Client Name',
+            'client_email' => 'client@example.test',
+            'client_phone' => '0800000000',
+            'issue_date' => '2026-04-19',
+            'valid_until' => '2026-05-19',
+            'currency' => 'IDR',
+            'tax_rate' => 11,
+            'offer_name_1' => 'Website Package',
+            'offer_1_price' => 1000000,
+            'status' => DocumentStatus::PUBLISHED,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        $aprilProposal->issue_date = '2026-05-11';
+        $this->syncDocumentNumberForUpdate($aprilProposal);
+        $this->persistDocumentNumberingState($aprilProposal);
+
+        $mayProposal = Proposal::query()->create([
+            'client_company' => 'May Client Co',
+            'client_name' => 'May Client Name',
+            'client_email' => 'may-client@example.test',
+            'client_phone' => '0811111111',
+            'issue_date' => '2026-05-11',
+            'valid_until' => '2026-06-10',
+            'currency' => 'IDR',
+            'tax_rate' => 11,
+            'offer_name_1' => 'Website Package',
+            'offer_1_price' => 1000000,
+            'status' => DocumentStatus::PUBLISHED,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        $aprilProposal->refresh();
+
+        $this->assertSame(19, $aprilProposal->document_number_raw);
+        $this->assertSame(4, $aprilProposal->issue_month);
+        $this->assertSame(2026, $aprilProposal->issue_year);
+        $this->assertSame('2026-05-11', $aprilProposal->issue_date->toDateString());
+        $this->assertSame('QUO/019/IV/26/NEW', $aprilProposal->document_number);
+        $this->assertSame(1, $mayProposal->document_number_raw);
+        $this->assertSame('QUO/001/V/26/NEW', $mayProposal->document_number);
+    }
+
+    public function test_editing_invoice_issue_date_does_not_move_numbering_period(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-05-11 09:00:00'));
+
+        [$user, $company] = $this->createUserAndCompany();
+
+        $aprilInvoiceId = DB::table('invoices')->insertGetId([
+            'document_number_raw' => 19,
+            'document_number' => 'INV/019/IV/26/NEW',
+            'document_number_override' => false,
+            'issue_month' => 4,
+            'issue_year' => 2026,
+            'slug' => '19-1942026',
+            'client_company' => 'Client Co',
+            'client_name' => 'Client Name',
+            'client_email' => 'client@example.test',
+            'client_phone' => '0800000000',
+            'issue_date' => '2026-04-19',
+            'due_date' => '2026-05-19',
+            'currency' => 'IDR',
+            'tax_rate' => 11,
+            'items' => json_encode([[
+                'title' => 'Website Package',
+                'price' => 1000000,
+                'description' => '',
+            ]]),
+            'status' => DocumentStatus::PUBLISHED->value,
+            'payment_status' => PaymentStatus::UNPAID->value,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $aprilInvoice = Invoice::query()->findOrFail($aprilInvoiceId);
+        $aprilInvoice->issue_date = '2026-05-11';
+        $this->syncDocumentNumberForUpdate($aprilInvoice);
+        $this->persistDocumentNumberingState($aprilInvoice);
+
+        $mayInvoiceNumber = DocumentNumberGenerator::generate('INV', Carbon::parse('2026-05-11'));
+
+        $aprilInvoice->refresh();
+
+        $this->assertSame(19, $aprilInvoice->document_number_raw);
+        $this->assertSame(4, $aprilInvoice->issue_month);
+        $this->assertSame(2026, $aprilInvoice->issue_year);
+        $this->assertSame('2026-05-11', $aprilInvoice->issue_date->toDateString());
+        $this->assertSame('INV/019/IV/26/NEW', $aprilInvoice->document_number);
+        $this->assertSame(1, $mayInvoiceNumber['document_number_raw']);
+        $this->assertSame('INV/001/V/26/NEW', $mayInvoiceNumber['document_number']);
+    }
+
     /**
      * @return array{0: User, 1: Company}
      */
@@ -154,5 +264,25 @@ class DuplicateDocumentNumberingTest extends TestCase
             'user_id' => $user->id,
             'company_id' => $company->id,
         ]));
+    }
+
+    private function syncDocumentNumberForUpdate(Model $model): void
+    {
+        $method = new ReflectionMethod($model, 'syncDocumentNumberForUpdate');
+        $method->setAccessible(true);
+        $method->invoke(null, $model);
+    }
+
+    private function persistDocumentNumberingState(Model $model): void
+    {
+        DB::table($model->getTable())
+            ->where('id', $model->getKey())
+            ->update([
+                'document_number' => $model->document_number,
+                'document_number_raw' => $model->document_number_raw,
+                'issue_month' => $model->issue_month,
+                'issue_year' => $model->issue_year,
+                'issue_date' => $model->issue_date->toDateString(),
+            ]);
     }
 }

@@ -87,44 +87,7 @@ trait HasDocumentModelBehavior
         });
 
         static::updating(function (Model $model): void {
-            if ($model->isDirty('issue_date') && $model->issue_date) {
-                $date = Carbon::parse($model->issue_date);
-                $model->issue_month = $date->month;
-                $model->issue_year = $date->year;
-            }
-
-            $date = $model->issue_date ? Carbon::parse($model->issue_date) : now();
-            $generatedDocumentNumber = DocumentNumberGenerator::regenerate(
-                static::documentNumberType(),
-                (int) $model->document_number_raw,
-                $date,
-                static::resolveDocumentSuffixForUpdate($model),
-            );
-
-            if ($model->isDirty('document_number_raw')) {
-                $model->document_number_raw = (int) $model->document_number_raw;
-                $model->document_number = $generatedDocumentNumber;
-                $model->document_number_override = false;
-
-                return;
-            }
-
-            if ($model->isDirty('document_number')) {
-                if (blank($model->document_number)) {
-                    $model->document_number = $generatedDocumentNumber;
-                    $model->document_number_override = false;
-
-                    return;
-                }
-
-                $model->document_number_override = $model->document_number !== $generatedDocumentNumber;
-
-                return;
-            }
-
-            if ($model->isDirty('issue_date') && ! $model->document_number_override) {
-                $model->document_number = $generatedDocumentNumber;
-            }
+            static::syncDocumentNumberForUpdate($model);
         });
     }
 
@@ -176,6 +139,51 @@ trait HasDocumentModelBehavior
         $now = now();
         $model->issue_month = $now->month;
         $model->issue_year = $now->year;
+    }
+
+    protected static function resolveDocumentNumberDateForUpdate(Model $model): Carbon
+    {
+        if (filled($model->issue_month) && filled($model->issue_year)) {
+            return Carbon::create((int) $model->issue_year, (int) $model->issue_month, 1);
+        }
+
+        return $model->issue_date ? Carbon::parse($model->issue_date) : now();
+    }
+
+    protected static function syncDocumentNumberForUpdate(Model $model): void
+    {
+        $date = static::resolveDocumentNumberDateForUpdate($model);
+        $generatedDocumentNumber = DocumentNumberGenerator::regenerate(
+            static::documentNumberType(),
+            (int) $model->document_number_raw,
+            $date,
+            static::resolveDocumentSuffixForUpdate($model),
+        );
+
+        if ($model->isDirty('document_number_raw')) {
+            $model->document_number_raw = (int) $model->document_number_raw;
+            $model->document_number = $generatedDocumentNumber;
+            $model->document_number_override = false;
+
+            return;
+        }
+
+        if ($model->isDirty('document_number')) {
+            if (blank($model->document_number)) {
+                $model->document_number = $generatedDocumentNumber;
+                $model->document_number_override = false;
+
+                return;
+            }
+
+            $model->document_number_override = $model->document_number !== $generatedDocumentNumber;
+
+            return;
+        }
+
+        if ($model->isDirty('issue_date') && ! $model->document_number_override) {
+            $model->document_number = $generatedDocumentNumber;
+        }
     }
 
     private static function generateSlug(

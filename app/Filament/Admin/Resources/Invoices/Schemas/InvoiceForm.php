@@ -74,8 +74,8 @@ class InvoiceForm
                                             ->rules(fn(Get $get, ?Invoice $record): array => self::canEditDocumentRawNumber() ? [
                                                 Rule::unique('invoices', 'document_number_raw')
                                                     ->where(fn($query) => $query
-                                                        ->where('issue_month', self::resolveIssueDate($get('issue_date'))->month)
-                                                        ->where('issue_year', self::resolveIssueDate($get('issue_date'))->year))
+                                                        ->where('issue_month', self::resolveDocumentNumberDate($record, $get('issue_date'))->month)
+                                                        ->where('issue_year', self::resolveDocumentNumberDate($record, $get('issue_date'))->year))
                                                     ->ignore($record?->getKey()),
                                             ] : []),
                                         TextInput::make('slug')
@@ -149,8 +149,8 @@ class InvoiceForm
                                             ->required()
                                             ->default(now())
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(function ($state, Get $get, Set $set): void {
-                                                if ($get('document_number_override')) {
+                                            ->afterStateUpdated(function ($state, Get $get, Set $set, ?Invoice $record): void {
+                                                if ($record || $get('document_number_override')) {
                                                     return;
                                                 }
 
@@ -441,6 +441,15 @@ class InvoiceForm
     protected static function resolveIssueDate(mixed $issueDate): Carbon
     {
         return filled($issueDate) ? Carbon::parse($issueDate) : now();
+    }
+
+    protected static function resolveDocumentNumberDate(?Invoice $record, mixed $issueDate): Carbon
+    {
+        if ($record && filled($record->issue_month) && filled($record->issue_year)) {
+            return Carbon::create((int) $record->issue_year, (int) $record->issue_month, 1);
+        }
+
+        return self::resolveIssueDate($issueDate);
     }
 
     protected static function canEditDocumentRawNumber(): bool
