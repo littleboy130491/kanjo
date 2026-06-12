@@ -61,7 +61,7 @@ class CompanyForm
                         ->url()
                         ->nullable()
                         ->maxLength(2048)
-                        ->helperText('Paste a Google Maps short link (maps.app.goo.gl) or the iframe embed URL from Share > Embed a map.')
+                        ->helperText('Paste a maps.app.goo.gl short link, place URL, or the iframe embed code from Share > Embed a map. The embed code shows the business card with reviews.')
                         ->columnSpanFull(),
                 ])
                 ->columnSpanFull(),
