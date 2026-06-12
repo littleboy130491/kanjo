@@ -54,6 +54,9 @@ class Proposal extends Model
         'additional_info',
         'extra_content_brief',
         'faq',
+        'our_process',
+        'about_us',
+        'video_testimonials',
         'offer_name_1',
         'offer_1_price',
         'offer_1_original_price',
@@ -92,6 +95,8 @@ class Proposal extends Model
         'additional_info',
         'extra_content_brief',
         'faq',
+        'our_process',
+        'about_us',
         'offer_1_project_timeline',
         'offer_2_project_timeline',
     ];
@@ -115,6 +120,7 @@ class Proposal extends Model
         'offer_2_original_renewal_price' => 'decimal:2',
         'status' => DocumentStatus::class,
         'notes' => 'array',
+        'video_testimonials' => 'array',
     ];
 
     protected static function documentNumberType(): string

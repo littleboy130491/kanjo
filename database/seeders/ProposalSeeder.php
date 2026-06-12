@@ -151,6 +151,17 @@ class ProposalSeeder extends Seeder
                     'faq',
                     '<details><summary>Seeded question?</summary><div data-type="detailsContent"><p>Seeded answer.</p></div></details>',
                 ),
+                'our_process' => self::translatedFromDefaults(
+                    $translations,
+                    'our_process',
+                    '',
+                ),
+                'about_us' => self::translatedFromDefaults(
+                    $translations,
+                    'about_us',
+                    '',
+                ),
+                'video_testimonials' => data_get($translations, 'en.video_testimonials', []),
                 'add_on' => self::translatedFromDefaults(
                     $translations,
                     'add_on',

@@ -34,6 +34,9 @@ class ProposalContentDefault extends Model
         'terms_condition' => 'Terms & Conditions',
         'additional_info' => 'Additional Info',
         'faq' => 'FAQ',
+        'our_process' => 'Our Process',
+        'about_us' => 'About Us',
+        'video_testimonials' => 'Video Testimonials',
         'marketing_program' => 'Marketing Program',
     ];
 

@@ -151,6 +151,8 @@
     $termsConditionHtml = $asHtml($proposal->terms_condition);
     $additionalInfoHtml = $asHtml($proposal->additional_info);
     $faqHtml = $asHtmlWithLocaleFallback($proposal->faq);
+    $ourProcessHtml = $asHtmlWithLocaleFallback($proposal->our_process);
+    $aboutUsHtml = $asHtmlWithLocaleFallback($proposal->about_us);
 
     if (! $present($faqHtml) && blank($proposal->getRawOriginal('faq'))) {
         $proposalContentDefault = \App\Models\ProposalContentDefault::query()
@@ -171,6 +173,28 @@
     $offer2Timeline = $asRows($proposal->offer_2_project_timeline);
     $addOns = $asRows($proposal->add_on);
     $hasOffer2 = filled($proposal->offer_name_2) || filled($proposal->offer_2_price) || filled($proposal->offer_2_renewal_price);
+
+    $videoTestimonials = collect($proposal->video_testimonials ?? [])
+        ->filter(fn (mixed $row): bool => is_array($row) && filled($row['url'] ?? null))
+        ->values()
+        ->all();
+
+    $videoEmbedUrl = function (string $url): ?string {
+        $url = trim($url);
+
+        if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $url, $matches) === 1) {
+            return 'https://www.youtube.com/embed/' . $matches[1];
+        }
+
+        if (preg_match('/vimeo\.com\/(?:video\/)?(\d+)/', $url, $matches) === 1) {
+            return 'https://player.vimeo.com/video/' . $matches[1];
+        }
+
+        return null;
+    };
+
+    $hasTimeline = count($offer1Timeline) > 0 || count($offer2Timeline) > 0;
+    $hasVideoTestimonials = count($videoTestimonials) > 0 && ! $pdfMode;
 
     $bankRows = collect($company?->bank ?? [])
         ->filter(fn($row) => filled($row['bank_name'] ?? null) || filled($row['account_name'] ?? null) || filled($row['account_number'] ?? null))
@@ -464,9 +488,11 @@
             </section>
         @endif
 
-        @if(count($offer1Timeline) || count($offer2Timeline))
+        @if($hasTimeline || $hasVideoTestimonials)
             <section id="timeline" class="section-row allow-page-break">
-                <h2 class="section-label">Project Timeline</h2>
+                @if($hasTimeline)
+                    <h2 class="section-label">Project Timeline</h2>
+                @endif
                 <div class="section-content space-y-10">
                     @if(count($offer1Timeline))
                         @php
@@ -552,6 +578,54 @@
                             </div>
                         </div>
                     @endif
+
+                    @if($hasVideoTestimonials)
+                        <div class="video-testimonials-block">
+                            <p class="document-accent document-subkicker">Video Testimonials</p>
+                            <div class="video-testimonials-grid">
+                                @foreach($videoTestimonials as $testimonial)
+                                    @php
+                                        $videoUrl = trim((string) ($testimonial['url'] ?? ''));
+                                        $embedUrl = $videoEmbedUrl($videoUrl);
+                                    @endphp
+                                    <article class="video-testimonial-card">
+                                        @if($embedUrl)
+                                            <div class="video-testimonial-frame">
+                                                <iframe
+                                                    src="{{ $embedUrl }}"
+                                                    title="Client video testimonial"
+                                                    loading="lazy"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                    allowfullscreen
+                                                ></iframe>
+                                            </div>
+                                        @else
+                                            <a href="{{ $videoUrl }}" target="_blank" rel="noopener noreferrer"
+                                                class="video-testimonial-link">
+                                                <span class="video-testimonial-link-icon" aria-hidden="true">
+                                                    <svg viewBox="0 0 24 24" fill="none">
+                                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
+                                                        <path d="M10 8.5v7l6-3.5-6-3.5z" fill="currentColor" />
+                                                    </svg>
+                                                </span>
+                                                <span class="video-testimonial-link-label">Watch testimonial</span>
+                                                <span class="video-testimonial-link-url">{{ $videoUrl }}</span>
+                                            </a>
+                                        @endif
+                                    </article>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </section>
+        @endif
+
+        @if($present($ourProcessHtml))
+            <section id="our-process" class="section-row allow-page-break">
+                <h2 class="section-label">Our Process</h2>
+                <div class="section-content">
+                    {!! $ourProcessHtml !!}
                 </div>
             </section>
         @endif
@@ -588,6 +662,15 @@
                 <h2 class="section-label">Frequently Asked Questions</h2>
                 <div class="section-content">
                     {!! $faqHtml !!}
+                </div>
+            </section>
+        @endif
+
+        @if($present($aboutUsHtml))
+            <section id="about-us" class="section-row allow-page-break">
+                <h2 class="section-label">About Us</h2>
+                <div class="section-content">
+                    {!! $aboutUsHtml !!}
                 </div>
             </section>
         @endif
@@ -675,10 +758,16 @@
             <a href="#services">Services</a>
             <a href="#price">Price</a>
             <a href="#timeline">Timeline</a>
+            @if($present($ourProcessHtml))
+                <a href="#our-process">Our Process</a>
+            @endif
             <a href="#payment">Payment</a>
             <a href="#terms-and-conditions">Terms & Conditions</a>
             @if($present($faqHtml))
                 <a href="#faq">FAQ</a>
+            @endif
+            @if($present($aboutUsHtml))
+                <a href="#about-us">About Us</a>
             @endif
             <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
         </nav>
@@ -695,10 +784,16 @@
                 <a href="#services" class="js-flyout-link">Services</a>
                 <a href="#price" class="js-flyout-link">Price</a>
                 <a href="#timeline" class="js-flyout-link">Timeline</a>
+                @if($present($ourProcessHtml))
+                    <a href="#our-process" class="js-flyout-link">Our Process</a>
+                @endif
                 <a href="#payment" class="js-flyout-link">Payment</a>
                 <a href="#terms-and-conditions" class="js-flyout-link">Terms & Conditions</a>
                 @if($present($faqHtml))
                     <a href="#faq" class="js-flyout-link">FAQ</a>
+                @endif
+                @if($present($aboutUsHtml))
+                    <a href="#about-us" class="js-flyout-link">About Us</a>
                 @endif
                 <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
             </nav>

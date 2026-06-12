@@ -198,6 +198,57 @@
     word-break: break-word;
 }
 
+.video-testimonials-block {
+    @apply border-t border-sky-100 pt-8 md:pt-10;
+}
+
+.video-testimonials-grid {
+    @apply grid grid-cols-1 gap-5 sm:grid-cols-2;
+}
+
+.video-testimonial-card {
+    @apply overflow-hidden rounded-sm border border-sky-100 bg-white shadow-sm;
+    min-width: 0;
+}
+
+.video-testimonial-frame {
+    @apply aspect-video w-full bg-neutral-950;
+}
+
+.video-testimonial-frame iframe {
+    @apply h-full w-full border-0;
+}
+
+.video-testimonial-link {
+    @apply flex min-h-[11rem] flex-col items-center justify-center gap-3 px-5 py-8 text-center no-underline;
+    color: inherit;
+}
+
+.video-testimonial-link:hover {
+    @apply bg-sky-50/60;
+}
+
+.video-testimonial-link-icon {
+    @apply flex h-12 w-12 items-center justify-center rounded-full;
+    color: var(--tone-deep);
+    background: color-mix(in srgb, var(--tone-soft) 55%, #ffffff);
+}
+
+.video-testimonial-link-icon svg {
+    @apply h-6 w-6;
+}
+
+.video-testimonial-link-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.22em];
+    color: var(--tone-deep);
+}
+
+.video-testimonial-link-url {
+    @apply text-[12px] leading-snug text-neutral-500;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 .data-table {
     @apply w-full table-fixed border-collapse text-[13px];
 }

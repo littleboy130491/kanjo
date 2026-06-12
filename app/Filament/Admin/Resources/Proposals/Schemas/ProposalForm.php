@@ -393,6 +393,42 @@ class ProposalForm
                                         self::makeTranslatedRichEditor('faq'),
                                     ]),
 
+                                Section::make('Our Process')
+                                    ->headerActions([
+                                        self::makeLoadRichTextTemplateAction('our_process'),
+                                    ])
+                                    ->schema([
+                                        self::makeTranslatedRichEditor('our_process'),
+                                    ]),
+
+                                Section::make('About Us')
+                                    ->headerActions([
+                                        self::makeLoadRichTextTemplateAction('about_us'),
+                                    ])
+                                    ->schema([
+                                        self::makeTranslatedRichEditor('about_us'),
+                                    ]),
+
+                                Section::make('Video Testimonials')
+                                    ->headerActions([
+                                        self::makeLoadRepeaterTemplateAction('video_testimonials'),
+                                    ])
+                                    ->schema([
+                                        Repeater::make('video_testimonials')
+                                            ->schema([
+                                                TextInput::make('url')
+                                                    ->label('Video URL')
+                                                    ->url()
+                                                    ->required()
+                                                    ->maxLength(2048)
+                                                    ->columnSpanFull(),
+                                            ])
+                                            ->addable()
+                                            ->reorderable()
+                                            ->deletable()
+                                            ->default(self::defaultNonTranslatableRepeaterRows('video_testimonials'))
+                                            ->columnSpanFull(),
+                                    ]),
 
                                 Section::make('Offer 1 Project Timeline')
                                     ->headerActions([
@@ -637,8 +673,24 @@ class ProposalForm
                 'activity_pic' => '',
                 'activity_days' => '',
             ],
+            'video_testimonials' => [
+                'url' => '',
+            ],
             default => [],
         };
+    }
+
+    protected static function defaultNonTranslatableRepeaterRows(string $fieldKey): array
+    {
+        foreach (config('translatable.locales', ['en', 'id']) as $locale) {
+            $rows = self::defaultContentRows($fieldKey, $locale);
+
+            if ($rows !== []) {
+                return $rows;
+            }
+        }
+
+        return self::fallbackContentRows($fieldKey, config('app.locale', 'en'));
     }
 
     protected static function defaultContentRows(string $fieldKey, string $locale): array
@@ -710,6 +762,18 @@ class ProposalForm
                 }
 
                 $livewire->data = $livewireData;
+            });
+    }
+
+    protected static function makeLoadRepeaterTemplateAction(string $targetField): Action
+    {
+        return Action::make('load_repeater_template_' . $targetField)
+            ->label('Load Template')
+            ->icon('heroicon-o-arrow-down-tray')
+            ->color('gray')
+            ->action(function (mixed $livewire) use ($targetField): void {
+                $rows = static::defaultNonTranslatableRepeaterRows($targetField);
+                $livewire->data[$targetField] = $rows;
             });
     }
 
