@@ -402,54 +402,66 @@ class ProposalForm
                                     ]),
 
                                 Section::make('About Us')
-                                    ->headerActions([
-                                        self::makeLoadRichTextTemplateAction('about_us'),
-                                    ])
                                     ->schema([
-                                        self::makeTranslatedRichEditor('about_us'),
-                                    ]),
-
-                                Section::make('Client Logos')
-                                    ->headerActions([
-                                        self::makeLoadRepeaterTemplateAction('client_logos'),
-                                    ])
-                                    ->schema([
-                                        Repeater::make('client_logos')
+                                        Section::make('About Us Content')
+                                            ->headerActions([
+                                                self::makeLoadRichTextTemplateAction('about_us'),
+                                            ])
                                             ->schema([
-                                                TextInput::make('url')
-                                                    ->label('Logo Image URL')
-                                                    ->url()
-                                                    ->required()
-                                                    ->maxLength(2048)
+                                                self::makeTranslatedRichEditor('about_us'),
+                                            ])
+                                            ->compact(),
+
+                                        Placeholder::make('about_us_map_note')
+                                            ->label('Google Map')
+                                            ->content('The map embed is configured on the issuing company record.')
+                                            ->columnSpanFull(),
+
+                                        Section::make('Client Logos')
+                                            ->headerActions([
+                                                self::makeLoadRepeaterTemplateAction('client_logos'),
+                                            ])
+                                            ->schema([
+                                                Repeater::make('client_logos')
+                                                    ->schema([
+                                                        TextInput::make('url')
+                                                            ->label('Logo Image URL')
+                                                            ->url()
+                                                            ->required()
+                                                            ->maxLength(2048)
+                                                            ->columnSpanFull(),
+                                                    ])
+                                                    ->addable()
+                                                    ->reorderable()
+                                                    ->deletable()
+                                                    ->default(self::defaultNonTranslatableRepeaterRows('client_logos'))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->addable()
-                                            ->reorderable()
-                                            ->deletable()
-                                            ->default(self::defaultNonTranslatableRepeaterRows('client_logos'))
-                                            ->columnSpanFull(),
-                                    ]),
+                                            ->compact(),
 
-                                Section::make('Video Testimonials')
-                                    ->headerActions([
-                                        self::makeLoadRepeaterTemplateAction('video_testimonials'),
-                                    ])
-                                    ->schema([
-                                        Repeater::make('video_testimonials')
+                                        Section::make('Video Testimonials')
+                                            ->headerActions([
+                                                self::makeLoadRepeaterTemplateAction('video_testimonials'),
+                                            ])
                                             ->schema([
-                                                TextInput::make('url')
-                                                    ->label('Video URL')
-                                                    ->url()
-                                                    ->required()
-                                                    ->maxLength(2048)
+                                                Repeater::make('video_testimonials')
+                                                    ->schema([
+                                                        TextInput::make('url')
+                                                            ->label('Video URL')
+                                                            ->url()
+                                                            ->required()
+                                                            ->maxLength(2048)
+                                                            ->columnSpanFull(),
+                                                    ])
+                                                    ->addable()
+                                                    ->reorderable()
+                                                    ->deletable()
+                                                    ->default(self::defaultNonTranslatableRepeaterRows('video_testimonials'))
                                                     ->columnSpanFull(),
                                             ])
-                                            ->addable()
-                                            ->reorderable()
-                                            ->deletable()
-                                            ->default(self::defaultNonTranslatableRepeaterRows('video_testimonials'))
-                                            ->columnSpanFull(),
-                                    ]),
+                                            ->compact(),
+                                    ])
+                                    ->columnSpanFull(),
 
                                 Section::make('Offer 1 Project Timeline')
                                     ->headerActions([

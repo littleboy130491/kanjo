@@ -249,7 +249,12 @@
     word-break: break-word;
 }
 
-.client-logos-block {
+.about-us-stack {
+    @apply space-y-10;
+}
+
+.about-us-subblock:not(:first-child),
+.about-us-copy + .about-us-subblock {
     @apply border-t border-sky-100 pt-8 md:pt-10;
 }
 

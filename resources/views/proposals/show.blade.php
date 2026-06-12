@@ -202,6 +202,10 @@
     $hasClientLogos = count($clientLogos) > 0;
     $hasVideoTestimonials = count($videoTestimonials) > 0 && ! $pdfMode;
     $googleMapsEmbedSrc = $company?->googleMapsEmbedSrc();
+    $hasAboutUsSection = $present($aboutUsHtml)
+        || filled($googleMapsEmbedSrc)
+        || $hasClientLogos
+        || $hasVideoTestimonials;
 
     $bankRows = collect($company?->bank ?? [])
         ->filter(fn($row) => filled($row['bank_name'] ?? null) || filled($row['account_name'] ?? null) || filled($row['account_number'] ?? null))
@@ -495,11 +499,9 @@
             </section>
         @endif
 
-        @if($hasTimeline || $hasClientLogos || $hasVideoTestimonials)
+        @if($hasTimeline)
             <section id="timeline" class="section-row allow-page-break">
-                @if($hasTimeline)
-                    <h2 class="section-label">Project Timeline</h2>
-                @endif
+                <h2 class="section-label">Project Timeline</h2>
                 <div class="section-content space-y-10">
                     @if(count($offer1Timeline))
                         @php
@@ -585,61 +587,6 @@
                             </div>
                         </div>
                     @endif
-
-                    @if($hasClientLogos)
-                        <div class="client-logos-block">
-                            <p class="document-accent document-subkicker">Client Logos</p>
-                            <div class="client-logos-grid">
-                                @foreach($clientLogos as $clientLogo)
-                                    @php
-                                        $logoUrl = trim((string) ($clientLogo['url'] ?? ''));
-                                    @endphp
-                                    <figure class="client-logo-card">
-                                        <img src="{{ $logoUrl }}" alt="Client logo" class="client-logo-image" loading="lazy">
-                                    </figure>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-
-                    @if($hasVideoTestimonials)
-                        <div class="video-testimonials-block">
-                            <p class="document-accent document-subkicker">Video Testimonials</p>
-                            <div class="video-testimonials-grid">
-                                @foreach($videoTestimonials as $testimonial)
-                                    @php
-                                        $videoUrl = trim((string) ($testimonial['url'] ?? ''));
-                                        $embedUrl = $videoEmbedUrl($videoUrl);
-                                    @endphp
-                                    <article class="video-testimonial-card">
-                                        @if($embedUrl)
-                                            <div class="video-testimonial-frame">
-                                                <iframe
-                                                    src="{{ $embedUrl }}"
-                                                    title="Client video testimonial"
-                                                    loading="lazy"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                    allowfullscreen
-                                                ></iframe>
-                                            </div>
-                                        @else
-                                            <a href="{{ $videoUrl }}" target="_blank" rel="noopener noreferrer"
-                                                class="video-testimonial-link">
-                                                <span class="video-testimonial-link-icon" aria-hidden="true">
-                                                    <svg viewBox="0 0 24 24" fill="none">
-                                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
-                                                        <path d="M10 8.5v7l6-3.5-6-3.5z" fill="currentColor" />
-                                                    </svg>
-                                                </span>
-                                                <span class="video-testimonial-link-label">Watch testimonial</span>
-                                                <span class="video-testimonial-link-url">{{ $videoUrl }}</span>
-                                            </a>
-                                        @endif
-                                    </article>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </section>
         @endif
@@ -689,28 +636,85 @@
             </section>
         @endif
 
-        @if($present($aboutUsHtml))
+        @if($hasAboutUsSection)
             <section id="about-us" class="section-row allow-page-break">
                 <h2 class="section-label">About Us</h2>
-                <div class="section-content">
-                    {!! $aboutUsHtml !!}
-                </div>
-            </section>
-        @endif
+                <div class="section-content about-us-stack">
+                    @if($present($aboutUsHtml))
+                        <div class="about-us-copy">
+                            {!! $aboutUsHtml !!}
+                        </div>
+                    @endif
 
-        @if(filled($googleMapsEmbedSrc))
-            <section id="location" class="section-row allow-page-break">
-                <h2 class="section-label">Our Location</h2>
-                <div class="section-content">
-                    <div class="company-map-wrap">
-                        <iframe
-                            src="{{ $googleMapsEmbedSrc }}"
-                            title="{{ $company?->brand_name }} location map"
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade"
-                            allowfullscreen
-                        ></iframe>
-                    </div>
+                    @if(filled($googleMapsEmbedSrc))
+                        <div class="about-us-subblock">
+                            <p class="document-accent document-subkicker">Our Location</p>
+                            <div class="company-map-wrap">
+                                <iframe
+                                    src="{{ $googleMapsEmbedSrc }}"
+                                    title="{{ $company?->brand_name }} location map"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                    allowfullscreen
+                                ></iframe>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($hasClientLogos)
+                        <div class="about-us-subblock">
+                            <p class="document-accent document-subkicker">Client Logos</p>
+                            <div class="client-logos-grid">
+                                @foreach($clientLogos as $clientLogo)
+                                    @php
+                                        $logoUrl = trim((string) ($clientLogo['url'] ?? ''));
+                                    @endphp
+                                    <figure class="client-logo-card">
+                                        <img src="{{ $logoUrl }}" alt="Client logo" class="client-logo-image" loading="lazy">
+                                    </figure>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($hasVideoTestimonials)
+                        <div class="about-us-subblock">
+                            <p class="document-accent document-subkicker">Video Testimonials</p>
+                            <div class="video-testimonials-grid">
+                                @foreach($videoTestimonials as $testimonial)
+                                    @php
+                                        $videoUrl = trim((string) ($testimonial['url'] ?? ''));
+                                        $embedUrl = $videoEmbedUrl($videoUrl);
+                                    @endphp
+                                    <article class="video-testimonial-card">
+                                        @if($embedUrl)
+                                            <div class="video-testimonial-frame">
+                                                <iframe
+                                                    src="{{ $embedUrl }}"
+                                                    title="Client video testimonial"
+                                                    loading="lazy"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                    allowfullscreen
+                                                ></iframe>
+                                            </div>
+                                        @else
+                                            <a href="{{ $videoUrl }}" target="_blank" rel="noopener noreferrer"
+                                                class="video-testimonial-link">
+                                                <span class="video-testimonial-link-icon" aria-hidden="true">
+                                                    <svg viewBox="0 0 24 24" fill="none">
+                                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
+                                                        <path d="M10 8.5v7l6-3.5-6-3.5z" fill="currentColor" />
+                                                    </svg>
+                                                </span>
+                                                <span class="video-testimonial-link-label">Watch testimonial</span>
+                                                <span class="video-testimonial-link-url">{{ $videoUrl }}</span>
+                                            </a>
+                                        @endif
+                                    </article>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </section>
         @endif
@@ -806,11 +810,8 @@
             @if($present($faqHtml))
                 <a href="#faq">FAQ</a>
             @endif
-            @if($present($aboutUsHtml))
+            @if($hasAboutUsSection)
                 <a href="#about-us">About Us</a>
-            @endif
-            @if(filled($googleMapsEmbedSrc))
-                <a href="#location">Location</a>
             @endif
             <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
         </nav>
@@ -835,11 +836,8 @@
                 @if($present($faqHtml))
                     <a href="#faq" class="js-flyout-link">FAQ</a>
                 @endif
-                @if($present($aboutUsHtml))
+                @if($hasAboutUsSection)
                     <a href="#about-us" class="js-flyout-link">About Us</a>
-                @endif
-                @if(filled($googleMapsEmbedSrc))
-                    <a href="#location" class="js-flyout-link">Location</a>
                 @endif
                 <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
             </nav>
