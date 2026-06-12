@@ -24,6 +24,7 @@ class ProposalContentDefaultForm
         'corporate_project_timeline',
         'custom_project_timeline',
         'video_testimonials',
+        'client_logos',
     ];
 
     public static function configure(Schema $schema): Schema

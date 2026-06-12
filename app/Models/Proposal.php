@@ -57,6 +57,7 @@ class Proposal extends Model
         'our_process',
         'about_us',
         'video_testimonials',
+        'client_logos',
         'offer_name_1',
         'offer_1_price',
         'offer_1_original_price',
@@ -121,6 +122,7 @@ class Proposal extends Model
         'status' => DocumentStatus::class,
         'notes' => 'array',
         'video_testimonials' => 'array',
+        'client_logos' => 'array',
     ];
 
     protected static function documentNumberType(): string

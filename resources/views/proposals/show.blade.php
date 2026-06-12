@@ -179,6 +179,11 @@
         ->values()
         ->all();
 
+    $clientLogos = collect($proposal->client_logos ?? [])
+        ->filter(fn (mixed $row): bool => is_array($row) && filled($row['url'] ?? null))
+        ->values()
+        ->all();
+
     $videoEmbedUrl = function (string $url): ?string {
         $url = trim($url);
 
@@ -194,7 +199,9 @@
     };
 
     $hasTimeline = count($offer1Timeline) > 0 || count($offer2Timeline) > 0;
+    $hasClientLogos = count($clientLogos) > 0;
     $hasVideoTestimonials = count($videoTestimonials) > 0 && ! $pdfMode;
+    $googleMapsEmbedSrc = $company?->googleMapsEmbedSrc();
 
     $bankRows = collect($company?->bank ?? [])
         ->filter(fn($row) => filled($row['bank_name'] ?? null) || filled($row['account_name'] ?? null) || filled($row['account_number'] ?? null))
@@ -488,7 +495,7 @@
             </section>
         @endif
 
-        @if($hasTimeline || $hasVideoTestimonials)
+        @if($hasTimeline || $hasClientLogos || $hasVideoTestimonials)
             <section id="timeline" class="section-row allow-page-break">
                 @if($hasTimeline)
                     <h2 class="section-label">Project Timeline</h2>
@@ -575,6 +582,22 @@
                                         </tr>
                                     </tfoot>
                                 </table>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($hasClientLogos)
+                        <div class="client-logos-block">
+                            <p class="document-accent document-subkicker">Client Logos</p>
+                            <div class="client-logos-grid">
+                                @foreach($clientLogos as $clientLogo)
+                                    @php
+                                        $logoUrl = trim((string) ($clientLogo['url'] ?? ''));
+                                    @endphp
+                                    <figure class="client-logo-card">
+                                        <img src="{{ $logoUrl }}" alt="Client logo" class="client-logo-image" loading="lazy">
+                                    </figure>
+                                @endforeach
                             </div>
                         </div>
                     @endif
@@ -675,6 +698,23 @@
             </section>
         @endif
 
+        @if(filled($googleMapsEmbedSrc))
+            <section id="location" class="section-row allow-page-break">
+                <h2 class="section-label">Our Location</h2>
+                <div class="section-content">
+                    <div class="company-map-wrap">
+                        <iframe
+                            src="{{ $googleMapsEmbedSrc }}"
+                            title="{{ $company?->brand_name }} location map"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                </div>
+            </section>
+        @endif
+
         <section class="document-endcap print-separator avoid-page-break block">
             <div class="endcap-row-logo">
                 @if($logoUrl)
@@ -769,6 +809,9 @@
             @if($present($aboutUsHtml))
                 <a href="#about-us">About Us</a>
             @endif
+            @if(filled($googleMapsEmbedSrc))
+                <a href="#location">Location</a>
+            @endif
             <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
         </nav>
 
@@ -794,6 +837,9 @@
                 @endif
                 @if($present($aboutUsHtml))
                     <a href="#about-us" class="js-flyout-link">About Us</a>
+                @endif
+                @if(filled($googleMapsEmbedSrc))
+                    <a href="#location" class="js-flyout-link">Location</a>
                 @endif
                 <a href="{{ route('pdf.proposal', $pdfRouteParameters) }}">Download PDF</a>
             </nav>

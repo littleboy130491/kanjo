@@ -162,6 +162,7 @@ class ProposalSeeder extends Seeder
                     '',
                 ),
                 'video_testimonials' => data_get($translations, 'en.video_testimonials', []),
+                'client_logos' => data_get($translations, 'en.client_logos', []),
                 'add_on' => self::translatedFromDefaults(
                     $translations,
                     'add_on',

@@ -37,6 +37,7 @@ class ProposalContentDefault extends Model
         'our_process' => 'Our Process',
         'about_us' => 'About Us',
         'video_testimonials' => 'Video Testimonials',
+        'client_logos' => 'Client Logos',
         'marketing_program' => 'Marketing Program',
     ];
 

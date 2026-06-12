@@ -409,6 +409,27 @@ class ProposalForm
                                         self::makeTranslatedRichEditor('about_us'),
                                     ]),
 
+                                Section::make('Client Logos')
+                                    ->headerActions([
+                                        self::makeLoadRepeaterTemplateAction('client_logos'),
+                                    ])
+                                    ->schema([
+                                        Repeater::make('client_logos')
+                                            ->schema([
+                                                TextInput::make('url')
+                                                    ->label('Logo Image URL')
+                                                    ->url()
+                                                    ->required()
+                                                    ->maxLength(2048)
+                                                    ->columnSpanFull(),
+                                            ])
+                                            ->addable()
+                                            ->reorderable()
+                                            ->deletable()
+                                            ->default(self::defaultNonTranslatableRepeaterRows('client_logos'))
+                                            ->columnSpanFull(),
+                                    ]),
+
                                 Section::make('Video Testimonials')
                                     ->headerActions([
                                         self::makeLoadRepeaterTemplateAction('video_testimonials'),
@@ -674,6 +695,9 @@ class ProposalForm
                 'activity_days' => '',
             ],
             'video_testimonials' => [
+                'url' => '',
+            ],
+            'client_logos' => [
                 'url' => '',
             ],
             default => [],

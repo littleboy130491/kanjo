@@ -249,6 +249,33 @@
     word-break: break-word;
 }
 
+.client-logos-block {
+    @apply border-t border-sky-100 pt-8 md:pt-10;
+}
+
+.client-logos-grid {
+    @apply grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-5;
+}
+
+.client-logo-card {
+    @apply flex min-h-[5.5rem] items-center justify-center rounded-sm border border-sky-100 bg-white p-4;
+    min-width: 0;
+}
+
+.client-logo-image {
+    @apply max-h-12 w-full object-contain;
+    filter: grayscale(100%);
+    opacity: 0.88;
+}
+
+.company-map-wrap {
+    @apply overflow-hidden rounded-sm border border-sky-100 bg-white;
+}
+
+.company-map-wrap iframe {
+    @apply block aspect-[16/10] w-full border-0 md:aspect-[21/9];
+}
+
 .data-table {
     @apply w-full table-fixed border-collapse text-[13px];
 }
@@ -741,6 +768,11 @@ h3.offer_name {
         gap: 2.5rem;
     }
 
+    .document-view .client-logos-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
     .document-view .document-cover + .section-row {
         border-top: 0;
     }
@@ -784,7 +816,8 @@ h3.offer_name {
     }
 
     .document-view table tr,
-    .document-view .portfolio-grid > * {
+    .document-view .portfolio-grid > *,
+    .document-view .client-logos-grid > * {
         break-inside: avoid;
         page-break-inside: avoid;
     }
