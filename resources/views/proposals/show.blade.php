@@ -188,7 +188,7 @@
         $url = trim($url);
 
         if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $url, $matches) === 1) {
-            return 'https://www.youtube.com/embed/' . $matches[1];
+            return 'https://www.youtube-nocookie.com/embed/' . $matches[1];
         }
 
         if (preg_match('/vimeo\.com\/(?:video\/)?(\d+)/', $url, $matches) === 1) {
@@ -202,6 +202,7 @@
     $hasClientLogos = count($clientLogos) > 0;
     $hasVideoTestimonials = count($videoTestimonials) > 0 && ! $pdfMode;
     $googleMapsEmbedSrc = $company?->googleMapsEmbedSrc();
+    $googleMapsLink = $company?->googleMapsLink();
     $hasAboutUsSection = $present($aboutUsHtml);
 
     $bankRows = collect($company?->bank ?? [])
@@ -655,6 +656,13 @@
                                     allowfullscreen
                                 ></iframe>
                             </div>
+                            @if(filled($googleMapsLink))
+                                <p class="mt-4">
+                                    <a href="{{ $googleMapsLink }}" target="_blank" rel="noopener noreferrer" class="underline">
+                                        Open in Google Maps
+                                    </a>
+                                </p>
+                            @endif
                         </div>
                     @endif
 
@@ -664,10 +672,10 @@
                             <div class="client-logos-grid">
                                 @foreach($clientLogos as $clientLogo)
                                     @php
-                                        $logoUrl = trim((string) ($clientLogo['url'] ?? ''));
+                                        $clientLogoUrl = trim((string) ($clientLogo['url'] ?? ''));
                                     @endphp
                                     <figure class="client-logo-card">
-                                        <img src="{{ $logoUrl }}" alt="Client logo" class="client-logo-image" loading="lazy">
+                                        <img src="{{ $clientLogoUrl }}" alt="Client logo" class="client-logo-image"@unless($pdfMode) loading="lazy"@endunless>
                                     </figure>
                                 @endforeach
                             </div>
