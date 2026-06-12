@@ -8,6 +8,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
@@ -23,30 +24,12 @@ class ProposalContentDefaultForm
         'prime_project_timeline',
         'corporate_project_timeline',
         'custom_project_timeline',
-        'video_testimonials',
-        'client_logos',
     ];
 
     public static function configure(Schema $schema): Schema
     {
         $fieldSections = collect(ProposalContentDefault::FIELD_OPTIONS)
-            ->map(fn(string $label, string $fieldKey): Section =>
-                Section::make($label)
-                    ->schema([
-                        Translate::make()
-                            ->exclude(
-                                collect(config('translatable.locales'))
-                                    ->map(fn(string $locale): string => "value.{$locale}.{$fieldKey}")
-                                    ->all()
-                            )
-                            ->schema(fn(string $locale): array => [
-                                in_array($fieldKey, self::$jsonRepeaterFields)
-                                ? self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value')
-                                : self::makeRichEditor("value.{$locale}.{$fieldKey}", ''),
-                            ])
-                            ->suffixLocaleLabel(),
-                    ])
-                    ->columnSpanFull())
+            ->map(fn (string $label, string $fieldKey): Section => self::makeFieldSection($label, $fieldKey))
             ->all();
 
         return $schema
@@ -56,6 +39,49 @@ class ProposalContentDefaultForm
                     ->dehydrated(),
                 ...$fieldSections,
             ]);
+    }
+
+    protected static function makeFieldSection(string $label, string $fieldKey): Section
+    {
+        if (in_array($fieldKey, ProposalContentDefault::SHARED_JSON_REPEATER_FIELDS, true)) {
+            return Section::make($label)
+                ->schema([
+                    self::makeSharedJsonTextarea($fieldKey),
+                ])
+                ->columnSpanFull();
+        }
+
+        return Section::make($label)
+            ->schema([
+                Translate::make()
+                    ->exclude(
+                        collect(config('translatable.locales'))
+                            ->map(fn (string $locale): string => "value.{$locale}.{$fieldKey}")
+                            ->all()
+                    )
+                    ->schema(fn (string $locale): array => [
+                        in_array($fieldKey, self::$jsonRepeaterFields, true)
+                            ? self::makeJsonTextarea("value.{$locale}.{$fieldKey}", 'Default Value')
+                            : self::makeRichEditor("value.{$locale}.{$fieldKey}", ''),
+                    ])
+                    ->suffixLocaleLabel(),
+            ])
+            ->columnSpanFull();
+    }
+
+    protected static function makeSharedJsonTextarea(string $fieldKey): Textarea
+    {
+        $primaryLocale = config('app.locale', 'en');
+
+        return self::makeJsonTextarea("value.{$primaryLocale}.{$fieldKey}", 'Default Value')
+            ->helperText('Shared across all languages.')
+            ->afterStateUpdated(function (?string $state, Set $set) use ($fieldKey): void {
+                $decoded = json_decode($state ?: '[]', true) ?: [];
+
+                foreach (config('translatable.locales', ['en', 'id']) as $locale) {
+                    $set("value.{$locale}.{$fieldKey}", $decoded);
+                }
+            });
     }
 
     protected static function makeRichEditor(string $statePath, string $label): RichEditor
@@ -78,13 +104,13 @@ class ProposalContentDefaultForm
             ->rows(12)
             ->required()
             ->helperText('Must be a valid JSON array.')
-            ->formatStateUsing(fn($state): string => json_encode($state ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
-            ->dehydrateStateUsing(fn(?string $state): array => json_decode($state ?: '[]', true) ?: [])
+            ->formatStateUsing(fn ($state): string => json_encode($state ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
+            ->dehydrateStateUsing(fn (?string $state): array => json_decode($state ?: '[]', true) ?: [])
             ->rule(function () {
                 return function (string $attribute, $value, \Closure $fail): void {
                     $decoded = json_decode((string) $value, true);
 
-                    if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+                    if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
                         $fail('The value must be a valid JSON array.');
                     }
                 };

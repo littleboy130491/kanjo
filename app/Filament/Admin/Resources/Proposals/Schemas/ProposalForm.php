@@ -718,11 +718,18 @@ class ProposalForm
 
     protected static function defaultNonTranslatableRepeaterRows(string $fieldKey): array
     {
-        foreach (config('translatable.locales', ['en', 'id']) as $locale) {
-            $rows = self::defaultContentRows($fieldKey, $locale);
+        $globalDefault = ProposalContentDefault::query()
+            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY)
+            ->first();
 
-            if ($rows !== []) {
-                return $rows;
+        if ($globalDefault instanceof ProposalContentDefault) {
+            $sharedValue = ProposalContentDefault::resolveSharedJsonRepeaterValue(
+                $globalDefault->getTranslations('value'),
+                $fieldKey,
+            );
+
+            if ($sharedValue !== []) {
+                return $sharedValue;
             }
         }
 

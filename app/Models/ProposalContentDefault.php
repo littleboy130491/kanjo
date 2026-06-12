@@ -41,6 +41,11 @@ class ProposalContentDefault extends Model
         'marketing_program' => 'Marketing Program',
     ];
 
+    public const SHARED_JSON_REPEATER_FIELDS = [
+        'video_testimonials',
+        'client_logos',
+    ];
+
     protected $fillable = [
         'field_key',
         'value',
@@ -49,4 +54,50 @@ class ProposalContentDefault extends Model
     protected $translatable = [
         'value',
     ];
+
+    /**
+     * @param  array<string, mixed>  $translations
+     * @return array<int, array<string, mixed>>
+     */
+    public static function resolveSharedJsonRepeaterValue(array $translations, string $fieldKey): array
+    {
+        if (! in_array($fieldKey, self::SHARED_JSON_REPEATER_FIELDS, true)) {
+            return [];
+        }
+
+        $locales = array_unique(array_filter([
+            config('app.locale', 'en'),
+            config('app.fallback_locale', 'en'),
+            ...config('translatable.locales', ['en', 'id']),
+        ]));
+
+        foreach ($locales as $locale) {
+            $value = data_get($translations, "{$locale}.{$fieldKey}");
+
+            if (is_array($value)) {
+                return $value;
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * @param  array<string, mixed>  $translations
+     * @return array<string, mixed>
+     */
+    public static function syncSharedJsonRepeaterFields(array $translations): array
+    {
+        $locales = config('translatable.locales', ['en', 'id']);
+
+        foreach (self::SHARED_JSON_REPEATER_FIELDS as $fieldKey) {
+            $sharedValue = self::resolveSharedJsonRepeaterValue($translations, $fieldKey);
+
+            foreach ($locales as $locale) {
+                data_set($translations, "{$locale}.{$fieldKey}", $sharedValue);
+            }
+        }
+
+        return $translations;
+    }
 }

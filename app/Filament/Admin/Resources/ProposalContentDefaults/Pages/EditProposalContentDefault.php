@@ -23,7 +23,18 @@ class EditProposalContentDefault extends EditRecord
         /** @var ProposalContentDefault $record */
         $record = $this->getRecord();
 
-        $data['value'] = $record->getTranslations('value');
+        $data['value'] = ProposalContentDefault::syncSharedJsonRepeaterFields(
+            $record->getTranslations('value'),
+        );
+
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (isset($data['value']) && is_array($data['value'])) {
+            $data['value'] = ProposalContentDefault::syncSharedJsonRepeaterFields($data['value']);
+        }
 
         return $data;
     }

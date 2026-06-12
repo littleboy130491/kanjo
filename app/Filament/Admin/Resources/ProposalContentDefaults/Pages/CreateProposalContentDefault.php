@@ -14,6 +14,10 @@ class CreateProposalContentDefault extends CreateRecord
     {
         $data['field_key'] = ProposalContentDefault::GLOBAL_FIELD_KEY;
 
+        if (isset($data['value']) && is_array($data['value'])) {
+            $data['value'] = ProposalContentDefault::syncSharedJsonRepeaterFields($data['value']);
+        }
+
         return $data;
     }
 }

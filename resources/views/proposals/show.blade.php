@@ -202,10 +202,7 @@
     $hasClientLogos = count($clientLogos) > 0;
     $hasVideoTestimonials = count($videoTestimonials) > 0 && ! $pdfMode;
     $googleMapsEmbedSrc = $company?->googleMapsEmbedSrc();
-    $hasAboutUsSection = $present($aboutUsHtml)
-        || filled($googleMapsEmbedSrc)
-        || $hasClientLogos
-        || $hasVideoTestimonials;
+    $hasAboutUsSection = $present($aboutUsHtml);
 
     $bankRows = collect($company?->bank ?? [])
         ->filter(fn($row) => filled($row['bank_name'] ?? null) || filled($row['account_name'] ?? null) || filled($row['account_number'] ?? null))
