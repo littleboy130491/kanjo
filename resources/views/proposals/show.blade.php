@@ -660,7 +660,7 @@
 
                     @if($hasClientLogos)
                         <div class="about-us-subblock">
-                            <p class="document-accent document-subkicker">Client Logos</p>
+                            <p class="document-accent document-subkicker">Trusted by</p>
                             <div class="client-logos-grid">
                                 @foreach($clientLogos as $clientLogo)
                                     @php
@@ -676,7 +676,6 @@
 
                     @if($hasVideoTestimonials)
                         <div class="about-us-subblock">
-                            <p class="document-accent document-subkicker">Video Testimonials</p>
                             <div class="video-testimonials-grid">
                                 @foreach($videoTestimonials as $testimonial)
                                     @php

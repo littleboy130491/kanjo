@@ -57,11 +57,11 @@ class CompanyForm
                         ->nullable()
                         ->maxLength(255),
                     TextInput::make("google_maps_embed_url")
-                        ->label("Google Maps Embed URL")
+                        ->label("Google Maps Link")
                         ->url()
                         ->nullable()
                         ->maxLength(2048)
-                        ->helperText('Paste a Google Maps share link or the iframe embed URL.')
+                        ->helperText('Paste a Google Maps short link (maps.app.goo.gl), share link, or embed URL.')
                         ->columnSpanFull(),
                 ])
                 ->columnSpanFull(),

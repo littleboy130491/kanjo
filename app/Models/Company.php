@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\LogsModelActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Http;
 use Spatie\Translatable\HasTranslations;
 
 class Company extends Model
@@ -47,6 +48,15 @@ class Company extends Model
             return null;
         }
 
+        return cache()->remember(
+            'company.google_maps_embed_src.' . sha1($url),
+            now()->addDay(),
+            fn (): ?string => self::buildGoogleMapsEmbedSrc($url),
+        );
+    }
+
+    protected static function buildGoogleMapsEmbedSrc(string $url): ?string
+    {
         if (preg_match('/src=["\']([^"\']+)["\']/i', $url, $matches) === 1) {
             return $matches[1];
         }
@@ -54,6 +64,8 @@ class Company extends Model
         if (str_contains($url, '/maps/embed')) {
             return $url;
         }
+
+        $url = self::resolveGoogleMapsUrl($url);
 
         if (preg_match('/[?&]cid=(\d+)/', $url, $matches) === 1) {
             return 'https://www.google.com/maps?cid=' . $matches[1] . '&output=embed';
@@ -66,6 +78,29 @@ class Company extends Model
             return str_contains($url, '?')
                 ? $url . '&output=embed'
                 : $url . '?output=embed';
+        }
+
+        return $url;
+    }
+
+    protected static function resolveGoogleMapsUrl(string $url): string
+    {
+        if (! preg_match('#^https?://(?:maps\.app\.goo\.gl|goo\.gl/maps)/#i', $url)) {
+            return $url;
+        }
+
+        try {
+            $response = Http::timeout(10)
+                ->withOptions(['allow_redirects' => ['max' => 5]])
+                ->get($url);
+
+            $effectiveUri = $response->transferStats?->getEffectiveUri();
+
+            if ($effectiveUri !== null) {
+                return (string) $effectiveUri;
+            }
+        } catch (\Throwable) {
+            return $url;
         }
 
         return $url;

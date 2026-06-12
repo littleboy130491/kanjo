@@ -1,5 +1,5 @@
 .document-view {
-    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
     color: #262626;
     letter-spacing: 0.01em;
     --tone-soft: #d0e1f9;
@@ -20,7 +20,7 @@
 }
 
 .document-serif {
-    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    font-family: "Cormorant Garamond", ui-serif, Georgia, serif;
 }
 
 .document-accent {
@@ -110,7 +110,6 @@
     @apply mt-4;
 }
 
-
 .document-bank-list {
     @apply space-y-1;
 }
@@ -118,7 +117,6 @@
 .document-bank-entry + .document-bank-entry {
     @apply mt-3;
 }
-
 
 .section-content {
     @apply w-full text-[14px] leading-[1.55] text-neutral-600 md:text-[16px] md:leading-normal;
@@ -137,8 +135,6 @@
 .section-content span {
     @apply text-inherit;
 }
-
-
 
 .section-content h1 {
     @apply mt-8 mb-4 text-4xl leading-tight;
@@ -253,11 +249,6 @@
     @apply space-y-10;
 }
 
-.about-us-subblock:not(:first-child),
-.about-us-copy + .about-us-subblock {
-    @apply border-t border-sky-100 pt-8 md:pt-10;
-}
-
 .client-logos-grid {
     @apply grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-5;
 }
@@ -314,7 +305,7 @@
 
 .data-table tfoot th.total {
     @apply font-bold;
-    background: color-mix(in srgb, var(--tone-soft) 40%, #ffffff)
+    background: color-mix(in srgb, var(--tone-soft) 40%, #ffffff);
 }
 
 .data-table td:last-child,
@@ -338,7 +329,7 @@
 }
 
 .money-line {
-    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
     @apply text-[9px] uppercase text-neutral-500 md:text-[13px];
     letter-spacing: 0.14em;
 }
@@ -348,7 +339,7 @@
 }
 
 .money-line-value {
-    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
     @apply text-[13px] font-bold text-neutral-900 md:text-base;
     letter-spacing: 0;
 }
@@ -360,7 +351,7 @@
 }
 
 .money-line-original {
-    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
     @apply text-[13px] md:text-base;
     letter-spacing: 0;
     color: rgb(82, 82, 82);
@@ -440,7 +431,7 @@
 }
 
 h3.offer_name {
-    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    font-family: "Cormorant Garamond", ui-serif, Georgia, serif;
     @apply mb-4 text-2xl font-light text-neutral-800 md:text-4xl;
     line-height: 1.15;
 }
@@ -465,7 +456,7 @@ h3.offer_name {
 
 .floating-doc-nav a {
     @apply block px-[0.35rem] py-[0.45rem] text-[10px];
-    font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #475569;
@@ -487,7 +478,6 @@ h3.offer_name {
 .document-cover-header .document-meta-stack {
     @apply text-left md:ml-auto md:text-right;
 }
-
 
 @media (max-width: 1279px) {
     .floating-doc-nav {
@@ -511,7 +501,7 @@ h3.offer_name {
         border: 1px solid #dbeafe;
         background: rgba(255, 255, 255, 0.96);
         box-shadow: 0 18px 36px -22px rgba(0, 0, 0, 0.45);
-        font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+        font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
         letter-spacing: 0.16em;
         text-transform: uppercase;
         color: #334155;
@@ -541,7 +531,7 @@ h3.offer_name {
 
     .floating-doc-flyout nav a {
         @apply block px-[0.45rem] py-[0.5rem] text-[10px];
-        font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+        font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
         letter-spacing: 0.16em;
         text-transform: uppercase;
         color: #475569;
@@ -552,7 +542,6 @@ h3.offer_name {
         color: #004258;
     }
 }
-
 
 .invoice-company-block {
     @apply space-y-1 text-sm text-neutral-600;
@@ -671,7 +660,7 @@ h3.offer_name {
 }
 
 .invoice-summary-value {
-    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    font-family: "Cormorant Garamond", ui-serif, Georgia, serif;
     @apply text-xl text-neutral-900;
 }
 
@@ -680,7 +669,7 @@ h3.offer_name {
 }
 
 .invoice-summary-total {
-    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    font-family: "Cormorant Garamond", ui-serif, Georgia, serif;
     @apply text-2xl text-neutral-900;
 }
 

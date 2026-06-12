@@ -23,7 +23,7 @@ class CompanySeeder extends Seeder
             'phone_2' => '+62 852-1979-8588',
             'tax_id' => 'SG12345678A',
             'website' => 'https://imajiner.id',
-            'google_maps_embed_url' => 'https://www.google.com/maps?cid=11640011655421333547&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAMYASAF&hl=en-GB&source=embed',
+            'google_maps_embed_url' => 'https://maps.app.goo.gl/Arfv3zB8cFzHJuKg7',
             'default_currency' => 'IDR',
             'bank' => [
                 [
