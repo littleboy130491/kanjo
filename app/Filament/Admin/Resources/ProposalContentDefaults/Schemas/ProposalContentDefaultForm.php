@@ -5,8 +5,10 @@ namespace App\Filament\Admin\Resources\ProposalContentDefaults\Schemas;
 use App\Models\ProposalContentDefault;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -46,7 +48,7 @@ class ProposalContentDefaultForm
         if (in_array($fieldKey, ProposalContentDefault::SHARED_JSON_REPEATER_FIELDS, true)) {
             return Section::make($label)
                 ->schema([
-                    self::makeSharedJsonTextarea($fieldKey),
+                    self::makeSharedUrlRepeater($fieldKey),
                 ])
                 ->columnSpanFull();
         }
@@ -69,19 +71,37 @@ class ProposalContentDefaultForm
             ->columnSpanFull();
     }
 
-    protected static function makeSharedJsonTextarea(string $fieldKey): Textarea
+    protected static function makeSharedUrlRepeater(string $fieldKey): Repeater
     {
         $primaryLocale = config('app.locale', 'en');
+        $urlLabel = match ($fieldKey) {
+            'client_logos' => 'Logo Image URL',
+            'video_testimonials' => 'Video URL',
+            default => 'URL',
+        };
 
-        return self::makeJsonTextarea("value.{$primaryLocale}.{$fieldKey}", 'Default Value')
+        return Repeater::make("value.{$primaryLocale}.{$fieldKey}")
+            ->schema([
+                TextInput::make('url')
+                    ->label($urlLabel)
+                    ->url()
+                    ->required()
+                    ->maxLength(2048)
+                    ->columnSpanFull(),
+            ])
+            ->addable()
+            ->reorderable()
+            ->deletable()
+            ->default([])
             ->helperText('Shared across all languages.')
-            ->afterStateUpdated(function (?string $state, Set $set) use ($fieldKey): void {
-                $decoded = json_decode($state ?: '[]', true) ?: [];
+            ->afterStateUpdated(function (?array $state, Set $set) use ($fieldKey): void {
+                $rows = is_array($state) ? $state : [];
 
                 foreach (config('translatable.locales', ['en', 'id']) as $locale) {
-                    $set("value.{$locale}.{$fieldKey}", $decoded);
+                    $set("value.{$locale}.{$fieldKey}", $rows);
                 }
-            });
+            })
+            ->columnSpanFull();
     }
 
     protected static function makeRichEditor(string $statePath, string $label): RichEditor
