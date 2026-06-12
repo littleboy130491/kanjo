@@ -102,50 +102,11 @@ class Company extends Model
 
         $resolvedUrl = self::resolveGoogleMapsUrlStatic($url);
 
-        if ($embedSrc = self::fetchPlaceEmbedSrcFromPage($resolvedUrl)) {
-            return $embedSrc;
-        }
-
         if ($embedSrc = self::buildPlaceEmbedSrcFromUrl($resolvedUrl)) {
             return $embedSrc;
         }
 
         return null;
-    }
-
-    protected static function fetchPlaceEmbedSrcFromPage(string $url): ?string
-    {
-        if (! str_contains($url, 'google.com/maps')) {
-            return null;
-        }
-
-        try {
-            $response = Http::timeout(15)
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (compatible; Kanjo/1.0; +https://github.com/littleboy130491/kanjo)',
-                    'Accept-Language' => 'en-US,en;q=0.9',
-                ])
-                ->withOptions(['allow_redirects' => ['max' => 5]])
-                ->get($url);
-
-            if (! $response->successful()) {
-                return null;
-            }
-
-            if (! preg_match('/pb=([^&"\']+)/', $response->body(), $matches)) {
-                return null;
-            }
-
-            $pb = urldecode($matches[1]);
-
-            if (! str_starts_with($pb, '!1m')) {
-                return null;
-            }
-
-            return 'https://www.google.com/maps/embed?pb=' . $pb;
-        } catch (\Throwable) {
-            return null;
-        }
     }
 
     protected static function buildPlaceEmbedSrcFromUrl(string $url): ?string
@@ -158,7 +119,7 @@ class Company extends Model
             return null;
         }
 
-        $placeName = rawurlencode(str_replace('+', ' ', urldecode($matches[1])));
+        $placeName = preg_replace('/\s+/', '+', urldecode(str_replace('+', ' ', $matches[1])));
         $lat = $matches[2];
         $lng = $matches[3];
         $zoom = max(1, (int) $matches[4]);
@@ -167,7 +128,7 @@ class Company extends Model
             return null;
         }
 
-        $placeId = rawurlencode(urldecode($placeMatches[1]));
+        $placeId = str_replace(':', '%3A', urldecode($placeMatches[1]));
 
         if (preg_match('/3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/', $url, $coordinateMatches)) {
             $lat = $coordinateMatches[1];

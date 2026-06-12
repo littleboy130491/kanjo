@@ -201,8 +201,8 @@
     $hasTimeline = count($offer1Timeline) > 0 || count($offer2Timeline) > 0;
     $hasClientLogos = count($clientLogos) > 0;
     $hasVideoTestimonials = count($videoTestimonials) > 0 && ! $pdfMode;
-    $googleMapsEmbedSrc = $company?->googleMapsEmbedSrc();
-    $googleMapsLink = $company?->googleMapsLink();
+    $googleMapsEmbedSrc = ! $pdfMode ? $company?->googleMapsEmbedSrc() : null;
+    $googleMapsLink = ! $pdfMode ? $company?->googleMapsLink() : null;
     $hasAboutUsSection = $present($aboutUsHtml);
 
     $bankRows = collect($company?->bank ?? [])
