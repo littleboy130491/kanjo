@@ -794,17 +794,14 @@ class ProposalForm
                     ->options($timelineOptions)
                     ->required(),
             ])
-            ->action(function (array $data, mixed $livewire) use ($targetField): void {
+            ->action(function (array $data, Set $set) use ($targetField): void {
                 $templateKey = $data['template_key'];
                 $allLocales = config('translatable.locales', ['en', 'id']);
-                $livewireData = $livewire->data;
 
                 foreach ($allLocales as $locale) {
                     $rows = static::defaultContentRows($templateKey, $locale);
-                    data_set($livewireData, "{$targetField}.{$locale}", $rows);
+                    $set("{$targetField}.{$locale}", $rows);
                 }
-
-                $livewire->data = $livewireData;
             });
     }
 
@@ -814,9 +811,9 @@ class ProposalForm
             ->label('Load Template')
             ->icon('heroicon-o-arrow-down-tray')
             ->color('gray')
-            ->action(function (mixed $livewire) use ($targetField): void {
+            ->action(function (Set $set) use ($targetField): void {
                 $rows = static::defaultNonTranslatableRepeaterRows($targetField);
-                $livewire->data[$targetField] = $rows;
+                $set($targetField, $rows);
             });
     }
 
@@ -846,19 +843,16 @@ class ProposalForm
         }
 
         return $action
-            ->action(function (array $data, mixed $livewire) use ($targetField, $lookupField, $sourceOptions): void {
+            ->action(function (array $data, Set $set) use ($targetField, $lookupField, $sourceOptions): void {
                 $selectedLookupField = $sourceOptions !== null
                     ? $data['template_key']
                     : $lookupField;
                 $allLocales = config('translatable.locales', ['en', 'id']);
-                $livewireData = $livewire->data;
 
                 foreach ($allLocales as $locale) {
                     $content = static::defaultRichTextContent($selectedLookupField, $locale) ?? '';
-                    data_set($livewireData, "{$targetField}.{$locale}", $content);
+                    $set("{$targetField}.{$locale}", $content);
                 }
-
-                $livewire->data = $livewireData;
             });
     }
 
