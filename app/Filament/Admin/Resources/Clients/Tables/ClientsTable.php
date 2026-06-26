@@ -26,6 +26,11 @@ class ClientsTable
                     ->label('Company')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('address')
+                    ->label('Address')
+                    ->limit(40)
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('email')
                     ->label('Email')
                     ->searchable(),

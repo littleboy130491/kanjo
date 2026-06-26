@@ -63,6 +63,9 @@ class ServiceForm
                         Placeholder::make('client_name_preview')
                             ->label('Contact Person')
                             ->content(fn (Get $get): string => self::getSelectedClientValue($get, 'name')),
+                        Placeholder::make('client_address_preview')
+                            ->label('Address')
+                            ->content(fn (Get $get): string => self::getSelectedClientValue($get, 'address')),
                         Placeholder::make('client_email_preview')
                             ->label('Email')
                             ->content(fn (Get $get): string => self::getSelectedClientValue($get, 'email')),

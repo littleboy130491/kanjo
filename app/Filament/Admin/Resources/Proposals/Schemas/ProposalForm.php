@@ -3,13 +3,13 @@
 namespace App\Filament\Admin\Resources\Proposals\Schemas;
 
 use App\Enums\DocumentStatus;
+use App\Enums\UserRole;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
+use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Proposal;
 use App\Models\ProposalContentDefault;
-use App\Enums\UserRole;
-use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Services\DocumentNumberGenerator;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Carbon\Carbon;
@@ -51,14 +51,14 @@ class ProposalForm
                                             ->label('Document Number')
                                             ->helperText('Auto-generated unless edited manually.')
                                             ->maxLength(255)
-                                            ->default(fn(Get $get): string => self::generateDocumentNumberPreview(
+                                            ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
                                                 'QUO',
                                                 $get('issue_date'),
                                             ))
                                             ->placeholder('Auto-generated')
                                             ->required()
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn(?string $state, Set $set) => $set('document_number_override', filled($state))),
+                                            ->afterStateUpdated(fn (?string $state, Set $set) => $set('document_number_override', filled($state))),
                                         Hidden::make('document_number_override')
                                             ->default(false)
                                             ->dehydrated(),
@@ -67,15 +67,15 @@ class ProposalForm
                                             ->helperText('Editable sequence number for the selected issue month.')
                                             ->numeric()
                                             ->minValue(1)
-                                            ->default(fn(Get $get): int => self::generateNextDocumentRaw(
+                                            ->default(fn (Get $get): int => self::generateNextDocumentRaw(
                                                 filled($get('issue_date')) ? Carbon::parse($get('issue_date')) : now(),
                                             ))
-                                            ->required(fn(): bool => self::canEditDocumentRawNumber())
-                                            ->visible(fn(): bool => self::canEditDocumentRawNumber())
-                                            ->dehydrated(fn(): bool => self::canEditDocumentRawNumber())
-                                            ->rules(fn(Get $get, ?Proposal $record): array => self::canEditDocumentRawNumber() ? [
+                                            ->required(fn (): bool => self::canEditDocumentRawNumber())
+                                            ->visible(fn (): bool => self::canEditDocumentRawNumber())
+                                            ->dehydrated(fn (): bool => self::canEditDocumentRawNumber())
+                                            ->rules(fn (Get $get, ?Proposal $record): array => self::canEditDocumentRawNumber() ? [
                                                 Rule::unique('proposals', 'document_number_raw')
-                                                    ->where(fn($query) => $query
+                                                    ->where(fn ($query) => $query
                                                         ->where('issue_month', self::resolveDocumentNumberDate($record, $get('issue_date'))->month)
                                                         ->where('issue_year', self::resolveDocumentNumberDate($record, $get('issue_date'))->year))
                                                     ->ignore($record?->getKey()),
@@ -83,15 +83,15 @@ class ProposalForm
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
-                                            ->helperText(fn(Get $get): string => 'Public URL: ' . route('proposal.show', [
+                                            ->helperText(fn (Get $get): string => 'Public URL: '.route('proposal.show', [
                                                 'slug' => Str::slug((string) ($get('slug') ?: self::generateSlugPreview($get('issue_date')))),
                                             ]))
-                                            ->default(fn(Get $get): string => self::generateSlugPreview($get('issue_date')))
+                                            ->default(fn (Get $get): string => self::generateSlugPreview($get('issue_date')))
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn(?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
-                                            ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? Str::slug($state) : null),
+                                            ->afterStateUpdated(fn (?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
+                                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Str::slug($state) : null),
                                     ])
                                     ->columns(3),
 
@@ -99,8 +99,8 @@ class ProposalForm
                                     ->schema([
                                         Select::make('company_id')
                                             ->label('Issuing Company')
-                                            ->options(fn() => Company::pluck('brand_name', 'id'))
-                                            ->default(fn() => Company::first()?->id)
+                                            ->options(fn () => Company::pluck('brand_name', 'id'))
+                                            ->default(fn () => Company::first()?->id)
                                             ->required()
                                             ->searchable(),
                                         Select::make('status')
@@ -137,7 +137,7 @@ class ProposalForm
                                     ->schema([
                                         Select::make('client_id')
                                             ->label('Load from Client Database')
-                                            ->options(fn() => Client::orderBy('company')->pluck('company', 'id'))
+                                            ->options(fn () => Client::orderBy('company')->pluck('company', 'id'))
                                             ->searchable()
                                             ->live()
                                             ->preload()
@@ -158,6 +158,7 @@ class ProposalForm
                                                     if ($client) {
                                                         $set('client_company', $client->company);
                                                         $set('client_name', $client->name);
+                                                        $set('client_address', $client->address);
                                                         $set('client_email', $client->email);
                                                         $set('client_phone', $client->phone);
                                                     }
@@ -174,6 +175,11 @@ class ProposalForm
                                             ->label('Contact Person')
                                             ->required()
                                             ->maxLength(255),
+                                        Textarea::make('client_address')
+                                            ->label('Address')
+                                            ->helperText('Optional. Use line breaks or <br> for multiple lines.')
+                                            ->rows(3)
+                                            ->columnSpanFull(),
                                         TextInput::make('client_email')
                                             ->label('Email')
                                             ->email()
@@ -220,22 +226,22 @@ class ProposalForm
                                         TextInput::make('offer_1_price')
                                             ->label('Price')
                                             ->numeric()
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->required(),
                                         TextInput::make('offer_1_original_price')
                                             ->label('Original Price (if discounted)')
                                             ->numeric()
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->nullable(),
                                         TextInput::make('offer_1_renewal_price')
                                             ->label('Renewal Price')
                                             ->numeric()
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->helperText('Annual/periodic cost for renewals'),
                                         TextInput::make('offer_1_original_renewal_price')
                                             ->label('Original Renewal Price (if discounted)')
                                             ->numeric()
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->nullable(),
                                     ])
                                     ->columns(2),
@@ -250,22 +256,22 @@ class ProposalForm
                                         TextInput::make('offer_2_price')
                                             ->label('Price')
                                             ->numeric()
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->nullable(),
                                         TextInput::make('offer_2_original_price')
                                             ->label('Original Price (if discounted)')
                                             ->numeric()
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->nullable(),
                                         TextInput::make('offer_2_renewal_price')
                                             ->label('Renewal Price')
                                             ->numeric()
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->nullable(),
                                         TextInput::make('offer_2_original_renewal_price')
                                             ->label('Original Renewal Price (if discounted)')
                                             ->numeric()
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->nullable(),
                                     ])
                                     ->columns(2),
@@ -343,7 +349,7 @@ class ProposalForm
                                             ->actions([
                                                 TranslatableRepeaterSync::makeCopyToAllLocalesAction('add_on'),
                                             ])
-                                            ->schema(fn(string $locale): array => [
+                                            ->schema(fn (string $locale): array => [
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('add_on'),
                                                     $locale,
@@ -375,7 +381,6 @@ class ProposalForm
                                     ->schema([
                                         self::makeTranslatedRichEditor('payment'),
                                     ]),
-
 
                                 Section::make('Additional Info')
                                     ->headerActions([
@@ -472,7 +477,7 @@ class ProposalForm
                                             ->actions([
                                                 TranslatableRepeaterSync::makeCopyToAllLocalesAction('offer_1_project_timeline'),
                                             ])
-                                            ->schema(fn(string $locale): array => [
+                                            ->schema(fn (string $locale): array => [
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('offer_1_project_timeline'),
                                                     $locale,
@@ -509,7 +514,7 @@ class ProposalForm
                                             ->actions([
                                                 TranslatableRepeaterSync::makeCopyToAllLocalesAction('offer_2_project_timeline'),
                                             ])
-                                            ->schema(fn(string $locale): array => [
+                                            ->schema(fn (string $locale): array => [
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('offer_2_project_timeline'),
                                                     $locale,
@@ -595,16 +600,16 @@ class ProposalForm
                                     ->schema([
                                         Placeholder::make('created_at_info')
                                             ->label('Created At')
-                                            ->content(fn(?Proposal $record): string => $record?->created_at?->format('d M Y H:i:s') ?? '-'),
+                                            ->content(fn (?Proposal $record): string => $record?->created_at?->format('d M Y H:i:s') ?? '-'),
                                         Placeholder::make('created_by_info')
                                             ->label('Created By')
-                                            ->content(fn(?Proposal $record): string => $record?->createdBy?->name ?? '-'),
+                                            ->content(fn (?Proposal $record): string => $record?->createdBy?->name ?? '-'),
                                         Placeholder::make('updated_at_info')
                                             ->label('Updated At')
-                                            ->content(fn(?Proposal $record): string => $record?->updated_at?->format('d M Y H:i:s') ?? '-'),
+                                            ->content(fn (?Proposal $record): string => $record?->updated_at?->format('d M Y H:i:s') ?? '-'),
                                         Placeholder::make('updated_by_info')
                                             ->label('Updated By')
-                                            ->content(fn(?Proposal $record): string => $record?->updatedBy?->name ?? '-'),
+                                            ->content(fn (?Proposal $record): string => $record?->updatedBy?->name ?? '-'),
                                     ])
                                     ->columns(2),
                             ]),
@@ -618,7 +623,7 @@ class ProposalForm
     {
         return Translate::make()
             ->exclude(self::translatedFieldPaths($fieldKey))
-            ->schema(fn(string $locale): array => [
+            ->schema(fn (string $locale): array => [
                 self::makeRichEditor("{$fieldKey}.{$locale}", $fieldKey, $locale, $label, $useDefault),
             ]);
     }
@@ -626,7 +631,7 @@ class ProposalForm
     protected static function translatedFieldPaths(string $fieldKey): array
     {
         return collect(config('translatable.locales', ['en', 'id']))
-            ->map(fn(string $locale): string => "{$fieldKey}.{$locale}")
+            ->map(fn (string $locale): string => "{$fieldKey}.{$locale}")
             ->all();
     }
 
@@ -678,6 +683,7 @@ class ProposalForm
 
         return null;
     }
+
     protected static function normalizeRichEditorRawState(RichEditor $component): void
     {
         $rawState = $component->getRawState();
@@ -780,11 +786,11 @@ class ProposalForm
     {
         $timelineOptions = array_filter(
             ProposalContentDefault::FIELD_OPTIONS,
-            fn(string $key): bool => str_ends_with($key, '_project_timeline'),
+            fn (string $key): bool => str_ends_with($key, '_project_timeline'),
             ARRAY_FILTER_USE_KEY,
         );
 
-        return Action::make('load_timeline_template_' . $targetField)
+        return Action::make('load_timeline_template_'.$targetField)
             ->label('Load Template')
             ->icon('heroicon-o-arrow-down-tray')
             ->color('gray')
@@ -807,7 +813,7 @@ class ProposalForm
 
     protected static function makeLoadRepeaterTemplateAction(string $targetField): Action
     {
-        return Action::make('load_repeater_template_' . $targetField)
+        return Action::make('load_repeater_template_'.$targetField)
             ->label('Load Template')
             ->icon('heroicon-o-arrow-down-tray')
             ->color('gray')
@@ -824,10 +830,9 @@ class ProposalForm
         string $targetField,
         ?string $sourceField = null,
         ?array $sourceOptions = null,
-    ): Action
-    {
+    ): Action {
         $lookupField = $sourceField ?? $targetField;
-        $action = Action::make('load_rich_text_template_' . $targetField)
+        $action = Action::make('load_rich_text_template_'.$targetField)
             ->label('Load Template')
             ->icon('heroicon-o-arrow-down-tray')
             ->color('gray');

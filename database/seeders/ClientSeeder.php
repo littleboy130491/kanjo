@@ -16,6 +16,7 @@ class ClientSeeder extends Seeder
         Client::create([
             'name' => 'Budi Santoso',
             'company' => 'PT Teknologi Maju',
+            'address' => 'Jl. Sudirman No. 10<br>Jakarta Pusat 10220',
             'email' => 'budi@teknologimaju.co.id',
             'phone' => '+62 812 3456 7890',
             'notes' => [
@@ -34,6 +35,7 @@ class ClientSeeder extends Seeder
         Client::create([
             'name' => 'Sarah Chen',
             'company' => 'ShopGlobal Pte Ltd',
+            'address' => "1 Raffles Place\nSingapore 048616",
             'email' => 'sarah.chen@shopglobal.sg',
             'phone' => '+65 9123 4567',
             'notes' => [

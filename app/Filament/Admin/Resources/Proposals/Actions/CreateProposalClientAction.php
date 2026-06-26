@@ -20,6 +20,7 @@ class CreateProposalClientAction
                 $client = Client::create([
                     'name' => $record->client_name,
                     'company' => $record->client_company,
+                    'address' => $record->client_address,
                     'email' => $record->client_email,
                     'phone' => $record->client_phone,
                     'notes' => [],

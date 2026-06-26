@@ -6,11 +6,11 @@ use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\UserRole;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
+use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Service;
-use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
@@ -49,14 +49,14 @@ class InvoiceForm
                                             ->label('Document Number')
                                             ->helperText('Auto-generated unless edited manually.')
                                             ->maxLength(255)
-                                            ->default(fn(Get $get): string => self::generateDocumentNumberPreview(
+                                            ->default(fn (Get $get): string => self::generateDocumentNumberPreview(
                                                 'INV',
                                                 $get('issue_date'),
                                             ))
                                             ->placeholder('Auto-generated')
                                             ->required()
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn(?string $state, Set $set) => $set('document_number_override', filled($state))),
+                                            ->afterStateUpdated(fn (?string $state, Set $set) => $set('document_number_override', filled($state))),
                                         Hidden::make('document_number_override')
                                             ->default(false)
                                             ->dehydrated(),
@@ -65,15 +65,15 @@ class InvoiceForm
                                             ->helperText('Editable sequence number for the selected issue month.')
                                             ->numeric()
                                             ->minValue(1)
-                                            ->default(fn(Get $get): int => self::generateNextDocumentRaw(
+                                            ->default(fn (Get $get): int => self::generateNextDocumentRaw(
                                                 filled($get('issue_date')) ? Carbon::parse($get('issue_date')) : now(),
                                             ))
-                                            ->required(fn(): bool => self::canEditDocumentRawNumber())
-                                            ->visible(fn(): bool => self::canEditDocumentRawNumber())
-                                            ->dehydrated(fn(): bool => self::canEditDocumentRawNumber())
-                                            ->rules(fn(Get $get, ?Invoice $record): array => self::canEditDocumentRawNumber() ? [
+                                            ->required(fn (): bool => self::canEditDocumentRawNumber())
+                                            ->visible(fn (): bool => self::canEditDocumentRawNumber())
+                                            ->dehydrated(fn (): bool => self::canEditDocumentRawNumber())
+                                            ->rules(fn (Get $get, ?Invoice $record): array => self::canEditDocumentRawNumber() ? [
                                                 Rule::unique('invoices', 'document_number_raw')
-                                                    ->where(fn($query) => $query
+                                                    ->where(fn ($query) => $query
                                                         ->where('issue_month', self::resolveDocumentNumberDate($record, $get('issue_date'))->month)
                                                         ->where('issue_year', self::resolveDocumentNumberDate($record, $get('issue_date'))->year))
                                                     ->ignore($record?->getKey()),
@@ -81,15 +81,15 @@ class InvoiceForm
                                         TextInput::make('slug')
                                             ->label('Public Slug')
                                             ->placeholder('Auto-generated')
-                                            ->helperText(fn(Get $get): string => 'Public URL: ' . route('invoice.show', [
+                                            ->helperText(fn (Get $get): string => 'Public URL: '.route('invoice.show', [
                                                 'slug' => Str::slug((string) ($get('slug') ?: self::generateSlugPreview($get('issue_date')))),
                                             ]))
-                                            ->default(fn(Get $get): string => self::generateSlugPreview($get('issue_date')))
+                                            ->default(fn (Get $get): string => self::generateSlugPreview($get('issue_date')))
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true)
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn(?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
-                                            ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? Str::slug($state) : null),
+                                            ->afterStateUpdated(fn (?string $state, callable $set) => $set('slug', filled($state) ? Str::slug($state) : null))
+                                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Str::slug($state) : null),
                                     ])
                                     ->columns(3),
 
@@ -97,22 +97,22 @@ class InvoiceForm
                                     ->schema([
                                         Select::make('company_id')
                                             ->label('Company')
-                                            ->options(fn() => Company::query()
+                                            ->options(fn () => Company::query()
                                                 ->orderBy('brand_name')
                                                 ->get()
-                                                ->mapWithKeys(fn(Company $company) => [
+                                                ->mapWithKeys(fn (Company $company) => [
                                                     $company->getKey() => (string) ($company->brand_name ?: $company->company_name ?: 'Untitled company'),
                                                 ]))
-                                            ->default(fn() => Company::first()?->id)
+                                            ->default(fn () => Company::first()?->id)
                                             ->required()
                                             ->searchable(),
                                         Select::make('proposal_id')
                                             ->label('Proposal (Optional)')
-                                            ->options(fn() => \App\Models\Proposal::query()
+                                            ->options(fn () => \App\Models\Proposal::query()
                                                 ->orderByDesc('created_at')
                                                 ->get()
-                                                ->mapWithKeys(fn(\App\Models\Proposal $proposal) => [
-                                                    $proposal->getKey() => (string) ($proposal->document_number ?: $proposal->slug ?: 'Proposal #' . $proposal->getKey()),
+                                                ->mapWithKeys(fn (\App\Models\Proposal $proposal) => [
+                                                    $proposal->getKey() => (string) ($proposal->document_number ?: $proposal->slug ?: 'Proposal #'.$proposal->getKey()),
                                                 ]))
                                             ->searchable()
                                             ->preload()
@@ -170,11 +170,11 @@ class InvoiceForm
                                     ->schema([
                                         Select::make('client_id')
                                             ->label('Load from Client Database')
-                                            ->options(fn() => Client::query()
+                                            ->options(fn () => Client::query()
                                                 ->orderBy('company')
                                                 ->get()
-                                                ->mapWithKeys(fn(Client $client) => [
-                                                    $client->getKey() => (string) ($client->company ?: $client->name ?: 'Client #' . $client->getKey()),
+                                                ->mapWithKeys(fn (Client $client) => [
+                                                    $client->getKey() => (string) ($client->company ?: $client->name ?: 'Client #'.$client->getKey()),
                                                 ]))
                                             ->searchable()
                                             ->live()
@@ -183,6 +183,7 @@ class InvoiceForm
                                             ->helperText('Select a client to auto-fill the fields below. The data will be saved to this invoice, not linked.')
                                             ->createOptionUsing(function (array $data): int {
                                                 $client = Client::create($data);
+
                                                 return $client->getKey();
                                             })
                                             ->createOptionForm(schema: [
@@ -195,6 +196,7 @@ class InvoiceForm
                                                     if ($client) {
                                                         $set('client_company', $client->company);
                                                         $set('client_name', $client->name);
+                                                        $set('client_address', $client->address);
                                                         $set('client_email', $client->email);
                                                         $set('client_phone', $client->phone);
                                                     }
@@ -211,6 +213,11 @@ class InvoiceForm
                                             ->label('Contact Person')
                                             ->required()
                                             ->maxLength(255),
+                                        Textarea::make('client_address')
+                                            ->label('Address')
+                                            ->helperText('Optional. Use line breaks or <br> for multiple lines.')
+                                            ->rows(3)
+                                            ->columnSpanFull(),
                                         TextInput::make('client_email')
                                             ->label('Email')
                                             ->email()
@@ -226,10 +233,10 @@ class InvoiceForm
                                     ->schema([
                                         Select::make('service_id')
                                             ->label('Link to Service')
-                                            ->options(fn() => Service::with('client')
+                                            ->options(fn () => Service::with('client')
                                                 ->get()
-                                                ->mapWithKeys(fn(Service $service) => [
-                                                    $service->getKey() => (string) (($service->name ?: 'Service #' . $service->getKey()) . ' - ' . ($service->client?->company ?: $service->client?->name ?: 'No Client'))
+                                                ->mapWithKeys(fn (Service $service) => [
+                                                    $service->getKey() => (string) (($service->name ?: 'Service #'.$service->getKey()).' - '.($service->client?->company ?: $service->client?->name ?: 'No Client')),
                                                 ]))
                                             ->searchable()
                                             ->preload()
@@ -255,7 +262,7 @@ class InvoiceForm
                                             ->actions([
                                                 TranslatableRepeaterSync::makeCopyToAllLocalesAction('items'),
                                             ])
-                                            ->schema(fn(string $locale): array => [
+                                            ->schema(fn (string $locale): array => [
                                                 TranslatableRepeaterSync::configure(
                                                     Repeater::make('items'),
                                                     $locale,
@@ -269,7 +276,7 @@ class InvoiceForm
                                                             ->required()
                                                             ->numeric()
                                                             ->inputMode('decimal')
-                                                            ->afterStateUpdated(fn(Get $get, Set $set) => self::recalculateTotals($get, $set))
+                                                            ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set))
                                                             ->columnSpan(1),
                                                         Textarea::make('description')
                                                             ->rows(2)
@@ -281,7 +288,7 @@ class InvoiceForm
                                                     ->reorderable()
                                                     ->deletable()
                                                     ->live()
-                                                    ->afterStateUpdated(fn(Get $get, Set $set) => self::recalculateTotals($get, $set))
+                                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set))
                                                     ->default([]),
                                             ])
                                             ->suffixLocaleLabel(),
@@ -291,7 +298,7 @@ class InvoiceForm
                                     ->schema([
                                         Translate::make()
                                             ->exclude(self::translatedFieldPaths('additional_info'))
-                                            ->schema(fn(string $locale): array => [
+                                            ->schema(fn (string $locale): array => [
                                                 RichEditor::make("additional_info.{$locale}")
                                                     ->hiddenLabel()
                                                     ->columnSpanFull(),
@@ -317,7 +324,7 @@ class InvoiceForm
                                             ->required()
                                             ->suffix('%')
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn(Get $get, Set $set) => self::recalculateTotals($get, $set)),
+                                            ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set)),
                                     ])
                                     ->columns(2),
 
@@ -326,17 +333,17 @@ class InvoiceForm
                                         TextInput::make('subtotal')
                                             ->readonly()
                                             ->default(0)
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->placeholder('Auto-calculated'),
                                         TextInput::make('tax_amount')
                                             ->readonly()
                                             ->default(0)
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->placeholder('Auto-calculated'),
                                         TextInput::make('total')
                                             ->readonly()
                                             ->default(0)
-                                            ->prefix(fn(Get $get) => $get('currency'))
+                                            ->prefix(fn (Get $get) => $get('currency'))
                                             ->placeholder('Auto-calculated'),
                                     ])
                                     ->columns(3),
@@ -469,7 +476,7 @@ class InvoiceForm
         );
 
         $subtotal = collect($items)
-            ->sum(fn(mixed $item): float => (float) data_get($item, 'price', 0));
+            ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0));
 
         $taxRate = (float) ($get('tax_rate') ?? 0);
         $taxAmount = $subtotal * ($taxRate / 100);
@@ -483,7 +490,7 @@ class InvoiceForm
     protected static function translatedFieldPaths(string $fieldKey): array
     {
         return collect(config('translatable.locales', ['en', 'id']))
-            ->map(fn(string $locale): string => "{$fieldKey}.{$locale}")
+            ->map(fn (string $locale): string => "{$fieldKey}.{$locale}")
             ->all();
     }
 
@@ -500,7 +507,7 @@ class InvoiceForm
      */
     protected static function findItemRows(mixed $node): ?array
     {
-        if (!is_array($node)) {
+        if (! is_array($node)) {
             return null;
         }
 
@@ -528,7 +535,7 @@ class InvoiceForm
         $values = array_values($rows);
 
         foreach ($values as $value) {
-            if (!is_array($value) || !self::isItemRow($value)) {
+            if (! is_array($value) || ! self::isItemRow($value)) {
                 return false;
             }
         }

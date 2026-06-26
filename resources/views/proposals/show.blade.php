@@ -59,6 +59,18 @@
         return is_string($resolved) ? trim($resolved) : '';
     };
 
+    $lineBreakText = function (mixed $value): string {
+        if (! is_string($value) || trim($value) === '') {
+            return '';
+        }
+
+        return collect(preg_split('/(?:<br\s*\/?>|\R)/i', $value) ?: [])
+            ->map(fn (string $line): string => trim($line))
+            ->filter(fn (string $line): bool => $line !== '')
+            ->map(fn (string $line): string => e($line))
+            ->implode('<br>');
+    };
+
     $asHtmlWithLocaleFallback = function (mixed $value) use ($locale, $htmlHasContent): string {
         if (! is_array($value)) {
             return is_string($value) ? trim($value) : '';
@@ -150,6 +162,7 @@
     $paymentHtml = $asHtml($proposal->payment);
     $termsConditionHtml = $asHtml($proposal->terms_condition);
     $additionalInfoHtml = $asHtml($proposal->additional_info);
+    $clientAddressHtml = $lineBreakText($proposal->client_address);
     $faqHtml = $asHtmlWithLocaleFallback($proposal->faq);
     $ourProcessHtml = $asHtmlWithLocaleFallback($proposal->our_process);
     $aboutUsHtml = $asHtmlWithLocaleFallback($proposal->about_us);
@@ -255,6 +268,9 @@
                     <div>
                         <p class="document-kicker text-neutral-400">Prepared For</p>
                         <p class="text-xl md:text-2xl text-neutral-900 font-bold">{{ $proposal->client_company }}</p>
+                        @if($clientAddressHtml !== '')
+                            <p class="mt-3 text-sm leading-relaxed text-neutral-500">{!! $clientAddressHtml !!}</p>
+                        @endif
                     </div>
                 </div>
             @endif

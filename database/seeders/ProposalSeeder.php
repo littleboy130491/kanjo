@@ -58,6 +58,7 @@ class ProposalSeeder extends Seeder
             [
                 'name' => 'Budi Santoso',
                 'company' => 'PT Teknologi Maju',
+                'address' => 'Jl. Sudirman No. 10<br>Jakarta Pusat 10220',
                 'phone' => '+62 812 3456 7890',
                 'notes' => [
                     [
@@ -80,6 +81,7 @@ class ProposalSeeder extends Seeder
                 'client_id' => $client->id,
                 'client_company' => $client->company,
                 'client_name' => $client->name,
+                'client_address' => $client->address,
                 'client_email' => $client->email,
                 'client_phone' => $client->phone,
                 'issue_date' => now()->toDateString(),

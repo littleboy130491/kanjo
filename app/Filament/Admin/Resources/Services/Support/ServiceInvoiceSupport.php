@@ -70,6 +70,10 @@ class ServiceInvoiceSupport
                 ?? $latestInvoice?->client_name
                 ?? $latestProposal?->client_name
                 ?? '-'),
+            'client_address' => (string) ($client?->address
+                ?? $latestInvoice?->client_address
+                ?? $latestProposal?->client_address
+                ?? ''),
             'client_email' => (string) ($client?->email
                 ?? $latestInvoice?->client_email
                 ?? $latestProposal?->client_email
@@ -89,7 +93,7 @@ class ServiceInvoiceSupport
             'due_date' => self::resolveDueDate($issueDate),
             'items' => [
                 [
-                    'title' => 'Renewal: ' . (string) ($service->name ?: 'Service'),
+                    'title' => 'Renewal: '.(string) ($service->name ?: 'Service'),
                     'price' => (float) ($service->price ?? 0),
                     'description' => (string) ($service->domain ?? ''),
                 ],

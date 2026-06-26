@@ -104,6 +104,17 @@
 
         return is_string($resolved) ? trim($resolved) : '';
     };
+    $lineBreakText = function (mixed $value): string {
+        if (! is_string($value) || trim($value) === '') {
+            return '';
+        }
+
+        return collect(preg_split('/(?:<br\s*\/?>|\R)/i', $value) ?: [])
+            ->map(fn (string $line): string => trim($line))
+            ->filter(fn (string $line): bool => $line !== '')
+            ->map(fn (string $line): string => e($line))
+            ->implode('<br>');
+    };
     $present = function (mixed $value): bool {
         if (is_array($value)) {
             return count($value) > 0;
@@ -121,6 +132,7 @@
 
     $items = $asRows($invoice->items);
     $additionalInfoHtml = $asHtml($invoice->additional_info);
+    $clientAddressHtml = $lineBreakText($invoice->client_address);
 
     $badgeColor = match ($invoice->payment_status?->value) {
         'paid' => 'bg-green-100 text-green-700',
@@ -262,6 +274,9 @@
                 <div class="invoice-client-block">
                     <span class="document-accent document-kicker mb-2">Invoice To</span>
                      <p class="text-md text-neutral-900">{{ $invoice->client_company }}</p>
+                     @if($clientAddressHtml !== '')
+                         <p class="mt-2 text-sm leading-relaxed text-neutral-500">{!! $clientAddressHtml !!}</p>
+                     @endif
                 </div>
             </div>
     </section>

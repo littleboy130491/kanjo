@@ -38,6 +38,7 @@ class CreateInvoiceFromProposalTest extends TestCase
         $proposal = Proposal::query()->create([
             'client_company' => 'Client Co',
             'client_name' => 'Client Name',
+            'client_address' => 'Line 1<br>Line 2',
             'client_email' => 'client@example.test',
             'client_phone' => '0800000000',
             'issue_date' => now()->toDateString(),
@@ -78,6 +79,7 @@ class CreateInvoiceFromProposalTest extends TestCase
         );
         $this->assertSame(PaymentStatus::UNPAID, $invoice->payment_status);
         $this->assertSame($proposal->id, $invoice->proposal_id);
+        $this->assertSame($proposal->client_address, $invoice->client_address);
     }
 
     private function invokeCreateInvoiceFromProposal(Proposal $proposal): Invoice

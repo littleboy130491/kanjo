@@ -97,6 +97,7 @@ Represents the brands/companies that issue documents.
 | `id` | bigint | — | PK |
 | `name` | string | no | Client contact person |
 | `company` | string | no | Client's company name |
+| `address` | text | no | nullable, may contain line breaks or `<br>` |
 | `email` | string | no | |
 | `phone` | string | no | |
 | `notes` | JSON array | no | non-translatable |
@@ -148,6 +149,7 @@ Represents the brands/companies that issue documents.
 | `client_id` | FK | no | nullable, optional reference to client record |
 | `client_company` | string | no | Frozen snapshot at document creation |
 | `client_name` | string | no | Frozen snapshot at document creation |
+| `client_address` | text | no | nullable, frozen snapshot at document creation; may contain line breaks or `<br>` |
 | `client_email` | string | no | Frozen snapshot at document creation |
 | `client_phone` | string | no | Frozen snapshot at document creation |
 | `issue_date` | date | no | Default from `created_at`, can override |
@@ -205,6 +207,7 @@ Represents the brands/companies that issue documents.
 | `client_id` | FK | no | nullable, optional reference to client record |
 | `client_company` | string | no | Frozen snapshot at document creation |
 | `client_name` | string | no | Frozen snapshot at document creation |
+| `client_address` | text | no | nullable, frozen snapshot at document creation; may contain line breaks or `<br>` |
 | `client_email` | string | no | Frozen snapshot at document creation |
 | `client_phone` | string | no | Frozen snapshot at document creation |
 | `issue_date` | date | no | Default from `created_at`, can override |
@@ -277,7 +280,7 @@ Simple document-level authentication. No user accounts, no registration, no toke
 One-click action in Filament admin. No selection modal — always converts using Offer 1.
 
 **Copied fields (frozen snapshot, not linked):**
-- `client_company`, `client_name`, `client_email`, `client_phone`
+- `client_company`, `client_name`, `client_address`, `client_email`, `client_phone`
 - `client_id` (optional reference only, not source of displayed client values)
 - `company_id`, `user_id`
 - `currency`
@@ -304,7 +307,7 @@ One-click action in Filament admin. No selection modal — always converts using
 - Proposal has many invoices
 - Proposal and invoice store client snapshot fields and remain unchanged even if `clients` data is edited later
 - Proposal and invoice may keep optional `client_id` for quick navigation/reference
-- If proposal/invoice is created from a selected client, copy `name/company/email/phone` into snapshot fields at creation time
+- If proposal/invoice is created from a selected client, copy `name/company/address/email/phone` into snapshot fields at creation time
 - Service belongs to one client, and proposal/invoice can optionally link to one service (`service_id`)
 
 ---
@@ -352,7 +355,7 @@ Proposals contain `offer_1_renewal_price`, which represents the recurring annual
 - **Convert to Invoice**
 - **Create Renewal Invoice**
 - **Duplicate Proposal**
-- **Create Client** — one-click from proposal snapshot fields (`client_name`, `client_company`, `client_email`, `client_phone`) and auto-link `client_id`
+- **Create Client** — one-click from proposal snapshot fields (`client_name`, `client_company`, `client_address`, `client_email`, `client_phone`) and auto-link `client_id`
 - **Create Service** — one-click from proposal and auto-link selected `client_id`
 - **Generate PDF**
 
@@ -360,7 +363,7 @@ Proposals contain `offer_1_renewal_price`, which represents the recurring annual
 - **Duplicate Invoice**
 - **Generate PDF**
 - **Mark as Paid**
-- **Create Client** — one-click from invoice snapshot fields (`client_name`, `client_company`, `client_email`, `client_phone`) and auto-link `client_id`
+- **Create Client** — one-click from invoice snapshot fields (`client_name`, `client_company`, `client_address`, `client_email`, `client_phone`) and auto-link `client_id`
 - **Create Service** — one-click from invoice and auto-link selected `client_id`
 - **View Proposal**
 

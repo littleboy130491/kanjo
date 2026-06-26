@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Clients\Schemas;
 
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -30,6 +31,11 @@ class ClientForm
                     ->label('Company Name')
                     ->required()
                     ->maxLength(255),
+                Textarea::make('address')
+                    ->label('Address')
+                    ->helperText('Optional. Use line breaks or <br> for multiple lines.')
+                    ->rows(3)
+                    ->columnSpanFull(),
                 TextInput::make('email')
                     ->email()
                     ->maxLength(255),
@@ -55,6 +61,4 @@ class ClientForm
             ])
             ->columnSpanFull();
     }
-
-
 }

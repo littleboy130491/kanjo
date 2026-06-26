@@ -47,6 +47,7 @@ class CreateInvoiceAction
         $invoice = new Invoice([
             'client_company' => $proposal->client_company,
             'client_name' => $proposal->client_name,
+            'client_address' => $proposal->client_address,
             'client_email' => $proposal->client_email,
             'client_phone' => $proposal->client_phone,
             'client_id' => $proposal->client_id,
