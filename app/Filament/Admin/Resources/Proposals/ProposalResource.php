@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\Proposals\Pages\CreateProposal;
 use App\Filament\Admin\Resources\Proposals\Pages\EditProposal;
 use App\Filament\Admin\Resources\Proposals\Pages\ListProposals;
 use App\Filament\Admin\Resources\Proposals\RelationManagers\InvoicesRelationManager;
+use App\Filament\Admin\Resources\Proposals\RelationManagers\SpksRelationManager;
 use App\Filament\Admin\Resources\Proposals\Schemas\ProposalForm;
 use App\Filament\Admin\Resources\Proposals\Tables\ProposalsTable;
 use App\Models\Proposal;
@@ -45,6 +46,7 @@ class ProposalResource extends Resource
     {
         return [
             InvoicesRelationManager::class,
+            SpksRelationManager::class,
         ];
     }
 

@@ -1,14 +1,11 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Proposals\Tables;
+namespace App\Filament\Admin\Resources\Spks\Tables;
 
 use App\Enums\DocumentStatus;
-use App\Filament\Admin\Resources\Proposals\Actions\CreateProposalClientAction;
-use App\Filament\Admin\Resources\Proposals\Actions\CreateInvoiceAction;
-use App\Filament\Admin\Resources\Proposals\Actions\CreateSpkAction;
-use App\Filament\Admin\Resources\Proposals\Actions\DownloadProposalPdfAction;
-use App\Filament\Admin\Resources\Proposals\Actions\DuplicateProposalAction;
-use App\Models\Proposal;
+use App\Filament\Admin\Resources\Spks\Actions\DuplicateSpkAction;
+use App\Filament\Admin\Resources\Spks\Actions\ViewProposalAction;
+use App\Models\Spk;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -19,7 +16,6 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -28,52 +24,50 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
-class ProposalsTable
+class SpksTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
                 TextColumn::make('document_number')
+                    ->label('SPK Number')
                     ->searchable()
                     ->sortable()
-                    ->description(fn (Proposal $record): ?string => $record->resourceLock?->isActive()
-                        ? (($record->resourceLock->user?->name ?? 'Someone') . ' is editing this record')
+                    ->description(fn (Spk $record): ?string => $record->resourceLock?->isActive()
+                        ? (($record->resourceLock->user?->name ?? 'Someone').' is editing this record')
                         : null),
                 TextColumn::make('client_company')
                     ->searchable()
                     ->sortable()
                     ->limit(30),
-                TextColumn::make('client_name')
+                TextColumn::make('client_pic_name')
+                    ->label('Client PIC')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('offer_name_1')
-                    ->sortable(),
-                TextColumn::make('offer_1_price')
-                    ->money(fn($record) => $record->currency)
+                TextColumn::make('company_name')
+                    ->searchable()
                     ->sortable()
-                    ->alignment('right'),
-                BadgeColumn::make('status')
-                    ->formatStateUsing(fn(DocumentStatus $state): string => $state->getLabel())
-                    ->color(fn(DocumentStatus $state): string => $state->getColor()),
-                TextColumn::make('issue_date')
+                    ->limit(30),
+                TextColumn::make('company_pic_name')
+                    ->label('Company PIC')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('status')
+                    ->badge()
+                    ->formatStateUsing(fn (DocumentStatus $state): string => $state->getLabel())
+                    ->color(fn (DocumentStatus $state): string => $state->getColor())
+                    ->sortable(),
+                TextColumn::make('spk_date')
                     ->date()
                     ->sortable(),
-                TextColumn::make('invoices_count')
-                    ->label('Invoices')
-                    ->counts('invoices')
-                    ->badge()
-                    ->color('primary')
-                    ->alignment('center'),
-                TextColumn::make('spks_count')
-                    ->label('SPKs')
-                    ->counts('spks')
-                    ->badge()
-                    ->color('primary')
-                    ->alignment('center'),
-                TextColumn::make('company.brand_name')
-                    ->label('Company')
-                    ->sortable(),
+                TextColumn::make('proposal.document_number')
+                    ->label('Proposal')
+                    ->url(fn (Spk $record): ?string => $record->proposal_id
+                        ? route('filament.admin.resources.proposals.edit', $record->proposal_id)
+                        : null)
+                    ->openUrlInNewTab()
+                    ->placeholder('No proposal'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -87,41 +81,29 @@ class ProposalsTable
             ->filters([
                 SelectFilter::make('status')
                     ->options(DocumentStatus::class),
-                TernaryFilter::make('has_invoice')
-                    ->label('Has Invoice')
+                SelectFilter::make('company_id')
+                    ->label('Company')
+                    ->relationship('company', 'brand_name')
+                    ->searchable()
+                    ->preload(),
+                TernaryFilter::make('has_proposal')
+                    ->label('Has Proposal')
                     ->queries(
-                        true: fn(Builder $query) => $query->whereHas('invoices'),
-                        false: fn(Builder $query) => $query->whereDoesntHave('invoices'),
+                        true: fn (Builder $query) => $query->whereNotNull('proposal_id'),
+                        false: fn (Builder $query) => $query->whereNull('proposal_id'),
                     ),
-                TernaryFilter::make('has_offer_2')
-                    ->label('Has Offer 2')
-                    ->queries(
-                        true: fn(Builder $query) => $query->whereNotNull('offer_name_2'),
-                        false: fn(Builder $query) => $query->whereNull('offer_name_2'),
-                    ),
-                Filter::make('issue_date')
+                Filter::make('spk_date')
                     ->form([
                         \Filament\Forms\Components\DatePicker::make('from'),
-                        \Filament\Forms\Components\DatePicker::make('to'),
+                        \Filament\Forms\Components\DatePicker::make('until'),
                     ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '>=', $date),
-                            )
-                            ->when(
-                                $data['to'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('issue_date', '<=', $date),
-                            );
-                    }),
+                    ->query(fn (Builder $query, array $data): Builder => $query
+                        ->when($data['from'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('spk_date', '>=', $date))
+                        ->when($data['until'] ?? null, fn (Builder $query, $date): Builder => $query->whereDate('spk_date', '<=', $date))),
             ])
             ->recordActions([
-                CreateInvoiceAction::make(),
-                CreateSpkAction::make(),
-                DuplicateProposalAction::make(),
-                CreateProposalClientAction::make(),
-                DownloadProposalPdfAction::make(),
+                DuplicateSpkAction::make(),
+                ViewProposalAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
                     ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
@@ -137,14 +119,14 @@ class ProposalsTable
                             Select::make('status')
                                 ->label('Status')
                                 ->options(collect(DocumentStatus::cases())->mapWithKeys(
-                                    fn(DocumentStatus $status): array => [$status->value => $status->getLabel()]
+                                    fn (DocumentStatus $status): array => [$status->value => $status->getLabel()]
                                 )->all())
                                 ->required(),
                         ])
                         ->action(function (Collection $records, array $data): void {
                             $status = DocumentStatus::from((string) $data['status']);
 
-                            $records->each(fn(Proposal $record): bool => $record->update(['status' => $status]));
+                            $records->each(fn (Spk $record): bool => $record->update(['status' => $status]));
                         })
                         ->visible(fn (ListRecords $livewire): bool => $livewire->activeTab !== 'trash'),
                     DeleteBulkAction::make()

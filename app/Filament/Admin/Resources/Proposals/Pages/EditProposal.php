@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\Proposals\Pages;
 
 use App\Filament\Admin\Resources\Concerns\UsesResourceLock;
 use App\Filament\Admin\Resources\Proposals\Actions\CreateInvoiceAction;
+use App\Filament\Admin\Resources\Proposals\Actions\CreateSpkAction;
 use App\Filament\Admin\Resources\Proposals\Actions\DownloadProposalPdfAction;
 use App\Filament\Admin\Resources\Proposals\Actions\DuplicateProposalAction;
 use App\Filament\Admin\Resources\Proposals\Actions\ViewProposalDocumentAction;
@@ -28,6 +29,7 @@ class EditProposal extends EditRecord
                 ->action('save'),
             DuplicateProposalAction::make(name: 'duplicate', asLink: true),
             CreateInvoiceAction::make(asLink: true),
+            CreateSpkAction::make(asLink: true),
             ViewProposalDocumentAction::make(asLink: true),
             DownloadProposalPdfAction::make(name: 'create_pdf', label: 'Create PDF', asLink: true)
                 ->icon('heroicon-o-document-arrow-down'),
