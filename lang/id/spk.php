@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'party_intro' => 'Perjanjian Kerjasama :subject, dibuat dan ditandatangani pada tanggal :date oleh dan antara:',
-    'title_heading' => 'PERJANJIAN KERJASAMA',
+    'party_intro' => 'Perjanjian Kerja sama :subject, dibuat dan ditandatangani pada tanggal :date oleh dan antara:',
+    'title_heading' => 'PERJANJIAN KERJA SAMA',
     'title_between' => 'ANTARA',
     'title_with' => 'DENGAN',
     'title_about' => 'TENTANG',
