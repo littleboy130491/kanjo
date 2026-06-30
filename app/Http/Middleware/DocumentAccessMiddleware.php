@@ -6,6 +6,7 @@ use App\Enums\DocumentStatus;
 use App\Enums\UserRole;
 use App\Models\Invoice;
 use App\Models\Proposal;
+use App\Models\Spk;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,7 +75,7 @@ class DocumentAccessMiddleware
         return "doc_auth_{$type}_{$id}_version";
     }
 
-    public static function credentialVersion(Proposal|Invoice $document): string
+    public static function credentialVersion(Proposal|Invoice|Spk $document): string
     {
         return $document->access_credentials_updated_at?->toIso8601String() ?? 'initial';
     }
@@ -98,7 +99,7 @@ class DocumentAccessMiddleware
         ]);
     }
 
-    private function resolveDocument(string $type, string $slug): Proposal|Invoice|null
+    private function resolveDocument(string $type, string $slug): Proposal|Invoice|Spk|null
     {
         $documentNumber = str_replace('-', '/', $slug);
 
@@ -113,11 +114,16 @@ class DocumentAccessMiddleware
                     ->where('slug', $slug)
                     ->orWhere('document_number', $documentNumber))
                 ->first(),
+            'spk' => Spk::query()
+                ->where(fn ($query) => $query
+                    ->where('slug', $slug)
+                    ->orWhere('document_number', $documentNumber))
+                ->first(),
             default => null,
         };
     }
 
-    private function resolveCredentials(Proposal|Invoice $document): array
+    private function resolveCredentials(Proposal|Invoice|Spk $document): array
     {
         if (filled($document->access_username) && filled($document->access_password)) {
             return [$document->access_username, $document->access_password, true];

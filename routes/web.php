@@ -3,6 +3,7 @@
 use App\Http\Controllers\InvoiceViewController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProposalViewController;
+use App\Http\Controllers\SpkViewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,19 @@ Route::post('/invoice/{slug}/auth', [InvoiceViewController::class, 'authenticate
 Route::get('/invoice/{slug}/pdf', [PdfController::class, 'invoice'])
     ->middleware('document.access:invoice')
     ->name('pdf.invoice');
+
+Route::get('/spk/{slug}', [SpkViewController::class, 'show'])
+    ->middleware('document.access:spk')
+    ->name('spk.show');
+Route::get('/spk/{slug}/auth', [SpkViewController::class, 'authenticateRedirect'])
+    ->name('spk.auth.redirect');
+Route::post('/spk/{slug}/auth', [SpkViewController::class, 'authenticate'])
+    ->defaults('document_type', 'spk')
+    ->middleware('document.auth.throttle')
+    ->name('spk.auth');
+Route::get('/spk/{slug}/pdf', [PdfController::class, 'spk'])
+    ->middleware('document.access:spk')
+    ->name('pdf.spk');
 
 // Proxy image from RunCloud. Use a query string to avoid encoded-slash path issues.
 $proxyImageHandler = function (Request $request, ?string $encodedImageUrl = null) {

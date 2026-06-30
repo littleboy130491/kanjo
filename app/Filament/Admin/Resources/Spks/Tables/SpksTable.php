@@ -3,8 +3,10 @@
 namespace App\Filament\Admin\Resources\Spks\Tables;
 
 use App\Enums\DocumentStatus;
+use App\Filament\Admin\Resources\Spks\Actions\DownloadSpkPdfAction;
 use App\Filament\Admin\Resources\Spks\Actions\DuplicateSpkAction;
 use App\Filament\Admin\Resources\Spks\Actions\ViewProposalAction;
+use App\Filament\Admin\Resources\Spks\Actions\ViewSpkDocumentAction;
 use App\Models\Spk;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -103,6 +105,8 @@ class SpksTable
             ])
             ->recordActions([
                 DuplicateSpkAction::make(),
+                ViewSpkDocumentAction::make(),
+                DownloadSpkPdfAction::make(),
                 ViewProposalAction::make(),
                 EditAction::make(),
                 DeleteAction::make()

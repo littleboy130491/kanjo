@@ -703,6 +703,80 @@ h3.offer_name {
     @apply text-neutral-500;
 }
 
+.spk-document {
+    @apply px-0 py-12 md:py-20;
+}
+
+.spk-cover {
+    @apply pt-0 text-center;
+}
+
+.spk-title {
+    @apply mx-auto max-w-3xl text-center text-base font-semibold uppercase text-neutral-900;
+}
+
+.spk-title p {
+    @apply mb-1;
+}
+
+.spk-number {
+    @apply mt-8 text-sm font-semibold text-neutral-800;
+}
+
+.spk-meta-grid {
+    @apply mt-12 grid gap-8 text-left text-sm leading-relaxed text-neutral-700 md:grid-cols-2;
+}
+
+.spk-party-name,
+.spk-signature-name {
+    @apply font-semibold text-neutral-900;
+}
+
+.spk-address {
+    @apply mt-2 text-neutral-600;
+}
+
+.spk-content-section {
+    @apply pt-4;
+}
+
+.spk-content {
+    @apply text-justify text-[13px] leading-7 text-neutral-800;
+}
+
+.spk-content h2 {
+    @apply mt-8 mb-4 text-center text-base font-bold uppercase leading-snug text-neutral-900;
+}
+
+.spk-content table {
+    @apply my-4 w-full border-collapse text-left;
+}
+
+.spk-content th,
+.spk-content td {
+    @apply border border-neutral-300 px-3 py-2 align-top;
+}
+
+.spk-signature-section {
+    @apply pt-6;
+}
+
+.spk-approval-label {
+    @apply mb-8 text-sm text-neutral-700;
+}
+
+.spk-signature-grid {
+    @apply grid gap-12 text-center text-sm text-neutral-700 md:grid-cols-2;
+}
+
+.spk-signature-party {
+    @apply font-semibold text-neutral-900;
+}
+
+.spk-signature-space {
+    @apply h-28;
+}
+
 @media (max-width: 767px) {
     .invoice-cover-meta {
         font-size: 9px;
