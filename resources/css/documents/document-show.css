@@ -772,7 +772,7 @@ h3.offer_name {
 .spk-content .spk-party-table,
 .spk-content table.spk-party-table,
 .spk-content table:not(:has(thead)) {
-    @apply my-4 w-auto max-w-full border-collapse text-left;
+    @apply my-4 w-full border-collapse text-left;
     table-layout: fixed;
 }
 
