@@ -166,6 +166,11 @@ class Proposal extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    public function spks()
+    {
+        return $this->hasMany(Spk::class);
+    }
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);

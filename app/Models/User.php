@@ -67,6 +67,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasAnyRole(UserRole::panelAccessRoles());
     }
 
+    public function spks()
+    {
+        return $this->hasMany(Spk::class);
+    }
+
     /**
      * @return array<int, string>
      */

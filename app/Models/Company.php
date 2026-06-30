@@ -56,6 +56,11 @@ class Company extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    public function spks()
+    {
+        return $this->hasMany(Spk::class);
+    }
+
     public function googleMapsLink(): ?string
     {
         $url = trim((string) ($this->google_maps_embed_url ?? ''));

@@ -36,6 +36,11 @@ class Client extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    public function spks()
+    {
+        return $this->hasMany(Spk::class);
+    }
+
     public function services()
     {
         return $this->hasMany(Service::class);

@@ -18,7 +18,12 @@ class DocumentNumberGenerator
         $suffix ??= 'NEW';
 
         return DB::transaction(function () use ($type, $date, $suffix) {
-            $tableName = $type === 'QUO' ? 'proposals' : 'invoices';
+            $tableName = match ($type) {
+                'QUO' => 'proposals',
+                'INV' => 'invoices',
+                'SPK' => 'spks',
+                default => throw new \InvalidArgumentException("Unsupported document number type [{$type}]."),
+            };
             
             // Get the next raw number for this type, month, and year
             $maxRaw = DB::table($tableName)

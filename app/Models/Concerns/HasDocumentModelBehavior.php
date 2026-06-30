@@ -39,7 +39,9 @@ trait HasDocumentModelBehavior
 
             static::syncIssuePeriodOnCreate($model);
 
-            $date = $model->issue_date ? Carbon::parse($model->issue_date) : now();
+            $dateColumn = static::documentDateColumn();
+            $dateValue = $model->{$dateColumn};
+            $date = $dateValue ? Carbon::parse($dateValue) : now();
             $suffix = static::resolveDocumentSuffixForCreate($model);
 
             if (filled($model->document_number_raw)) {
@@ -114,6 +116,11 @@ trait HasDocumentModelBehavior
         return null;
     }
 
+    protected static function documentDateColumn(): string
+    {
+        return 'issue_date';
+    }
+
     protected static function extractSuffixFromDocumentNumber(?string $documentNumber): ?string
     {
         if (blank($documentNumber)) {
@@ -128,8 +135,11 @@ trait HasDocumentModelBehavior
 
     protected static function syncIssuePeriodOnCreate(Model $model): void
     {
-        if ($model->issue_date) {
-            $date = Carbon::parse($model->issue_date);
+        $dateColumn = static::documentDateColumn();
+        $dateValue = $model->{$dateColumn};
+
+        if ($dateValue) {
+            $date = Carbon::parse($dateValue);
             $model->issue_month = $date->month;
             $model->issue_year = $date->year;
 
@@ -147,7 +157,10 @@ trait HasDocumentModelBehavior
             return Carbon::create((int) $model->issue_year, (int) $model->issue_month, 1);
         }
 
-        return $model->issue_date ? Carbon::parse($model->issue_date) : now();
+        $dateColumn = static::documentDateColumn();
+        $dateValue = $model->{$dateColumn};
+
+        return $dateValue ? Carbon::parse($dateValue) : now();
     }
 
     protected static function syncDocumentNumberForUpdate(Model $model): void
@@ -181,7 +194,7 @@ trait HasDocumentModelBehavior
             return;
         }
 
-        if ($model->isDirty('issue_date') && ! $model->document_number_override) {
+        if ($model->isDirty(static::documentDateColumn()) && ! $model->document_number_override) {
             $model->document_number = $generatedDocumentNumber;
         }
     }
