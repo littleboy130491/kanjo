@@ -33,6 +33,11 @@
         return is_string($resolved) ? trim($resolved) : '';
     };
     $contentHtml = $asHtml($spk->content);
+    $contentHtml = preg_replace(
+        '/<table(?![^>]*\bspk-timeline-table\b)([^>]*)>\s*(<thead)/i',
+        '<table class="spk-timeline-table"$1>$2',
+        $contentHtml,
+    ) ?? $contentHtml;
     $subjectText = trim((string) (
         $spk->getTranslation('subject', $locale, false)
         ?: \App\Services\SpkTemplateRenderer::defaultForLocale('subject', $locale)

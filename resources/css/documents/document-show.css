@@ -764,78 +764,75 @@ h3.offer_name {
     @apply my-4 w-full border-collapse text-left;
 }
 
-.spk-content table:has(thead):not(.spk-party-table) th,
-.spk-content table:has(thead):not(.spk-party-table) td,
-.spk-content table.spk-timeline-table th,
-.spk-content table.spk-timeline-table td {
-    @apply border border-neutral-300 px-3 py-2 align-top break-words;
-    overflow-wrap: anywhere;
-}
-
-.spk-content table:has(thead):not(.spk-party-table),
-.spk-content table.spk-timeline-table {
+.spk-content table.spk-timeline-table,
+.spk-content table:has(thead) {
     @apply my-4 w-full table-fixed border-collapse text-left text-[13px];
+    table-layout: fixed;
 }
 
-.spk-content table:has(thead):not(.spk-party-table) thead,
-.spk-content table.spk-timeline-table thead {
+.spk-content table.spk-timeline-table th,
+.spk-content table.spk-timeline-table td,
+.spk-content table:has(thead) th,
+.spk-content table:has(thead) td {
+    border: 1px solid #d4d4d4;
+    @apply px-3 py-2 align-top;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.spk-content table.spk-timeline-table thead,
+.spk-content table:has(thead) thead {
     @apply text-[10px] uppercase tracking-[0.2em];
     color: var(--tone-deep);
     background: color-mix(in srgb, var(--tone-soft) 55%, #ffffff);
 }
 
-.spk-content table:has(thead):not(.spk-party-table) th:nth-child(1),
-.spk-content table:has(thead):not(.spk-party-table) td:nth-child(1),
 .spk-content table.spk-timeline-table th:nth-child(1),
-.spk-content table.spk-timeline-table td:nth-child(1) {
-    width: 54%;
+.spk-content table.spk-timeline-table td:nth-child(1),
+.spk-content table:has(thead) th:nth-child(1),
+.spk-content table:has(thead) td:nth-child(1) {
+    width: 65%;
 }
 
-.spk-content table:has(thead):not(.spk-party-table) th:nth-child(2),
-.spk-content table:has(thead):not(.spk-party-table) td:nth-child(2),
 .spk-content table.spk-timeline-table th:nth-child(2),
-.spk-content table.spk-timeline-table td:nth-child(2) {
-    width: 28%;
+.spk-content table.spk-timeline-table td:nth-child(2),
+.spk-content table:has(thead) th:nth-child(2),
+.spk-content table:has(thead) td:nth-child(2) {
+    width: 20%;
 }
 
-.spk-content table:has(thead):not(.spk-party-table) th:nth-child(3),
-.spk-content table:has(thead):not(.spk-party-table) td:nth-child(3),
 .spk-content table.spk-timeline-table th:nth-child(3),
-.spk-content table.spk-timeline-table td:nth-child(3) {
-    width: 18%;
+.spk-content table.spk-timeline-table td:nth-child(3),
+.spk-content table:has(thead) th:nth-child(3),
+.spk-content table:has(thead) td:nth-child(3) {
+    width: 15%;
     @apply text-right;
 }
 
-.spk-content table:has(thead):not(.spk-party-table) tbody tr:nth-child(even),
-.spk-content table.spk-timeline-table tbody tr:nth-child(even) {
+.spk-content table.spk-timeline-table tbody tr:nth-child(even),
+.spk-content table:has(thead) tbody tr:nth-child(even) {
     @apply bg-sky-50/40;
 }
 
 .spk-content .spk-party-table,
-.spk-content table.spk-party-table,
-.spk-content table:not(:has(thead)) {
+.spk-content table.spk-party-table {
     @apply my-4 w-full border-collapse text-left;
     table-layout: fixed;
 }
 
 .spk-content .spk-party-table td,
-.spk-content table.spk-party-table td,
-.spk-content table:not(:has(thead)) td {
-    @apply border-0 px-0 py-1 align-top;
+.spk-content table.spk-party-table td {
+    border: 0;
+    @apply px-0 py-1 align-top;
 }
 
 .spk-content .spk-party-table td:first-child,
-.spk-content table.spk-party-table td:first-child,
-.spk-content table:not(:has(thead)) td:first-child {
+.spk-content table.spk-party-table td:first-child {
     @apply w-[5.75rem] pr-3 whitespace-nowrap;
 }
 
 .spk-content .spk-party-table td:nth-child(2),
 .spk-content table.spk-party-table td:nth-child(2) {
-    @apply w-3 px-0;
-}
-
-.spk-content table:not(:has(thead)) td:nth-child(2):not(:last-child) {
     @apply w-3 px-0;
 }
 
@@ -967,6 +964,13 @@ h3.offer_name {
 
     .document-view table thead {
         display: table-header-group;
+    }
+
+    .document-view .spk-content table.spk-timeline-table th,
+    .document-view .spk-content table.spk-timeline-table td,
+    .document-view .spk-content table:has(thead) th,
+    .document-view .spk-content table:has(thead) td {
+        border: 1px solid #d4d4d4;
     }
 
     .document-view table tr,

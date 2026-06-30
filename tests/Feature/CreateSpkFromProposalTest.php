@@ -107,7 +107,6 @@ class CreateSpkFromProposalTest extends TestCase
         $this->assertStringStartsWith('SPK/002/VI/26/NEW', $secondSpk->document_number);
         $this->assertStringContainsString($proposal->document_number, $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('JASA PEMBUATAN WEBSITE', $spk->getTranslation('subject', 'id'));
-        $this->assertSame('', trim(strip_tags($spk->getTranslation('title', 'id'))));
         $this->assertStringContainsString('Pembayaran DP', $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('Total Hari Kerja', $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('6 hari', $spk->getTranslation('content', 'id'));
@@ -215,10 +214,6 @@ class CreateSpkFromProposalTest extends TestCase
             'company_pic_name' => 'Company PIC Alpha',
             'company_pic_role' => 'Director',
             'company_address' => $company->address,
-            'title' => [
-                'en' => '<p><strong>SPK Title</strong></p>',
-                'id' => '<p><strong>Judul SPK</strong></p>',
-            ],
             'subject' => [
                 'en' => 'Website',
                 'id' => 'Website',

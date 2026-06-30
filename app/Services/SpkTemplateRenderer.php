@@ -100,7 +100,7 @@ class SpkTemplateRenderer
         $proposal ??= $spk->relationLoaded('proposal') ? $spk->proposal : $spk->proposal()->first();
         $primaryOfferIndex = self::normalizeOfferIndex($primaryOfferIndex);
 
-        foreach (['title', 'subject', 'content'] as $field) {
+        foreach (['subject', 'content'] as $field) {
             $translations = $spk->getTranslations($field) ?: self::defaultTranslations($field);
             $resolved = [];
 
@@ -142,7 +142,7 @@ class SpkTemplateRenderer
             ->implode('');
 
         return sprintf(
-            '<table class="spk-timeline-table"><thead><tr><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>%s<tr><td><strong>%s</strong></td><td></td><td><strong>%s</strong></td></tr></tbody></table>',
+            '<table class="spk-timeline-table"><colgroup><col style="width:65%%"><col style="width:20%%"><col style="width:15%%"></colgroup><thead><tr><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>%s<tr><td><strong>%s</strong></td><td></td><td><strong>%s</strong></td></tr></tbody></table>',
             e($labels['activity']),
             e($labels['pic']),
             e($labels['days']),

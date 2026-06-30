@@ -221,14 +221,8 @@ class SpkForm
                             ->icon('heroicon-o-pencil-square')
                             ->schema([
                                 Translate::make()
-                                    ->exclude(self::translatedFieldPaths(['title', 'subject', 'content']))
+                                    ->exclude(self::translatedFieldPaths(['subject', 'content']))
                                     ->schema(fn (string $locale): array => [
-                                        RichEditor::make("title.{$locale}")
-                                            ->label('Title')
-                                            ->helperText('The cover title is rendered automatically from the Parties tab and Subject field.')
-                                            ->default('')
-                                            ->extraAttributes(['style' => 'min-height: 120px'])
-                                            ->columnSpanFull(),
                                         TextInput::make("subject.{$locale}")
                                             ->label('Subject')
                                             ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('subject', $locale))
