@@ -115,6 +115,43 @@
             ->map(fn (string $line): string => e($line))
             ->implode('<br>');
     };
+    $linkableDescription = function (mixed $value): string {
+        if (! is_string($value) || trim($value) === '') {
+            return '';
+        }
+
+        $description = trim($value);
+        $pattern = '#<a\s+[^>]*href\s*=\s*(["\'])(.*?)\1[^>]*>(.*?)</a>#is';
+        $html = '';
+        $offset = 0;
+
+        preg_match_all($pattern, $description, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+
+        foreach ($matches as $match) {
+            [$fullMatch, $position] = $match[0];
+            $html .= nl2br(e(substr($description, $offset, $position - $offset)), false);
+
+            $href = html_entity_decode($match[2][0], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $label = trim(strip_tags(html_entity_decode($match[3][0], ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+            $isAllowedHref = preg_match('#^(https?://|mailto:|tel:|/)#i', $href) === 1;
+
+            if ($isAllowedHref) {
+                $html .= sprintf(
+                    '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+                    e($href),
+                    e($label !== '' ? $label : $href),
+                );
+            } else {
+                $html .= nl2br(e($fullMatch), false);
+            }
+
+            $offset = $position + strlen($fullMatch);
+        }
+
+        $html .= nl2br(e(substr($description, $offset)), false);
+
+        return $html;
+    };
     $present = function (mixed $value): bool {
         if (is_array($value)) {
             return count($value) > 0;
@@ -296,7 +333,7 @@
                                     <div class="invoice-item-stack">
                                         <span class="invoice-item-title">{{ $item['title'] ?? '-' }}</span>
                                         @if(filled($item['description'] ?? null))
-                                            <span class="invoice-item-description">{{ $item['description'] }}</span>
+                                            <span class="invoice-item-description">{!! $linkableDescription($item['description']) !!}</span>
                                         @endif
                                     </div>
                                 </td>

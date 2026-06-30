@@ -695,6 +695,10 @@ h3.offer_name {
     @apply text-neutral-600;
 }
 
+.invoice-item-description a {
+    @apply text-neutral-900 underline underline-offset-2;
+}
+
 .invoice-empty-state {
     @apply text-neutral-500;
 }

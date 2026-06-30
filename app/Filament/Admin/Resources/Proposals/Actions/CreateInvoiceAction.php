@@ -54,7 +54,7 @@ class CreateInvoiceAction
             'company_id' => $proposal->company_id,
             'user_id' => auth()->id() ?? $proposal->user_id,
             'currency' => $proposal->currency,
-            'activate_translation' => $proposal->activate_translation,
+            'activate_translation' => (bool) $proposal->activate_translation,
             'tax_rate' => $proposal->tax_rate,
             'tax_amount' => $taxAmount,
             'subtotal' => $subtotal,
@@ -64,7 +64,11 @@ class CreateInvoiceAction
             'access_password' => $proposal->access_password,
             'issue_date' => now()->toDateString(),
             'due_date' => now()->addDays(30)->toDateString(),
-            'items' => self::makeTranslatedItemsPayload($title, $price),
+            'items' => self::makeTranslatedItemsPayload(
+                $title,
+                $price,
+                self::makeProposalItemDescription($proposal),
+            ),
             'status' => DocumentStatus::PUBLISHED,
             'payment_status' => PaymentStatus::UNPAID,
             'proposal_id' => $proposal->id,
@@ -88,15 +92,32 @@ class CreateInvoiceAction
         return sprintf('%s (%s)', $baseTitle, $proposal->document_number);
     }
 
+    private static function makeProposalItemDescription(Proposal $proposal): string
+    {
+        if (blank($proposal->slug)) {
+            return '';
+        }
+
+        $label = filled($proposal->document_number)
+            ? "View proposal {$proposal->document_number}"
+            : 'View proposal';
+
+        return sprintf(
+            '<a href="%s">%s</a>',
+            e(route('proposal.show', ['slug' => $proposal->slug])),
+            e($label),
+        );
+    }
+
     /**
      * @return array<string, array<int, array<string, mixed>>>
      */
-    private static function makeTranslatedItemsPayload(string $title, float $price): array
+    private static function makeTranslatedItemsPayload(string $title, float $price, string $description = ''): array
     {
         $item = [
             'title' => $title,
             'price' => $price,
-            'description' => '',
+            'description' => $description,
         ];
 
         $payload = [];
