@@ -99,9 +99,9 @@ class SpkViewController extends Controller
     private function resolveLocale(Request $request): string
     {
         $supported = config('app.supported_locales', ['en', 'id']);
-        $locale = (string) $request->query('lang', config('app.locale', 'en'));
+        $locale = (string) $request->query('lang', 'id');
 
-        return in_array($locale, $supported, true) ? $locale : config('app.locale', 'en');
+        return in_array($locale, $supported, true) ? $locale : 'id';
     }
 
     /**

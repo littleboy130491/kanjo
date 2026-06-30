@@ -20,6 +20,13 @@ class CreateSpkAction
             ->label('Create SPK')
             ->icon('heroicon-o-clipboard-document-list')
             ->schema(fn (Proposal $record): array => [
+                Select::make('offer_index')
+                    ->label('Selected Offer')
+                    ->options(fn (Proposal $record): array => self::offerOptions($record))
+                    ->default(1)
+                    ->required()
+                    ->native(false)
+                    ->visible(fn (Proposal $record): bool => self::hasSecondOffer($record)),
                 Select::make('company_pic_index')
                     ->label('Company PIC')
                     ->options(self::companyPicOptions($record))
@@ -80,10 +87,30 @@ class CreateSpkAction
             'notes' => [],
         ]);
 
-        SpkTemplateRenderer::renderDefaultsForRecord($spk, $proposal);
+        $offerIndex = (int) ($data['offer_index'] ?? 1);
+
+        SpkTemplateRenderer::renderDefaultsForRecord($spk, $proposal, $offerIndex);
         $spk->saveQuietly();
 
         return $spk;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function offerOptions(Proposal $proposal): array
+    {
+        return [
+            1 => (string) ($proposal->offer_name_1 ?: 'Offer 1'),
+            2 => (string) ($proposal->offer_name_2 ?: 'Offer 2'),
+        ];
+    }
+
+    private static function hasSecondOffer(Proposal $proposal): bool
+    {
+        return filled($proposal->offer_name_2)
+            || filled($proposal->offer_2_price)
+            || filled($proposal->offer_2_renewal_price);
     }
 
     /**

@@ -98,14 +98,10 @@ class CreateInvoiceAction
             return '';
         }
 
-        $label = filled($proposal->document_number)
-            ? "View proposal {$proposal->document_number}"
-            : 'View proposal';
-
         return sprintf(
             '<a href="%s">%s</a>',
             e(route('proposal.show', ['slug' => $proposal->slug])),
-            e($label),
+            e('View proposal'),
         );
     }
 

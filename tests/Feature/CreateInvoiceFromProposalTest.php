@@ -61,9 +61,8 @@ class CreateInvoiceFromProposalTest extends TestCase
 
         $invoice = $this->invokeCreateInvoiceFromProposal($proposal);
         $proposalLink = sprintf(
-            '<a href="%s">View proposal %s</a>',
+            '<a href="%s">View proposal</a>',
             route('proposal.show', ['slug' => $proposal->slug]),
-            $proposal->document_number,
         );
 
         $this->assertInstanceOf(Invoice::class, $invoice);
@@ -141,9 +140,8 @@ class CreateInvoiceFromProposalTest extends TestCase
             ->assertOk()
             ->assertSee(
                 sprintf(
-                    '<a href="%s" target="_blank" rel="noopener noreferrer">View proposal %s</a>',
+                    '<a href="%s" target="_blank" rel="noopener noreferrer">View proposal</a>',
                     $proposalUrl,
-                    $proposal->document_number,
                 ),
                 false,
             );

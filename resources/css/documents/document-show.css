@@ -704,23 +704,35 @@ h3.offer_name {
 }
 
 .spk-document {
-    @apply px-0 py-12 md:py-20;
+    @apply px-0;
 }
 
 .spk-cover {
-    @apply pt-0 text-center;
+    @apply pb-4 pt-2 text-center md:pb-6;
+}
+
+.spk-heading {
+    @apply mx-auto max-w-3xl text-center;
 }
 
 .spk-title {
-    @apply mx-auto max-w-3xl text-center text-base font-semibold uppercase text-neutral-900;
+    @apply text-base font-semibold uppercase text-neutral-900;
 }
 
 .spk-title p {
     @apply mb-1;
 }
 
+.spk-title p:last-child {
+    @apply mb-0;
+}
+
 .spk-number {
-    @apply mt-8 text-sm font-semibold text-neutral-800;
+    @apply mt-2 text-base font-semibold uppercase text-neutral-900;
+}
+
+.spk-number strong {
+    @apply font-semibold;
 }
 
 .spk-meta-grid {
@@ -737,7 +749,7 @@ h3.offer_name {
 }
 
 .spk-content-section {
-    @apply pt-4;
+    @apply pt-0;
 }
 
 .spk-content {

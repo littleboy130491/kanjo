@@ -40,13 +40,18 @@ class SpkTemplateRenderer
     /**
      * @return array<string, string>
      */
-    public static function placeholderValues(Spk $spk, ?Proposal $proposal = null): array
-    {
+    public static function placeholderValues(
+        Spk $spk,
+        ?Proposal $proposal = null,
+        int $primaryOfferIndex = 1,
+        string $locale = 'id',
+    ): array {
         $proposal ??= $spk->proposal;
+        $primaryOfferIndex = self::normalizeOfferIndex($primaryOfferIndex);
 
         return [
             'spk_number' => (string) $spk->document_number,
-            'spk_date' => (string) ($spk->spk_date?->translatedFormat('d F Y') ?? ''),
+            'spk_date' => self::formatDocumentDate($spk->spk_date, $locale),
             'client_company' => (string) $spk->client_company,
             'client_pic_name' => (string) $spk->client_pic_name,
             'client_pic_role' => (string) $spk->client_pic_role,
@@ -56,10 +61,18 @@ class SpkTemplateRenderer
             'company_pic_role' => (string) $spk->company_pic_role,
             'company_address' => (string) $spk->company_address,
             'proposal_number' => (string) ($proposal?->document_number ?? ''),
-            'proposal_date' => (string) ($proposal?->issue_date?->translatedFormat('d F Y') ?? ''),
-            'offer_name' => (string) ($proposal?->offer_name_1 ?? ''),
-            'offer_price' => $proposal ? self::formatMoney($proposal->offer_1_price, $proposal->currency) : '',
-            'subject' => (string) ($spk->getTranslation('subject', app()->getLocale(), false) ?: $spk->subject ?: ''),
+            'proposal_date' => self::formatDocumentDate($proposal?->issue_date, $locale),
+            'offer_name' => self::offerName($proposal, $primaryOfferIndex),
+            'offer_price' => self::offerPrice($proposal, $primaryOfferIndex),
+            'offer_name_1' => self::offerName($proposal, 1),
+            'offer_price_1' => self::offerPrice($proposal, 1),
+            'offer_name_2' => self::offerName($proposal, 2),
+            'offer_price_2' => self::offerPrice($proposal, 2),
+            'subject' => trim((string) (
+                $spk->getTranslation('subject', $locale, false)
+                ?: self::defaultForLocale('subject', $locale)
+                ?: ''
+            )),
         ];
     }
 
@@ -82,47 +95,118 @@ class SpkTemplateRenderer
         return $translations;
     }
 
-    public static function renderDefaultsForRecord(Spk $spk, ?Proposal $proposal = null): void
+    public static function renderDefaultsForRecord(Spk $spk, ?Proposal $proposal = null, int $primaryOfferIndex = 1): void
     {
-        $subjectTranslations = $spk->getTranslations('subject') ?: self::defaultTranslations('subject');
-        $values = self::placeholderValues($spk, $proposal);
-        $values['subject'] = self::firstFilledTranslation($subjectTranslations);
+        $proposal ??= $spk->relationLoaded('proposal') ? $spk->proposal : $spk->proposal()->first();
+        $primaryOfferIndex = self::normalizeOfferIndex($primaryOfferIndex);
 
         foreach (['title', 'subject', 'content'] as $field) {
             $translations = $spk->getTranslations($field) ?: self::defaultTranslations($field);
+            $resolved = [];
 
-            $spk->setTranslations($field, self::replacePlaceholders($translations, $values));
+            foreach (config('translatable.locales', ['id', 'en']) as $locale) {
+                $content = (string) ($translations[$locale] ?? self::defaultForLocale($field, $locale));
+                $localeValues = array_merge(
+                    self::placeholderValues($spk, $proposal, $primaryOfferIndex, $locale),
+                    [
+                        'offer_timeline' => self::formatTimelineTable($proposal, $locale, $primaryOfferIndex),
+                        'offer_timeline_1' => self::formatTimelineTable($proposal, $locale, 1),
+                        'offer_timeline_2' => self::formatTimelineTable($proposal, $locale, 2),
+                    ],
+                );
+
+                $resolved[$locale] = self::replacePlaceholders([$locale => $content], $localeValues)[$locale];
+            }
+
+            $spk->setTranslations($field, $resolved);
         }
     }
 
-    /**
-     * @param  array<string, string>  $translations
-     */
-    private static function firstFilledTranslation(array $translations): string
+    public static function formatTimelineTable(?Proposal $proposal, string $locale, int $offerIndex = 1): string
     {
-        $locales = array_unique(array_filter([
-            app()->getLocale(),
-            config('app.fallback_locale', 'en'),
-            ...config('translatable.locales', ['en', 'id']),
-        ]));
+        $rows = self::timelineRowsForLocale($proposal, $locale, $offerIndex);
 
-        foreach ($locales as $locale) {
-            $value = trim((string) ($translations[$locale] ?? ''));
-
-            if ($value !== '') {
-                return $value;
-            }
+        if ($rows === []) {
+            return '';
         }
 
-        foreach ($translations as $value) {
-            $value = trim((string) $value);
+        $labels = self::timelineLabels($locale);
+        $totalDays = self::timelineTotalDays($rows);
+        $bodyRows = collect($rows)
+            ->map(fn (array $row): string => sprintf(
+                '<tr><td>%s</td><td>%s</td><td>%s</td></tr>',
+                e((string) ($row['activity_name'] ?? '-')),
+                e((string) ($row['activity_pic'] ?? '-')),
+                e(self::formatTimelineDays($row['activity_days'] ?? null, $locale)),
+            ))
+            ->implode('');
 
-            if ($value !== '') {
-                return $value;
-            }
+        return sprintf(
+            '<table><thead><tr><th>%s</th><th>%s</th><th>%s</th></tr></thead><tbody>%s<tr><td><strong>%s</strong></td><td></td><td><strong>%s</strong></td></tr></tbody></table>',
+            e($labels['activity']),
+            e($labels['pic']),
+            e($labels['days']),
+            $bodyRows,
+            e($labels['total']),
+            e(self::formatTimelineDays($totalDays, $locale)),
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function timelineRowsForLocale(?Proposal $proposal, string $locale, int $offerIndex = 1): array
+    {
+        if (! $proposal instanceof Proposal) {
+            return [];
         }
 
-        return '';
+        $timelineField = self::timelineFieldForOffer($offerIndex);
+        $timeline = $proposal->getTranslation($timelineField, $locale, false);
+
+        if (! is_array($timeline)) {
+            return [];
+        }
+
+        return collect($timeline)
+            ->filter(function (mixed $row): bool {
+                if (! is_array($row)) {
+                    return filled($row);
+                }
+
+                foreach ($row as $item) {
+                    if (filled(is_string($item) ? trim($item) : $item)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $rows
+     */
+    public static function timelineTotalDays(array $rows): int
+    {
+        return (int) collect($rows)->sum(function (array $row): int {
+            $days = $row['activity_days'] ?? 0;
+
+            return is_numeric($days) ? (int) $days : 0;
+        });
+    }
+
+    private static function formatDocumentDate(mixed $date, string $locale): string
+    {
+        if (! $date instanceof \Carbon\CarbonInterface) {
+            return '';
+        }
+
+        $carbonLocale = $locale === 'id' ? 'id' : 'en';
+
+        return (string) $date->copy()->locale($carbonLocale)->translatedFormat('d F Y');
     }
 
     private static function formatMoney(mixed $value, ?string $currency): string
@@ -134,5 +218,70 @@ class SpkTemplateRenderer
         }
 
         return Number::currency((float) ($value ?? 0), $currency);
+    }
+
+    private static function normalizeOfferIndex(int $offerIndex): int
+    {
+        return $offerIndex === 2 ? 2 : 1;
+    }
+
+    private static function offerName(?Proposal $proposal, int $offerIndex): string
+    {
+        if (! $proposal instanceof Proposal) {
+            return '';
+        }
+
+        return (string) ($offerIndex === 2 ? $proposal->offer_name_2 : $proposal->offer_name_1);
+    }
+
+    private static function offerPrice(?Proposal $proposal, int $offerIndex): string
+    {
+        if (! $proposal instanceof Proposal) {
+            return '';
+        }
+
+        $price = $offerIndex === 2 ? $proposal->offer_2_price : $proposal->offer_1_price;
+
+        return self::formatMoney($price, $proposal->currency);
+    }
+
+    private static function timelineFieldForOffer(int $offerIndex): string
+    {
+        return $offerIndex === 2 ? 'offer_2_project_timeline' : 'offer_1_project_timeline';
+    }
+
+    /**
+     * @return array{activity: string, pic: string, days: string, total: string}
+     */
+    private static function timelineLabels(string $locale): array
+    {
+        return match ($locale) {
+            'id' => [
+                'activity' => 'Kegiatan',
+                'pic' => 'PIC',
+                'days' => 'Jumlah Hari',
+                'total' => 'Total Hari Kerja',
+            ],
+            default => [
+                'activity' => 'Activity',
+                'pic' => 'PIC',
+                'days' => 'Day(s)',
+                'total' => 'Total Days',
+            ],
+        };
+    }
+
+    private static function formatTimelineDays(mixed $days, string $locale): string
+    {
+        if (! filled($days) && $days !== 0 && $days !== '0') {
+            return '-';
+        }
+
+        $days = is_numeric($days) ? (string) (int) $days : trim((string) $days);
+
+        return match ($locale) {
+            'id' => "{$days} hari",
+            default => "{$days} day(s)",
+        };
     }
 }

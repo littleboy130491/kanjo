@@ -9,14 +9,12 @@ class SpkContentDefaultSeeder extends Seeder
 {
     public function run(): void
     {
-        $value = self::defaultValue();
-
         SpkContentDefault::updateOrCreate([
             'field_key' => SpkContentDefault::GLOBAL_FIELD_KEY,
         ], [
             'value' => [
-                'en' => $value,
-                'id' => $value,
+                'id' => self::defaultValue('id'),
+                'en' => self::defaultValue('en'),
             ],
         ]);
     }
@@ -24,7 +22,18 @@ class SpkContentDefaultSeeder extends Seeder
     /**
      * @return array<string, string>
      */
-    private static function defaultValue(): array
+    private static function defaultValue(string $locale): array
+    {
+        return match ($locale) {
+            'en' => self::englishDefaultValue(),
+            default => self::indonesianDefaultValue(),
+        };
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function indonesianDefaultValue(): array
     {
         return [
             'title' => <<<'HTML'
@@ -32,7 +41,6 @@ class SpkContentDefaultSeeder extends Seeder
 HTML,
             'subject' => 'JASA PEMBUATAN WEBSITE',
             'content' => <<<'HTML'
-<p style="text-align: center;"><strong>Nomor SPK {{ spk_number }}</strong></p>
 <p>Perjanjian Kerjasama {{ subject }}, dibuat dan ditandatangani pada tanggal {{ spk_date }} oleh dan antara:</p>
 <table>
     <tbody>
@@ -54,76 +62,157 @@ HTML,
 <p>Selanjutnya dalam Perjanjian ini disebut <strong>PIHAK KEDUA</strong>.</p>
 <p>PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama disebut sebagai PARA PIHAK dan secara terpisah disebut PIHAK.</p>
 <p>Dengan ini menerangkan bahwa PIHAK PERTAMA dan PIHAK KEDUA telah mengadakan Perjanjian sebagaimana diatur dalam pasal-pasal sebagai berikut:</p>
-<h2>PASAL I<br>RUANG LINGKUP KERJASAMA</h2>
+<h2>PASAL I<br>RUANG LINGKUP DAN DOKUMEN ACUAN</h2>
 <ol>
-    <li>PIHAK PERTAMA memberikan pekerjaan berupa Pembuatan Website kepada PIHAK KEDUA sesuai dengan ketentuan yang disepakati dalam Perjanjian ini.</li>
-    <li>PIHAK KEDUA menyetujui dan bersedia melaksanakan pekerjaan yang telah diberikan oleh PIHAK PERTAMA dengan sebaik-baiknya dan penuh tanggung jawab sesuai dengan Perjanjian ini, yang mengacu kepada penawaran resmi yang diberikan.</li>
-    <li>PIHAK KEDUA akan memberikan Major Revision kepada PIHAK PERTAMA sebanyak 4 (empat) kali sesuai dengan timeline pengerjaan proyek. Revisi major yang diminta di luar timeline ataupun di luar kesepakatan akan dikenakan biaya tambahan.</li>
-    <li>Major Revision meliputi perubahan struktur, alur, tata letak, fungsi, dan konsep desain visual.</li>
-    <li>PIHAK PERTAMA mendapatkan garansi gratis Minor Revision sampai dengan 14 (empat belas) hari setelah pekerjaan selesai. Revisi minor meliputi perubahan teks, gambar, warna, spacing, atau elemen visual lainnya dalam skala kecil.</li>
-    <li>PIHAK KEDUA akan memberikan Application (web) support selama 12 bulan, terhitung sejak proyek dimulai.</li>
-    <li>PIHAK KEDUA akan memberikan Help Desk support melalui WhatsApp group selama 12 bulan, terhitung sejak proyek dimulai.</li>
-    <li>PIHAK KEDUA akan memberikan Update support sebanyak 5 kali request per bulan, tidak terakumulasi, selama 12 bulan.</li>
-    <li>PIHAK KEDUA akan memberikan Technical Support sebanyak 4 jam dalam 12 bulan.</li>
+    <li>PIHAK PERTAMA memberikan pekerjaan berupa {{ subject }} kepada PIHAK KEDUA untuk paket <strong>{{ offer_name }}</strong>.</li>
+    <li>PIHAK KEDUA menyetujui dan bersedia melaksanakan pekerjaan tersebut dengan sebaik-baiknya dan penuh tanggung jawab.</li>
+    <li>Seluruh spesifikasi pekerjaan, termasuk namun tidak terbatas pada core services, fitur, aset, server, keamanan, support, add-ons/tambahan, serta ketentuan teknis lainnya, didefinisikan pada Surat Penawaran (Proposal) PIHAK KEDUA nomor <strong>{{ proposal_number }}</strong> tertanggal <strong>{{ proposal_date }}</strong>.</li>
+    <li>Proposal sebagaimana dimaksud pada ayat (3) merupakan bagian yang tidak terpisahkan dan mengikat dari Perjanjian ini. Apabila terdapat perbedaan interpretasi terkait ruang lingkup pekerjaan, maka ketentuan pada Proposal yang disepakati PARA PIHAK menjadi acuan utama.</li>
+    <li>Pekerjaan di luar ruang lingkup Proposal, apabila disepakati untuk dikerjakan, dianggap sebagai penambahan (add-ons) dan dapat dikenakan biaya tambahan sesuai ketentuan pada Proposal.</li>
 </ol>
-<p>Perjanjian ini berlaku 1 (satu) tahun terhitung mulai sejak perjanjian ini ditandatangani oleh PARA PIHAK.</p>
 <h2>PASAL II<br>BIAYA DAN PEMBAYARAN</h2>
-<p>Biaya pekerjaan yang telah disepakati PARA PIHAK yaitu dikenakan kepada PIHAK PERTAMA sebesar {{ offer_price }} untuk {{ offer_name }}.</p>
+<p>Biaya pekerjaan yang disepakati PARA PIHAK untuk paket <strong>{{ offer_name }}</strong> adalah sebesar <strong>{{ offer_price }}</strong>.</p>
 <ol>
-    <li>Pembayaran uang muka sebesar 50% dari total biaya tersebut di atas, setelah Perjanjian ini ditandatangani oleh PARA PIHAK, sebagai tanda awal pengerjaan.</li>
-    <li>Pembayaran tahap pelunasan sebesar 50% dari total biaya tersebut dilakukan pada saat memasuki proses finishing.</li>
-    <li>Jika pembayaran tahap pelunasan melebihi 7 (tujuh) hari kerja dari diterimanya invoice pelunasan, maka PIHAK PERTAMA wajib memberikan informasi kepada PIHAK KEDUA mengenai keterlambatannya beserta estimasi waktu yang dibutuhkan.</li>
+    <li>Pembayaran uang muka (DP) sebesar 50% (lima puluh persen) dari total biaya, dilakukan setelah Perjanjian ini ditandatangani PARA PIHAK sebagai tanda awal pengerjaan.</li>
+    <li>Pembayaran pelunasan sebesar 50% (lima puluh persen) sisanya dilakukan sesuai ketentuan pembayaran pada Proposal.</li>
+    <li>Seluruh pembayaran dilakukan ke rekening resmi PIHAK KEDUA sebagaimana tercantum pada bagian Payment Terms Proposal nomor {{ proposal_number }}.</li>
+    <li>Ketentuan perpajakan, termasuk status Non-PKP dan pemotongan PPh 23 (jika berlaku), mengacu pada Proposal.</li>
+    <li>Biaya perpanjangan tahunan (jika ada) bersifat opsional dan mengacu pada daftar harga pada Proposal.</li>
+    <li>Apabila terjadi keterlambatan pembayaran, PIHAK PERTAMA wajib memberitahukan PIHAK KEDUA secara tertulis beserta estimasi waktu pelunasan. PIHAK KEDUA berhak menangguhkan pekerjaan atau mengambil tindakan sesuai ketentuan pada Proposal.</li>
 </ol>
 <h2>PASAL III<br>JADWAL PEKERJAAN</h2>
-<p>Pekerjaan pembuatan Website akan dikerjakan oleh PIHAK KEDUA dalam estimasi waktu 35 (tiga puluh lima) hari kerja berdasarkan timeline dengan pengaturan sebagai berikut:</p>
+<p>Pekerjaan akan dikerjakan oleh PIHAK KEDUA berdasarkan timeline paket <strong>{{ offer_name }}</strong> sebagai berikut:</p>
+{{ offer_timeline }}
+<ol>
+    <li>Pekerjaan dimulai setelah PIHAK PERTAMA melakukan pembayaran uang muka (DP).</li>
+    <li>PARA PIHAK berkomitmen mengikuti jadwal yang disepakati. Apabila terjadi keterlambatan, pihak terkait wajib memberitahukan secara tertulis beserta estimasi penyelesaian.</li>
+    <li>Ketentuan toleransi keterlambatan, penyelesaian proyek, dan konsekuensinya mengacu pada bagian Terms &amp; Conditions Proposal, khususnya ketentuan jadwal pengerjaan.</li>
+</ol>
+<h2>PASAL IV<br>SUPPORT, REVISI, DAN LAYANAN</h2>
+<ol>
+    <li>Ketentuan revisi (major dan minor), jenis dukungan (server, application/web, help desk, update, technical support), SLA, jam kerja, serta masa support mengacu sepenuhnya pada bagian Support dan Terms &amp; Conditions Proposal nomor {{ proposal_number }}.</li>
+    <li>Server support dari PIHAK KEDUA hanya berlaku apabila PIHAK PERTAMA menggunakan server yang disediakan oleh PIHAK KEDUA, sebagaimana dinyatakan pada Proposal.</li>
+    <li>Permintaan di luar cakupan support Proposal dapat dihitung sebagai add-ons/tambahan sesuai daftar harga pada Proposal.</li>
+</ol>
+<h2>PASAL V<br>KEPEMILIKAN</h2>
+<ol>
+    <li>Hak milik website sepenuhnya menjadi milik PIHAK PERTAMA setelah proyek selesai dan seluruh pembayaran telah diselesaikan, sesuai ketentuan pada Proposal.</li>
+    <li>Apabila PIHAK PERTAMA bermaksud mengelola website secara mandiri, PIHAK KEDUA wajib menyerahkan source code dan dokumentasi teknis yang diperlukan agar PIHAK PERTAMA dapat melakukan deploy dan pengelolaan pada infrastruktur milik PIHAK PERTAMA.</li>
+</ol>
+<h2>PASAL VI<br>MATERI, LEGALITAS, DAN PERUBAHAN</h2>
+<ol>
+    <li>PIHAK PERTAMA wajib menyerahkan materi website (teks, gambar, dan materi pendukung lainnya) dalam format digital sesuai kebutuhan pengerjaan.</li>
+    <li>PIHAK PERTAMA bertanggung jawab penuh atas legalitas, keabsahan, dan kebenaran seluruh materi yang diserahkan, serta membebaskan PIHAK KEDUA dari segala tuntutan terkait konten website.</li>
+    <li>PIHAK KEDUA akan memulai/melanjutkan pekerjaan setelah materi minimum yang diperlukan diterima, kecuali disepakati lain oleh PARA PIHAK.</li>
+    <li>Perubahan fitur, struktur, halaman, atau pengembangan di luar spesifikasi Proposal wajib didiskusikan terlebih dahulu dan dapat dikenakan biaya tambahan.</li>
+</ol>
+<h2>PASAL VII<br>GARANSI, PEMBATALAN, DAN PENGAKHIRAN</h2>
+<ol>
+    <li>Ketentuan garansi, refund, dan pembatalan proyek mengacu pada bagian Garansi dan Terms &amp; Conditions Proposal nomor {{ proposal_number }}.</li>
+    <li>Dalam hal PIHAK PERTAMA membatalkan Perjanjian di tengah pengerjaan tanpa alasan sesuai ketentuan Proposal, uang muka yang telah dibayarkan tidak dapat dikembalikan.</li>
+    <li>Dalam hal PIHAK KEDUA membatalkan Perjanjian setelah penerimaan uang muka tanpa alasan sesuai ketentuan Proposal, PIHAK KEDUA wajib mengembalikan uang muka yang telah diterima.</li>
+    <li>Perjanjian dapat diakhiri lebih awal apabila terjadi pelanggaran material, force majeure, atau kondisi lain sebagaimana diatur pada Proposal dan peraturan perundang-undangan yang berlaku.</li>
+    <li>PARA PIHAK sepakat mengesampingkan ketentuan Pasal 1266 Kitab Undang-undang Hukum Perdata sepanjang mensyaratkan putusan pengadilan untuk pengakhiran Perjanjian.</li>
+</ol>
+<h2>PASAL VIII<br>HAL-HAL LAIN</h2>
+<p>Hal-hal yang belum diatur dalam Perjanjian ini akan diselesaikan secara musyawarah oleh PARA PIHAK. Apabila diperlukan, hasil kesepakatan dapat dituangkan dalam addendum tertulis yang menjadi bagian tidak terpisahkan dari Perjanjian ini.</p>
+<h2>PASAL IX<br>PENUTUP</h2>
+<p>PARA PIHAK dengan ini menyetujui seluruh ketentuan dalam Perjanjian ini dan peraturan perundangan yang berlaku.</p>
+<p>Perjanjian ini dapat ditandatangani secara elektronik. Tanda tangan digital atau elektronik memiliki kekuatan hukum yang sama dengan tanda tangan basah.</p>
+<p>Demikian Perjanjian ini dibuat dan ditandatangani oleh PARA PIHAK pada tanggal sebagaimana tercantum di awal Perjanjian.</p>
+HTML,
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function englishDefaultValue(): array
+    {
+        return [
+            'title' => <<<'HTML'
+<p style="text-align: center;"><strong>COOPERATION AGREEMENT</strong><br><strong>BETWEEN</strong><br><strong>{{ client_company }}</strong><br><strong>AND</strong><br><strong>{{ company_name }}</strong><br><strong>REGARDING</strong><br><strong>{{ subject }}</strong></p>
+HTML,
+            'subject' => 'WEBSITE DEVELOPMENT SERVICES',
+            'content' => <<<'HTML'
+<p>This Cooperation Agreement for {{ subject }} is made and signed on {{ spk_date }} by and between:</p>
 <table>
-    <thead><tr><th>Kegiatan</th><th>PIC</th><th>Jumlah Hari</th></tr></thead>
     <tbody>
-        <tr><td>Pembayaran DP</td><td>Klien</td><td>1 hari</td></tr>
-        <tr><td>Inisiasi Project</td><td>Imajiner</td><td>1 hari</td></tr>
-        <tr><td>Pengumpulan Materi</td><td>Klien</td><td>2 hari</td></tr>
-        <tr><td>Pembuatan Kerangka</td><td>Imajiner</td><td>5 hari</td></tr>
-        <tr><td>Review Kerangka</td><td>Klien</td><td>2 hari</td></tr>
-        <tr><td>Proses Desain</td><td>Imajiner</td><td>5 hari</td></tr>
-        <tr><td>Review Desain</td><td>Klien</td><td>2 hari</td></tr>
-        <tr><td>Update Revisi Desain</td><td>Imajiner</td><td>3 hari</td></tr>
-        <tr><td>Review Revisi Desain</td><td>Klien</td><td>2 hari</td></tr>
-        <tr><td>Proses Development</td><td>Imajiner</td><td>5 hari</td></tr>
-        <tr><td>Proses Revisi</td><td>All</td><td>4 hari</td></tr>
-        <tr><td>BAST dan Finishing</td><td>Imajiner</td><td>2 hari</td></tr>
-        <tr><td>Pemberian Akses dan User Guide</td><td>Imajiner</td><td>1 hari</td></tr>
-        <tr><td><strong>Total Hari Kerja</strong></td><td></td><td><strong>35 hari</strong></td></tr>
+        <tr><td>Name</td><td>: {{ client_pic_name }}</td></tr>
+        <tr><td>Position</td><td>: {{ client_pic_role }}</td></tr>
+        <tr><td>Company</td><td>: {{ client_company }}</td></tr>
+        <tr><td>Address</td><td>: {{ client_address }}</td></tr>
     </tbody>
 </table>
-<p>Pekerjaan mulai dilakukan oleh PIHAK KEDUA setelah PIHAK PERTAMA melakukan pembayaran uang muka (DP).</p>
-<p>PARA PIHAK akan bekerja sama agar pengerjaan website sesuai dengan timeline. Apabila ada keterlambatan yang diakibatkan oleh salah satu pihak, maka pihak tersebut wajib menginfokan secara tertulis alasan keterlambatan beserta estimasi waktu pengerjaan yang disepakati PARA PIHAK.</p>
-<h2>PASAL IV<br>PELAYANAN &amp; SCOPE PEKERJAAN</h2>
-<p>PIHAK PERTAMA akan mendapatkan layanan pembuatan website dengan jumlah halaman utama sesuai kesepakatan PARA PIHAK.</p>
-<p>PIHAK PERTAMA akan mendapatkan pelayanan dari PIHAK KEDUA sesuai dengan spesifikasi detail yang tertulis pada surat penawaran dari PIHAK KEDUA nomor {{ proposal_number }} tertanggal {{ proposal_date }}.</p>
-<p>Apabila terdapat penambahan halaman, perubahan struktur halaman, atau pengembangan fitur di luar spesifikasi yang telah disepakati, maka perubahan tersebut akan didiskusikan terlebih dahulu oleh PARA PIHAK dan memungkinkan adanya biaya tambahan tergantung dengan kompleksitas pekerjaan.</p>
-<h2>PASAL V<br>KEPEMILIKAN</h2>
-<p>Apabila PIHAK PERTAMA bermaksud untuk mengelola website secara mandiri di masa mendatang, PIHAK KEDUA selaku penyedia jasa berkewajiban untuk menyerahkan seluruh source code beserta dokumentasi teknis yang diperlukan, sehingga PIHAK PERTAMA dapat melakukan deploy dan pengelolaan pada hosting internal milik PIHAK PERTAMA.</p>
-<h2>PASAL VI<br>PERSYARATAN DAN KONDISI</h2>
+<p>Hereinafter referred to as <strong>FIRST PARTY</strong>.</p>
+<table>
+    <tbody>
+        <tr><td>Name</td><td>: {{ company_pic_name }}</td></tr>
+        <tr><td>Position</td><td>: {{ company_pic_role }}</td></tr>
+        <tr><td>Company</td><td>: {{ company_name }}</td></tr>
+        <tr><td>Address</td><td>: {{ company_address }}</td></tr>
+    </tbody>
+</table>
+<p>Hereinafter referred to as <strong>SECOND PARTY</strong>.</p>
+<p>FIRST PARTY and SECOND PARTY are collectively referred to as the PARTIES and individually as a PARTY.</p>
+<p>The PARTIES hereby enter into this Agreement under the following articles:</p>
+<h2>ARTICLE I<br>SCOPE OF WORK AND REFERENCE DOCUMENT</h2>
 <ol>
-    <li>PIHAK PERTAMA menyerahkan gambar yang ingin dipakai kepada PIHAK KEDUA dalam format digital yang disediakan oleh PIHAK PERTAMA sendiri, atau PIHAK KEDUA dapat melakukan pencarian gambar berbayar sesuai kebutuhan pengerjaan.</li>
-    <li>PIHAK PERTAMA memberikan materi teks dalam bentuk soft copy.</li>
-    <li>PIHAK KEDUA akan mengerjakan pembuatan website setelah PIHAK PERTAMA menyerahkan materi yang diperlukan.</li>
-    <li>PIHAK PERTAMA menyetujui setiap materi yang diserahkan kepada PIHAK KEDUA adalah untuk tujuan publikasi dan tidak mengandung hal-hal yang mengacu pada pornografi, pelanggaran nilai kesusilaan, kebebasan pribadi, virus komputer, penggunaan yang melecehkan atau membahayakan, dan aktivitas ilegal.</li>
-    <li>PIHAK KEDUA tidak bertanggung jawab atas keabsahan materi yang diberikan dan akibat yang ditimbulkan dari pemasangan materi tersebut di website.</li>
-    <li>PIHAK KEDUA akan mengerjakan proyek sesuai dengan spesifikasi yang sudah disetujui. Jika ada fitur atau pengerjaan di luar scope yang sudah disetujui, PIHAK KEDUA dapat memberikan solusi alternatif sebagai servis tambahan atau menolak request PIHAK PERTAMA.</li>
+    <li>FIRST PARTY assigns {{ subject }} to SECOND PARTY for the <strong>{{ offer_name }}</strong> package.</li>
+    <li>SECOND PARTY agrees to perform the work diligently and responsibly.</li>
+    <li>All work specifications, including but not limited to core services, features, assets, server, security, support, add-ons, and other technical terms, are defined in Proposal no. <strong>{{ proposal_number }}</strong> dated <strong>{{ proposal_date }}</strong>.</li>
+    <li>The Proposal referred to in paragraph (3) is an integral and binding part of this Agreement. If there is any difference in interpretation regarding scope, the agreed Proposal prevails.</li>
+    <li>Work outside the Proposal scope, if agreed, is treated as add-ons and may incur additional fees according to the Proposal.</li>
 </ol>
-<h2>PASAL VII<br>PEMBATALAN PERJANJIAN</h2>
-<p>Perjanjian ini berlaku 1 (satu) tahun terhitung dari tanggal penandatanganan perjanjian oleh kedua belah pihak dan akan berakhir secara otomatis dalam hal telah berakhirnya jangka waktu perjanjian dan para pihak tidak menyepakati perpanjangan jangka waktu.</p>
-<p>Sebelum berakhirnya jangka waktu sebagaimana dimaksud dalam Perjanjian ini, Perjanjian dapat diakhiri apabila salah satu pihak melakukan pelanggaran, terdapat ketentuan perundang-undangan atau kebijakan pemerintah yang tidak memungkinkan berlangsungnya kerja sama, izin usaha salah satu pihak dicabut, likuidasi salah satu pihak, atau salah satu pihak dinyatakan pailit berdasarkan keputusan berkekuatan hukum tetap.</p>
-<p>Pihak yang mengalami kerugian dapat mengakhiri Perjanjian ini dengan menyampaikan pemberitahuan tertulis terlebih dahulu kepada pihak lainnya selambat-lambatnya 7 (tujuh) hari kalender.</p>
-<p>Dalam hal PIHAK PERTAMA membatalkan Perjanjian di tengah pengerjaan, uang muka yang sudah dibayarkan tidak dapat dikembalikan dan sepenuhnya menjadi milik PIHAK KEDUA. Dalam hal PIHAK KEDUA melakukan pembatalan setelah pembayaran uang muka, PIHAK KEDUA wajib mengembalikan seutuhnya uang muka yang sudah dibayarkan.</p>
-<p>PARA PIHAK sepakat untuk mengesampingkan berlakunya ketentuan Pasal 1266 Kitab Undang-undang Hukum Perdata sepanjang ketentuan yang mensyaratkan adanya putusan atau penetapan pengadilan untuk mengakhiri suatu Perjanjian.</p>
-<h2>PASAL VIII<br>HAL-HAL LAIN</h2>
-<p>Hal-hal yang tidak atau belum cukup diatur dalam kontrak Perjanjian ini akan diputuskan atas dasar musyawarah oleh PARA PIHAK, yang hasilnya akan dituangkan dalam Perjanjian terpisah dan menjadi bagian yang tidak dapat dipisahkan dari Perjanjian ini.</p>
-<h2>PASAL IX<br>PENUTUP</h2>
-<p>PARA PIHAK dengan ini menyetujui dan menyatakan bersedia seluruh ketentuan dalam Perjanjian ini dan peraturan perundangan yang berlaku.</p>
-<p>Perjanjian ini dan dokumen-dokumen lain yang akan diberikan terkait dengannya dapat ditandatangani secara elektronik, sehingga tanda tangan digital atau elektronik adalah sama sebagaimana tanda tangan yang dibuat dengan tulisan tangan untuk tujuan validitas, keberlakuan, dan dapat diterima.</p>
-<p>Demikianlah, PARA PIHAK dari Perjanjian ini telah menandatangani Perjanjian ini oleh para wakil mereka yang berwenang. Perjanjian ini dibuat dan ditandatangani pada hari, tanggal, bulan, dan tahun sebagaimana tercantum di awal Perjanjian.</p>
+<h2>ARTICLE II<br>FEES AND PAYMENT</h2>
+<p>The agreed fee for the <strong>{{ offer_name }}</strong> package is <strong>{{ offer_price }}</strong>.</p>
+<ol>
+    <li>A 50% down payment is due after this Agreement is signed by both PARTIES.</li>
+    <li>The remaining 50% is payable according to the payment terms in the Proposal.</li>
+    <li>All payments must be made to SECOND PARTY's official bank account stated in the Payment Terms section of Proposal no. {{ proposal_number }}.</li>
+    <li>Tax provisions, including Non-PKP status and PPh 23 withholding (if applicable), refer to the Proposal.</li>
+    <li>Annual renewal fees, if any, are optional and refer to the price list in the Proposal.</li>
+    <li>If payment is delayed, FIRST PARTY must notify SECOND PARTY in writing with an estimated settlement time. SECOND PARTY may suspend work according to the Proposal.</li>
+</ol>
+<h2>ARTICLE III<br>WORK SCHEDULE</h2>
+<p>The work will be performed by SECOND PARTY based on the timeline for the <strong>{{ offer_name }}</strong> package as follows:</p>
+{{ offer_timeline }}
+<ol>
+    <li>Work starts after FIRST PARTY completes the down payment.</li>
+    <li>Both PARTIES commit to the agreed schedule. Any delay must be communicated in writing with an estimated completion time.</li>
+    <li>Delay tolerance, project completion, and consequences refer to the Terms &amp; Conditions section of the Proposal.</li>
+</ol>
+<h2>ARTICLE IV<br>SUPPORT, REVISIONS, AND SERVICES</h2>
+<ol>
+    <li>Revision terms (major and minor), support types, SLA, working hours, and support period refer fully to the Support and Terms &amp; Conditions sections of Proposal no. {{ proposal_number }}.</li>
+    <li>Server support applies only if FIRST PARTY uses server provided by SECOND PARTY, as stated in the Proposal.</li>
+    <li>Requests outside Proposal support scope may be treated as add-ons according to the Proposal price list.</li>
+</ol>
+<h2>ARTICLE V<br>OWNERSHIP</h2>
+<ol>
+    <li>Website ownership belongs fully to FIRST PARTY after project completion and full payment, according to the Proposal.</li>
+    <li>If FIRST PARTY wishes to manage the website independently, SECOND PARTY must deliver source code and required technical documentation.</li>
+</ol>
+<h2>ARTICLE VI<br>MATERIALS, LEGALITY, AND CHANGES</h2>
+<ol>
+    <li>FIRST PARTY must provide website materials (text, images, and supporting assets) in digital format as required.</li>
+    <li>FIRST PARTY is fully responsible for the legality and accuracy of all submitted materials and indemnifies SECOND PARTY from related claims.</li>
+    <li>SECOND PARTY starts or continues work after minimum required materials are received, unless otherwise agreed.</li>
+    <li>Feature, structure, page, or development changes outside Proposal specifications require prior discussion and may incur additional fees.</li>
+</ol>
+<h2>ARTICLE VII<br>WARRANTY, CANCELLATION, AND TERMINATION</h2>
+<ol>
+    <li>Warranty, refund, and cancellation terms refer to the Warranty and Terms &amp; Conditions sections of Proposal no. {{ proposal_number }}.</li>
+    <li>If FIRST PARTY cancels mid-project without valid grounds under the Proposal, paid down payment is non-refundable.</li>
+    <li>If SECOND PARTY cancels after receiving down payment without valid grounds under the Proposal, SECOND PARTY must refund the received down payment.</li>
+    <li>This Agreement may be terminated early due to material breach, force majeure, or other conditions under the Proposal and applicable law.</li>
+</ol>
+<h2>ARTICLE VIII<br>MISCELLANEOUS</h2>
+<p>Matters not covered herein will be resolved by mutual discussion. If needed, results may be recorded in a written addendum forming an integral part of this Agreement.</p>
+<h2>ARTICLE IX<br>CLOSING</h2>
+<p>The PARTIES agree to all terms in this Agreement and applicable laws.</p>
+<p>This Agreement may be signed electronically with the same legal effect as a wet signature.</p>
+<p>This Agreement is made and signed by the PARTIES on the date stated at the beginning of this Agreement.</p>
 HTML,
         ];
     }
