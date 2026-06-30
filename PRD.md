@@ -265,6 +265,97 @@ Reusable portfolio items shown inside proposals.
 
 ---
 
+### 8. SPK (Surat Perjanjian Kerja)
+
+Represents a work agreement that can be created manually or generated from a proposal. SPKs are shared with clients before manual signing and must be printable/PDF-friendly.
+
+| Field | Type | Translatable | Notes |
+|---|---|---|---|
+| `id` | bigint | — | PK |
+| `document_number` | string | no | Full formatted number using `SPK/{NUM}/{ROMAN_MONTH}/{YY}/{SUFFIX}` |
+| `document_number_raw` | integer | no | Auto-increment portion |
+| `document_number_suffix` | string | no | Default `NEW` |
+| `document_number_override` | boolean | no | |
+| `slug` | string | no | Public document slug |
+| `spk_date` | date | no | Agreement date, defaults to today |
+| `client_company` | string | no | Frozen snapshot |
+| `client_pic_name` | string | no | Frozen snapshot |
+| `client_pic_role` | string | no | nullable, frozen snapshot |
+| `client_address` | text | no | nullable, frozen snapshot; may contain line breaks or `<br>` |
+| `company_name` | string | no | Frozen snapshot of issuing company legal name |
+| `company_pic_name` | string | no | Frozen snapshot, selectable from company `pic` when generated |
+| `company_pic_role` | string | no | nullable, frozen snapshot, selectable from company `pic` when generated |
+| `company_address` | text | no | nullable, frozen snapshot |
+| `title` | rich text/string | **yes** | Agreement heading/title |
+| `subject` | string | **yes** | Agreement subject, e.g. `JASA PEMBUATAN WEBSITE` |
+| `content` | rich text (HTML) | **yes** | Main SPK content |
+| `status` | enum | no | `draft`, `published`; generated SPKs default to `published` |
+| `access_username` | string | no | nullable, per-record override |
+| `access_password` | string | no | nullable, hashed, per-record override |
+| `access_credentials_updated_at` | timestamp | no | nullable |
+| `notes` | JSON array | no | Internal |
+| `proposal_id` | FK | no | nullable, source proposal reference |
+| `client_id` | FK | no | nullable, optional reference only |
+| `company_id` | FK | no | nullable, optional reference only |
+| `user_id` | FK | no | Author/admin who created |
+| `updated_by` | FK | no | nullable |
+| `deleted_at` | timestamp | — | Soft delete |
+| `created_at` | timestamp | — | |
+| `updated_at` | timestamp | — | |
+
+**Relationships:**
+- `belongsTo(Proposal)` nullable
+- `belongsTo(Client)` nullable
+- `belongsTo(Company)` nullable
+- `belongsTo(User)`
+
+**Snapshot rules:**
+- SPK client/company fields are frozen snapshots and remain editable per SPK.
+- Existing SPKs do not auto-sync when proposal, client, or company records change.
+- `client_id`, `company_id`, and `proposal_id` are references for navigation/convenience only.
+
+**Default content:**
+- Admin can manage default SPK title, subject, and content from the dashboard.
+- New SPKs copy default content into the SPK record; copied content can be edited per SPK.
+- Default content supports placeholders that are resolved once when an SPK is created:
+  - `{{ spk_number }}`
+  - `{{ spk_date }}`
+  - `{{ client_company }}`
+  - `{{ client_pic_name }}`
+  - `{{ client_pic_role }}`
+  - `{{ client_address }}`
+  - `{{ company_name }}`
+  - `{{ company_pic_name }}`
+  - `{{ company_pic_role }}`
+  - `{{ company_address }}`
+  - `{{ proposal_number }}`
+  - `{{ proposal_date }}`
+  - `{{ offer_name }}`
+  - `{{ offer_price }}`
+
+**Proposal → SPK generation:**
+- One proposal can generate many SPKs.
+- Proposal action opens a small modal to choose a company PIC from `company.pic`.
+- Selected company PIC is copied into editable SPK fields.
+- Generated SPKs copy:
+  - `client_company` → `client_company`
+  - `client_name` → `client_pic_name`
+  - `client_address` → `client_address`
+  - `company.company_name` → `company_name`
+  - `company.address` → `company_address`
+  - selected company PIC name/role → `company_pic_name`, `company_pic_role`
+  - `proposal_id`, `client_id`, `company_id`, `user_id`
+  - proposal access credentials, if set
+- Generated SPKs default to `published`.
+
+**Client access and PDF:**
+- Public SPK pages use the same document access credential model as proposals/invoices, with per-record credentials and `.env` global fallback.
+- Draft SPKs return 404 to public clients.
+- Public SPK pages include a Download PDF button.
+- SPK view and PDF output are print-first, A4-friendly, and include manual signature areas for both parties.
+
+---
+
 ## Client Access (Frontend Authentication)
 
 Simple document-level authentication. No user accounts, no registration, no tokens.
@@ -272,6 +363,8 @@ Simple document-level authentication. No user accounts, no registration, no toke
 **Per-document fields** (on both Proposal and Invoice):
 - `access_username` — nullable string
 - `access_password` — nullable string, stored hashed
+
+SPK uses the same access credential fields and fallback behavior.
 
 ---
 
@@ -354,9 +447,15 @@ Proposals contain `offer_1_renewal_price`, which represents the recurring annual
 **Proposal actions:**
 - **Convert to Invoice**
 - **Create Renewal Invoice**
+- **Create SPK** — create a published SPK from proposal snapshot fields and selected company PIC
 - **Duplicate Proposal**
 - **Create Client** — one-click from proposal snapshot fields (`client_name`, `client_company`, `client_address`, `client_email`, `client_phone`) and auto-link `client_id`
 - **Create Service** — one-click from proposal and auto-link selected `client_id`
+- **Generate PDF**
+
+**SPK actions:**
+- **Duplicate SPK**
+- **View Proposal**
 - **Generate PDF**
 
 **Invoice actions:**
