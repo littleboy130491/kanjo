@@ -84,13 +84,45 @@ class SpkTemplateRenderer
 
     public static function renderDefaultsForRecord(Spk $spk, ?Proposal $proposal = null): void
     {
+        $subjectTranslations = $spk->getTranslations('subject') ?: self::defaultTranslations('subject');
         $values = self::placeholderValues($spk, $proposal);
+        $values['subject'] = self::firstFilledTranslation($subjectTranslations);
 
         foreach (['title', 'subject', 'content'] as $field) {
             $translations = $spk->getTranslations($field) ?: self::defaultTranslations($field);
 
             $spk->setTranslations($field, self::replacePlaceholders($translations, $values));
         }
+    }
+
+    /**
+     * @param  array<string, string>  $translations
+     */
+    private static function firstFilledTranslation(array $translations): string
+    {
+        $locales = array_unique(array_filter([
+            app()->getLocale(),
+            config('app.fallback_locale', 'en'),
+            ...config('translatable.locales', ['en', 'id']),
+        ]));
+
+        foreach ($locales as $locale) {
+            $value = trim((string) ($translations[$locale] ?? ''));
+
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        foreach ($translations as $value) {
+            $value = trim((string) $value);
+
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return '';
     }
 
     private static function formatMoney(mixed $value, ?string $currency): string
