@@ -106,7 +106,8 @@ class CreateSpkFromProposalTest extends TestCase
         $this->assertStringStartsWith('SPK/001/VI/26/NEW', $spk->document_number);
         $this->assertStringStartsWith('SPK/002/VI/26/NEW', $secondSpk->document_number);
         $this->assertStringContainsString($proposal->document_number, $spk->getTranslation('content', 'id'));
-        $this->assertStringContainsString('JASA PEMBUATAN WEBSITE', $spk->getTranslation('title', 'id'));
+        $this->assertStringContainsString('JASA PEMBUATAN WEBSITE', $spk->getTranslation('subject', 'id'));
+        $this->assertSame('', trim(strip_tags($spk->getTranslation('title', 'id'))));
         $this->assertStringContainsString('Pembayaran DP', $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('Total Hari Kerja', $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('6 hari', $spk->getTranslation('content', 'id'));
@@ -239,7 +240,8 @@ class CreateSpkFromProposalTest extends TestCase
             ])
             ->get(route('spk.show', ['slug' => $spk->slug, 'lang' => 'id']))
             ->assertOk()
-            ->assertSee('Judul SPK', false)
+            ->assertSee('PERJANJIAN KERJASAMA', false)
+            ->assertSee('PT Test Client', false)
             ->assertSee('Isi SPK', false)
             ->assertSee('Test Client PIC', false)
             ->assertSee('123 Example Street', false)

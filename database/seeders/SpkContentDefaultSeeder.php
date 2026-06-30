@@ -36,9 +36,7 @@ class SpkContentDefaultSeeder extends Seeder
     private static function indonesianDefaultValue(): array
     {
         return [
-            'title' => <<<'HTML'
-<p style="text-align: center;"><strong>PERJANJIAN KERJASAMA</strong><br><strong>ANTARA</strong><br><strong>{{ client_company }}</strong><br><strong>DENGAN</strong><br><strong>{{ company_name }}</strong><br><strong>TENTANG</strong><br><strong>{{ subject }}</strong></p>
-HTML,
+            'title' => '',
             'subject' => 'JASA PEMBUATAN WEBSITE',
             'content' => <<<'HTML'
 <h2>PASAL I<br>RUANG LINGKUP DAN DOKUMEN ACUAN</h2>
@@ -109,9 +107,7 @@ HTML,
     private static function englishDefaultValue(): array
     {
         return [
-            'title' => <<<'HTML'
-<p style="text-align: center;"><strong>COOPERATION AGREEMENT</strong><br><strong>BETWEEN</strong><br><strong>{{ client_company }}</strong><br><strong>AND</strong><br><strong>{{ company_name }}</strong><br><strong>REGARDING</strong><br><strong>{{ subject }}</strong></p>
-HTML,
+            'title' => '',
             'subject' => 'WEBSITE DEVELOPMENT SERVICES',
             'content' => <<<'HTML'
 <h2>ARTICLE I<br>SCOPE OF WORK AND REFERENCE DOCUMENT</h2>

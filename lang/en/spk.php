@@ -2,6 +2,10 @@
 
 return [
     'party_intro' => 'This Cooperation Agreement for :subject is made and signed on :date by and between:',
+    'title_heading' => 'COOPERATION AGREEMENT',
+    'title_between' => 'BETWEEN',
+    'title_with' => 'AND',
+    'title_about' => 'REGARDING',
     'label_name' => 'Name',
     'label_role' => 'Position',
     'label_company' => 'Company',

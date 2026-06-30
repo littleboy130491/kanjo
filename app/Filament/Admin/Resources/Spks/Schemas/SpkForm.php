@@ -225,7 +225,8 @@ class SpkForm
                                     ->schema(fn (string $locale): array => [
                                         RichEditor::make("title.{$locale}")
                                             ->label('Title')
-                                            ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('title', $locale))
+                                            ->helperText('The cover title is rendered automatically from the Parties tab and Subject field.')
+                                            ->default('')
                                             ->extraAttributes(['style' => 'min-height: 120px'])
                                             ->columnSpanFull(),
                                         TextInput::make("subject.{$locale}")

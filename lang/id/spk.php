@@ -2,6 +2,10 @@
 
 return [
     'party_intro' => 'Perjanjian Kerjasama :subject, dibuat dan ditandatangani pada tanggal :date oleh dan antara:',
+    'title_heading' => 'PERJANJIAN KERJASAMA',
+    'title_between' => 'ANTARA',
+    'title_with' => 'DENGAN',
+    'title_about' => 'TENTANG',
     'label_name' => 'Nama',
     'label_role' => 'Jabatan',
     'label_company' => 'Perusahaan',

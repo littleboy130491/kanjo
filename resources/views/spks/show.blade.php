@@ -32,7 +32,6 @@
 
         return is_string($resolved) ? trim($resolved) : '';
     };
-    $titleHtml = $asHtml($spk->title);
     $contentHtml = $asHtml($spk->content);
     $subjectText = trim((string) (
         $spk->getTranslation('subject', $locale, false)
@@ -100,7 +99,10 @@
         <section class="document-section-pad spk-cover avoid-page-break">
             <div class="spk-heading">
                 <div class="spk-title document-richtext">
-                    {!! $titleHtml !!}
+                    @include('spks.partials.document-title', [
+                        'spk' => $spk,
+                        'subjectText' => $subjectText,
+                    ])
                 </div>
                 <p class="spk-number"><strong>Nomor SPK {{ $spk->document_number }}</strong></p>
             </div>
