@@ -101,8 +101,8 @@
             </div>
         </section>
 
-        <section class="document-section-pad spk-cover avoid-page-break">
-            <div class="spk-heading">
+        <section class="document-section-pad spk-content-section">
+            <div class="spk-heading spk-cover">
                 <div class="spk-title document-richtext">
                     @include('spks.partials.document-title', [
                         'spk' => $spk,
@@ -111,9 +111,7 @@
                 </div>
                 <p class="spk-number"><strong>Nomor SPK {{ $spk->document_number }}</strong></p>
             </div>
-        </section>
 
-        <section class="document-section-pad spk-content-section">
             <div class="document-richtext spk-content">
                 @include('spks.partials.party-identification', [
                     'spk' => $spk,

@@ -708,7 +708,11 @@ h3.offer_name {
 }
 
 .spk-cover {
-    @apply pb-4 pt-2 text-center md:pb-6;
+    @apply pb-2 pt-2 text-center md:pb-3;
+}
+
+.spk-content-section .spk-cover {
+    @apply pb-0 pt-0;
 }
 
 .spk-heading {
@@ -728,7 +732,7 @@ h3.offer_name {
 }
 
 .spk-number {
-    @apply mt-2 text-base font-semibold uppercase text-neutral-900;
+    @apply mt-2 mb-0 text-base font-semibold uppercase text-neutral-900;
 }
 
 .spk-number strong {
@@ -750,6 +754,10 @@ h3.offer_name {
 
 .spk-content-section {
     @apply pt-0;
+}
+
+.spk-content-section > .spk-content {
+    @apply mt-3;
 }
 
 .spk-content {
@@ -846,7 +854,11 @@ h3.offer_name {
 }
 
 .spk-signature-grid {
-    @apply grid gap-12 text-center text-sm text-neutral-700 md:grid-cols-2;
+    @apply grid grid-cols-2 gap-8 text-center text-sm text-neutral-700;
+}
+
+.spk-signature-block {
+    @apply min-w-0;
 }
 
 .spk-signature-party {
@@ -956,6 +968,42 @@ h3.offer_name {
     .document-view .avoid-page-break {
         break-inside: avoid;
         page-break-inside: avoid;
+    }
+
+    .document-view.spk-document {
+        @apply pt-0 pb-0;
+    }
+
+    .document-view.spk-document .document-section-pad {
+        @apply pb-6;
+    }
+
+    .document-view.spk-document .spk-content-section {
+        break-inside: auto;
+        page-break-inside: auto;
+    }
+
+    .document-view.spk-document .spk-heading {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .document-view.spk-document .spk-content-section > .spk-content {
+        margin-top: 0.5rem;
+    }
+
+    .document-view.spk-document .spk-content > :first-child {
+        margin-top: 0;
+    }
+
+    .document-view.spk-document .spk-content h3:first-of-type {
+        margin-top: 1rem;
+    }
+
+    .document-view.spk-document .spk-signature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2rem;
     }
 
     .document-view .allow-page-break {
