@@ -23,6 +23,7 @@ class RoleAndPermissionSeeder extends Seeder
         'ProposalContentDefault',
         'Role',
         'ResourceLock',
+        'SpkContentDefault',
     ];
 
     /**

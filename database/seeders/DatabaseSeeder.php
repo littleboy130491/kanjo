@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             ClientSeeder::class,
             PortfolioSeeder::class,
             ProposalContentDefaultSeeder::class,
+            SpkContentDefaultSeeder::class,
             ProposalSeeder::class,
         ]);
     }
