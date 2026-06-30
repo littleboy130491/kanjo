@@ -235,6 +235,7 @@ class SpkForm
                                             ->columnSpanFull(),
                                         RichEditor::make("content.{$locale}")
                                             ->label('Content')
+                                            ->helperText('Party identification tables are rendered automatically from the Parties tab. Edit this field for agreement articles and clauses only.')
                                             ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('content', $locale))
                                             ->extraAttributes(['style' => 'min-height: 560px'])
                                             ->columnSpanFull(),

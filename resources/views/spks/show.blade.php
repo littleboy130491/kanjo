@@ -34,6 +34,11 @@
     };
     $titleHtml = $asHtml($spk->title);
     $contentHtml = $asHtml($spk->content);
+    $subjectText = trim((string) (
+        $spk->getTranslation('subject', $locale, false)
+        ?: \App\Services\SpkTemplateRenderer::defaultForLocale('subject', $locale)
+    ));
+    $spkDateText = \App\Services\SpkTemplateRenderer::formatDocumentDate($spk->spk_date, $locale);
 @endphp
 
 <x-layout :locale="$locale" :title="$spk->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
@@ -103,6 +108,11 @@
 
         <section class="document-section-pad spk-content-section">
             <div class="document-richtext spk-content">
+                @include('spks.partials.party-identification', [
+                    'spk' => $spk,
+                    'subjectText' => $subjectText,
+                    'spkDateText' => $spkDateText,
+                ])
                 {!! $contentHtml !!}
             </div>
         </section>

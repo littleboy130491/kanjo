@@ -23,9 +23,9 @@ class CreateSpkFromProposalTest extends TestCase
 
         $user = User::factory()->create();
         $company = Company::query()->create([
-            'company_name' => 'PT Digital Citra Kreatif',
-            'brand_name' => 'Imajiner',
-            'address' => 'Bogor',
+            'company_name' => 'PT Test Agency',
+            'brand_name' => 'Test Brand',
+            'address' => 'Example City',
             'email_1' => 'hello@example.test',
             'phone_1' => '08123456789',
             'tax_id' => 'NPWP-001',
@@ -36,19 +36,19 @@ class CreateSpkFromProposalTest extends TestCase
             'bank' => [],
             'pic' => [
                 [
-                    'pic_name' => 'Henry Arisman',
+                    'pic_name' => 'Company PIC Alpha',
                     'pic_role' => 'Director',
                 ],
                 [
-                    'pic_name' => 'Jane Doe',
+                    'pic_name' => 'Company PIC Beta',
                     'pic_role' => 'Project Lead',
                 ],
             ],
         ]);
         $proposal = Proposal::query()->create([
-            'client_company' => 'PT Aquaterra Investama Aksara',
-            'client_name' => 'Abyasa Kamdani',
-            'client_address' => 'Menara Duta',
+            'client_company' => 'PT Test Client',
+            'client_name' => 'Test Client PIC',
+            'client_address' => '123 Example Street',
             'client_email' => 'client@example.test',
             'client_phone' => '0800000000',
             'issue_date' => '2026-06-25',
@@ -78,7 +78,7 @@ class CreateSpkFromProposalTest extends TestCase
                     ],
                     [
                         'activity_name' => 'Proses Desain',
-                        'activity_pic' => 'Imajiner',
+                        'activity_pic' => 'Agency',
                         'activity_days' => '5',
                     ],
                 ],
@@ -89,19 +89,19 @@ class CreateSpkFromProposalTest extends TestCase
         ]);
 
         $spk = CreateSpkAction::createSpkFromProposal($proposal, [
-            'company_pic_name' => 'Jane Doe',
+            'company_pic_name' => 'Company PIC Beta',
             'company_pic_role' => 'Project Lead',
         ]);
         $secondSpk = CreateSpkAction::createSpkFromProposal($proposal, [
-            'company_pic_name' => 'Henry Arisman',
+            'company_pic_name' => 'Company PIC Alpha',
             'company_pic_role' => 'Director',
         ]);
 
         $this->assertSame(DocumentStatus::PUBLISHED, $spk->status);
         $this->assertSame($proposal->id, $spk->proposal_id);
-        $this->assertSame('PT Aquaterra Investama Aksara', $spk->client_company);
-        $this->assertSame('Abyasa Kamdani', $spk->client_pic_name);
-        $this->assertSame('Jane Doe', $spk->company_pic_name);
+        $this->assertSame('PT Test Client', $spk->client_company);
+        $this->assertSame('Test Client PIC', $spk->client_pic_name);
+        $this->assertSame('Company PIC Beta', $spk->company_pic_name);
         $this->assertSame('Project Lead', $spk->company_pic_role);
         $this->assertStringStartsWith('SPK/001/VI/26/NEW', $spk->document_number);
         $this->assertStringStartsWith('SPK/002/VI/26/NEW', $secondSpk->document_number);
@@ -112,6 +112,8 @@ class CreateSpkFromProposalTest extends TestCase
         $this->assertStringContainsString('6 hari', $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('Rp. 15.000.000', $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('Website Plan Corporate', $spk->getTranslation('content', 'id'));
+        $this->assertStringNotContainsString('Test Client PIC', $spk->getTranslation('content', 'id'));
+        $this->assertStringNotContainsString('spk-party-table', $spk->getTranslation('content', 'id'));
         $this->assertStringNotContainsString('Activity', $spk->getTranslation('content', 'id'));
         $this->assertStringNotContainsString('Down Payment', $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('Down Payment', $spk->getTranslation('content', 'en'));
@@ -125,9 +127,9 @@ class CreateSpkFromProposalTest extends TestCase
 
         $user = User::factory()->create();
         $company = Company::query()->create([
-            'company_name' => 'PT Digital Citra Kreatif',
-            'brand_name' => 'Imajiner',
-            'address' => 'Bogor',
+            'company_name' => 'PT Test Agency',
+            'brand_name' => 'Test Brand',
+            'address' => 'Example City',
             'email_1' => 'hello@example.test',
             'phone_1' => '08123456789',
             'tax_id' => 'NPWP-001',
@@ -139,8 +141,8 @@ class CreateSpkFromProposalTest extends TestCase
             'pic' => [],
         ]);
         $proposal = Proposal::query()->create([
-            'client_company' => 'PT Aquaterra Investama Aksara',
-            'client_name' => 'Abyasa Kamdani',
+            'client_company' => 'PT Test Client',
+            'client_name' => 'Test Client PIC',
             'issue_date' => '2026-06-25',
             'valid_until' => '2026-07-25',
             'currency' => 'IDR',
@@ -164,7 +166,7 @@ class CreateSpkFromProposalTest extends TestCase
         ]);
 
         $spk = CreateSpkAction::createSpkFromProposal($proposal, [
-            'company_pic_name' => 'Henry Arisman',
+            'company_pic_name' => 'Company PIC Alpha',
             'company_pic_role' => 'Director',
             'offer_index' => 2,
         ]);
@@ -189,9 +191,9 @@ class CreateSpkFromProposalTest extends TestCase
 
         $user = User::factory()->create();
         $company = Company::query()->create([
-            'company_name' => 'PT Digital Citra Kreatif',
-            'brand_name' => 'Imajiner',
-            'address' => 'Bogor',
+            'company_name' => 'PT Test Agency',
+            'brand_name' => 'Test Brand',
+            'address' => 'Example City',
             'email_1' => 'hello@example.test',
             'phone_1' => '08123456789',
             'tax_id' => 'NPWP-001',
@@ -204,12 +206,12 @@ class CreateSpkFromProposalTest extends TestCase
         ]);
         $spk = Spk::query()->create([
             'spk_date' => '2026-06-25',
-            'client_company' => 'Client Co',
-            'client_pic_name' => 'Client PIC',
+            'client_company' => 'PT Test Client',
+            'client_pic_name' => 'Test Client PIC',
             'client_pic_role' => 'Director',
-            'client_address' => 'Client Address',
+            'client_address' => '123 Example Street',
             'company_name' => $company->company_name,
-            'company_pic_name' => 'Henry Arisman',
+            'company_pic_name' => 'Company PIC Alpha',
             'company_pic_role' => 'Director',
             'company_address' => $company->address,
             'title' => [
@@ -239,6 +241,9 @@ class CreateSpkFromProposalTest extends TestCase
             ->assertOk()
             ->assertSee('Judul SPK', false)
             ->assertSee('Isi SPK', false)
+            ->assertSee('Test Client PIC', false)
+            ->assertSee('123 Example Street', false)
+            ->assertSee('PIHAK PERTAMA', false)
             ->assertSee(route('pdf.spk', ['slug' => $spk->slug, 'lang' => 'id']), false);
     }
 }

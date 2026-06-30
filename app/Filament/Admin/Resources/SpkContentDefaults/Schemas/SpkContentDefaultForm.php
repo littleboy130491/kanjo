@@ -21,7 +21,7 @@ class SpkContentDefaultForm
                     ->default(SpkContentDefault::GLOBAL_FIELD_KEY)
                     ->dehydrated(),
                 Section::make('SPK Default Content')
-                    ->description('Placeholders like {{ offer_name }}, {{ offer_price }}, and {{ offer_timeline }} use the selected offer when creating from a proposal (default Offer 1). Explicit Offer 1/2 placeholders: {{ offer_name_1 }}, {{ offer_price_1 }}, {{ offer_timeline_1 }}, {{ offer_name_2 }}, {{ offer_price_2 }}, {{ offer_timeline_2 }}.')
+                    ->description('Party identification is rendered from SPK party fields, not this template. Placeholders like {{ offer_name }}, {{ offer_price }}, and {{ offer_timeline }} use the selected offer when creating from a proposal (default Offer 1). Explicit Offer 1/2 placeholders: {{ offer_name_1 }}, {{ offer_price_1 }}, {{ offer_timeline_1 }}, {{ offer_name_2 }}, {{ offer_price_2 }}, {{ offer_timeline_2 }}. Title still supports {{ client_company }}, {{ company_name }}, and {{ subject }}.')
                     ->schema([
                         Translate::make()
                             ->exclude(
