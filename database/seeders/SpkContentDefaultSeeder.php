@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\SpkContentDefault;
+use App\Support\RichTextHtmlNormalizer;
 use Illuminate\Database\Seeder;
 
 class SpkContentDefaultSeeder extends Seeder
@@ -13,8 +14,8 @@ class SpkContentDefaultSeeder extends Seeder
             'field_key' => SpkContentDefault::GLOBAL_FIELD_KEY,
         ], [
             'value' => [
-                'id' => self::defaultValue('id'),
-                'en' => self::defaultValue('en'),
+                'id' => RichTextHtmlNormalizer::normalizeArray(self::defaultValue('id')),
+                'en' => RichTextHtmlNormalizer::normalizeArray(self::defaultValue('en')),
             ],
         ]);
     }
@@ -58,7 +59,7 @@ class SpkContentDefaultSeeder extends Seeder
 </ol>
 <h2>PASAL III<br>JADWAL PEKERJAAN</h2>
 <p>Pekerjaan akan dikerjakan oleh PIHAK KEDUA berdasarkan timeline paket <strong>{{ offer_name }}</strong> sebagai berikut:</p>
-{{ offer_timeline }}
+<p>{{ offer_timeline }}</p>
 <ol>
     <li>Pekerjaan dimulai setelah PIHAK PERTAMA melakukan pembayaran uang muka (DP).</li>
     <li>PARA PIHAK berkomitmen mengikuti jadwal yang disepakati. Apabila terjadi keterlambatan, pihak terkait wajib memberitahukan secara tertulis beserta estimasi penyelesaian.</li>
@@ -128,7 +129,7 @@ HTML,
 </ol>
 <h2>ARTICLE III<br>WORK SCHEDULE</h2>
 <p>The work will be performed by SECOND PARTY based on the timeline for the <strong>{{ offer_name }}</strong> package as follows:</p>
-{{ offer_timeline }}
+<p>{{ offer_timeline }}</p>
 <ol>
     <li>Work starts after FIRST PARTY completes the down payment.</li>
     <li>Both PARTIES commit to the agreed schedule. Any delay must be communicated in writing with an estimated completion time.</li>

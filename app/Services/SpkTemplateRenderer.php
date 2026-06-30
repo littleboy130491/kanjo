@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Proposal;
 use App\Models\Spk;
 use App\Models\SpkContentDefault;
+use App\Support\RichTextHtmlNormalizer;
 use Illuminate\Support\Number;
 
 class SpkTemplateRenderer
@@ -95,6 +96,21 @@ class SpkTemplateRenderer
         return $translations;
     }
 
+    private static function replaceBlockPlaceholder(string $content, string $key, string $replacement): string
+    {
+        $quotedKey = preg_quote($key, '/');
+        $wrappedPattern = '/<p>\s*\{\{\s*'.$quotedKey.'\s*\}\}\s*<\/p>/';
+        $updated = preg_replace($wrappedPattern, $replacement, $content);
+
+        if (is_string($updated) && $updated !== $content) {
+            return $updated;
+        }
+
+        $content = str_replace('{{ '.$key.' }}', $replacement, $content);
+
+        return str_replace('{{'.$key.'}}', $replacement, $content);
+    }
+
     public static function renderDefaultsForRecord(Spk $spk, ?Proposal $proposal = null, int $primaryOfferIndex = 1): void
     {
         $proposal ??= $spk->relationLoaded('proposal') ? $spk->proposal : $spk->proposal()->first();
@@ -114,8 +130,24 @@ class SpkTemplateRenderer
                         'offer_timeline_2' => self::formatTimelineTable($proposal, $locale, 2),
                     ],
                 );
+                $timelineKeys = ['offer_timeline', 'offer_timeline_1', 'offer_timeline_2'];
+                $scalarValues = array_diff_key($localeValues, array_flip($timelineKeys));
 
-                $resolved[$locale] = self::replacePlaceholders([$locale => $content], $localeValues)[$locale];
+                $content = self::replacePlaceholders([$locale => $content], $scalarValues)[$locale];
+
+                if ($field === 'content') {
+                    foreach ($timelineKeys as $timelineKey) {
+                        $content = self::replaceBlockPlaceholder(
+                            $content,
+                            $timelineKey,
+                            (string) ($localeValues[$timelineKey] ?? ''),
+                        );
+                    }
+
+                    $content = RichTextHtmlNormalizer::normalize($content);
+                }
+
+                $resolved[$locale] = $content;
             }
 
             $spk->setTranslations($field, $resolved);
