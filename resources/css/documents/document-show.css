@@ -764,9 +764,37 @@ h3.offer_name {
     @apply my-4 w-full border-collapse text-left;
 }
 
-.spk-content th,
-.spk-content td {
+.spk-content table:has(thead) th,
+.spk-content table:has(thead) td {
     @apply border border-neutral-300 px-3 py-2 align-top;
+}
+
+.spk-content .spk-party-table,
+.spk-content table.spk-party-table,
+.spk-content table:not(:has(thead)) {
+    @apply my-4 w-auto max-w-full border-collapse text-left;
+    table-layout: fixed;
+}
+
+.spk-content .spk-party-table td,
+.spk-content table.spk-party-table td,
+.spk-content table:not(:has(thead)) td {
+    @apply border-0 px-0 py-1 align-top;
+}
+
+.spk-content .spk-party-table td:first-child,
+.spk-content table.spk-party-table td:first-child,
+.spk-content table:not(:has(thead)) td:first-child {
+    @apply w-[5.75rem] pr-3 whitespace-nowrap;
+}
+
+.spk-content .spk-party-table td:nth-child(2),
+.spk-content table.spk-party-table td:nth-child(2) {
+    @apply w-3 px-0;
+}
+
+.spk-content table:not(:has(thead)) td:nth-child(2):not(:last-child) {
+    @apply w-3 px-0;
 }
 
 .spk-signature-section {

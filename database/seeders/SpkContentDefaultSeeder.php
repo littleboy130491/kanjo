@@ -42,21 +42,21 @@ HTML,
             'subject' => 'JASA PEMBUATAN WEBSITE',
             'content' => <<<'HTML'
 <p>Perjanjian Kerjasama {{ subject }}, dibuat dan ditandatangani pada tanggal {{ spk_date }} oleh dan antara:</p>
-<table>
+<table class="spk-party-table">
     <tbody>
-        <tr><td>Nama</td><td>: {{ client_pic_name }}</td></tr>
-        <tr><td>Jabatan</td><td>: {{ client_pic_role }}</td></tr>
-        <tr><td>Perusahaan</td><td>: {{ client_company }}</td></tr>
-        <tr><td>Alamat</td><td>: {{ client_address }}</td></tr>
+        <tr><td>Nama</td><td>:</td><td>{{ client_pic_name }}</td></tr>
+        <tr><td>Jabatan</td><td>:</td><td>{{ client_pic_role }}</td></tr>
+        <tr><td>Perusahaan</td><td>:</td><td>{{ client_company }}</td></tr>
+        <tr><td>Alamat</td><td>:</td><td>{{ client_address }}</td></tr>
     </tbody>
 </table>
 <p>Selanjutnya dalam Perjanjian ini disebut <strong>PIHAK PERTAMA</strong>.</p>
-<table>
+<table class="spk-party-table">
     <tbody>
-        <tr><td>Nama</td><td>: {{ company_pic_name }}</td></tr>
-        <tr><td>Jabatan</td><td>: {{ company_pic_role }}</td></tr>
-        <tr><td>Perusahaan</td><td>: {{ company_name }}</td></tr>
-        <tr><td>Alamat</td><td>: {{ company_address }}</td></tr>
+        <tr><td>Nama</td><td>:</td><td>{{ company_pic_name }}</td></tr>
+        <tr><td>Jabatan</td><td>:</td><td>{{ company_pic_role }}</td></tr>
+        <tr><td>Perusahaan</td><td>:</td><td>{{ company_name }}</td></tr>
+        <tr><td>Alamat</td><td>:</td><td>{{ company_address }}</td></tr>
     </tbody>
 </table>
 <p>Selanjutnya dalam Perjanjian ini disebut <strong>PIHAK KEDUA</strong>.</p>
@@ -136,21 +136,21 @@ HTML,
             'subject' => 'WEBSITE DEVELOPMENT SERVICES',
             'content' => <<<'HTML'
 <p>This Cooperation Agreement for {{ subject }} is made and signed on {{ spk_date }} by and between:</p>
-<table>
+<table class="spk-party-table">
     <tbody>
-        <tr><td>Name</td><td>: {{ client_pic_name }}</td></tr>
-        <tr><td>Position</td><td>: {{ client_pic_role }}</td></tr>
-        <tr><td>Company</td><td>: {{ client_company }}</td></tr>
-        <tr><td>Address</td><td>: {{ client_address }}</td></tr>
+        <tr><td>Name</td><td>:</td><td>{{ client_pic_name }}</td></tr>
+        <tr><td>Position</td><td>:</td><td>{{ client_pic_role }}</td></tr>
+        <tr><td>Company</td><td>:</td><td>{{ client_company }}</td></tr>
+        <tr><td>Address</td><td>:</td><td>{{ client_address }}</td></tr>
     </tbody>
 </table>
 <p>Hereinafter referred to as <strong>FIRST PARTY</strong>.</p>
-<table>
+<table class="spk-party-table">
     <tbody>
-        <tr><td>Name</td><td>: {{ company_pic_name }}</td></tr>
-        <tr><td>Position</td><td>: {{ company_pic_role }}</td></tr>
-        <tr><td>Company</td><td>: {{ company_name }}</td></tr>
-        <tr><td>Address</td><td>: {{ company_address }}</td></tr>
+        <tr><td>Name</td><td>:</td><td>{{ company_pic_name }}</td></tr>
+        <tr><td>Position</td><td>:</td><td>{{ company_pic_role }}</td></tr>
+        <tr><td>Company</td><td>:</td><td>{{ company_name }}</td></tr>
+        <tr><td>Address</td><td>:</td><td>{{ company_address }}</td></tr>
     </tbody>
 </table>
 <p>Hereinafter referred to as <strong>SECOND PARTY</strong>.</p>

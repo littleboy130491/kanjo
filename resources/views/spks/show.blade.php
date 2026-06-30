@@ -89,13 +89,6 @@
                         </div>
                     @endif
                 </div>
-                <div class="invoice-document-block">
-                    <div class="document-meta-stack space-y-2">
-                        @if($spk->spk_date)
-                            <p class="cover-meta invoice-cover-meta">Date — <span>{{ $spk->spk_date->format('d M Y') }}</span></p>
-                        @endif
-                    </div>
-                </div>
             </div>
         </section>
 
