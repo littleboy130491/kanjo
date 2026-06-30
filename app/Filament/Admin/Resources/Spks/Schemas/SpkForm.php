@@ -8,6 +8,7 @@ use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Proposal;
+use App\Filament\Support\RichEditorHtml;
 use App\Models\Spk;
 use App\Services\DocumentNumberGenerator;
 use App\Services\SpkTemplateRenderer;
@@ -228,10 +229,12 @@ class SpkForm
                                             ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('subject', $locale))
                                             ->maxLength(255)
                                             ->columnSpanFull(),
-                                        RichEditor::make("content.{$locale}")
-                                            ->label('Content')
-                                            ->helperText('Party identification tables are rendered automatically from the Parties tab. Edit this field for agreement articles and clauses only.')
-                                            ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('content', $locale))
+                                        RichEditorHtml::configure(
+                                            RichEditor::make("content.{$locale}")
+                                                ->label('Content')
+                                                ->helperText('Party identification tables are rendered automatically from the Parties tab. Edit this field for agreement articles and clauses only.')
+                                                ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('content', $locale)),
+                                        )
                                             ->extraAttributes(['style' => 'min-height: 560px'])
                                             ->columnSpanFull(),
                                     ])

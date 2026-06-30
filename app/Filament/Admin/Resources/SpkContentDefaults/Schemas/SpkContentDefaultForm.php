@@ -2,8 +2,8 @@
 
 namespace App\Filament\Admin\Resources\SpkContentDefaults\Schemas;
 
+use App\Filament\Support\RichEditorHtml;
 use App\Models\SpkContentDefault;
-use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
@@ -37,10 +37,10 @@ class SpkContentDefaultForm
                                     ->label('Subject')
                                     ->maxLength(255)
                                     ->columnSpanFull(),
-                                RichEditor::make("value.{$locale}.content")
-                                    ->label('Content')
-                                    ->enableToolbarButtons(['attachCuratorMedia'])
-                                    ->plugins([AttachCuratorMediaPlugin::make()])
+                                RichEditorHtml::configure(
+                                    RichEditor::make("value.{$locale}.content")
+                                        ->label('Content'),
+                                )
                                     ->extraAttributes(['style' => 'min-height: 520px'])
                                     ->columnSpanFull(),
                             ])
