@@ -6,6 +6,7 @@ use App\Enums\DocumentStatus;
 use App\Enums\UserRole;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
 use App\Filament\Admin\Support\TranslatableRepeaterSync;
+use App\Filament\Support\RichEditorHtml;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Proposal;
@@ -686,17 +687,7 @@ class ProposalForm
 
     protected static function normalizeRichEditorRawState(RichEditor $component): void
     {
-        $rawState = $component->getRawState();
-
-        if (is_array($rawState)) {
-            return;
-        }
-
-        foreach ($component->getStateCasts() as $stateCast) {
-            $rawState = $stateCast->set($rawState);
-        }
-
-        $component->rawState($rawState);
+        RichEditorHtml::normalizeRawState($component);
     }
 
     protected static function emptyTranslatedRepeaterRow(string $fieldKey): array

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\ProposalContentDefaults\Schemas;
 
+use App\Filament\Support\RichEditorHtml;
 use App\Models\ProposalContentDefault;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Filament\Forms\Components\Hidden;
@@ -139,16 +140,6 @@ class ProposalContentDefaultForm
 
     protected static function normalizeRichEditorRawState(RichEditor $component): void
     {
-        $rawState = $component->getRawState();
-
-        if (is_array($rawState)) {
-            return;
-        }
-
-        foreach ($component->getStateCasts() as $stateCast) {
-            $rawState = $stateCast->set($rawState);
-        }
-
-        $component->rawState($rawState);
+        RichEditorHtml::normalizeRawState($component);
     }
 }

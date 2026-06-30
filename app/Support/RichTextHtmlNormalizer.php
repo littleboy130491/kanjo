@@ -29,7 +29,20 @@ class RichTextHtmlNormalizer
 
     public static function normalize(string $html): string
     {
+        $html = self::normalizeHeadingBreaks($html);
+
         return self::wrapListItemTextWithParagraphs($html);
+    }
+
+    private static function normalizeHeadingBreaks(string $html): string
+    {
+        $updated = preg_replace(
+            '/<h2>(.*?)<br\s*\/?>(.*?)<\/h2>/is',
+            '<h3>$1 — $2</h3>',
+            $html,
+        );
+
+        return is_string($updated) ? $updated : $html;
     }
 
     private static function wrapListItemTextWithParagraphs(string $html): string

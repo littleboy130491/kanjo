@@ -756,7 +756,8 @@ h3.offer_name {
     @apply text-justify text-[13px] leading-7 text-neutral-800;
 }
 
-.spk-content h2 {
+.spk-content h2,
+.spk-content h3 {
     @apply mt-8 mb-4 text-center text-base font-bold uppercase leading-snug text-neutral-900;
 }
 

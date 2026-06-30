@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support;
 
+use App\Support\RichTextHtmlNormalizer;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Filament\Forms\Components\RichEditor;
 
@@ -23,6 +24,10 @@ class RichEditorHtml
 
         if (is_array($rawState)) {
             return;
+        }
+
+        if (is_string($rawState)) {
+            $rawState = RichTextHtmlNormalizer::normalize($rawState);
         }
 
         foreach ($component->getStateCasts() as $stateCast) {
