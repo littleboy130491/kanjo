@@ -109,7 +109,7 @@
                         'subjectText' => $subjectText,
                     ])
                 </div>
-                <p class="spk-number"><strong>Nomor SPK {{ $spk->document_number }}</strong></p>
+                <p class="spk-number"><strong>Nomor {{ $spk->document_number }}</strong></p>
             </div>
 
             <div class="document-richtext spk-content">
