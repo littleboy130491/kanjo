@@ -26,4 +26,36 @@
     .fi-header-actions-ctn > .fi-ac {
         @apply min-w-0 max-w-full flex-wrap justify-end;
     }
+
+    .spk-content-editor .tiptap table {
+        @apply w-full table-fixed border-collapse text-sm;
+    }
+
+    .spk-content-editor .tiptap table th,
+    .spk-content-editor .tiptap table td {
+        @apply border border-gray-300 px-3 py-2 align-top dark:border-gray-600;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .spk-content-editor .tiptap table th,
+    .spk-content-editor .tiptap table tbody tr:first-child:has(th) {
+        @apply bg-gray-100 text-gray-950 dark:bg-gray-800 dark:text-white;
+    }
+
+    .spk-content-editor .tiptap table th:nth-child(1),
+    .spk-content-editor .tiptap table td:nth-child(1) {
+        width: 65%;
+    }
+
+    .spk-content-editor .tiptap table th:nth-child(2),
+    .spk-content-editor .tiptap table td:nth-child(2) {
+        width: 20%;
+    }
+
+    .spk-content-editor .tiptap table th:nth-child(3),
+    .spk-content-editor .tiptap table td:nth-child(3) {
+        @apply text-right;
+        width: 15%;
+    }
 }

@@ -769,57 +769,43 @@ h3.offer_name {
     @apply mt-8 mb-4 text-center text-base font-bold uppercase leading-snug text-neutral-900;
 }
 
-.spk-content table {
-    @apply my-4 w-full border-collapse text-left;
-}
-
-.spk-content table.spk-timeline-table,
-.spk-content table:has(thead) {
+.spk-content table:not(.spk-party-table) {
     @apply my-4 w-full table-fixed border-collapse text-left text-[13px];
     table-layout: fixed;
 }
 
-.spk-content table.spk-timeline-table th,
-.spk-content table.spk-timeline-table td,
-.spk-content table:has(thead) th,
-.spk-content table:has(thead) td {
+.spk-content table:not(.spk-party-table) th,
+.spk-content table:not(.spk-party-table) td {
     border: 1px solid #d4d4d4;
     @apply px-3 py-2 align-top;
     overflow-wrap: anywhere;
     word-break: break-word;
 }
 
-.spk-content table.spk-timeline-table thead,
-.spk-content table:has(thead) thead {
+.spk-content table:not(.spk-party-table) thead,
+.spk-content table:not(.spk-party-table) tbody tr:first-child:has(th) {
     @apply text-[10px] uppercase tracking-[0.2em];
     color: var(--tone-deep);
     background: color-mix(in srgb, var(--tone-soft) 55%, #ffffff);
 }
 
-.spk-content table.spk-timeline-table th:nth-child(1),
-.spk-content table.spk-timeline-table td:nth-child(1),
-.spk-content table:has(thead) th:nth-child(1),
-.spk-content table:has(thead) td:nth-child(1) {
+.spk-content table:not(.spk-party-table) th:nth-child(1),
+.spk-content table:not(.spk-party-table) td:nth-child(1) {
     width: 65%;
 }
 
-.spk-content table.spk-timeline-table th:nth-child(2),
-.spk-content table.spk-timeline-table td:nth-child(2),
-.spk-content table:has(thead) th:nth-child(2),
-.spk-content table:has(thead) td:nth-child(2) {
+.spk-content table:not(.spk-party-table) th:nth-child(2),
+.spk-content table:not(.spk-party-table) td:nth-child(2) {
     width: 20%;
 }
 
-.spk-content table.spk-timeline-table th:nth-child(3),
-.spk-content table.spk-timeline-table td:nth-child(3),
-.spk-content table:has(thead) th:nth-child(3),
-.spk-content table:has(thead) td:nth-child(3) {
+.spk-content table:not(.spk-party-table) th:nth-child(3),
+.spk-content table:not(.spk-party-table) td:nth-child(3) {
     width: 15%;
     @apply text-right;
 }
 
-.spk-content table.spk-timeline-table tbody tr:nth-child(even),
-.spk-content table:has(thead) tbody tr:nth-child(even) {
+.spk-content table:not(.spk-party-table) tbody tr:nth-child(even) {
     @apply bg-sky-50/40;
 }
 
@@ -1015,10 +1001,8 @@ h3.offer_name {
         display: table-header-group;
     }
 
-    .document-view .spk-content table.spk-timeline-table th,
-    .document-view .spk-content table.spk-timeline-table td,
-    .document-view .spk-content table:has(thead) th,
-    .document-view .spk-content table:has(thead) td {
+    .document-view .spk-content table:not(.spk-party-table) th,
+    .document-view .spk-content table:not(.spk-party-table) td {
         border: 1px solid #d4d4d4;
     }
 
