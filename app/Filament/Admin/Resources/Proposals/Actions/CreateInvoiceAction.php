@@ -67,7 +67,6 @@ class CreateInvoiceAction
             'items' => self::makeTranslatedItemsPayload(
                 $title,
                 $price,
-                self::makeProposalItemDescription($proposal),
             ),
             'status' => DocumentStatus::PUBLISHED,
             'payment_status' => PaymentStatus::UNPAID,
@@ -92,28 +91,15 @@ class CreateInvoiceAction
         return sprintf('%s (%s)', $baseTitle, $proposal->document_number);
     }
 
-    private static function makeProposalItemDescription(Proposal $proposal): string
-    {
-        if (blank($proposal->slug)) {
-            return '';
-        }
-
-        return sprintf(
-            '<a href="%s">%s</a>',
-            e(route('proposal.show', ['slug' => $proposal->slug])),
-            e('View proposal'),
-        );
-    }
-
     /**
      * @return array<string, array<int, array<string, mixed>>>
      */
-    private static function makeTranslatedItemsPayload(string $title, float $price, string $description = ''): array
+    private static function makeTranslatedItemsPayload(string $title, float $price): array
     {
         $item = [
             'title' => $title,
             'price' => $price,
-            'description' => $description,
+            'description' => '',
         ];
 
         $payload = [];

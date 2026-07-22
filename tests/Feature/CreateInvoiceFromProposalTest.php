@@ -60,10 +60,6 @@ class CreateInvoiceFromProposalTest extends TestCase
         $proposal->save();
 
         $invoice = $this->invokeCreateInvoiceFromProposal($proposal);
-        $proposalLink = sprintf(
-            '<a href="%s">View proposal</a>',
-            route('proposal.show', ['slug' => $proposal->slug]),
-        );
 
         $this->assertInstanceOf(Invoice::class, $invoice);
         $this->assertSame($proposal->getTranslations('additional_info'), $invoice->getTranslations('additional_info'));
@@ -72,12 +68,12 @@ class CreateInvoiceFromProposalTest extends TestCase
                 'id' => [[
                     'title' => 'Website Package',
                     'price' => 1000000,
-                    'description' => $proposalLink,
+                    'description' => '',
                 ]],
                 'en' => [[
                     'title' => 'Website Package',
                     'price' => 1000000,
-                    'description' => $proposalLink,
+                    'description' => '',
                 ]],
             ],
             $invoice->getTranslations('items'),
@@ -87,7 +83,7 @@ class CreateInvoiceFromProposalTest extends TestCase
         $this->assertSame($proposal->client_address, $invoice->client_address);
     }
 
-    public function test_invoice_frontend_renders_item_description_proposal_link_in_new_tab(): void
+    public function test_invoice_created_from_proposal_shows_view_proposal_below_items_table(): void
     {
         config([
             'app.key' => 'base64:'.base64_encode(str_repeat('a', 32)),
@@ -131,6 +127,8 @@ class CreateInvoiceFromProposalTest extends TestCase
         $invoice = $this->invokeCreateInvoiceFromProposal($proposal);
         $proposalUrl = route('proposal.show', ['slug' => $proposal->slug]);
 
+        $this->assertSame('', $invoice->getTranslation('items', 'en')[0]['description'] ?? '');
+
         $this
             ->withSession([
                 DocumentAccessMiddleware::sessionKey('invoice', $invoice->id) => true,
@@ -138,6 +136,7 @@ class CreateInvoiceFromProposalTest extends TestCase
             ])
             ->get(route('invoice.show', ['slug' => $invoice->slug]))
             ->assertOk()
+            ->assertSee('invoice-proposal-link', false)
             ->assertSee(
                 sprintf(
                     '<a href="%s" target="_blank" rel="noopener noreferrer">View proposal</a>',
