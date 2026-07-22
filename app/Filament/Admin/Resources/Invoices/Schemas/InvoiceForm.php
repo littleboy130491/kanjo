@@ -6,10 +6,12 @@ use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\UserRole;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
+use App\Filament\Admin\Resources\Proposals\ProposalResource;
 use App\Filament\Admin\Support\TranslatableRepeaterSync;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Proposal;
 use App\Models\Service;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
@@ -28,6 +30,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
@@ -108,14 +111,15 @@ class InvoiceForm
                                             ->searchable(),
                                         Select::make('proposal_id')
                                             ->label('Proposal (Optional)')
-                                            ->options(fn () => \App\Models\Proposal::query()
+                                            ->options(fn () => Proposal::query()
                                                 ->orderByDesc('created_at')
                                                 ->get()
-                                                ->mapWithKeys(fn (\App\Models\Proposal $proposal) => [
+                                                ->mapWithKeys(fn (Proposal $proposal) => [
                                                     $proposal->getKey() => (string) ($proposal->document_number ?: $proposal->slug ?: 'Proposal #'.$proposal->getKey()),
                                                 ]))
                                             ->searchable()
                                             ->preload()
+                                            ->live()
                                             ->placeholder('Not linked to a proposal')
                                             ->native(false),
                                         Select::make('status')
@@ -292,6 +296,11 @@ class InvoiceForm
                                                     ->default([]),
                                             ])
                                             ->suffixLocaleLabel(),
+                                        Placeholder::make('view_proposal_link')
+                                            ->hiddenLabel()
+                                            ->content(fn (Get $get): HtmlString => self::makeViewProposalLinkContent($get))
+                                            ->visible(fn (Get $get): bool => filled($get('proposal_id')))
+                                            ->columnSpanFull(),
                                     ]),
 
                                 Section::make('Additional Info')
@@ -548,5 +557,24 @@ class InvoiceForm
         return array_key_exists('price', $row)
             || array_key_exists('title', $row)
             || array_key_exists('description', $row);
+    }
+
+    private static function makeViewProposalLinkContent(Get $get): HtmlString
+    {
+        $proposalId = $get('proposal_id');
+
+        if (blank($proposalId)) {
+            return new HtmlString('');
+        }
+
+        $proposal = Proposal::query()->find($proposalId);
+        $label = (string) ($proposal?->document_number ?: $proposal?->slug ?: 'Proposal #'.$proposalId);
+        $url = ProposalResource::getUrl('edit', ['record' => $proposalId]);
+
+        return new HtmlString(sprintf(
+            '<a href="%s" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-400">View proposal: %s</a>',
+            e($url),
+            e($label),
+        ));
     }
 }
