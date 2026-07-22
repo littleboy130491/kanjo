@@ -4,11 +4,12 @@ namespace App\Filament\Admin\Resources\Invoices\Tables;
 
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
-use App\Filament\Admin\Resources\Invoices\Actions\CreateInvoiceClientAction;
 use App\Filament\Admin\Resources\Invoices\Actions\CreateServiceAction;
+use App\Filament\Admin\Resources\Invoices\Actions\CreateInvoiceClientAction;
 use App\Filament\Admin\Resources\Invoices\Actions\DownloadInvoicePdfAction;
 use App\Filament\Admin\Resources\Invoices\Actions\DuplicateInvoiceAction;
 use App\Filament\Admin\Resources\Invoices\Actions\MarkAsPaidAction;
+use App\Filament\Admin\Resources\Invoices\Actions\ViewProposalAction;
 use App\Models\Invoice;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -37,7 +38,7 @@ class InvoicesTable
                     ->searchable()
                     ->sortable()
                     ->description(fn (Invoice $record): ?string => $record->resourceLock?->isActive()
-                        ? (($record->resourceLock->user?->name ?? 'Someone').' is editing this record')
+                        ? (($record->resourceLock->user?->name ?? 'Someone') . ' is editing this record')
                         : null),
                 TextColumn::make('client_company')
                     ->searchable()
@@ -66,11 +67,10 @@ class InvoicesTable
                     ->sortable(),
                 TextColumn::make('proposal.document_number')
                     ->label('Proposal')
-                    ->description(fn (Invoice $record): ?string => filled($record->proposal_id) ? 'View proposal' : null)
                     ->url(
-                        fn (Invoice $record): ?string => filled($record->proposal_id)
-                            ? route('filament.admin.resources.proposals.edit', $record->proposal_id)
-                            : null
+                        fn ($record) => $record->proposal
+                        ? route('filament.admin.resources.proposals.edit', $record->proposal)
+                        : null
                     )
                     ->openUrlInNewTab()
                     ->placeholder('No proposal')
@@ -118,6 +118,7 @@ class InvoicesTable
             ->recordActions([
                 DuplicateInvoiceAction::make(),
                 MarkAsPaidAction::make(),
+                ViewProposalAction::make(),
                 CreateInvoiceClientAction::make(),
                 CreateServiceAction::make(),
                 DownloadInvoicePdfAction::make(),

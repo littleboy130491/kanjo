@@ -233,6 +233,19 @@
     }
 
     $footerTextHtml = trim((string) ($company?->getTranslation('footer_text', $locale, false) ?? ''));
+
+    $linkedProposal = filled($invoice->proposal_id) ? $invoice->proposal : null;
+    $proposalShowUrl = null;
+
+    if (filled($linkedProposal?->slug)) {
+        $proposalShowRouteParameters = ['slug' => $linkedProposal->slug];
+
+        if ($activateTranslation && $linkedProposal->activate_translation) {
+            $proposalShowRouteParameters['lang'] = $locale;
+        }
+
+        $proposalShowUrl = route('proposal.show', $proposalShowRouteParameters);
+    }
 @endphp
 
 <x-layout :locale="$locale" :title="$invoice->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
@@ -363,6 +376,15 @@
                     </tfoot>
                 </table>
             </div>
+
+            @if(filled($proposalShowUrl) && ! $pdfMode)
+                <p class="invoice-proposal-link">
+                    <a href="{{ $proposalShowUrl }}" target="_blank" rel="noopener noreferrer">View proposal</a>
+                    @if(filled($linkedProposal?->document_number))
+                        <span>({{ $linkedProposal->document_number }})</span>
+                    @endif
+                </p>
+            @endif
         </section>
 
         @if($present($additionalInfoHtml))

@@ -7,6 +7,7 @@ use App\Filament\Admin\Resources\Invoices\Actions\CreateServiceAction;
 use App\Filament\Admin\Resources\Invoices\Actions\DownloadInvoicePdfAction;
 use App\Filament\Admin\Resources\Invoices\Actions\DuplicateInvoiceAction;
 use App\Filament\Admin\Resources\Invoices\Actions\ViewInvoiceDocumentAction;
+use App\Filament\Admin\Resources\Invoices\Actions\ViewProposalAction;
 use App\Filament\Admin\Resources\Invoices\InvoiceResource;
 use App\Models\Invoice;
 use App\Models\Service;
@@ -39,6 +40,7 @@ class EditInvoice extends EditRecord
             ViewInvoiceDocumentAction::make(asLink: true),
             DownloadInvoicePdfAction::make(name: 'create_pdf', label: 'Create PDF', asLink: true)
                 ->icon('heroicon-o-document-arrow-down'),
+            ViewProposalAction::make(asLink: true),
         ]);
     }
 }

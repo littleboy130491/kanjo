@@ -699,6 +699,14 @@ h3.offer_name {
     @apply text-neutral-900 underline underline-offset-2;
 }
 
+.invoice-proposal-link {
+    @apply mt-4 text-sm text-neutral-600;
+}
+
+.invoice-proposal-link a {
+    @apply font-medium text-neutral-900 underline underline-offset-2;
+}
+
 .invoice-empty-state {
     @apply text-neutral-500;
 }

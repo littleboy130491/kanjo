@@ -23,7 +23,7 @@ class InvoiceViewController extends Controller
         $locale = $this->resolveLocale($request, $invoice);
         app()->setLocale($locale);
 
-        $invoice->loadMissing(['company']);
+        $invoice->loadMissing(['company', 'proposal']);
 
         return view('invoices.show', [
             'invoice' => $invoice,
