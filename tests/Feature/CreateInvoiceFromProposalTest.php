@@ -228,8 +228,7 @@ class CreateInvoiceFromProposalTest extends TestCase
                     $proposalUrl,
                 ),
                 false,
-            )
-            ->assertSee($proposal->document_number, false);
+            );
     }
 
     private function invokeCreateInvoiceFromProposal(Proposal $proposal): Invoice

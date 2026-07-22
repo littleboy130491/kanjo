@@ -380,9 +380,6 @@
             @if(filled($proposalShowUrl) && ! $pdfMode)
                 <p class="invoice-proposal-link">
                     <a href="{{ $proposalShowUrl }}" target="_blank" rel="noopener noreferrer">View proposal</a>
-                    @if(filled($linkedProposal?->document_number))
-                        <span>({{ $linkedProposal->document_number }})</span>
-                    @endif
                 </p>
             @endif
         </section>
