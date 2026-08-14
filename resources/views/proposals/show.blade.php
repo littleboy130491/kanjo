@@ -284,7 +284,7 @@
                         {!! $briefHtml !!}
                     @endif
                     @if($present($extraContentBriefHtml))
-                        <div class="mt-6">
+                        <div class="document-richtext mt-6">
                             {!! $extraContentBriefHtml !!}
                         </div>
                     @endif
@@ -655,7 +655,7 @@
                 <h2 class="section-label">About Us</h2>
                 <div class="section-content about-us-stack">
                     @if($present($aboutUsHtml))
-                        <div class="about-us-copy">
+                        <div class="document-richtext about-us-copy">
                             {!! $aboutUsHtml !!}
                         </div>
                     @endif
@@ -790,7 +790,7 @@
                     @endif
 
                     @if($present($footerTextHtml))
-                        <div class="editorial-prose mt-8">{!! $footerTextHtml !!}</div>
+                        <div class="document-richtext editorial-prose mt-8">{!! $footerTextHtml !!}</div>
                     @endif
                 </div>
                 <div class="endcap-main">
