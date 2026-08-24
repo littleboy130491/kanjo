@@ -639,7 +639,7 @@ Do not return passwords.
 
 ### Agent guide
 
-Canonical instructions live in `docs/api/agent-guide.md` and at authenticated `GET /api/v1/guide`. Agents should fetch the guide and skeletons rather than hardcoding field lists.
+Canonical agent operating manual: `docs/api/agent-guide.md`, also served at authenticated `GET /api/v1/guide`. Agents should read that document in full, then use live catalogs/skeletons for IDs and defaults. Do not treat `openapi.json` as a complete contract.
 
 ### Errors
 

@@ -14,7 +14,7 @@ class OpenApiSpec
             'info' => [
                 'title' => 'Kanjo Document API',
                 'version' => '1.0.0',
-                'description' => 'Create published proposals, invoices, and SPKs without a Filament login. Fetch GET /api/v1/guide before creating documents.',
+                'description' => 'Kanjo Document API. The canonical agent manual is GET /api/v1/guide (markdown). Read that before calling other endpoints. OpenAPI here is a path index, not a complete contract.',
             ],
             'servers' => [
                 ['url' => url('/api/v1')],

@@ -68,12 +68,17 @@ class DocumentApiTest extends TestCase
 
         $this->apiGet('/api/v1')
             ->assertOk()
-            ->assertJsonPath('version', 'v1');
+            ->assertJsonPath('version', 'v1')
+            ->assertJsonPath('guide_url', url('/api/v1/guide'));
 
         $this->apiGet('/api/v1/guide')
             ->assertOk()
             ->assertHeader('Content-Type', 'text/markdown; charset=UTF-8')
-            ->assertSee('Kanjo Document API', false);
+            ->assertSee('Kanjo Document API', false)
+            ->assertSee('Agent Operating Manual', false)
+            ->assertSee('renewal_date', false)
+            ->assertSee('dry_run', false)
+            ->assertSee('/clients/{id}', false);
 
         $this->apiGet('/api/v1/openapi.json')
             ->assertOk()

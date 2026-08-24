@@ -18,6 +18,7 @@ class DiscoveryController extends Controller
         return response()->json([
             'name' => 'Kanjo Document API',
             'version' => 'v1',
+            'read_this_first' => 'GET /api/v1/guide — full agent operating manual (markdown). Do not guess IDs or field names.',
             'guide_url' => url('/api/v1/guide'),
             'openapi_url' => url('/api/v1/openapi.json'),
             'endpoints' => [
