@@ -88,7 +88,6 @@ class OpenApiSpec
                 '/guide' => ['get' => ['summary' => 'Agent guide (markdown)', 'responses' => ['200' => ['description' => 'OK']]]],
                 '/openapi.json' => ['get' => ['summary' => 'This OpenAPI document', 'responses' => ['200' => ['description' => 'OK']]]],
                 '/companies' => ['get' => ['summary' => 'List companies', 'responses' => ['200' => ['description' => 'OK']]]],
-                '/companies/{id}' => ['get' => ['summary' => 'Show company', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]]],
                 '/clients' => ['get' => [
                     'summary' => 'Search clients',
                     'parameters' => [[
@@ -98,9 +97,19 @@ class OpenApiSpec
                     ]],
                     'responses' => ['200' => ['description' => 'OK']],
                 ]],
-                '/clients/{id}' => ['get' => ['summary' => 'Client with related proposals, invoices, services, SPKs', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]]],
+                '/clients/{id}' => [
+                    'get' => ['summary' => 'Client with related proposals, invoices, services, SPKs', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]],
+                    'patch' => ['summary' => 'Partial update client (does not rewrite document snapshots)', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]],
+                ],
+                '/companies/{id}' => [
+                    'get' => ['summary' => 'Show company', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]],
+                    'patch' => ['summary' => 'Partial update company', 'responses' => ['200' => ['description' => 'OK']]],
+                ],
                 '/services' => ['get' => ['summary' => 'Search services', 'responses' => ['200' => ['description' => 'OK']]]],
-                '/services/{id}' => ['get' => ['summary' => 'Show service and related invoices', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]]],
+                '/services/{id}' => [
+                    'get' => ['summary' => 'Show service and related invoices', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]],
+                    'patch' => ['summary' => 'Partial update service', 'responses' => ['200' => ['description' => 'OK']]],
+                ],
                 '/content-defaults/proposal' => ['get' => ['summary' => 'Proposal content defaults', 'responses' => ['200' => ['description' => 'OK']]]],
                 '/content-defaults/spk' => ['get' => ['summary' => 'SPK content defaults', 'responses' => ['200' => ['description' => 'OK']]]],
                 '/proposals/skeleton' => ['get' => ['summary' => 'Proposal payload skeleton', 'responses' => ['200' => ['description' => 'OK']]]],
@@ -118,9 +127,18 @@ class OpenApiSpec
                     'get' => ['summary' => 'Search SPKs', 'responses' => ['200' => ['description' => 'OK']]],
                     'post' => ['summary' => 'Create standalone SPK', 'responses' => ['200' => ['description' => 'OK'], '422' => ['description' => 'Validation error']]],
                 ],
-                '/proposals/{id}' => ['get' => ['summary' => 'Show proposal summary', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]]],
-                '/invoices/{id}' => ['get' => ['summary' => 'Show invoice summary', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]]],
-                '/spks/{id}' => ['get' => ['summary' => 'Show SPK summary', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]]],
+                '/proposals/{id}' => [
+                    'get' => ['summary' => 'Show proposal summary', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]],
+                    'patch' => ['summary' => 'Partial update proposal (any author)', 'responses' => ['200' => ['description' => 'OK']]],
+                ],
+                '/invoices/{id}' => [
+                    'get' => ['summary' => 'Show invoice summary', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]],
+                    'patch' => ['summary' => 'Partial update invoice (any author)', 'responses' => ['200' => ['description' => 'OK']]],
+                ],
+                '/spks/{id}' => [
+                    'get' => ['summary' => 'Show SPK summary', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]],
+                    'patch' => ['summary' => 'Partial update SPK (any author)', 'responses' => ['200' => ['description' => 'OK']]],
+                ],
                 '/proposals/{id}/invoices' => ['post' => ['summary' => 'Create invoice from proposal', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]]],
                 '/proposals/{id}/spks' => ['post' => ['summary' => 'Create SPK from proposal', 'responses' => ['200' => ['description' => 'OK'], '404' => ['description' => 'Not found']]]],
             ],

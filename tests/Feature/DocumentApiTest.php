@@ -507,4 +507,104 @@ class DocumentApiTest extends TestCase
     {
         return $this->withToken('test-api-key')->postJson($uri, $payload);
     }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function apiPatch(string $uri, array $payload)
+    {
+        return $this->withToken('test-api-key')->patchJson($uri, $payload);
+    }
+
+    public function test_patch_updates_any_owner_without_rewriting_snapshots_and_delete_is_forbidden(): void
+    {
+        $otherUser = User::factory()->create(['email' => 'other-author@example.test']);
+        $client = Client::query()->create([
+            'name' => 'Pak Yoshua',
+            'company' => 'PT Rovela Karya Indonesia',
+            'phone' => '0822-9805-6558',
+            'notes' => [],
+        ]);
+        $proposal = Proposal::query()->create([
+            'client_company' => 'PT Rovela Karya Indonesia',
+            'client_name' => 'Pak Yoshua',
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $otherUser->id,
+            'issue_date' => now()->toDateString(),
+            'currency' => 'IDR',
+            'status' => DocumentStatus::DRAFT,
+            'offer_name_1' => 'Plan Corporate',
+            'offer_1_price' => 44000000,
+        ]);
+        $serviceId = DB::table('services')->insertGetId([
+            'name' => 'Website hosting',
+            'domain' => 'rovela.test',
+            'status' => ServiceStatus::ON_GOING->value,
+            'client_id' => $client->id,
+            'currency' => 'IDR',
+            'price' => 0,
+            'renewal_date' => '2026-01-01',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->apiPatch('/api/v1/clients/'.$client->id, [
+            'dry_run' => true,
+            'company' => 'PT Rovela Karya',
+        ])
+            ->assertOk()
+            ->assertJsonPath('dry_run', true);
+
+        $this->apiPatch('/api/v1/clients/'.$client->id, [
+            'company' => 'PT Rovela Karya',
+            'name' => 'Yoshua Updated',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.company', 'PT Rovela Karya');
+
+        $this->assertSame('PT Rovela Karya Indonesia', $proposal->getAttributes()['client_company']);
+        $this->assertSame('Pak Yoshua', $proposal->getAttributes()['client_name']);
+        $this->assertSame(
+            'PT Rovela Karya Indonesia',
+            DB::table('proposals')->where('id', $proposal->id)->value('client_company'),
+        );
+
+        $this->apiPatch('/api/v1/proposals/'.$proposal->id, [
+            'status' => 'published',
+            'client_company' => 'PT Rovela Karya',
+            'content' => [
+                'brief' => [
+                    'mode' => 'override',
+                    'value' => ['en' => '## Updated brief', 'id' => '## Brief baru'],
+                ],
+            ],
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'published')
+            ->assertJsonPath('data.client_company', 'PT Rovela Karya')
+            ->assertJsonPath('data.client_name', 'Pak Yoshua');
+
+        $proposalRow = DB::table('proposals')->where('id', $proposal->id)->first();
+        $this->assertSame($otherUser->id, $proposalRow->user_id);
+        $this->assertSame($this->apiUser->id, $proposalRow->updated_by);
+        $brief = json_decode($proposalRow->brief, true);
+        $this->assertStringContainsString('<h2>Updated brief</h2>', (string) ($brief['en'] ?? ''));
+
+        $this->apiPatch('/api/v1/services/'.$serviceId, [
+            'renewal_date' => '2026-02-15',
+            'status' => 'suspended',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.renewal_date', '2026-02-15')
+            ->assertJsonPath('data.status', 'suspended');
+
+        $this->withToken('test-api-key')
+            ->deleteJson('/api/v1/clients/'.$client->id)
+            ->assertStatus(405);
+
+        $this->withToken('test-api-key')
+            ->deleteJson('/api/v1/proposals/'.$proposal->id)
+            ->assertStatus(405);
+    }
 }

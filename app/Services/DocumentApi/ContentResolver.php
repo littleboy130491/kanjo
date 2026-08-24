@@ -39,6 +39,82 @@ class ContentResolver
     }
 
     /**
+     * @param  array<string, mixed>  $spec
+     * @param  array<string, mixed>  $payload
+     */
+    public function resolveProposalField(string $field, array $spec, array $payload = []): mixed
+    {
+        $mode = (string) ($spec['mode'] ?? '');
+        $template = $spec['template'] ?? null;
+
+        if (ProposalContentCatalog::isTimeline($field) && blank($template) && filled($payload['timeline_template'] ?? null)) {
+            $template = $payload['timeline_template'];
+        }
+
+        return match ($mode) {
+            'empty' => $this->emptyProposalValue($field),
+            'override' => $this->overrideProposalValue($field, $spec['value'] ?? null),
+            'default' => $this->defaultProposalValue($field, is_string($template) ? $template : null),
+            default => throw new \InvalidArgumentException("Unknown content mode [{$mode}]."),
+        };
+    }
+
+    /**
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    public function invoiceItems(mixed $items): array
+    {
+        if (! is_array($items)) {
+            $items = [];
+        }
+
+        if (isset($items['en']) || isset($items['id'])) {
+            $payload = [];
+
+            foreach ($this->locales() as $locale) {
+                $payload[$locale] = $this->normalizeItemRows($items[$locale] ?? []);
+            }
+
+            return $payload;
+        }
+
+        $rows = $this->normalizeItemRows($items);
+        $payload = [];
+
+        foreach ($this->locales() as $locale) {
+            $payload[$locale] = $rows;
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @return array<int, array{title: string, price: float, description: string}>
+     */
+    private function normalizeItemRows(mixed $rows): array
+    {
+        if (! is_array($rows)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            $normalized[] = [
+                'title' => (string) ($row['title'] ?? ''),
+                'price' => (float) ($row['price'] ?? 0),
+                'description' => MarkdownOrHtml::toHtml((string) ($row['description'] ?? '')),
+            ];
+        }
+
+        return $normalized;
+    }
+
+    /**
      * @param  array<string, mixed>  $content
      * @return array<string, array<string, string>>
      */

@@ -18,8 +18,10 @@ Route::middleware(['document.api', 'throttle:60,1'])
 
         Route::get('/companies', [CompanyController::class, 'index']);
         Route::get('/companies/{company}', [CompanyController::class, 'show']);
+        Route::patch('/companies/{company}', [CompanyController::class, 'update']);
         Route::get('/clients', [ClientController::class, 'index']);
         Route::get('/clients/{client}', [ClientController::class, 'show']);
+        Route::patch('/clients/{client}', [ClientController::class, 'update']);
 
         Route::get('/content-defaults/proposal', [DiscoveryController::class, 'proposalContentDefaults']);
         Route::get('/content-defaults/spk', [DiscoveryController::class, 'spkContentDefaults']);
@@ -30,12 +32,16 @@ Route::middleware(['document.api', 'throttle:60,1'])
 
         Route::get('/proposals', [ProposalController::class, 'index']);
         Route::get('/proposals/{proposal}', [ProposalController::class, 'show']);
+        Route::patch('/proposals/{proposal}', [ProposalController::class, 'update']);
         Route::get('/invoices', [InvoiceController::class, 'index']);
         Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
+        Route::patch('/invoices/{invoice}', [InvoiceController::class, 'update']);
         Route::get('/spks', [SpkController::class, 'index']);
         Route::get('/spks/{spk}', [SpkController::class, 'show']);
+        Route::patch('/spks/{spk}', [SpkController::class, 'update']);
         Route::get('/services', [ServiceController::class, 'index']);
         Route::get('/services/{service}', [ServiceController::class, 'show']);
+        Route::patch('/services/{service}', [ServiceController::class, 'update']);
 
         Route::post('/proposals', [ProposalController::class, 'store']);
         Route::post('/invoices', [InvoiceController::class, 'store']);

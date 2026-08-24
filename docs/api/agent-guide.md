@@ -74,11 +74,12 @@ Proposal ──has many── SPK
 
 **What this API cannot do**
 
-- Update or delete anything
-- Create/edit companies, clients (except auto-create client on document create), or services
+- **Delete** anything (`DELETE` → 405). Use Filament to delete/soft-delete.
+- Create services (PATCH existing services only). Create clients only as a side effect of document create, or PATCH existing clients.
 - Filter lists by month/year of a date field (no `renewal_month=2`). Fetch then filter in the agent
 - Paginate with `offset` / `cursor` / `page`. Lists are **newest `id` first**, `limit` default **50**, max **100**
-- Return document HTML bodies, notes, or passwords
+- Return document HTML bodies or passwords
+- Change document `user_id` (original author stays). PATCH sets `updated_by` to the API user.
 
 If you need services with `renewal_date` in February, `GET /services?limit=100` (and `?status=` buckets if needed), then keep rows where `renewal_date` matches `YYYY-02-DD`. Newest-only list can miss older IDs; `GET /services/{id}` works for a known id.
 
@@ -91,9 +92,9 @@ If you need services with `renewal_date` in February, `GET /services?limit=100` 
 3. `override` requires `value`. Rich text = Markdown or HTML. Repeaters = JSON arrays.
 4. `default` copies Content Defaults into the document and freezes them.
 5. `empty` stores blank; does not copy defaults.
-6. Always `dry_run: true` before a real create.
-7. Do not send `access_username`, `access_password`, `user_id`, or `status` on create.
-8. Do not send `document_number` or `slug` on create (auto-generated).
+6. Always `dry_run: true` before a real create or PATCH.
+7. Do not send `access_username`, `access_password`, or `user_id`. Create always publishes (`status` ignored on POST). PATCH may set `status` to `draft` or `published`.
+8. Do not send `document_number` or `slug` (auto-generated; not overridable via API).
 9. Give humans `public_url` from the response. Do not invent document credentials (they use the site’s global document login).
 10. Draft lookup rows are not client-visible until someone publishes them in Filament.
 
@@ -117,6 +118,7 @@ Base: `/api/v1`
 |---|---|---|---|
 | GET | `/companies` | — | `{ data: Company[] }` |
 | GET | `/companies/{id}` | — | `{ data: Company }` |
+| PATCH | `/companies/{id}` | JSON body | Partial update. Any issuing company. No logo. |
 
 Company fields: `id`, `company_name`, `brand_name`, `address`, `email_1`, `phone_1`, `default_currency`, `pic[]` with `index`, `pic_name`, `pic_role`. Use `pic[].index` as `company_pic_index` when creating an SPK.
 
@@ -126,6 +128,7 @@ Company fields: `id`, `company_name`, `brand_name`, `address`, `email_1`, `phone
 |---|---|---|---|
 | GET | `/clients` | `q`, `limit` | `{ data: Client[] }` |
 | GET | `/clients/{id}` | `limit` (caps each related list) | Client + related documents |
+| PATCH | `/clients/{id}` | JSON body | Partial update of the **master** client. Does **not** change frozen snapshots on existing documents. |
 
 `q` matches `name`, `company`, `email` (SQL `LIKE %q%`).
 
@@ -152,6 +155,7 @@ Related arrays are newest-first, capped by `limit` (default 50). `counts` is the
 |---|---|---|
 | GET | `/proposals` | `q`, `client_id`, `company_id`, `status`, `limit` |
 | GET | `/proposals/{id}` | — |
+| PATCH | `/proposals/{id}` | partial update, **any author** |
 | GET | `/proposals/skeleton` | create template |
 | POST | `/proposals` | create (`dry_run` optional) |
 | POST | `/proposals/{id}/invoices` | invoice from this proposal |
@@ -171,6 +175,7 @@ Proposal summary:
 |---|---|---|
 | GET | `/invoices` | `q`, `client_id`, `company_id`, `proposal_id`, `service_id`, `status`, `payment_status`, `limit` |
 | GET | `/invoices/{id}` | — |
+| PATCH | `/invoices/{id}` | partial update, **any author** |
 | GET | `/invoices/skeleton` | create template |
 | POST | `/invoices` | standalone create |
 
@@ -186,6 +191,7 @@ Invoice summary:
 |---|---|---|
 | GET | `/spks` | `q`, `client_id`, `company_id`, `proposal_id`, `status`, `limit` |
 | GET | `/spks/{id}` | — |
+| PATCH | `/spks/{id}` | partial update, **any author** |
 | GET | `/spks/skeleton` | create template |
 | POST | `/spks` | standalone create |
 
@@ -201,8 +207,9 @@ SPK summary:
 |---|---|---|
 | GET | `/services` | `q` (name, domain), `client_id`, `status` (`on-going` \| `suspended` \| `terminated`), `limit` |
 | GET | `/services/{id}` | — |
+| PATCH | `/services/{id}` | partial update, any client’s service |
 
-**No POST.** Services are managed in Filament.
+**No POST create** for services. PATCH existing only.
 
 Service summary:
 
@@ -256,9 +263,36 @@ Filter `due_date` for month `02`. Optionally `payment_status=overdue` / `unpaid`
 ```http
 GET /invoices?service_id={id}
 GET /invoices?proposal_id={id}
-GET /services/{id}          # includes invoices
-GET /proposals/{id}         # includes invoices and service_ids
+GET /services/{id}
+GET /proposals/{id}
 ```
+
+### D. Update existing records (any owner / author)
+
+`PATCH` with **only the fields to change**. Works on records created in Filament or by any user, not only API-created ones.
+
+```http
+PATCH /clients/{id}
+PATCH /services/{id}
+PATCH /proposals/{id}
+PATCH /invoices/{id}
+PATCH /spks/{id}
+PATCH /companies/{id}
+```
+
+```json
+{ "dry_run": true, "renewal_date": "2027-02-15", "status": "on-going" }
+```
+
+Then the same body without `dry_run`.
+
+- Editing a **Client** does not rewrite proposal/invoice/SPK snapshots.
+- To change what a **document** shows for the client, PATCH that document’s `client_company` / `client_name` / … or `client: { ... }`.
+- Setting `client_id` on a document does not copy the master client unless you also send snapshot fields.
+- Proposal/SPK `content` is optional; each key you send still needs `mode`.
+- Invoice `content.additional_info` modes: `override` or `empty` only. `items` replaces the whole list if sent.
+- `payment_status: paid` sets `paid_at` if it was empty.
+- Still **no DELETE**.
 
 ---
 

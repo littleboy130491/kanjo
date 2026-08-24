@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\UpdateServiceRequest;
 use App\Models\Service;
 use App\Services\DocumentApi\DocumentCatalog;
+use App\Services\DocumentApi\DocumentUpdater;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -50,5 +52,10 @@ class ServiceController extends Controller
             'invoices' => $invoices->map(fn ($invoice): array => DocumentCatalog::invoice($invoice))->values(),
             'proposal_ids' => $proposalIds,
         ]);
+    }
+
+    public function update(UpdateServiceRequest $request, Service $service, DocumentUpdater $updater): JsonResponse
+    {
+        return response()->json($updater->service($service, $request->validated()));
     }
 }

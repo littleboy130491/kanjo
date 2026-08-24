@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\UpdateClientRequest;
 use App\Models\Client;
 use App\Services\DocumentApi\DocumentCatalog;
+use App\Services\DocumentApi\DocumentUpdater;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -50,5 +52,10 @@ class ClientController extends Controller
             'services' => $services->map(fn ($service): array => DocumentCatalog::service($service))->values(),
             'spks' => $spks->map(fn ($spk): array => DocumentCatalog::spk($spk))->values(),
         ]);
+    }
+
+    public function update(UpdateClientRequest $request, Client $client, DocumentUpdater $updater): JsonResponse
+    {
+        return response()->json($updater->client($client, $request->validated()));
     }
 }

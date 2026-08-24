@@ -558,8 +558,16 @@ Machine API so an integrating app or AI agent can create published documents wit
 | POST | `/api/v1/spks` | Create standalone SPK |
 | POST | `/api/v1/proposals/{id}/invoices` | Invoice from proposal (Offer 1 by default) |
 | POST | `/api/v1/proposals/{id}/spks` | SPK from proposal |
+| PATCH | `/api/v1/companies/{id}` | Partial update (no logo) |
+| PATCH | `/api/v1/clients/{id}` | Partial update; does not mutate existing documents |
+| PATCH | `/api/v1/services/{id}` | Partial update (`renewal_date`, status, etc.) |
+| PATCH | `/api/v1/proposals/{id}` | Partial update, any author |
+| PATCH | `/api/v1/invoices/{id}` | Partial update, any author |
+| PATCH | `/api/v1/spks/{id}` | Partial update, any author |
 
-List/show for clients, proposals, invoices, SPKs, and services is included so agents can look up an existing client company and related documents. List payloads are summaries only (no rich-text body, no passwords). Default limit 50, max 100 (`?limit=`). `q` on documents matches `document_number` plus frozen client name/company. Update/delete remain Filament-only.
+List/show for clients, proposals, invoices, SPKs, and services is included so agents can look up an existing client company and related documents. List payloads are summaries only (no rich-text body, no passwords). Default limit 50, max 100 (`?limit=`). `q` on documents matches `document_number` plus frozen client name/company.
+
+**Update:** `PATCH` any existing company, client, service, proposal, invoice, or SPK (not limited to records created by the API user). Send only fields to change. Changing a Client master record does **not** rewrite frozen `client_*` snapshot fields on documents. Changing `client_id` on a document does not copy snapshot fields unless the payload also sends those snapshot fields. Document `content` keys are optional on PATCH; each sent key still uses `default` / `override` / `empty`. Delete remains Filament-only (API `DELETE` is 405).
 
 **Lookup example:** `GET /api/v1/clients?q=Rovela` then `GET /api/v1/clients/{id}` returns that client’s proposals, invoices, services, and SPKs. `GET /api/v1/proposals?q=Rovela` also matches frozen `client_company` on documents with no `client_id`. Services belong to a client; invoices optionally link `service_id` (proposals link to services only through invoices).
 

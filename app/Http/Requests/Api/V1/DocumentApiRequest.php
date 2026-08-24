@@ -21,6 +21,8 @@ abstract class DocumentApiRequest extends FormRequest
 
     abstract protected function validationHint(): string;
 
+    protected bool $requireAllContentKeys = true;
+
     /**
      * @return array<int, string>
      */
@@ -34,13 +36,17 @@ abstract class DocumentApiRequest extends FormRequest
      */
     protected function contentRules(): array
     {
+        $presence = $this->requireAllContentKeys ? 'required' : 'sometimes';
         $rules = [
-            'content' => ['required', 'array'],
+            'content' => [$presence, 'array'],
         ];
 
         foreach ($this->contentFieldKeys() as $field) {
-            $rules["content.{$field}"] = ['required', 'array'];
-            $rules["content.{$field}.mode"] = ['required', Rule::in($this->allowedModesFor($field))];
+            $modePresence = $this->requireAllContentKeys
+                ? 'required'
+                : "required_with:content.{$field}";
+            $rules["content.{$field}"] = [$presence, 'array'];
+            $rules["content.{$field}.mode"] = [$modePresence, Rule::in($this->allowedModesFor($field))];
             $rules["content.{$field}.value"] = ["required_if:content.{$field}.mode,override"];
             $rules["content.{$field}.template"] = ['nullable', 'string'];
         }
@@ -124,7 +130,9 @@ abstract class DocumentApiRequest extends FormRequest
         }
 
         $allowed = $this->contentFieldKeys();
-        $missing = array_values(array_diff($allowed, array_keys($content)));
+        $missing = $this->requireAllContentKeys
+            ? array_values(array_diff($allowed, array_keys($content)))
+            : [];
         $unknown = array_values(array_diff(array_keys($content), $allowed));
 
         foreach ($missing as $field) {

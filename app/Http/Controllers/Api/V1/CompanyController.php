@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\UpdateCompanyRequest;
 use App\Models\Company;
+use App\Services\DocumentApi\DocumentUpdater;
 use Illuminate\Http\JsonResponse;
 
 class CompanyController extends Controller
@@ -21,6 +23,11 @@ class CompanyController extends Controller
     public function show(Company $company): JsonResponse
     {
         return response()->json(['data' => $this->payload($company)]);
+    }
+
+    public function update(UpdateCompanyRequest $request, Company $company, DocumentUpdater $updater): JsonResponse
+    {
+        return response()->json($updater->company($company, $request->validated()));
     }
 
     /**

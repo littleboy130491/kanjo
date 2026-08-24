@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreSpkRequest;
+use App\Http\Requests\Api\V1\UpdateSpkRequest;
 use App\Models\Spk;
 use App\Services\DocumentApi\DocumentCatalog;
+use App\Services\DocumentApi\DocumentUpdater;
 use App\Services\DocumentApi\SpkCreator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -50,5 +52,10 @@ class SpkController extends Controller
     public function store(StoreSpkRequest $request, SpkCreator $creator): JsonResponse
     {
         return response()->json($creator->handleStandalone($request->validated()));
+    }
+
+    public function update(UpdateSpkRequest $request, Spk $spk, DocumentUpdater $updater): JsonResponse
+    {
+        return response()->json($updater->spk($spk, $request->validated()));
     }
 }
