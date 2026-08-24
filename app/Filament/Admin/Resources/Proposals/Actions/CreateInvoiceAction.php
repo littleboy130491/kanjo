@@ -20,7 +20,7 @@ class CreateInvoiceAction
             ->action(function (Proposal $record) {
                 $invoice = self::createInvoiceFromProposal(
                     $record,
-                    (float) $record->offer_1_price,
+                    (float) ($record->getAttributes()['offer_1_price'] ?? 0),
                     self::formatInvoiceItemTitle($record, (string) $record->offer_name_1),
                     'DP',
                 );
@@ -35,14 +35,15 @@ class CreateInvoiceAction
         return $action;
     }
 
-    private static function createInvoiceFromProposal(
+    public static function createInvoiceFromProposal(
         Proposal $proposal,
         float $price,
         string $title,
         string $suffix = 'NEW',
+        ?int $userId = null,
     ): Invoice {
         $subtotal = $price;
-        $taxAmount = $subtotal * (((float) $proposal->tax_rate) / 100);
+        $taxAmount = $subtotal * (((float) ($proposal->getAttributes()['tax_rate'] ?? 0)) / 100);
 
         $invoice = new Invoice([
             'client_company' => $proposal->client_company,
@@ -52,10 +53,10 @@ class CreateInvoiceAction
             'client_phone' => $proposal->client_phone,
             'client_id' => $proposal->client_id,
             'company_id' => $proposal->company_id,
-            'user_id' => auth()->id() ?? $proposal->user_id,
+            'user_id' => $userId ?? auth()->id() ?? $proposal->user_id,
             'currency' => $proposal->currency,
             'activate_translation' => (bool) $proposal->activate_translation,
-            'tax_rate' => $proposal->tax_rate,
+            'tax_rate' => $proposal->getAttributes()['tax_rate'] ?? 0,
             'tax_amount' => $taxAmount,
             'subtotal' => $subtotal,
             'total' => $subtotal + $taxAmount,

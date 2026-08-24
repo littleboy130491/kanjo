@@ -18,13 +18,8 @@ class DocumentNumberGenerator
         $suffix ??= 'NEW';
 
         return DB::transaction(function () use ($type, $date, $suffix) {
-            $tableName = match ($type) {
-                'QUO' => 'proposals',
-                'INV' => 'invoices',
-                'SPK' => 'spks',
-                default => throw new \InvalidArgumentException("Unsupported document number type [{$type}]."),
-            };
-            
+            $tableName = self::tableNameForType($type);
+
             // Get the next raw number for this type, month, and year
             $maxRaw = DB::table($tableName)
                 ->selectRaw('MAX(document_number_raw) as max_raw')
@@ -36,7 +31,7 @@ class DocumentNumberGenerator
             $raw = $maxRaw ? $maxRaw + 1 : 1;
             $roman = self::toRoman($date->month);
             $yy = $date->format('y');
-            
+
             $documentNumber = sprintf('%s/%03d/%s/%02d/%s', $type, $raw, $roman, $yy, $suffix);
 
             return [
@@ -44,6 +39,39 @@ class DocumentNumberGenerator
                 'document_number_raw' => $raw,
             ];
         });
+    }
+
+    /**
+     * @return array{document_number: string, document_number_raw: int}
+     */
+    public static function preview(string $type, Carbon $date, ?string $suffix = 'NEW'): array
+    {
+        $suffix ??= 'NEW';
+        $tableName = self::tableNameForType($type);
+
+        $maxRaw = DB::table($tableName)
+            ->where('issue_month', $date->month)
+            ->where('issue_year', $date->year)
+            ->max('document_number_raw');
+
+        $raw = $maxRaw ? (int) $maxRaw + 1 : 1;
+        $roman = self::toRoman($date->month);
+        $yy = $date->format('y');
+
+        return [
+            'document_number' => sprintf('%s/%03d/%s/%02d/%s', $type, $raw, $roman, $yy, $suffix),
+            'document_number_raw' => $raw,
+        ];
+    }
+
+    private static function tableNameForType(string $type): string
+    {
+        return match ($type) {
+            'QUO' => 'proposals',
+            'INV' => 'invoices',
+            'SPK' => 'spks',
+            default => throw new \InvalidArgumentException("Unsupported document number type [{$type}]."),
+        };
     }
 
     public static function toRoman(int $month): string

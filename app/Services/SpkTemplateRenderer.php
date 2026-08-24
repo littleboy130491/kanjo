@@ -272,7 +272,8 @@ class SpkTemplateRenderer
             return '';
         }
 
-        $price = $offerIndex === 2 ? $proposal->offer_2_price : $proposal->offer_1_price;
+        $attribute = $offerIndex === 2 ? 'offer_2_price' : 'offer_1_price';
+        $price = $proposal->getAttributes()[$attribute] ?? null;
 
         return self::formatMoney($price, $proposal->currency);
     }

@@ -113,12 +113,12 @@ class Invoice extends Model
         $subtotal = collect($items)
             ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0));
 
-        $taxRate = (float) ($invoice->tax_rate ?? 0);
+        $taxRate = (float) ($invoice->getAttributes()['tax_rate'] ?? 0);
         $taxAmount = $subtotal * ($taxRate / 100);
 
-        $invoice->subtotal = round($subtotal, 2);
-        $invoice->tax_amount = round($taxAmount, 2);
-        $invoice->total = round($subtotal + $taxAmount, 2);
+        $invoice->setAttribute('subtotal', round($subtotal, 2));
+        $invoice->setAttribute('tax_amount', round($taxAmount, 2));
+        $invoice->setAttribute('total', round($subtotal + $taxAmount, 2));
     }
 
     private static function normalizeTranslatedItemPrices(mixed $items): mixed

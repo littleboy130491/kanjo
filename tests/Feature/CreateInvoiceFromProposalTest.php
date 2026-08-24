@@ -239,7 +239,7 @@ class CreateInvoiceFromProposalTest extends TestCase
         return $method->invoke(
             null,
             $proposal,
-            (float) $proposal->offer_1_price,
+            (float) ($proposal->getAttributes()['offer_1_price'] ?? 0),
             'Website Package',
             'DP',
         );
