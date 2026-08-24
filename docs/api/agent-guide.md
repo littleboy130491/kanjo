@@ -5,7 +5,18 @@ Create published proposals, invoices, and SPKs without a Filament login.
 **Base:** `/api/v1`  
 **Auth:** `Authorization: Bearer $DOCUMENT_API_KEY` or `X-Api-Key: $DOCUMENT_API_KEY`  
 **Writes:** create only. Status is always `published`.  
-**Reads:** catalogs and skeletons so you do not invent IDs or field names.
+**Reads:** catalogs, skeletons, and lookup of existing clients, proposals, invoices, SPKs, and services.
+
+## Find existing records
+
+To find documents for a client company (example: PT Rovela Karya):
+
+1. `GET /api/v1/clients?q=Rovela` — pick `id`.
+2. `GET /api/v1/clients/{id}` — related `proposals`, `invoices`, `services`, `spks`, and `counts`.
+3. Or search documents directly: `GET /api/v1/proposals?q=Rovela` (matches frozen `client_company` / `client_name` / `document_number`, including docs with no `client_id`).
+4. Services: `GET /api/v1/services?client_id={id}` or `?q=domain`. Invoices for a service: `GET /api/v1/invoices?service_id={id}`.
+
+Do not invent IDs. List responses are summaries (no HTML body, no passwords). Default `limit` 50, max 100.
 
 ## Required loop
 
@@ -40,7 +51,16 @@ Create published proposals, invoices, and SPKs without a Filament login.
 | GET | `/api/v1/openapi.json` | OpenAPI |
 | GET | `/api/v1/companies` | Issuing companies + PIC list |
 | GET | `/api/v1/companies/{id}` | One company + PIC list |
-| GET | `/api/v1/clients` | Search existing clients (`?q=`) |
+| GET | `/api/v1/clients` | Search clients (`?q=` name, company, email) |
+| GET | `/api/v1/clients/{id}` | Client + related proposals, invoices, services, SPKs |
+| GET | `/api/v1/proposals` | Search proposals (`?q=`, `client_id`, `company_id`, `status`) |
+| GET | `/api/v1/proposals/{id}` | Proposal summary + invoices, SPKs, service ids |
+| GET | `/api/v1/invoices` | Search invoices (`?q=`, `client_id`, `service_id`, `proposal_id`) |
+| GET | `/api/v1/invoices/{id}` | Invoice summary |
+| GET | `/api/v1/spks` | Search SPKs (`?q=`, `client_id`, `proposal_id`) |
+| GET | `/api/v1/spks/{id}` | SPK summary |
+| GET | `/api/v1/services` | Search services (`?q=` name/domain, `client_id`, `status`) |
+| GET | `/api/v1/services/{id}` | Service + invoices and proposal ids |
 | GET | `/api/v1/content-defaults/proposal` | Current proposal defaults |
 | GET | `/api/v1/content-defaults/spk` | Current SPK defaults + placeholders |
 | GET | `/api/v1/proposals/skeleton` | Proposal payload skeleton |

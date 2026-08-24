@@ -4,16 +4,19 @@ namespace Tests\Feature;
 
 use App\Enums\DocumentStatus;
 use App\Enums\PaymentStatus;
+use App\Enums\ServiceStatus;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Proposal;
+use App\Models\Service;
 use App\Models\Spk;
 use App\Models\User;
 use App\Services\DocumentApi\ProposalContentCatalog;
 use Database\Seeders\ProposalContentDefaultSeeder;
 use Database\Seeders\SpkContentDefaultSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class DocumentApiTest extends TestCase
@@ -290,6 +293,106 @@ class DocumentApiTest extends TestCase
         $this->assertSame('Company PIC Beta', $spk->company_pic_name);
         $this->assertSame('PT Contoh', $spk->client_company);
         $this->assertStringContainsString('JASA PEMBUATAN WEBSITE', $spk->getTranslation('subject', 'id'));
+    }
+
+    public function test_lookup_finds_proposals_services_and_invoices_for_a_client_company(): void
+    {
+        $client = Client::query()->create([
+            'name' => 'Pak Yoshua',
+            'company' => 'PT Rovela Karya Indonesia',
+            'phone' => '0822-9805-6558',
+            'notes' => [],
+        ]);
+
+        $proposal = Proposal::query()->create([
+            'client_company' => 'PT Rovela Karya Indonesia',
+            'client_name' => 'Pak Yoshua',
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->apiUser->id,
+            'issue_date' => now()->toDateString(),
+            'currency' => 'IDR',
+            'status' => DocumentStatus::PUBLISHED,
+            'offer_name_1' => 'Website',
+            'offer_1_price' => 1000000,
+        ]);
+
+        $serviceId = DB::table('services')->insertGetId([
+            'name' => 'Website hosting',
+            'domain' => 'rovela.test',
+            'status' => ServiceStatus::ON_GOING->value,
+            'client_id' => $client->id,
+            'currency' => 'IDR',
+            'price' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $service = Service::query()->findOrFail($serviceId);
+
+        $invoice = Invoice::query()->create([
+            'client_company' => 'PT Rovela Karya Indonesia',
+            'client_name' => 'Pak Yoshua',
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->apiUser->id,
+            'proposal_id' => $proposal->id,
+            'service_id' => $service->id,
+            'issue_date' => now()->toDateString(),
+            'due_date' => now()->addDays(30)->toDateString(),
+            'currency' => 'IDR',
+            'tax_rate' => 11,
+            'items' => [
+                'en' => [['title' => 'DP', 'price' => 1000000, 'description' => '']],
+                'id' => [['title' => 'DP', 'price' => 1000000, 'description' => '']],
+            ],
+            'status' => DocumentStatus::PUBLISHED,
+            'payment_status' => PaymentStatus::UNPAID,
+        ]);
+
+        $this->apiGet('/api/v1/clients?q=Rovela')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $client->id)
+            ->assertJsonPath('data.0.company', 'PT Rovela Karya Indonesia');
+
+        $this->apiGet('/api/v1/clients/'.$client->id)
+            ->assertOk()
+            ->assertJsonPath('counts.proposals', 1)
+            ->assertJsonPath('counts.services', 1)
+            ->assertJsonPath('counts.invoices', 1)
+            ->assertJsonPath('proposals.0.id', $proposal->id)
+            ->assertJsonPath('services.0.name', 'Website hosting')
+            ->assertJsonPath('invoices.0.service_id', $service->id);
+
+        $this->apiGet('/api/v1/proposals?q=Rovela')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $proposal->id);
+
+        $this->apiGet('/api/v1/proposals?client_id='.$client->id)
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $proposal->id);
+
+        $this->apiGet('/api/v1/services?client_id='.$client->id)
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $service->id)
+            ->assertJsonPath('data.0.domain', 'rovela.test');
+
+        $this->apiGet('/api/v1/invoices?service_id='.$service->id)
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $invoice->id)
+            ->assertJsonPath('data.0.proposal_id', $proposal->id);
+
+        $this->apiGet('/api/v1/proposals/'.$proposal->id)
+            ->assertOk()
+            ->assertJsonPath('data.document_number', $proposal->document_number)
+            ->assertJsonPath('invoices.0.id', $invoice->id)
+            ->assertJsonPath('service_ids.0', $service->id);
+
+        $this->apiGet('/api/v1/services/'.$service->id)
+            ->assertOk()
+            ->assertJsonPath('data.invoices_count', 1)
+            ->assertJsonPath('invoices.0.id', $invoice->id)
+            ->assertJsonPath('proposal_ids.0', $proposal->id);
     }
 
     public function test_standalone_spk_empty_content(): void

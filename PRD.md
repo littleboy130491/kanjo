@@ -538,7 +538,16 @@ Machine API so an integrating app or AI agent can create published documents wit
 | GET | `/api/v1/openapi.json` | OpenAPI document |
 | GET | `/api/v1/companies` | Issuing companies + PIC list |
 | GET | `/api/v1/companies/{id}` | One company + PIC list |
-| GET | `/api/v1/clients` | Search clients (`?q=`) |
+| GET | `/api/v1/clients` | Search clients (`?q=` matches name, company, email) |
+| GET | `/api/v1/clients/{id}` | Client plus related proposals, invoices, services, SPKs |
+| GET | `/api/v1/proposals` | Search proposals (`?q=`, `client_id`, `company_id`, `status`) |
+| GET | `/api/v1/proposals/{id}` | Proposal summary plus related invoices, SPKs, service ids |
+| GET | `/api/v1/invoices` | Search invoices (`?q=`, `client_id`, `service_id`, `proposal_id`, `status`, `payment_status`) |
+| GET | `/api/v1/invoices/{id}` | Invoice summary |
+| GET | `/api/v1/spks` | Search SPKs (`?q=`, `client_id`, `proposal_id`, `company_id`, `status`) |
+| GET | `/api/v1/spks/{id}` | SPK summary |
+| GET | `/api/v1/services` | Search services (`?q=` name/domain, `client_id`, `status`) |
+| GET | `/api/v1/services/{id}` | Service plus related invoices and proposal ids |
 | GET | `/api/v1/content-defaults/proposal` | Current proposal content defaults |
 | GET | `/api/v1/content-defaults/spk` | Current SPK content defaults + placeholders |
 | GET | `/api/v1/proposals/skeleton` | Required proposal payload, all content `default` |
@@ -550,7 +559,9 @@ Machine API so an integrating app or AI agent can create published documents wit
 | POST | `/api/v1/proposals/{id}/invoices` | Invoice from proposal (Offer 1 by default) |
 | POST | `/api/v1/proposals/{id}/spks` | SPK from proposal |
 
-No list/update/delete of documents in v1.
+List/show for clients, proposals, invoices, SPKs, and services is included so agents can look up an existing client company and related documents. List payloads are summaries only (no rich-text body, no passwords). Default limit 50, max 100 (`?limit=`). `q` on documents matches `document_number` plus frozen client name/company. Update/delete remain Filament-only.
+
+**Lookup example:** `GET /api/v1/clients?q=Rovela` then `GET /api/v1/clients/{id}` returns that client’s proposals, invoices, services, and SPKs. `GET /api/v1/proposals?q=Rovela` also matches frozen `client_company` on documents with no `client_id`. Services belong to a client; invoices optionally link `service_id` (proposals link to services only through invoices).
 
 ### Content modes
 
