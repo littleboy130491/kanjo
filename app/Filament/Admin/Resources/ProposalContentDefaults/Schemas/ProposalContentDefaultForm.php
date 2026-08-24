@@ -66,7 +66,8 @@ class ProposalContentDefaultForm
                             ->helperText('New proposals and API mode default use this pack unless another is selected.')
                             ->default(fn (): bool => ! ProposalContentDefault::query()->where('is_default', true)->exists()),
                     ])
-                    ->columns(3),
+                    ->columns(3)
+                    ->columnSpanFull(),
                 ...$fieldSections,
             ]);
     }
