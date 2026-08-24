@@ -513,6 +513,135 @@ users (Filament default)
 
 ---
 
+## Remote Document API
+
+Machine API so an integrating app or AI agent can create published documents without a Filament login. This is authenticated machine access, not a public unauthenticated endpoint.
+
+**Auth:** shared API key from `.env` (`DOCUMENT_API_KEY`). Send `Authorization: Bearer {key}` or `X-Api-Key`. Compare with `hash_equals`. Empty key means the API is disabled (401).
+
+**Author:** `DOCUMENT_API_USER_ID` points at an existing Kanjo user. Every API-created document uses that `user_id`. Do not accept `user_id` in the payload.
+
+**Status:** always `published`. Do not accept `status` in the payload.
+
+**Access credentials:** do not set per-document `access_username` / `access_password`. Public pages use `GLOBAL_ACCESS_*`.
+
+**Rate limit:** 60 requests per minute.
+
+**Prefix:** `/api/v1`
+
+### Endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/v1` | Index (links to guide, OpenAPI, catalogs) |
+| GET | `/api/v1/guide` | Agent guide (markdown) |
+| GET | `/api/v1/openapi.json` | OpenAPI document |
+| GET | `/api/v1/companies` | Issuing companies + PIC list |
+| GET | `/api/v1/companies/{id}` | One company + PIC list |
+| GET | `/api/v1/clients` | Search clients (`?q=`) |
+| GET | `/api/v1/content-defaults/proposal` | Current proposal content defaults |
+| GET | `/api/v1/content-defaults/spk` | Current SPK content defaults + placeholders |
+| GET | `/api/v1/proposals/skeleton` | Required proposal payload, all content `default` |
+| GET | `/api/v1/invoices/skeleton` | Required invoice payload |
+| GET | `/api/v1/spks/skeleton` | Required SPK payload |
+| POST | `/api/v1/proposals` | Create proposal (`dry_run` optional) |
+| POST | `/api/v1/invoices` | Create standalone invoice |
+| POST | `/api/v1/spks` | Create standalone SPK |
+| POST | `/api/v1/proposals/{id}/invoices` | Invoice from proposal (Offer 1 by default) |
+| POST | `/api/v1/proposals/{id}/spks` | SPK from proposal |
+
+No list/update/delete of documents in v1.
+
+### Content modes
+
+Each stored content field on a create payload must declare a mode. Omitted fields are a 422.
+
+```json
+{ "mode": "default" }
+{ "mode": "empty" }
+{ "mode": "override", "value": { "en": "...", "id": "..." } }
+```
+
+| Mode | Meaning |
+|---|---|
+| `default` | Copy from Proposal / SPK Content Defaults into the document and freeze. Optional `template` looks up a different defaults key (timeline templates, `ecommerce_features`, `marketing_program`). |
+| `override` | Use `value`. Do not mix in defaults for that field. Missing locale is stored empty. A non-locale string is copied to both locales. |
+| `empty` | Store empty / `[]`. Do not copy defaults. |
+
+Rich-text override values may be Markdown or HTML. If the string contains an HTML tag, treat as HTML; otherwise convert Markdown to HTML. Repeaters stay JSON.
+
+Mode applies to both `en` and `id`.
+
+**Proposal `content` keys (all required):** `brief`, `extra_content_brief`, `core_services`, `features`, `server`, `assets`, `security`, `support`, `additional_benefit`, `add_on`, `payment`, `terms_condition`, `additional_info`, `faq`, `our_process`, `about_us`, `video_testimonials`, `client_logos`, `offer_1_project_timeline`, `offer_2_project_timeline`
+
+`video_testimonials` and `client_logos` are shared (not translatable). Override value is a single array.
+
+When a timeline field is `default`, optional `template` or payload `timeline_template` selects `short_project_timeline`, `business_project_timeline`, `prime_project_timeline`, `corporate_project_timeline`, or `custom_project_timeline`.
+
+**SPK `content` keys (all required):** `title`, `subject`, `content`
+
+SPK `default` for `subject`/`content` copies SPK Content Defaults and resolves placeholders once. `title` has no default; `default` stores empty.
+
+**Invoice:** no content-default catalog. Standalone create requires `items`. `content.additional_info` mode may be `override` or `empty` only (`default` is invalid). From-proposal create may use `additional_info` mode `default` to copy the proposal’s additional info. Nested create copies Offer 1 into items unless `items` is sent; optional `offer` `1|2` and `renewal` boolean.
+
+### Client rule
+
+1. If `client_id` is sent, load that client and copy into frozen snapshot fields. Optional `client` object overrides snapshot fields only (does not update the Client record).
+2. If `client_id` is omitted, create a new Client from snapshot fields and set `client_id`. Do not match existing clients by email.
+3. After create, editing the Client never changes the document.
+
+Required snapshot when creating a client: `client.company`, `client.name`. Email, phone, address optional. SPK may send `client.pic_role` for `client_pic_role`.
+
+### Other create rules
+
+- `company_id` required on standalone creates.
+- `service_id` optional; do not auto-create services.
+- `activate_translation` default `false`.
+- Currency default: company `default_currency` or `IDR`.
+- Proposal `tax_rate` default `11`. Invoice `tax_rate` default `0` unless sent (from-proposal copies the proposal rate).
+- `issue_date` / `spk_date` default today. Proposal `valid_until` and invoice `due_date` default +30 days.
+- Document number and slug auto-generated. No override in v1.
+- Offer 2 and portfolios optional / omitted in v1 unless sent on the proposal payload (`offer_name_2`, prices).
+- From-proposal SPK: `company_pic_index` (0-based) or `company_pic_name` + `company_pic_role`. If omitted, use the company’s first PIC.
+
+### Dry-run
+
+POST bodies may include `"dry_run": true`. Validate and preview; do not insert documents or clients. Response includes `valid`, `would_create`, `resolved_content_preview`, and `warnings`. Real create omits `dry_run` or sets `false`.
+
+### Success body
+
+```json
+{
+  "data": {
+    "type": "proposal",
+    "id": 123,
+    "document_number": "QUO/005/VIII/26/NEW",
+    "status": "published",
+    "public_url": "https://example.test/proposal/...",
+    "pdf_url": "https://example.test/proposal/.../pdf",
+    "client_id": 88
+  }
+}
+```
+
+Do not return passwords.
+
+### Agent guide
+
+Canonical instructions live in `docs/api/agent-guide.md` and at authenticated `GET /api/v1/guide`. Agents should fetch the guide and skeletons rather than hardcoding field lists.
+
+### Errors
+
+| Status | Meaning |
+|---|---|
+| 401 | Missing/invalid API key, or key not configured |
+| 404 | Unknown proposal/company/client id |
+| 422 | Validation. Includes `errors`, `missing_content_fields`, and `hint` |
+| 429 | Rate limited |
+| 503 | `DOCUMENT_API_USER_ID` missing or not a real user |
+
+---
+
 ## Resolved Decisions
 
 1. **Recurring invoices:** ✅ Yes — use "Create Renewal Invoice" action on proposals.
@@ -521,3 +650,4 @@ users (Filament default)
 4. **Overdue auto-detection:** ✅ Scheduled artisan command.
 5. **Client snapshot policy:** ✅ Proposal and Invoice keep frozen `client_*` fields; editing Client later does not mutate existing documents.
 6. **Service management:** ✅ Service is a first-class entity and can be created from Proposal/Invoice in one click.
+7. **Remote Document API:** ✅ Shared `.env` API key, always published, explicit per-field content modes, auto-create Client, global document credentials, dry-run, discovery catalogs for AI agents.
