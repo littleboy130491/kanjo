@@ -9,6 +9,15 @@ use App\Services\SpkTemplateRenderer;
 
 class ContentResolver
 {
+    private ?ProposalContentDefault $pack = null;
+
+    public function forPack(?ProposalContentDefault $pack): self
+    {
+        $this->pack = $pack;
+
+        return $this;
+    }
+
     /**
      * @param  array<string, mixed>  $content
      * @param  array<string, mixed>  $payload
@@ -263,9 +272,7 @@ class ContentResolver
 
     private function lookupDefault(string $fieldKey, string $locale): mixed
     {
-        $globalDefault = ProposalContentDefault::query()
-            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY)
-            ->first();
+        $globalDefault = $this->pack ?? ProposalContentDefault::defaultPack();
 
         if ($globalDefault instanceof ProposalContentDefault) {
             $translations = $globalDefault->getTranslations('value');

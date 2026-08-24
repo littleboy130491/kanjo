@@ -15,6 +15,7 @@ class StoreProposalRequest extends DocumentApiRequest
         return [
             'dry_run' => ['sometimes', 'boolean'],
             'company_id' => ['required', 'integer', 'exists:companies,id'],
+            'content_default_id' => ['nullable', 'integer', 'exists:proposal_content_defaults,id'],
             'issue_date' => ['nullable', 'date'],
             'valid_until' => ['nullable', 'date'],
             'currency' => ['nullable', 'string', 'max:8'],

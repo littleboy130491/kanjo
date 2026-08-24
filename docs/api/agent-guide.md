@@ -90,7 +90,7 @@ If you need services with `renewal_date` in February, `GET /services?limit=100` 
 1. Do not invent IDs. Load them from GET responses.
 2. Create payloads: every `content` key in the skeleton is required. Each value is `{ "mode": "default" \| "override" \| "empty" }`.
 3. `override` requires `value`. Rich text = Markdown or HTML. Repeaters = JSON arrays.
-4. `default` copies Content Defaults into the document and freezes them.
+4. `default` copies a content-default pack into the document and freezes it. Send `content_default_id` to pick a pack; omit it to use the pack marked Default.
 5. `empty` stores blank; does not copy defaults.
 6. Always `dry_run: true` before a real create or PATCH.
 7. Do not send `access_username`, `access_password`, or `user_id`. Create always publishes (`status` ignored on POST). PATCH may set `status` to `draft` or `published`.
@@ -221,7 +221,7 @@ There is **no** `due_date` on services. Recurring timing is `renewal_date`.
 
 ### Content defaults (for create)
 
-| GET | `/content-defaults/proposal` | Current EN/ID default blobs + field keys |
+| GET | `/content-defaults/proposal` | Packs: `default_id`, `data[]` (`id`, `name`, `slug`, `is_default`, `value`). `value` is also the automatic default pack for backward compatibility. |
 | GET | `/content-defaults/spk` | Defaults + placeholder names |
 
 ---

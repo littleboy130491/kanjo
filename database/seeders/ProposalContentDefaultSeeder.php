@@ -16,6 +16,9 @@ class ProposalContentDefaultSeeder extends Seeder
         ProposalContentDefault::updateOrCreate([
             'field_key' => ProposalContentDefault::GLOBAL_FIELD_KEY,
         ], [
+            'name' => 'Default',
+            'slug' => 'default',
+            'is_default' => true,
             'value' => [
                 'en' => RichTextHtmlNormalizer::normalizeArray(self::defaultValueEn()),
                 'id' => RichTextHtmlNormalizer::normalizeArray(self::defaultValueId()),

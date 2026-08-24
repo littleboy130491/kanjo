@@ -12,7 +12,10 @@ class CreateProposalContentDefault extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['field_key'] = ProposalContentDefault::GLOBAL_FIELD_KEY;
+        $data['slug'] = $data['slug'] ?? \Illuminate\Support\Str::slug((string) ($data['name'] ?? '')) ?: 'pack';
+        $data['field_key'] = $data['slug'] === 'default'
+            ? ProposalContentDefault::GLOBAL_FIELD_KEY
+            : $data['slug'];
 
         if (isset($data['value']) && is_array($data['value'])) {
             $data['value'] = ProposalContentDefault::syncSharedJsonRepeaterFields($data['value']);

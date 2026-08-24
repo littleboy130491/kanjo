@@ -168,9 +168,7 @@
     $aboutUsHtml = $asHtmlWithLocaleFallback($proposal->about_us);
 
     if (! $present($faqHtml) && blank($proposal->getRawOriginal('faq'))) {
-        $proposalContentDefault = \App\Models\ProposalContentDefault::query()
-            ->where('field_key', \App\Models\ProposalContentDefault::GLOBAL_FIELD_KEY)
-            ->first();
+        $proposalContentDefault = \App\Models\ProposalContentDefault::defaultPack();
         $defaultTranslations = $proposalContentDefault?->getTranslations('value') ?? [];
         $defaultFaq = collect(config('translatable.locales', ['id', 'en']))
             ->mapWithKeys(fn (string $defaultLocale): array => [

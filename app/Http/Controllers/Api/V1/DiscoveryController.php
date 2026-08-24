@@ -90,13 +90,23 @@ class DiscoveryController extends Controller
 
     public function proposalContentDefaults(): JsonResponse
     {
-        $record = ProposalContentDefault::query()
-            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY)
-            ->first();
+        $packs = ProposalContentDefault::query()
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+        $default = ProposalContentDefault::defaultPack();
 
         return response()->json([
+            'default_id' => $default?->id,
             'field_keys' => array_keys(ProposalContentDefault::FIELD_OPTIONS),
-            'value' => $record?->getTranslations('value') ?? [],
+            'value' => $default?->getTranslations('value') ?? [],
+            'data' => $packs->map(fn (ProposalContentDefault $pack): array => [
+                'id' => $pack->id,
+                'name' => $pack->name,
+                'slug' => $pack->slug,
+                'is_default' => (bool) $pack->is_default,
+                'value' => $pack->getTranslations('value'),
+            ])->values(),
         ]);
     }
 

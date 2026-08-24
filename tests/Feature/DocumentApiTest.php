@@ -42,6 +42,33 @@ class DocumentApiTest extends TestCase
         ]);
     }
 
+    public function test_proposal_content_default_pack_can_be_selected_on_create(): void
+    {
+        $this->seed(ProposalContentDefaultSeeder::class);
+
+        $pack = \App\Models\ProposalContentDefault::query()->create([
+            'name' => 'E-commerce',
+            'slug' => 'ecommerce',
+            'is_default' => false,
+            'field_key' => 'ecommerce',
+            'value' => [
+                'en' => ['brief' => '<p>E-commerce brief pack</p>'],
+                'id' => ['brief' => '<p>Brief e-commerce</p>'],
+            ],
+        ]);
+
+        $defaults = $this->apiGet('/api/v1/content-defaults/proposal')->assertOk();
+        $this->assertGreaterThanOrEqual(2, count($defaults->json('data')));
+        $this->assertNotNull($defaults->json('default_id'));
+
+        $payload = $this->proposalPayload();
+        $payload['content_default_id'] = $pack->id;
+
+        $response = $this->apiPost('/api/v1/proposals', $payload)->assertOk();
+        $proposal = Proposal::query()->find($response->json('data.id'));
+        $this->assertStringContainsString('E-commerce brief pack', $proposal->getTranslation('brief', 'en'));
+    }
+
     public function test_unauthenticated_requests_are_rejected(): void
     {
         config(['document_api.key' => 'test-api-key']);

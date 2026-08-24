@@ -18,6 +18,7 @@ class UpdateProposalRequest extends DocumentApiRequest
         return [
             'dry_run' => ['sometimes', 'boolean'],
             'company_id' => ['sometimes', 'integer', 'exists:companies,id'],
+            'content_default_id' => ['nullable', 'integer', 'exists:proposal_content_defaults,id'],
             'client_id' => ['nullable', 'integer', 'exists:clients,id'],
             'status' => ['sometimes', Rule::enum(DocumentStatus::class)],
             'issue_date' => ['nullable', 'date'],

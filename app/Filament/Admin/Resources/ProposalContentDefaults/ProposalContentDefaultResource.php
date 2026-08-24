@@ -9,11 +9,11 @@ use App\Filament\Admin\Resources\ProposalContentDefaults\Schemas\ProposalContent
 use App\Filament\Admin\Resources\ProposalContentDefaults\Tables\ProposalContentDefaultsTable;
 use App\Models\ProposalContentDefault;
 use BackedEnum;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProposalContentDefaultResource extends Resource
 {
@@ -55,7 +55,6 @@ class ProposalContentDefaultResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY);
+        return parent::getEloquentQuery()->orderByDesc('is_default')->orderBy('name');
     }
 }

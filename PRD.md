@@ -314,6 +314,11 @@ Represents a work agreement that can be created manually or generated from a pro
 - Existing SPKs do not auto-sync when proposal, client, or company records change.
 - `client_id`, `company_id`, and `proposal_id` are references for navigation/convenience only.
 
+**Proposal content defaults:**
+- Multiple named packs are allowed. Exactly one pack is marked `is_default`.
+- New proposals (Filament and API `mode: default`) use the default pack unless another pack is selected.
+- On proposal create/edit, admin can pick a pack and Load it; that **replaces all** proposal content fields from the pack.
+
 **Default content:**
 - Admin can manage default SPK title, subject, and content from the dashboard.
 - New SPKs copy default content into the SPK record; copied content can be edited per SPK.

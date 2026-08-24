@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Proposal;
+use App\Models\ProposalContentDefault;
 use App\Models\Service;
 use App\Models\Spk;
 use App\Services\SpkTemplateRenderer;
@@ -150,6 +151,10 @@ class DocumentUpdater
             if (array_key_exists('activate_translation', $payload)) {
                 $updates['activate_translation'] = (bool) $payload['activate_translation'];
             }
+
+            $this->content->forPack(ProposalContentDefault::pack(
+                isset($payload['content_default_id']) ? (int) $payload['content_default_id'] : null,
+            ));
 
             if (is_array($payload['content'] ?? null)) {
                 foreach ($payload['content'] as $field => $spec) {

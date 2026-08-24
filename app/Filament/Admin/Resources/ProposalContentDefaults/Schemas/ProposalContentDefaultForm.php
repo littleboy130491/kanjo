@@ -10,9 +10,12 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
 
 class ProposalContentDefaultForm
@@ -38,8 +41,32 @@ class ProposalContentDefaultForm
         return $schema
             ->components([
                 Hidden::make('field_key')
-                    ->default(ProposalContentDefault::GLOBAL_FIELD_KEY)
                     ->dehydrated(),
+                Section::make('Pack')
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Name')
+                            ->required()
+                            ->maxLength(255)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
+                                if (filled($get('slug'))) {
+                                    return;
+                                }
+
+                                $set('slug', Str::slug((string) $state) ?: null);
+                            }),
+                        TextInput::make('slug')
+                            ->label('Slug')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                        Toggle::make('is_default')
+                            ->label('Use as automatic default')
+                            ->helperText('New proposals and API mode default use this pack unless another is selected.')
+                            ->default(fn (): bool => ! ProposalContentDefault::query()->where('is_default', true)->exists()),
+                    ])
+                    ->columns(3),
                 ...$fieldSections,
             ]);
     }

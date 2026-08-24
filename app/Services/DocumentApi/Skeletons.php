@@ -29,6 +29,7 @@ class Skeletons
                 'offer_name_1' => '',
                 'offer_1_price' => null,
                 'offer_1_renewal_price' => null,
+                'content_default_id' => null,
                 'timeline_template' => 'short_project_timeline',
                 'content' => $content,
             ],
@@ -37,6 +38,7 @@ class Skeletons
             'notes' => [
                 'Set company_id from GET /api/v1/companies.',
                 'Every content key is required. Start from this skeleton and change modes.',
+                'content_default_id selects a pack from GET /content-defaults/proposal. Omit it to use the pack marked Default.',
                 'timeline_template applies when offer_1_project_timeline / offer_2_project_timeline mode is default.',
                 'POST with dry_run true first, then false to publish.',
             ],

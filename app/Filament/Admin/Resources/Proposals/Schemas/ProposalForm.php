@@ -288,6 +288,34 @@ class ProposalForm
                                             ->label('Activate Translation')
                                             ->helperText('Enable EN/ID document language switching for this proposal.')
                                             ->default(false),
+                                        Select::make('content_default_id')
+                                            ->label('Content default')
+                                            ->helperText('Choose a pack, then Load to replace all content fields on this proposal.')
+                                            ->options(fn (): array => ProposalContentDefault::options())
+                                            ->default(fn (): ?int => ProposalContentDefault::defaultPack()?->id)
+                                            ->searchable()
+                                            ->native(false)
+                                            ->dehydrated(false),
+                                    ])
+                                    ->headerActions([
+                                        Action::make('load_content_default')
+                                            ->label('Load content default')
+                                            ->icon('heroicon-o-arrow-down-tray')
+                                            ->color('gray')
+                                            ->requiresConfirmation()
+                                            ->modalHeading('Replace all content fields?')
+                                            ->modalDescription('This overwrites every content section on this proposal with the selected content default.')
+                                            ->action(function (Get $get, Set $set): void {
+                                                $pack = ProposalContentDefault::pack(
+                                                    filled($get('content_default_id')) ? (int) $get('content_default_id') : null,
+                                                );
+
+                                                if (! $pack instanceof ProposalContentDefault) {
+                                                    return;
+                                                }
+
+                                                self::applyContentDefaultPack($pack, $set);
+                                            }),
                                     ]),
 
                                 Section::make('Brief')
@@ -661,15 +689,36 @@ class ProposalForm
             : $editor->hiddenLabel();
     }
 
+    protected static function applyContentDefaultPack(ProposalContentDefault $pack, Set $set): void
+    {
+        $locales = config('translatable.locales', ['en', 'id']);
+
+        foreach (\App\Services\DocumentApi\ProposalContentCatalog::RICH_TEXT_FIELDS as $field) {
+            foreach ($locales as $locale) {
+                $value = $pack->fieldValue($field, $locale);
+                $set("{$field}.{$locale}", is_string($value) ? $value : '');
+            }
+        }
+
+        foreach (\App\Services\DocumentApi\ProposalContentCatalog::TRANSLATABLE_REPEATER_FIELDS as $field) {
+            foreach ($locales as $locale) {
+                $value = $pack->fieldValue($field, $locale);
+                $set("{$field}.{$locale}", is_array($value) ? $value : []);
+            }
+        }
+
+        foreach (\App\Services\DocumentApi\ProposalContentCatalog::SHARED_REPEATER_FIELDS as $field) {
+            $value = $pack->fieldValue($field, $locales[0] ?? 'en');
+            $set($field, is_array($value) ? $value : []);
+        }
+    }
+
     protected static function defaultRichTextContent(string $fieldKey, string $locale): ?string
     {
-        $globalDefault = ProposalContentDefault::query()
-            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY)
-            ->first();
+        $globalDefault = ProposalContentDefault::defaultPack();
 
         if ($globalDefault instanceof ProposalContentDefault) {
-            $translations = $globalDefault->getTranslations('value');
-            $value = data_get($translations, "{$locale}.{$fieldKey}");
+            $value = $globalDefault->fieldValue($fieldKey, $locale);
 
             if (is_string($value)) {
                 return $value;
@@ -715,9 +764,7 @@ class ProposalForm
 
     protected static function defaultNonTranslatableRepeaterRows(string $fieldKey): array
     {
-        $globalDefault = ProposalContentDefault::query()
-            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY)
-            ->first();
+        $globalDefault = ProposalContentDefault::defaultPack();
 
         if ($globalDefault instanceof ProposalContentDefault) {
             $sharedValue = ProposalContentDefault::resolveSharedJsonRepeaterValue(
@@ -735,13 +782,10 @@ class ProposalForm
 
     protected static function defaultContentRows(string $fieldKey, string $locale): array
     {
-        $globalDefault = ProposalContentDefault::query()
-            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY)
-            ->first();
+        $globalDefault = ProposalContentDefault::defaultPack();
 
         if ($globalDefault instanceof ProposalContentDefault) {
-            $translations = $globalDefault->getTranslations('value');
-            $value = data_get($translations, "{$locale}.{$fieldKey}", []);
+            $value = $globalDefault->fieldValue($fieldKey, $locale);
 
             if (is_array($value)) {
                 return $value;

@@ -5,6 +5,7 @@ namespace App\Services\DocumentApi;
 use App\Enums\DocumentStatus;
 use App\Models\Company;
 use App\Models\Proposal;
+use App\Models\ProposalContentDefault;
 use App\Services\DocumentNumberGenerator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +32,9 @@ class ProposalCreator
             ? null
             : ($this->date($payload['valid_until'] ?? null) ?? $issueDate->copy()->addDays(30));
         $taxRate = (float) ($payload['tax_rate'] ?? 11);
+        $this->content->forPack(ProposalContentDefault::pack(
+            isset($payload['content_default_id']) ? (int) $payload['content_default_id'] : null,
+        ));
         $resolvedContent = $this->content->resolveProposalContent(
             is_array($payload['content'] ?? null) ? $payload['content'] : [],
             $payload,

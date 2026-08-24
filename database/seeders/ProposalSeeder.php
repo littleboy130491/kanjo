@@ -69,9 +69,7 @@ class ProposalSeeder extends Seeder
             ],
         );
 
-        $contentDefaults = ProposalContentDefault::query()
-            ->where('field_key', ProposalContentDefault::GLOBAL_FIELD_KEY)
-            ->first();
+        $contentDefaults = ProposalContentDefault::defaultPack();
         $translations = $contentDefaults?->getTranslations('value') ?? [];
 
         $proposal = Proposal::query()->updateOrCreate(
