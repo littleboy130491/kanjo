@@ -55,8 +55,14 @@ class EditSpk extends EditRecord
                 $stored = is_string($data[$field][$locale] ?? null) ? $data[$field][$locale] : '';
 
                 if (RichTextHtmlNormalizer::isBlankHtml($stored)) {
-                    $data[$field][$locale] = SpkTemplateRenderer::generatedHtml($field, $record, $locale);
+                    $stored = SpkTemplateRenderer::generatedHtml($field, $record, $locale);
                 }
+
+                if ($field === 'party_identification') {
+                    $stored = SpkTemplateRenderer::toEditableTables($stored);
+                }
+
+                $data[$field][$locale] = $stored;
             }
         }
 

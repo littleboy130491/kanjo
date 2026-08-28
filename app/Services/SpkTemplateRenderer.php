@@ -150,6 +150,10 @@ class SpkTemplateRenderer
                     $content = RichTextHtmlNormalizer::normalize($content);
                 }
 
+                if ($field === 'party_identification') {
+                    $content = self::toEditableTables($content);
+                }
+
                 $resolved[$locale] = $content;
             }
 
@@ -162,10 +166,16 @@ class SpkTemplateRenderer
         $stored = (string) $spk->getTranslation($field, $locale, false);
 
         if (! RichTextHtmlNormalizer::isBlankHtml($stored)) {
-            return $stored;
+            return $field === 'party_identification'
+                ? self::ensurePartyTableClass($stored)
+                : $stored;
         }
 
-        return self::generatedHtml($field, $spk, $locale);
+        $generated = self::generatedHtml($field, $spk, $locale);
+
+        return $field === 'party_identification'
+            ? self::ensurePartyTableClass($generated)
+            : $generated;
     }
 
     public static function generatedHtml(string $field, Spk $spk, string $locale): string
@@ -178,10 +188,115 @@ class SpkTemplateRenderer
                 self::placeholderValues($spk, $spk->proposal, 1, $locale),
             )[$locale];
 
-            return $field === 'subject' ? $html : RichTextHtmlNormalizer::normalize($html);
+            $html = $field === 'subject' ? $html : RichTextHtmlNormalizer::normalize($html);
+
+            return $field === 'party_identification' ? self::toEditableTables($html) : $html;
         }
 
-        return self::fallbackGeneratedHtml($field, $spk, $locale);
+        $fallback = self::fallbackGeneratedHtml($field, $spk, $locale);
+
+        return $field === 'party_identification' ? self::toEditableTables($fallback) : $fallback;
+    }
+
+    /**
+     * @param  array<int, array<int, string>>  $rows
+     */
+    public static function tipTapPartyTable(array $rows): string
+    {
+        $bodyRows = '';
+
+        foreach ($rows as $cells) {
+            $tds = '';
+
+            foreach (array_values($cells) as $index => $html) {
+                $colwidth = match ($index) {
+                    0 => ' colwidth="92"',
+                    1 => ' colwidth="24"',
+                    default => '',
+                };
+                $tds .= "<td colspan=\"1\" rowspan=\"1\"{$colwidth}><p>{$html}</p></td>";
+            }
+
+            $bodyRows .= "<tr>{$tds}</tr>";
+        }
+
+        return '<div class="tableWrapper"><table class="spk-party-table" style="min-width: 312px;"><colgroup><col style="min-width: 25px; width: 92px;"><col style="min-width: 25px; width: 24px;"><col style="min-width: 25px;"></colgroup><tbody>'.$bodyRows.'</tbody></table></div>';
+    }
+
+    public static function toEditableTables(string $html): string
+    {
+        if (! str_contains(strtolower($html), '<table')) {
+            return $html;
+        }
+
+        $internalErrors = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $document->loadHTML(
+            '<?xml encoding="utf-8"?><!DOCTYPE html><html><body>'.$html.'</body></html>',
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD,
+        );
+
+        $tables = [];
+
+        foreach ($document->getElementsByTagName('table') as $table) {
+            if ($table instanceof \DOMElement) {
+                $tables[] = $table;
+            }
+        }
+
+        foreach ($tables as $table) {
+            self::prepareEditableTable($document, $table);
+        }
+
+        $body = $document->getElementsByTagName('body')->item(0);
+
+        if (! $body) {
+            libxml_clear_errors();
+            libxml_use_internal_errors($internalErrors);
+
+            return $html;
+        }
+
+        $normalized = '';
+
+        foreach ($body->childNodes as $childNode) {
+            $normalized .= $document->saveHTML($childNode);
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($internalErrors);
+
+        return $normalized;
+    }
+
+    public static function ensurePartyTableClass(string $html): string
+    {
+        $updated = preg_replace_callback(
+            '/<table\b([^>]*)>/i',
+            function (array $matches): string {
+                $attributes = $matches[1];
+
+                if (preg_match('/\bclass\s*=\s*(["\'])(.*?)\1/i', $attributes, $classMatch) === 1) {
+                    if (str_contains($classMatch[2], 'spk-party-table')) {
+                        return $matches[0];
+                    }
+
+                    $attributes = preg_replace(
+                        '/\bclass\s*=\s*(["\'])(.*?)\1/i',
+                        'class=$1spk-party-table $2$1',
+                        $attributes,
+                        1,
+                    );
+
+                    return '<table'.$attributes.'>';
+                }
+
+                return '<table class="spk-party-table"'.$attributes.'>';
+            },
+            $html,
+        );
+
+        return is_string($updated) ? $updated : $html;
     }
 
     public static function formatTimelineTable(?Proposal $proposal, string $locale, int $offerIndex = 1): string
@@ -269,6 +384,114 @@ class SpkTemplateRenderer
         $carbonLocale = $locale === 'id' ? 'id' : 'en';
 
         return (string) $date->copy()->locale($carbonLocale)->translatedFormat('d F Y');
+    }
+
+    private static function prepareEditableTable(\DOMDocument $document, \DOMElement $table): void
+    {
+        $class = $table->getAttribute('class');
+
+        if (! str_contains($class, 'spk-party-table')) {
+            $table->setAttribute('class', trim($class.' spk-party-table'));
+        }
+
+        if (! $table->hasAttribute('style')) {
+            $table->setAttribute('style', 'min-width: 312px;');
+        }
+
+        $parent = $table->parentNode;
+
+        if (
+            ! ($parent instanceof \DOMElement)
+            || strtolower($parent->nodeName) !== 'div'
+            || ! str_contains($parent->getAttribute('class'), 'tableWrapper')
+        ) {
+            $wrapper = $document->createElement('div');
+            $wrapper->setAttribute('class', 'tableWrapper');
+            $parent?->insertBefore($wrapper, $table);
+            $wrapper->appendChild($table);
+        }
+
+        $hasColgroup = false;
+
+        foreach ($table->childNodes as $child) {
+            if ($child instanceof \DOMElement && strtolower($child->nodeName) === 'colgroup') {
+                $hasColgroup = true;
+                break;
+            }
+        }
+
+        if (! $hasColgroup) {
+            $firstRow = $table->getElementsByTagName('tr')->item(0);
+            $columnCount = 0;
+
+            if ($firstRow instanceof \DOMElement) {
+                foreach ($firstRow->childNodes as $cell) {
+                    if ($cell instanceof \DOMElement && in_array(strtolower($cell->nodeName), ['td', 'th'], true)) {
+                        $columnCount++;
+                    }
+                }
+            }
+
+            $columnCount = max($columnCount, 1);
+            $colgroup = $document->createElement('colgroup');
+
+            for ($index = 0; $index < $columnCount; $index++) {
+                $col = $document->createElement('col');
+                $style = match ($index) {
+                    0 => 'min-width: 25px; width: 92px;',
+                    1 => 'min-width: 25px; width: 24px;',
+                    default => 'min-width: 25px;',
+                };
+                $col->setAttribute('style', $style);
+                $colgroup->appendChild($col);
+            }
+
+            $table->insertBefore($colgroup, $table->firstChild);
+        }
+
+        $cells = [];
+
+        foreach (['td', 'th'] as $tag) {
+            foreach ($table->getElementsByTagName($tag) as $cell) {
+                if ($cell instanceof \DOMElement) {
+                    $cells[] = $cell;
+                }
+            }
+        }
+
+        foreach ($cells as $cell) {
+            if (! $cell->hasAttribute('colspan')) {
+                $cell->setAttribute('colspan', '1');
+            }
+
+            if (! $cell->hasAttribute('rowspan')) {
+                $cell->setAttribute('rowspan', '1');
+            }
+
+            $hasBlockChild = false;
+
+            foreach ($cell->childNodes as $child) {
+                if (
+                    $child instanceof \DOMElement
+                    && in_array(strtolower($child->nodeName), ['p', 'ul', 'ol', 'div', 'table', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre'], true)
+                ) {
+                    $hasBlockChild = true;
+                    break;
+                }
+            }
+
+            if ($hasBlockChild) {
+                continue;
+            }
+
+            $paragraph = $document->createElement('p');
+
+            while ($cell->firstChild) {
+                $paragraph->appendChild($cell->firstChild);
+            }
+
+            $cell->appendChild($paragraph);
+        }
     }
 
     private static function fallbackGeneratedHtml(string $field, Spk $spk, string $locale): string

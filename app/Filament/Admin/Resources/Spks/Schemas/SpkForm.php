@@ -245,9 +245,22 @@ class SpkForm
                                                 RichEditorHtml::configure(
                                                     RichEditor::make("party_identification.{$locale}")
                                                         ->label('Party Identification')
-                                                        ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('party_identification', $locale)),
+                                                        ->default(fn (): string => SpkTemplateRenderer::toEditableTables(
+                                                            SpkTemplateRenderer::defaultForLocale('party_identification', $locale),
+                                                        )),
                                                 )
-                                                    ->enableToolbarButtons(['table'])
+                                                    ->enableToolbarButtons([
+                                                        'table',
+                                                        'tableAddColumnBefore',
+                                                        'tableAddColumnAfter',
+                                                        'tableDeleteColumn',
+                                                        'tableAddRowBefore',
+                                                        'tableAddRowAfter',
+                                                        'tableDeleteRow',
+                                                        'tableMergeCells',
+                                                        'tableSplitCell',
+                                                        'tableDelete',
+                                                    ])
                                                     ->extraAttributes(['style' => 'min-height: 360px'])
                                                     ->columnSpanFull(),
                                                 TextInput::make("subject.{$locale}")
