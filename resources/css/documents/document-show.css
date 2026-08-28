@@ -906,7 +906,7 @@ h3.offer_name {
 .spk-content .spk-party-table,
 .spk-content table.spk-party-table {
     @apply w-full border-collapse text-left;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 .spk-content > .spk-party-table,
@@ -927,6 +927,11 @@ h3.offer_name {
 .spk-content .spk-party-table col:nth-child(2),
 .spk-content table.spk-party-table col:nth-child(2) {
     width: 1.5rem !important;
+}
+
+.spk-content .spk-party-table col:nth-child(3),
+.spk-content table.spk-party-table col:nth-child(3) {
+    width: auto !important;
 }
 
 .spk-content .spk-party-table td,
@@ -978,6 +983,10 @@ h3.offer_name {
 
 .spk-signature-content .spk-signature-table p {
     @apply mb-0;
+}
+
+.spk-signature-content .spk-signature-space {
+    min-height: 12rem !important;
 }
 
 .spk-signature-section {

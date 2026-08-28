@@ -197,7 +197,7 @@ class SpkTemplateRenderer
         string $secondName,
         string $secondCompany,
     ): string {
-        $spacer = '<p style="min-height: 10rem;"><br></p>';
+        $spacer = '<p class="spk-signature-space"><br></p>';
         $approvalLabel = e($approvalLabel);
         $firstPartyLabel = e($firstPartyLabel);
         $firstName = e($firstName);
