@@ -986,6 +986,12 @@ h3.offer_name {
 }
 
 .spk-signature-content .spk-signature-space {
+    height: 12rem !important;
+    min-height: 12rem !important;
+}
+
+.spk-signature-content .spk-signature-table td > p:has(> br:only-child) {
+    height: 12rem !important;
     min-height: 12rem !important;
 }
 
