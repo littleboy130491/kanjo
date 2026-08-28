@@ -21,18 +21,35 @@ class SpkContentDefaultForm
                     ->default(SpkContentDefault::GLOBAL_FIELD_KEY)
                     ->dehydrated(),
                 Section::make('SPK Default Content')
-                    ->description('Party identification and the cover title are rendered from SPK party fields and subject. Placeholders like {{ offer_name }}, {{ offer_price }}, and {{ offer_timeline }} use the selected offer when creating from a proposal (default Offer 1). Explicit Offer 1/2 placeholders: {{ offer_name_1 }}, {{ offer_price_1 }}, {{ offer_timeline_1 }}, {{ offer_name_2 }}, {{ offer_price_2 }}, {{ offer_timeline_2 }}.')
+                    ->description('Title and party identification are copied onto each new SPK and can then be edited per document. Leave a document field blank to keep the live auto-generated block. Placeholders like {{ offer_name }}, {{ offer_price }}, and {{ offer_timeline }} use the selected offer when creating from a proposal (default Offer 1). Explicit Offer 1/2 placeholders: {{ offer_name_1 }}, {{ offer_price_1 }}, {{ offer_timeline_1 }}, {{ offer_name_2 }}, {{ offer_price_2 }}, {{ offer_timeline_2 }}. Cover placeholders: {{ client_company }}, {{ company_name }}, {{ subject }}, {{ spk_date }}, {{ client_pic_name }}, {{ client_pic_role }}, {{ client_address }}, {{ company_pic_name }}, {{ company_pic_role }}, {{ company_address }}.')
                     ->schema([
                         Translate::make()
                             ->exclude(
                                 collect(config('translatable.locales'))
                                     ->flatMap(fn (string $locale): array => [
+                                        "value.{$locale}.title",
+                                        "value.{$locale}.party_identification",
                                         "value.{$locale}.subject",
                                         "value.{$locale}.content",
                                     ])
                                     ->all()
                             )
                             ->schema(fn (string $locale): array => [
+                                RichEditorHtml::configure(
+                                    RichEditor::make("value.{$locale}.title")
+                                        ->label('Title')
+                                        ->helperText('Cover heading copied onto new SPKs. Placeholders are resolved once on create.'),
+                                )
+                                    ->enableToolbarButtons(['table'])
+                                    ->columnSpanFull(),
+                                RichEditorHtml::configure(
+                                    RichEditor::make("value.{$locale}.party_identification")
+                                        ->label('Party Identification')
+                                        ->helperText('Opening party block copied onto new SPKs. Placeholders are resolved once on create.'),
+                                )
+                                    ->enableToolbarButtons(['table'])
+                                    ->extraAttributes(['style' => 'min-height: 360px'])
+                                    ->columnSpanFull(),
                                 TextInput::make("value.{$locale}.subject")
                                     ->label('Subject')
                                     ->maxLength(255)

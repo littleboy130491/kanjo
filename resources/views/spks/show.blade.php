@@ -38,11 +38,8 @@
         '<table class="spk-timeline-table"$1>$2',
         $contentHtml,
     ) ?? $contentHtml;
-    $subjectText = trim((string) (
-        $spk->getTranslation('subject', $locale, false)
-        ?: \App\Services\SpkTemplateRenderer::defaultForLocale('subject', $locale)
-    ));
-    $spkDateText = \App\Services\SpkTemplateRenderer::formatDocumentDate($spk->spk_date, $locale);
+    $titleHtml = \App\Services\SpkTemplateRenderer::displayHtml('title', $spk, $locale);
+    $partyIdentificationHtml = \App\Services\SpkTemplateRenderer::displayHtml('party_identification', $spk, $locale);
 @endphp
 
 <x-layout :locale="$locale" :title="$spk->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
@@ -104,20 +101,13 @@
         <section class="document-section-pad spk-content-section">
             <div class="spk-heading spk-cover">
                 <div class="spk-title document-richtext">
-                    @include('spks.partials.document-title', [
-                        'spk' => $spk,
-                        'subjectText' => $subjectText,
-                    ])
+                    {!! $titleHtml !!}
                 </div>
                 <p class="spk-number"><strong>Nomor {{ $spk->document_number }}</strong></p>
             </div>
 
             <div class="document-richtext spk-content">
-                @include('spks.partials.party-identification', [
-                    'spk' => $spk,
-                    'subjectText' => $subjectText,
-                    'spkDateText' => $spkDateText,
-                ])
+                {!! $partyIdentificationHtml !!}
                 {!! $contentHtml !!}
             </div>
         </section>

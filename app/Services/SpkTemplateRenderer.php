@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Proposal;
 use App\Models\Spk;
 use App\Models\SpkContentDefault;
+use App\Services\DocumentApi\SpkContentCatalog;
 use App\Support\RichTextHtmlNormalizer;
 use Illuminate\Support\Number;
 
@@ -56,11 +57,11 @@ class SpkTemplateRenderer
             'client_company' => (string) $spk->client_company,
             'client_pic_name' => (string) $spk->client_pic_name,
             'client_pic_role' => (string) $spk->client_pic_role,
-            'client_address' => (string) $spk->client_address,
+            'client_address' => self::multilineForHtml((string) $spk->client_address),
             'company_name' => (string) $spk->company_name,
             'company_pic_name' => (string) $spk->company_pic_name,
             'company_pic_role' => (string) $spk->company_pic_role,
-            'company_address' => (string) $spk->company_address,
+            'company_address' => self::multilineForHtml((string) $spk->company_address),
             'proposal_number' => (string) ($proposal?->document_number ?? ''),
             'proposal_date' => self::formatDocumentDate($proposal?->issue_date, $locale),
             'offer_name' => self::offerName($proposal, $primaryOfferIndex),
@@ -116,7 +117,7 @@ class SpkTemplateRenderer
         $proposal ??= $spk->relationLoaded('proposal') ? $spk->proposal : $spk->proposal()->first();
         $primaryOfferIndex = self::normalizeOfferIndex($primaryOfferIndex);
 
-        foreach (['subject', 'content'] as $field) {
+        foreach (SpkContentCatalog::FIELD_KEYS as $field) {
             $translations = $spk->getTranslations($field) ?: self::defaultTranslations($field);
             $resolved = [];
 
@@ -143,7 +144,9 @@ class SpkTemplateRenderer
                             (string) ($localeValues[$timelineKey] ?? ''),
                         );
                     }
+                }
 
+                if ($field !== 'subject') {
                     $content = RichTextHtmlNormalizer::normalize($content);
                 }
 
@@ -152,6 +155,33 @@ class SpkTemplateRenderer
 
             $spk->setTranslations($field, $resolved);
         }
+    }
+
+    public static function displayHtml(string $field, Spk $spk, string $locale): string
+    {
+        $stored = (string) $spk->getTranslation($field, $locale, false);
+
+        if (! RichTextHtmlNormalizer::isBlankHtml($stored)) {
+            return $stored;
+        }
+
+        return self::generatedHtml($field, $spk, $locale);
+    }
+
+    public static function generatedHtml(string $field, Spk $spk, string $locale): string
+    {
+        $template = self::defaultForLocale($field, $locale);
+
+        if (! RichTextHtmlNormalizer::isBlankHtml($template)) {
+            $html = self::replacePlaceholders(
+                [$locale => $template],
+                self::placeholderValues($spk, $spk->proposal, 1, $locale),
+            )[$locale];
+
+            return $field === 'subject' ? $html : RichTextHtmlNormalizer::normalize($html);
+        }
+
+        return self::fallbackGeneratedHtml($field, $spk, $locale);
     }
 
     public static function formatTimelineTable(?Proposal $proposal, string $locale, int $offerIndex = 1): string
@@ -239,6 +269,48 @@ class SpkTemplateRenderer
         $carbonLocale = $locale === 'id' ? 'id' : 'en';
 
         return (string) $date->copy()->locale($carbonLocale)->translatedFormat('d F Y');
+    }
+
+    private static function fallbackGeneratedHtml(string $field, Spk $spk, string $locale): string
+    {
+        $subjectText = trim((string) (
+            $spk->getTranslation('subject', $locale, false)
+            ?: self::defaultForLocale('subject', $locale)
+        ));
+        $spkDateText = self::formatDocumentDate($spk->spk_date, $locale);
+
+        $previousLocale = app()->getLocale();
+        app()->setLocale($locale);
+
+        try {
+            return match ($field) {
+                'title' => view('spks.partials.document-title', [
+                    'spk' => $spk,
+                    'subjectText' => $subjectText,
+                ])->render(),
+                'party_identification' => view('spks.partials.party-identification', [
+                    'spk' => $spk,
+                    'subjectText' => $subjectText,
+                    'spkDateText' => $spkDateText,
+                ])->render(),
+                default => '',
+            };
+        } finally {
+            app()->setLocale($previousLocale);
+        }
+    }
+
+    private static function multilineForHtml(string $value): string
+    {
+        if ($value === '') {
+            return '';
+        }
+
+        if (str_contains(strtolower($value), '<br')) {
+            return $value;
+        }
+
+        return nl2br($value, false);
     }
 
     private static function formatMoney(mixed $value, ?string $currency): string

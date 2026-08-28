@@ -10,14 +10,29 @@ class SpkContentDefaultSeeder extends Seeder
 {
     public function run(): void
     {
-        SpkContentDefault::updateOrCreate([
+        $record = SpkContentDefault::query()->firstOrNew([
             'field_key' => SpkContentDefault::GLOBAL_FIELD_KEY,
-        ], [
-            'value' => [
-                'id' => RichTextHtmlNormalizer::normalizeArray(self::defaultValue('id')),
-                'en' => RichTextHtmlNormalizer::normalizeArray(self::defaultValue('en')),
-            ],
         ]);
+
+        $value = $record->getTranslations('value') ?: [];
+
+        foreach (['id', 'en'] as $locale) {
+            $defaults = self::defaultValue($locale);
+            $current = is_array($value[$locale] ?? null) ? $value[$locale] : [];
+
+            foreach ($defaults as $field => $html) {
+                $existing = $current[$field] ?? null;
+
+                if (! is_string($existing) || trim($existing) === '') {
+                    $current[$field] = $html;
+                }
+            }
+
+            $value[$locale] = RichTextHtmlNormalizer::normalizeArray($current);
+        }
+
+        $record->value = $value;
+        $record->save();
     }
 
     /**
@@ -37,6 +52,8 @@ class SpkContentDefaultSeeder extends Seeder
     private static function indonesianDefaultValue(): array
     {
         return [
+            'title' => self::indonesianTitleTemplate(),
+            'party_identification' => self::indonesianPartyIdentificationTemplate(),
             'subject' => 'JASA PEMBUATAN WEBSITE',
             'content' => <<<'HTML'
 <h3>PASAL I — RUANG LINGKUP DAN DOKUMEN ACUAN</h3>
@@ -107,6 +124,8 @@ HTML,
     private static function englishDefaultValue(): array
     {
         return [
+            'title' => self::englishTitleTemplate(),
+            'party_identification' => self::englishPartyIdentificationTemplate(),
             'subject' => 'WEBSITE DEVELOPMENT SERVICES',
             'content' => <<<'HTML'
 <h3>ARTICLE I — SCOPE OF WORK AND REFERENCE DOCUMENT</h3>
@@ -168,5 +187,73 @@ HTML,
 <p>This Agreement is made and signed by the PARTIES on the date stated at the beginning of this Agreement.</p>
 HTML,
         ];
+    }
+
+    private static function indonesianTitleTemplate(): string
+    {
+        return <<<'HTML'
+<p style="text-align: center;"><strong>PERJANJIAN KERJA SAMA</strong><br><strong>ANTARA</strong><br><strong>{{ client_company }}</strong><br><strong>DENGAN</strong><br><strong>{{ company_name }}</strong><br><strong>TENTANG</strong><br><strong>{{ subject }}</strong></p>
+HTML;
+    }
+
+    private static function englishTitleTemplate(): string
+    {
+        return <<<'HTML'
+<p style="text-align: center;"><strong>COOPERATION AGREEMENT</strong><br><strong>BETWEEN</strong><br><strong>{{ client_company }}</strong><br><strong>AND</strong><br><strong>{{ company_name }}</strong><br><strong>REGARDING</strong><br><strong>{{ subject }}</strong></p>
+HTML;
+    }
+
+    private static function indonesianPartyIdentificationTemplate(): string
+    {
+        return <<<'HTML'
+<p>Perjanjian Kerja sama {{ subject }}, dibuat dan ditandatangani pada tanggal {{ spk_date }} oleh dan antara:</p>
+<table class="spk-party-table">
+<tbody>
+<tr><td>Nama</td><td>:</td><td>{{ client_pic_name }}</td></tr>
+<tr><td>Jabatan</td><td>:</td><td>{{ client_pic_role }}</td></tr>
+<tr><td>Perusahaan</td><td>:</td><td>{{ client_company }}</td></tr>
+<tr><td>Alamat</td><td>:</td><td>{{ client_address }}</td></tr>
+</tbody>
+</table>
+<p>Selanjutnya dalam Perjanjian ini disebut <strong>PIHAK PERTAMA</strong>.</p>
+<table class="spk-party-table">
+<tbody>
+<tr><td>Nama</td><td>:</td><td>{{ company_pic_name }}</td></tr>
+<tr><td>Jabatan</td><td>:</td><td>{{ company_pic_role }}</td></tr>
+<tr><td>Perusahaan</td><td>:</td><td>{{ company_name }}</td></tr>
+<tr><td>Alamat</td><td>:</td><td>{{ company_address }}</td></tr>
+</tbody>
+</table>
+<p>Selanjutnya dalam Perjanjian ini disebut <strong>PIHAK KEDUA</strong>.</p>
+<p>PIHAK PERTAMA dan PIHAK KEDUA secara bersama-sama disebut sebagai PARA PIHAK dan secara terpisah disebut PIHAK.</p>
+<p>Dengan ini menerangkan bahwa PIHAK PERTAMA dan PIHAK KEDUA telah mengadakan Perjanjian sebagaimana diatur dalam pasal-pasal sebagai berikut:</p>
+HTML;
+    }
+
+    private static function englishPartyIdentificationTemplate(): string
+    {
+        return <<<'HTML'
+<p>This Cooperation Agreement for {{ subject }} is made and signed on {{ spk_date }} by and between:</p>
+<table class="spk-party-table">
+<tbody>
+<tr><td>Name</td><td>:</td><td>{{ client_pic_name }}</td></tr>
+<tr><td>Position</td><td>:</td><td>{{ client_pic_role }}</td></tr>
+<tr><td>Company</td><td>:</td><td>{{ client_company }}</td></tr>
+<tr><td>Address</td><td>:</td><td>{{ client_address }}</td></tr>
+</tbody>
+</table>
+<p>Hereinafter referred to as the <strong>FIRST PARTY</strong>.</p>
+<table class="spk-party-table">
+<tbody>
+<tr><td>Name</td><td>:</td><td>{{ company_pic_name }}</td></tr>
+<tr><td>Position</td><td>:</td><td>{{ company_pic_role }}</td></tr>
+<tr><td>Company</td><td>:</td><td>{{ company_name }}</td></tr>
+<tr><td>Address</td><td>:</td><td>{{ company_address }}</td></tr>
+</tbody>
+</table>
+<p>Hereinafter referred to as the <strong>SECOND PARTY</strong>.</p>
+<p>FIRST PARTY and SECOND PARTY are collectively referred to as the PARTIES and individually as a PARTY.</p>
+<p>The PARTIES hereby enter into this Agreement under the following articles:</p>
+HTML;
     }
 }

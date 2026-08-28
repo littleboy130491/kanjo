@@ -286,7 +286,8 @@ Represents a work agreement that can be created manually or generated from a pro
 | `company_pic_name` | string | no | Frozen snapshot, selectable from company `pic` when generated |
 | `company_pic_role` | string | no | nullable, frozen snapshot, selectable from company `pic` when generated |
 | `company_address` | text | no | nullable, frozen snapshot |
-| `title` | rich text/string | **yes** | Agreement heading/title |
+| `title` | rich text (HTML) | **yes** | Agreement heading/title override. Empty uses the auto-generated cover title |
+| `party_identification` | rich text (HTML) | **yes** | Opening party-identification override. Empty uses the auto-generated party tables |
 | `subject` | string | **yes** | Agreement subject, e.g. `JASA PEMBUATAN WEBSITE` |
 | `content` | rich text (HTML) | **yes** | Main SPK content |
 | `status` | enum | no | `draft`, `published`; generated SPKs default to `published` |
@@ -320,8 +321,9 @@ Represents a work agreement that can be created manually or generated from a pro
 - On proposal create/edit, admin can pick a pack and Load it; that **replaces all** proposal content fields from the pack.
 
 **Default content:**
-- Admin can manage default SPK title, subject, and content from the dashboard.
+- Admin can manage default SPK title, party identification, subject, and content from the dashboard.
 - New SPKs copy default content into the SPK record; copied content can be edited per SPK.
+- If `title` or `party_identification` is empty on a document, the public SPK/PDF auto-generates that block from party snapshot fields and subject.
 - Default content supports placeholders that are resolved once when an SPK is created:
   - `{{ spk_number }}`
   - `{{ spk_date }}`
@@ -602,9 +604,9 @@ Mode applies to both `en` and `id`.
 
 When a timeline field is `default`, optional `template` or payload `timeline_template` selects `short_project_timeline`, `business_project_timeline`, `prime_project_timeline`, `corporate_project_timeline`, or `custom_project_timeline`.
 
-**SPK `content` keys (all required):** `title`, `subject`, `content`
+**SPK `content` keys (all required):** `title`, `party_identification`, `subject`, `content`
 
-SPK `default` for `subject`/`content` copies SPK Content Defaults and resolves placeholders once. `title` has no default; `default` stores empty.
+SPK `default` for `title`/`party_identification`/`subject`/`content` copies SPK Content Defaults and resolves placeholders once. Empty stored `title` or `party_identification` falls back to the auto-generated cover/party block on the public document.
 
 **Invoice:** no content-default catalog. Standalone create requires `items`. `content.additional_info` mode may be `override` or `empty` only (`default` is invalid). From-proposal create may use `additional_info` mode `default` to copy the proposal’s additional info. Nested create copies Offer 1 into items unless `items` is sent; optional `offer` `1|2` and `renewal` boolean.
 

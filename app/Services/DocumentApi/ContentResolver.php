@@ -145,9 +145,7 @@ class ContentResolver
             $resolved[$field] = match ($mode) {
                 'empty' => $this->emptyTranslations(),
                 'override' => $this->overrideRichText($spec['value'] ?? null),
-                default => $field === 'title'
-                    ? $this->emptyTranslations()
-                    : ($spk->getTranslations($field) ?: $this->emptyTranslations()),
+                default => $spk->getTranslations($field) ?: $this->emptyTranslations(),
             };
         }
 

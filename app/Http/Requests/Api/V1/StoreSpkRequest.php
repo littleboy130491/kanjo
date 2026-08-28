@@ -33,6 +33,6 @@ class StoreSpkRequest extends DocumentApiRequest
 
     protected function validationHint(): string
     {
-        return 'Fetch GET /api/v1/spks/skeleton and include title, subject, and content each with mode default, override, or empty.';
+        return 'Fetch GET /api/v1/spks/skeleton and include title, party_identification, subject, and content each with mode default, override, or empty.';
     }
 }

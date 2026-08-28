@@ -324,8 +324,8 @@ Optional `template` on a `default` field looks up another defaults key (`ecommer
 **Proposal `content` keys (all required on POST):**  
 `brief`, `extra_content_brief`, `core_services`, `features`, `server`, `assets`, `security`, `support`, `additional_benefit`, `add_on`, `payment`, `terms_condition`, `additional_info`, `faq`, `our_process`, `about_us`, `video_testimonials`, `client_logos`, `offer_1_project_timeline`, `offer_2_project_timeline`
 
-**SPK `content` keys (all required):** `title`, `subject`, `content`  
-`title` has no stored default (`default` ⇒ empty). `subject` / `content` `default` copy SPK defaults and resolve placeholders once:  
+**SPK `content` keys (all required):** `title`, `party_identification`, `subject`, `content`  
+`title` / `party_identification` / `subject` / `content` `default` copy SPK defaults and resolve placeholders once. Empty stored `title` or `party_identification` falls back to the auto-generated cover/party block:  
 `spk_number`, `spk_date`, `client_company`, `client_pic_name`, `client_pic_role`, `client_address`, `company_name`, `company_pic_name`, `company_pic_role`, `company_address`, `proposal_number`, `proposal_date`, `offer_name`, `offer_price`, `offer_name_1`, `offer_price_1`, `offer_name_2`, `offer_price_2`, `offer_timeline`, `offer_timeline_1`, `offer_timeline_2`, `subject`
 
 **Invoice content:** no defaults catalog. Standalone POST requires `items` and `content.additional_info` with mode `override` or `empty` only.

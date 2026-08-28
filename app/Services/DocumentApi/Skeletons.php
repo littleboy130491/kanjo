@@ -109,8 +109,8 @@ class Skeletons
             'content_fields' => SpkContentCatalog::FIELD_KEYS,
             'placeholders' => SpkContentCatalog::PLACEHOLDERS,
             'notes' => [
-                'title has no stored default; mode default leaves it empty.',
-                'subject and content default copy SPK Content Defaults and resolve placeholders once.',
+                'title, party_identification, subject, and content default copy SPK Content Defaults and resolve placeholders once.',
+                'Empty title or party_identification falls back to the auto-generated cover/party block on the public document.',
                 'company_pic_index is 0-based from GET /api/v1/companies/{id}.',
             ],
         ];

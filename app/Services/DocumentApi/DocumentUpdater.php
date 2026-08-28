@@ -329,9 +329,7 @@ class DocumentUpdater
             $translations = match ($mode) {
                 'empty' => $this->content->emptyTranslations(),
                 'override' => $this->content->overrideRichText($content[$field]['value'] ?? null),
-                'default' => $field === 'title'
-                    ? $this->content->emptyTranslations()
-                    : ($rendered->getTranslations($field) ?: $this->content->emptyTranslations()),
+                'default' => $rendered->getTranslations($field) ?: $this->content->emptyTranslations(),
                 default => $original[$field] ?: [],
             };
             $updates[$field] = json_encode($translations);

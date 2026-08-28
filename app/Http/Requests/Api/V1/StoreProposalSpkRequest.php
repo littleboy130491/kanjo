@@ -34,6 +34,6 @@ class StoreProposalSpkRequest extends DocumentApiRequest
 
     protected function validationHint(): string
     {
-        return 'Fetch GET /api/v1/spks/skeleton. From-proposal SPKs still require title, subject, and content modes. Optional company_pic_index selects a company PIC.';
+        return 'Fetch GET /api/v1/spks/skeleton. From-proposal SPKs still require title, party_identification, subject, and content modes. Optional company_pic_index selects a company PIC.';
     }
 }

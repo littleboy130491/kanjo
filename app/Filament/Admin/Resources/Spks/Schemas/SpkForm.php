@@ -5,14 +5,15 @@ namespace App\Filament\Admin\Resources\Spks\Schemas;
 use App\Enums\DocumentStatus;
 use App\Enums\UserRole;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
+use App\Filament\Support\RichEditorHtml;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Proposal;
-use App\Filament\Support\RichEditorHtml;
 use App\Models\Spk;
 use App\Services\DocumentNumberGenerator;
 use App\Services\SpkTemplateRenderer;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
@@ -221,25 +222,52 @@ class SpkForm
                         Tab::make('Content')
                             ->icon('heroicon-o-pencil-square')
                             ->schema([
-                                Translate::make()
-                                    ->exclude(self::translatedFieldPaths(['subject', 'content']))
-                                    ->schema(fn (string $locale): array => [
-                                        TextInput::make("subject.{$locale}")
-                                            ->label('Subject')
-                                            ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('subject', $locale))
-                                            ->maxLength(255)
-                                            ->columnSpanFull(),
-                                        RichEditorHtml::configure(
-                                            RichEditor::make("content.{$locale}")
-                                                ->label('Content')
-                                                ->helperText('Party identification tables are rendered automatically from the Parties tab. Edit this field for agreement articles and clauses only.')
-                                                ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('content', $locale)),
-                                        )
-                                            ->extraInputAttributes(['class' => 'spk-content-editor'], merge: true)
-                                            ->extraAttributes(['style' => 'min-height: 560px'])
-                                            ->columnSpanFull(),
+                                Section::make('Cover Title & Party Identification')
+                                    ->description('Leave a field blank to use the auto-generated block from the Parties tab and subject. Fill it to override this SPK only.')
+                                    ->headerActions([
+                                        self::makeLoadGeneratedContentAction('title', 'Load generated title'),
+                                        self::makeClearGeneratedContentAction('title', 'Use auto-generated title'),
+                                        self::makeLoadGeneratedContentAction('party_identification', 'Load generated parties'),
+                                        self::makeClearGeneratedContentAction('party_identification', 'Use auto-generated parties'),
                                     ])
-                                    ->suffixLocaleLabel(),
+                                    ->schema([
+                                        Translate::make()
+                                            ->exclude(self::translatedFieldPaths(['title', 'party_identification', 'subject', 'content']))
+                                            ->schema(fn (string $locale): array => [
+                                                RichEditorHtml::configure(
+                                                    RichEditor::make("title.{$locale}")
+                                                        ->label('Title')
+                                                        ->helperText('Overrides the cover heading. Leave blank to auto-generate from party names and subject.')
+                                                        ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('title', $locale)),
+                                                )
+                                                    ->enableToolbarButtons(['table'])
+                                                    ->columnSpanFull(),
+                                                RichEditorHtml::configure(
+                                                    RichEditor::make("party_identification.{$locale}")
+                                                        ->label('Party Identification')
+                                                        ->helperText('Overrides the opening party tables. Leave blank to auto-generate from the Parties tab.')
+                                                        ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('party_identification', $locale)),
+                                                )
+                                                    ->enableToolbarButtons(['table'])
+                                                    ->extraAttributes(['style' => 'min-height: 360px'])
+                                                    ->columnSpanFull(),
+                                                TextInput::make("subject.{$locale}")
+                                                    ->label('Subject')
+                                                    ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('subject', $locale))
+                                                    ->maxLength(255)
+                                                    ->columnSpanFull(),
+                                                RichEditorHtml::configure(
+                                                    RichEditor::make("content.{$locale}")
+                                                        ->label('Content')
+                                                        ->helperText('Agreement articles and clauses. Party identification is a separate field above.')
+                                                        ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('content', $locale)),
+                                                )
+                                                    ->extraInputAttributes(['class' => 'spk-content-editor'], merge: true)
+                                                    ->extraAttributes(['style' => 'min-height: 560px'])
+                                                    ->columnSpanFull(),
+                                            ])
+                                            ->suffixLocaleLabel(),
+                                    ]),
                             ]),
 
                         Tab::make('Access & Notes')
@@ -326,6 +354,61 @@ class SpkForm
     protected static function canEditDocumentRawNumber(): bool
     {
         return auth()->user()?->hasRole(UserRole::SuperAdmin->value) ?? false;
+    }
+
+    protected static function makeLoadGeneratedContentAction(string $field, string $label): Action
+    {
+        return Action::make('load_generated_'.$field)
+            ->label($label)
+            ->icon('heroicon-o-arrow-down-tray')
+            ->color('gray')
+            ->action(function (Get $get, Set $set, mixed $record): void {
+                $spk = self::spkFromFormState($get, $record instanceof Spk ? $record : null);
+
+                foreach (config('translatable.locales', ['en', 'id']) as $locale) {
+                    $set("{$field}.{$locale}", SpkTemplateRenderer::generatedHtml($field, $spk, $locale));
+                }
+            });
+    }
+
+    protected static function makeClearGeneratedContentAction(string $field, string $label): Action
+    {
+        return Action::make('clear_generated_'.$field)
+            ->label($label)
+            ->icon('heroicon-o-arrow-uturn-left')
+            ->color('gray')
+            ->action(function (Set $set): void {
+                foreach (config('translatable.locales', ['en', 'id']) as $locale) {
+                    $set("{$field}.{$locale}", '');
+                }
+            });
+    }
+
+    protected static function spkFromFormState(Get $get, ?Spk $record): Spk
+    {
+        $spk = $record instanceof Spk ? $record->replicate() : new Spk;
+        $spk->client_company = (string) $get('client_company');
+        $spk->client_pic_name = (string) $get('client_pic_name');
+        $spk->client_pic_role = (string) $get('client_pic_role');
+        $spk->client_address = $get('client_address');
+        $spk->company_name = (string) $get('company_name');
+        $spk->company_pic_name = (string) $get('company_pic_name');
+        $spk->company_pic_role = (string) $get('company_pic_role');
+        $spk->company_address = $get('company_address');
+        $spk->document_number = (string) $get('document_number');
+        $spk->spk_date = filled($get('spk_date')) ? Carbon::parse($get('spk_date')) : now();
+
+        foreach (config('translatable.locales', ['en', 'id']) as $locale) {
+            $spk->setTranslation('subject', $locale, (string) $get("subject.{$locale}"));
+        }
+
+        if ($record?->relationLoaded('proposal')) {
+            $spk->setRelation('proposal', $record->proposal);
+        } elseif (filled($record?->proposal_id)) {
+            $spk->setRelation('proposal', $record->proposal()->first());
+        }
+
+        return $spk;
     }
 
     /**

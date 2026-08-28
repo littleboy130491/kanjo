@@ -41,6 +41,7 @@ class Spk extends Model
         'company_pic_role',
         'company_address',
         'title',
+        'party_identification',
         'subject',
         'content',
         'status',
@@ -57,6 +58,7 @@ class Spk extends Model
 
     protected $translatable = [
         'title',
+        'party_identification',
         'subject',
         'content',
     ];

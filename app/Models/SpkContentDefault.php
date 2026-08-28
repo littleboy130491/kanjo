@@ -14,6 +14,8 @@ class SpkContentDefault extends Model
     public const GLOBAL_FIELD_KEY = '__all__';
 
     public const FIELD_OPTIONS = [
+        'title' => 'Title',
+        'party_identification' => 'Party Identification',
         'subject' => 'Subject',
         'content' => 'Content',
     ];

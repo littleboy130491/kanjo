@@ -6,6 +6,7 @@ class SpkContentCatalog
 {
     public const FIELD_KEYS = [
         'title',
+        'party_identification',
         'subject',
         'content',
     ];

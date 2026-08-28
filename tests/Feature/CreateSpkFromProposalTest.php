@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\Proposal;
 use App\Models\Spk;
 use App\Models\User;
+use Carbon\Carbon;
 use Database\Seeders\SpkContentDefaultSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,6 +20,7 @@ class CreateSpkFromProposalTest extends TestCase
 
     public function test_spk_can_be_generated_from_proposal_with_selected_company_pic(): void
     {
+        Carbon::setTestNow('2026-06-25');
         $this->seed(SpkContentDefaultSeeder::class);
 
         $user = User::factory()->create();
@@ -112,6 +114,10 @@ class CreateSpkFromProposalTest extends TestCase
         $this->assertStringContainsString('6 hari', $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('Rp. 15.000.000', $spk->getTranslation('content', 'id'));
         $this->assertStringContainsString('Website Plan Corporate', $spk->getTranslation('content', 'id'));
+        $this->assertStringContainsString('PT Test Client', $spk->getTranslation('title', 'id'));
+        $this->assertStringContainsString('PERJANJIAN KERJA SAMA', $spk->getTranslation('title', 'id'));
+        $this->assertStringContainsString('Test Client PIC', $spk->getTranslation('party_identification', 'id'));
+        $this->assertStringContainsString('spk-party-table', $spk->getTranslation('party_identification', 'id'));
         $this->assertStringNotContainsString('Test Client PIC', $spk->getTranslation('content', 'id'));
         $this->assertStringNotContainsString('spk-party-table', $spk->getTranslation('content', 'id'));
         $this->assertStringNotContainsString('Activity', $spk->getTranslation('content', 'id'));
@@ -119,6 +125,13 @@ class CreateSpkFromProposalTest extends TestCase
         $this->assertStringContainsString('Down Payment', $spk->getTranslation('content', 'en'));
         $this->assertStringContainsString('Activity', $spk->getTranslation('content', 'en'));
         $this->assertStringNotContainsString('Pembayaran DP', $spk->getTranslation('content', 'en'));
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
     }
 
     public function test_spk_primary_placeholders_can_use_selected_offer_two(): void
@@ -235,12 +248,82 @@ class CreateSpkFromProposalTest extends TestCase
             ])
             ->get(route('spk.show', ['slug' => $spk->slug, 'lang' => 'id']))
             ->assertOk()
-            ->assertSee('PERJANJIAN KERJASAMA', false)
+            ->assertSee('PERJANJIAN KERJA SAMA', false)
             ->assertSee('PT Test Client', false)
             ->assertSee('Isi SPK', false)
             ->assertSee('Test Client PIC', false)
             ->assertSee('123 Example Street', false)
             ->assertSee('PIHAK PERTAMA', false)
             ->assertSee(route('pdf.spk', ['slug' => $spk->slug, 'lang' => 'id']), false);
+    }
+
+    public function test_spk_frontend_renders_title_and_party_identification_overrides(): void
+    {
+        config([
+            'app.key' => 'base64:'.base64_encode(str_repeat('a', 32)),
+            'app.global_access_username' => 'viewer',
+            'app.global_access_password' => 'secret',
+        ]);
+        $this->withoutVite();
+
+        $user = User::factory()->create();
+        $company = Company::query()->create([
+            'company_name' => 'PT Test Agency',
+            'brand_name' => 'Test Brand',
+            'address' => 'Example City',
+            'email_1' => 'hello@example.test',
+            'phone_1' => '08123456789',
+            'tax_id' => 'NPWP-001',
+            'default_currency' => 'IDR',
+            'color_primary' => '#111111',
+            'color_secondary' => '#222222',
+            'footer_text' => ['en' => 'Footer', 'id' => 'Footer'],
+            'bank' => [],
+            'pic' => [],
+        ]);
+        $spk = Spk::query()->create([
+            'spk_date' => '2026-06-25',
+            'client_company' => 'PT Test Client',
+            'client_pic_name' => 'Test Client PIC',
+            'client_pic_role' => 'Director',
+            'client_address' => '123 Example Street',
+            'company_name' => $company->company_name,
+            'company_pic_name' => 'Company PIC Alpha',
+            'company_pic_role' => 'Director',
+            'company_address' => $company->address,
+            'title' => [
+                'en' => '<p><strong>CUSTOM TITLE EN</strong></p>',
+                'id' => '<p><strong>JUDUL KUSTOM</strong></p>',
+            ],
+            'party_identification' => [
+                'en' => '<p>Custom parties EN</p>',
+                'id' => '<p>Identitas pihak kustom</p>',
+            ],
+            'subject' => [
+                'en' => 'Website',
+                'id' => 'Website',
+            ],
+            'content' => [
+                'en' => '<p>SPK Body</p>',
+                'id' => '<p>Isi SPK</p>',
+            ],
+            'status' => DocumentStatus::PUBLISHED,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'notes' => [],
+        ]);
+
+        $this
+            ->withSession([
+                DocumentAccessMiddleware::sessionKey('spk', $spk->id) => true,
+                DocumentAccessMiddleware::versionKey('spk', $spk->id) => DocumentAccessMiddleware::credentialVersion($spk),
+            ])
+            ->get(route('spk.show', ['slug' => $spk->slug, 'lang' => 'id']))
+            ->assertOk()
+            ->assertSee('JUDUL KUSTOM', false)
+            ->assertSee('Identitas pihak kustom', false)
+            ->assertDontSee('PERJANJIAN KERJA SAMA', false)
+            ->assertDontSee('Selanjutnya dalam Perjanjian ini disebut', false)
+            ->assertSee('Isi SPK', false);
     }
 }
