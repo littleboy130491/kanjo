@@ -78,6 +78,7 @@ class CreateSpkAction
             'company_pic_role' => (string) ($data['company_pic_role'] ?? ''),
             'company_address' => $company?->address,
             'status' => DocumentStatus::PUBLISHED,
+            'activate_translation' => (bool) $proposal->activate_translation,
             'access_username' => $proposal->access_username,
             'access_password' => $proposal->access_password,
             'proposal_id' => $proposal->id,

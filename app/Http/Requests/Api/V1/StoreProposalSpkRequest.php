@@ -20,6 +20,7 @@ class StoreProposalSpkRequest extends DocumentApiRequest
             'company_pic_role' => ['nullable', 'string', 'max:255'],
             'client' => ['nullable', 'array'],
             'client.pic_role' => ['nullable', 'string', 'max:255'],
+            'activate_translation' => ['sometimes', 'boolean'],
             ...$this->contentRules(),
         ];
     }

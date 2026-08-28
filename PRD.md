@@ -291,6 +291,7 @@ Represents a work agreement that can be created manually or generated from a pro
 | `subject` | string | **yes** | Agreement subject, e.g. `JASA PEMBUATAN WEBSITE` |
 | `content` | rich text (HTML) | **yes** | Main SPK content |
 | `status` | enum | no | `draft`, `published`; generated SPKs default to `published` |
+| `activate_translation` | boolean | no | default `false`; enables EN/ID language switching on the public document, same as proposals |
 | `access_username` | string | no | nullable, per-record override |
 | `access_password` | string | no | nullable, hashed, per-record override |
 | `access_credentials_updated_at` | timestamp | no | nullable |
@@ -352,6 +353,7 @@ Represents a work agreement that can be created manually or generated from a pro
   - `company.address` → `company_address`
   - selected company PIC name/role → `company_pic_name`, `company_pic_role`
   - `proposal_id`, `client_id`, `company_id`, `user_id`
+  - `activate_translation`
   - proposal access credentials, if set
 - Generated SPKs default to `published`.
 

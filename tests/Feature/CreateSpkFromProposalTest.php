@@ -105,6 +105,7 @@ class CreateSpkFromProposalTest extends TestCase
         $this->assertSame('Test Client PIC', $spk->client_pic_name);
         $this->assertSame('Company PIC Beta', $spk->company_pic_name);
         $this->assertSame('Project Lead', $spk->company_pic_role);
+        $this->assertFalse($spk->activate_translation);
         $this->assertStringStartsWith('SPK/001/VI/26/NEW', $spk->document_number);
         $this->assertStringStartsWith('SPK/002/VI/26/NEW', $secondSpk->document_number);
         $this->assertStringContainsString($proposal->document_number, $spk->getTranslation('content', 'id'));
@@ -197,6 +198,7 @@ class CreateSpkFromProposalTest extends TestCase
     {
         config([
             'app.key' => 'base64:'.base64_encode(str_repeat('a', 32)),
+            'app.locale' => 'id',
             'app.global_access_username' => 'viewer',
             'app.global_access_password' => 'secret',
         ]);
@@ -254,13 +256,85 @@ class CreateSpkFromProposalTest extends TestCase
             ->assertSee('Test Client PIC', false)
             ->assertSee('123 Example Street', false)
             ->assertSee('PIHAK PERTAMA', false)
-            ->assertSee(route('pdf.spk', ['slug' => $spk->slug, 'lang' => 'id']), false);
+            ->assertSee(route('pdf.spk', ['slug' => $spk->slug]), false)
+            ->assertDontSee(route('pdf.spk', ['slug' => $spk->slug, 'lang' => 'id']), false);
+    }
+
+    public function test_spk_frontend_honors_lang_only_when_translation_is_activated(): void
+    {
+        config([
+            'app.key' => 'base64:'.base64_encode(str_repeat('a', 32)),
+            'app.locale' => 'id',
+            'app.global_access_username' => 'viewer',
+            'app.global_access_password' => 'secret',
+        ]);
+        $this->withoutVite();
+
+        $user = User::factory()->create();
+        $company = Company::query()->create([
+            'company_name' => 'PT Test Agency',
+            'brand_name' => 'Test Brand',
+            'address' => 'Example City',
+            'email_1' => 'hello@example.test',
+            'phone_1' => '08123456789',
+            'tax_id' => 'NPWP-001',
+            'default_currency' => 'IDR',
+            'color_primary' => '#111111',
+            'color_secondary' => '#222222',
+            'footer_text' => ['en' => 'Footer', 'id' => 'Footer'],
+            'bank' => [],
+            'pic' => [],
+        ]);
+        $spk = Spk::query()->create([
+            'spk_date' => '2026-06-25',
+            'client_company' => 'PT Test Client',
+            'client_pic_name' => 'Test Client PIC',
+            'client_pic_role' => 'Director',
+            'client_address' => '123 Example Street',
+            'company_name' => $company->company_name,
+            'company_pic_name' => 'Company PIC Alpha',
+            'company_pic_role' => 'Director',
+            'company_address' => $company->address,
+            'activate_translation' => false,
+            'content' => [
+                'en' => '<p>SPK Body</p>',
+                'id' => '<p>Isi SPK</p>',
+            ],
+            'status' => DocumentStatus::PUBLISHED,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'notes' => [],
+        ]);
+
+        $this
+            ->withSession([
+                DocumentAccessMiddleware::sessionKey('spk', $spk->id) => true,
+                DocumentAccessMiddleware::versionKey('spk', $spk->id) => DocumentAccessMiddleware::credentialVersion($spk),
+            ])
+            ->get(route('spk.show', ['slug' => $spk->slug, 'lang' => 'en']))
+            ->assertOk()
+            ->assertSee('Isi SPK', false)
+            ->assertDontSee('SPK Body', false);
+
+        $spk->update(['activate_translation' => true]);
+
+        $this
+            ->withSession([
+                DocumentAccessMiddleware::sessionKey('spk', $spk->id) => true,
+                DocumentAccessMiddleware::versionKey('spk', $spk->id) => DocumentAccessMiddleware::credentialVersion($spk),
+            ])
+            ->get(route('spk.show', ['slug' => $spk->slug, 'lang' => 'en']))
+            ->assertOk()
+            ->assertSee('SPK Body', false)
+            ->assertDontSee('Isi SPK', false)
+            ->assertSee(route('pdf.spk', ['slug' => $spk->slug, 'lang' => 'en']), false);
     }
 
     public function test_spk_frontend_renders_title_and_party_identification_overrides(): void
     {
         config([
             'app.key' => 'base64:'.base64_encode(str_repeat('a', 32)),
+            'app.locale' => 'id',
             'app.global_access_username' => 'viewer',
             'app.global_access_password' => 'secret',
         ]);

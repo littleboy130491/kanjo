@@ -140,13 +140,6 @@ class PdfController extends Controller
 
     private function resolveLocale(Request $request, Proposal|Invoice|Spk|null $document = null): string
     {
-        if ($document instanceof Spk) {
-            $supported = config('app.supported_locales', ['en', 'id']);
-            $locale = (string) $request->query('lang', config('app.locale', 'en'));
-
-            return in_array($locale, $supported, true) ? $locale : config('app.locale', 'en');
-        }
-
         if (! ($document?->activate_translation)) {
             return config('app.locale', 'en');
         }

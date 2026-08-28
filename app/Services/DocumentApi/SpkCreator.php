@@ -73,6 +73,7 @@ class SpkCreator
                 'company_pic_role' => $pic['pic_role'],
                 'company_address' => $company->address,
                 'status' => DocumentStatus::PUBLISHED,
+                'activate_translation' => (bool) ($payload['activate_translation'] ?? false),
                 'client_id' => $snapshot['client_id'],
                 'company_id' => $company->id,
                 'user_id' => $author->id,
@@ -165,6 +166,10 @@ class SpkCreator
 
             if (filled(data_get($payload, 'client.pic_role'))) {
                 $spk->client_pic_role = (string) data_get($payload, 'client.pic_role');
+            }
+
+            if (array_key_exists('activate_translation', $payload)) {
+                $spk->activate_translation = (bool) $payload['activate_translation'];
             }
 
             $resolved = $this->content->resolveSpkContent(

@@ -112,6 +112,7 @@ class Skeletons
                 'title, party_identification, subject, and content default copy SPK Content Defaults and resolve placeholders once.',
                 'Empty title or party_identification falls back to the auto-generated cover/party block on the public document.',
                 'company_pic_index is 0-based from GET /api/v1/companies/{id}.',
+                'activate_translation default false; set true to honor ?lang= on the public document.',
             ],
         ];
     }

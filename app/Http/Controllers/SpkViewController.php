@@ -20,7 +20,7 @@ class SpkViewController extends Controller
             abort(404);
         }
 
-        $locale = $this->resolveLocale($request);
+        $locale = $this->resolveLocale($request, $spk);
         app()->setLocale($locale);
 
         $spk->loadMissing(['company', 'proposal']);
@@ -34,7 +34,11 @@ class SpkViewController extends Controller
 
     public function authenticateRedirect(Request $request, string $slug): RedirectResponse
     {
-        return redirect()->route('spk.show', $this->buildRouteParameters($slug, $request->query('lang')));
+        return redirect()->route('spk.show', $this->buildRouteParameters(
+            $slug,
+            $this->resolveDocument($slug),
+            $request->query('lang'),
+        ));
     }
 
     public function authenticate(Request $request, string $slug): RedirectResponse
@@ -93,25 +97,44 @@ class SpkViewController extends Controller
             DocumentAccessMiddleware::versionKey('spk', $spk->id) => DocumentAccessMiddleware::credentialVersion($spk),
         ]);
 
-        return redirect()->route('spk.show', $this->buildRouteParameters($slug, $request->input('lang')));
+        return redirect()->route('spk.show', $this->buildRouteParameters(
+            $slug,
+            $spk,
+            $request->input('lang'),
+        ));
     }
 
-    private function resolveLocale(Request $request): string
+    private function resolveLocale(Request $request, ?Spk $spk = null): string
     {
-        $supported = config('app.supported_locales', ['en', 'id']);
-        $locale = (string) $request->query('lang', 'id');
+        if (! ($spk?->activate_translation)) {
+            return config('app.locale', 'en');
+        }
 
-        return in_array($locale, $supported, true) ? $locale : 'id';
+        $supported = config('app.supported_locales', ['en', 'id']);
+        $locale = (string) $request->query('lang', config('app.locale', 'en'));
+
+        return in_array($locale, $supported, true) ? $locale : config('app.locale', 'en');
+    }
+
+    private function resolveDocument(string $slug): ?Spk
+    {
+        $documentNumber = str_replace('-', '/', $slug);
+
+        return Spk::query()
+            ->where(fn ($query) => $query
+                ->where('slug', $slug)
+                ->orWhere('document_number', $documentNumber))
+            ->first();
     }
 
     /**
      * @return array<string, string>
      */
-    private function buildRouteParameters(string $slug, mixed $lang): array
+    private function buildRouteParameters(string $slug, ?Spk $spk, mixed $lang): array
     {
         $parameters = ['slug' => $slug];
 
-        if (is_string($lang) && $lang !== '') {
+        if ($spk?->activate_translation && is_string($lang) && $lang !== '') {
             $parameters['lang'] = $lang;
         }
 

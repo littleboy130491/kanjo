@@ -45,6 +45,7 @@ class Spk extends Model
         'subject',
         'content',
         'status',
+        'activate_translation',
         'access_username',
         'access_password',
         'access_credentials_updated_at',
@@ -65,6 +66,7 @@ class Spk extends Model
 
     protected $casts = [
         'document_number_override' => 'boolean',
+        'activate_translation' => 'boolean',
         'spk_date' => 'date',
         'access_credentials_updated_at' => 'datetime',
         'status' => DocumentStatus::class,

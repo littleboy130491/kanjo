@@ -351,7 +351,7 @@ Send `client_id` **or** `client`:
 
 - `company_id` required on standalone creates
 - `service_id` optional on invoices only; services are not auto-created
-- `activate_translation` default `false`
+- `activate_translation` default `false` (proposals, invoices, and SPKs)
 - Currency: company `default_currency` or `IDR`
 - Proposal `tax_rate` default `11`; standalone invoice default `0`; from-proposal copies the proposal
 - `issue_date` / `spk_date` default today; proposal `valid_until` and invoice `due_date` default +30 days

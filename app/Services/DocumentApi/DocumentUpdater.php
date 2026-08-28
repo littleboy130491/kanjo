@@ -283,6 +283,10 @@ class DocumentUpdater
                 'company_name', 'company_pic_name', 'company_pic_role', 'company_address',
             ]);
 
+            if (array_key_exists('activate_translation', $payload)) {
+                $updates['activate_translation'] = (bool) $payload['activate_translation'];
+            }
+
             $content = is_array($payload['content'] ?? null) ? $payload['content'] : [];
             $this->mergeSpkContent($updates, $spk, $content, $payload);
 

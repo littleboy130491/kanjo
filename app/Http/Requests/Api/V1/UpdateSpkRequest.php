@@ -32,6 +32,7 @@ class UpdateSpkRequest extends DocumentApiRequest
             'company_pic_name' => ['nullable', 'string', 'max:255'],
             'company_pic_role' => ['nullable', 'string', 'max:255'],
             'company_address' => ['nullable', 'string'],
+            'activate_translation' => ['sometimes', 'boolean'],
             ...$this->clientRules(required: false),
             ...$this->contentRules(),
         ];

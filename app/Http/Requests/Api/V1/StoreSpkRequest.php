@@ -18,6 +18,7 @@ class StoreSpkRequest extends DocumentApiRequest
             'company_pic_index' => ['nullable', 'integer', 'min:0'],
             'company_pic_name' => ['nullable', 'string', 'max:255'],
             'company_pic_role' => ['nullable', 'string', 'max:255'],
+            'activate_translation' => ['sometimes', 'boolean'],
             ...$this->clientRules(),
             ...$this->contentRules(),
         ];

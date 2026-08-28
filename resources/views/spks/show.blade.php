@@ -40,10 +40,11 @@
     ) ?? $contentHtml;
     $titleHtml = \App\Services\SpkTemplateRenderer::displayHtml('title', $spk, $locale);
     $partyIdentificationHtml = \App\Services\SpkTemplateRenderer::displayHtml('party_identification', $spk, $locale);
+    $activateTranslation = (bool) $spk->activate_translation;
 @endphp
 
 <x-layout :locale="$locale" :title="$spk->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
-    :edit-url="$editUrl" :activate-translation="true" :is-draft="$spk->status->value === 'draft'" lang-route="spk.show" pdf-route="pdf.spk">
+    :edit-url="$editUrl" :activate-translation="$activateTranslation" :is-draft="$spk->status->value === 'draft'" lang-route="spk.show" pdf-route="pdf.spk">
     <div class="document-frame document-view document-shell spk-document pt-10 pb-10 md:pt-24 md:pb-24">
         <section class="document-section-pad avoid-page-break">
             <div class="invoice-row invoice-row-logo">
