@@ -21,7 +21,7 @@ class SpkContentDefaultForm
                     ->default(SpkContentDefault::GLOBAL_FIELD_KEY)
                     ->dehydrated(),
                 Section::make('SPK Default Content')
-                    ->description('Title and party identification are copied onto each new SPK and can then be edited per document. Leave a document field blank to keep the live auto-generated block. Placeholders like {{ offer_name }}, {{ offer_price }}, and {{ offer_timeline }} use the selected offer when creating from a proposal (default Offer 1). Explicit Offer 1/2 placeholders: {{ offer_name_1 }}, {{ offer_price_1 }}, {{ offer_timeline_1 }}, {{ offer_name_2 }}, {{ offer_price_2 }}, {{ offer_timeline_2 }}. Cover placeholders: {{ client_company }}, {{ company_name }}, {{ subject }}, {{ spk_date }}, {{ client_pic_name }}, {{ client_pic_role }}, {{ client_address }}, {{ company_pic_name }}, {{ company_pic_role }}, {{ company_address }}.')
+                    ->description('These defaults are copied onto each new SPK and can then be edited per document. Placeholders like {{ offer_name }}, {{ offer_price }}, and {{ offer_timeline }} use the selected offer when creating from a proposal (default Offer 1). Explicit Offer 1/2 placeholders: {{ offer_name_1 }}, {{ offer_price_1 }}, {{ offer_timeline_1 }}, {{ offer_name_2 }}, {{ offer_price_2 }}, {{ offer_timeline_2 }}. Cover placeholders: {{ client_company }}, {{ company_name }}, {{ subject }}, {{ spk_date }}, {{ client_pic_name }}, {{ client_pic_role }}, {{ client_address }}, {{ company_pic_name }}, {{ company_pic_role }}, {{ company_address }}.')
                     ->schema([
                         Translate::make()
                             ->exclude(
