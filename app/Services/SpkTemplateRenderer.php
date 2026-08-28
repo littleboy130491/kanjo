@@ -197,7 +197,7 @@ class SpkTemplateRenderer
         string $secondName,
         string $secondCompany,
     ): string {
-        $spacer = '<p style="min-height: 7rem;"><br></p>';
+        $spacer = '<p style="min-height: 10rem;"><br></p>';
         $approvalLabel = e($approvalLabel);
         $firstPartyLabel = e($firstPartyLabel);
         $firstName = e($firstName);
@@ -225,7 +225,7 @@ class SpkTemplateRenderer
 
             foreach (array_values($cells) as $index => $html) {
                 $colwidth = match ($index) {
-                    0 => ' colwidth="92"',
+                    0 => ' colwidth="144"',
                     1 => ' colwidth="24"',
                     default => '',
                 };
@@ -235,7 +235,7 @@ class SpkTemplateRenderer
             $bodyRows .= "<tr>{$tds}</tr>";
         }
 
-        return '<div class="tableWrapper"><table class="spk-party-table" style="min-width: 312px;"><colgroup><col style="min-width: 25px; width: 92px;"><col style="min-width: 25px; width: 24px;"><col style="min-width: 25px;"></colgroup><tbody>'.$bodyRows.'</tbody></table></div>';
+        return '<div class="tableWrapper"><table class="spk-party-table" style="min-width: 312px;"><colgroup><col style="min-width: 25px; width: 144px;"><col style="min-width: 25px; width: 24px;"><col style="min-width: 25px;"></colgroup><tbody>'.$bodyRows.'</tbody></table></div>';
     }
 
     public static function toEditableTables(string $html, string $tableClass = 'spk-party-table'): string
@@ -491,7 +491,7 @@ class SpkTemplateRenderer
                 $col = $document->createElement('col');
                 $style = $tableClass === 'spk-party-table'
                     ? match ($index) {
-                        0 => 'min-width: 25px; width: 92px;',
+                        0 => 'min-width: 25px; width: 144px;',
                         1 => 'min-width: 25px; width: 24px;',
                         default => 'min-width: 25px;',
                     }

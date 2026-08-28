@@ -919,6 +919,16 @@ h3.offer_name {
     @apply my-0;
 }
 
+.spk-content .spk-party-table col:first-child,
+.spk-content table.spk-party-table col:first-child {
+    width: 9rem !important;
+}
+
+.spk-content .spk-party-table col:nth-child(2),
+.spk-content table.spk-party-table col:nth-child(2) {
+    width: 1.5rem !important;
+}
+
 .spk-content .spk-party-table td,
 .spk-content .spk-party-table th,
 .spk-content table.spk-party-table td,
@@ -937,7 +947,7 @@ h3.offer_name {
 .spk-content .spk-party-table th:first-child,
 .spk-content table.spk-party-table td:first-child,
 .spk-content table.spk-party-table th:first-child {
-    @apply w-[5.75rem] pr-3 whitespace-nowrap;
+    @apply w-36 pr-3 whitespace-nowrap;
 }
 
 .spk-content .spk-party-table td:nth-child(2),
