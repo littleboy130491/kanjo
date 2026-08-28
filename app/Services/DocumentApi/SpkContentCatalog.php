@@ -9,6 +9,7 @@ class SpkContentCatalog
         'party_identification',
         'subject',
         'content',
+        'signature',
     ];
 
     public const PLACEHOLDERS = [

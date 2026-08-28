@@ -290,6 +290,7 @@ Represents a work agreement that can be created manually or generated from a pro
 | `party_identification` | rich text (HTML) | **yes** | Opening party-identification override. Empty uses the auto-generated party tables |
 | `subject` | string | **yes** | Agreement subject, e.g. `JASA PEMBUATAN WEBSITE` |
 | `content` | rich text (HTML) | **yes** | Main SPK content |
+| `signature` | rich text (HTML) | **yes** | Manual signing block override. Empty uses the generated signing area |
 | `status` | enum | no | `draft`, `published`; generated SPKs default to `published` |
 | `activate_translation` | boolean | no | default `false`; enables EN/ID language switching on the public document, same as proposals |
 | `access_username` | string | no | nullable, per-record override |
@@ -325,6 +326,7 @@ Represents a work agreement that can be created manually or generated from a pro
 - Admin can manage default SPK title, party identification, subject, and content from the dashboard.
 - New SPKs copy default content into the SPK record; copied content can be edited per SPK.
 - If `title` or `party_identification` is empty on a document, the public SPK/PDF auto-generates that block from party snapshot fields and subject.
+- If `signature` is empty on a document, the public SPK/PDF auto-generates the signing area from party snapshot fields.
 - Default content supports placeholders that are resolved once when an SPK is created:
   - `{{ spk_number }}`
   - `{{ spk_date }}`
@@ -606,9 +608,9 @@ Mode applies to both `en` and `id`.
 
 When a timeline field is `default`, optional `template` or payload `timeline_template` selects `short_project_timeline`, `business_project_timeline`, `prime_project_timeline`, `corporate_project_timeline`, or `custom_project_timeline`.
 
-**SPK `content` keys (all required):** `title`, `party_identification`, `subject`, `content`
+**SPK `content` keys (all required):** `title`, `party_identification`, `subject`, `content`, `signature`
 
-SPK `default` for `title`/`party_identification`/`subject`/`content` copies SPK Content Defaults and resolves placeholders once. Empty stored `title` or `party_identification` falls back to the auto-generated cover/party block on the public document.
+SPK `default` for `title`/`party_identification`/`subject`/`content`/`signature` copies SPK Content Defaults and resolves placeholders once. Empty stored `title` or `party_identification` falls back to the auto-generated cover/party block, and empty `signature` falls back to the generated signing area on the public document.
 
 **Invoice:** no content-default catalog. Standalone create requires `items`. `content.additional_info` mode may be `override` or `empty` only (`default` is invalid). From-proposal create may use `additional_info` mode `default` to copy the proposal’s additional info. Nested create copies Offer 1 into items unless `items` is sent; optional `offer` `1|2` and `renewal` boolean.
 

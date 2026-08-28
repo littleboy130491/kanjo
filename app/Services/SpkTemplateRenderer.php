@@ -150,9 +150,7 @@ class SpkTemplateRenderer
                     $content = RichTextHtmlNormalizer::normalize($content);
                 }
 
-                if ($field === 'party_identification') {
-                    $content = self::toEditableTables($content);
-                }
+                $content = self::withEditableTables($field, $content);
 
                 $resolved[$locale] = $content;
             }
@@ -166,16 +164,10 @@ class SpkTemplateRenderer
         $stored = (string) $spk->getTranslation($field, $locale, false);
 
         if (! RichTextHtmlNormalizer::isBlankHtml($stored)) {
-            return $field === 'party_identification'
-                ? self::ensurePartyTableClass($stored)
-                : $stored;
+            return self::withDisplayTableClass($field, $stored);
         }
 
-        $generated = self::generatedHtml($field, $spk, $locale);
-
-        return $field === 'party_identification'
-            ? self::ensurePartyTableClass($generated)
-            : $generated;
+        return self::withDisplayTableClass($field, self::generatedHtml($field, $spk, $locale));
     }
 
     public static function generatedHtml(string $field, Spk $spk, string $locale): string
@@ -190,12 +182,35 @@ class SpkTemplateRenderer
 
             $html = $field === 'subject' ? $html : RichTextHtmlNormalizer::normalize($html);
 
-            return $field === 'party_identification' ? self::toEditableTables($html) : $html;
+            return self::withEditableTables($field, $html);
         }
 
-        $fallback = self::fallbackGeneratedHtml($field, $spk, $locale);
+        return self::withEditableTables($field, self::fallbackGeneratedHtml($field, $spk, $locale));
+    }
 
-        return $field === 'party_identification' ? self::toEditableTables($fallback) : $fallback;
+    public static function tipTapSignatureHtml(
+        string $approvalLabel,
+        string $firstPartyLabel,
+        string $firstName,
+        string $firstCompany,
+        string $secondPartyLabel,
+        string $secondName,
+        string $secondCompany,
+    ): string {
+        $spacer = '<p style="min-height: 7rem;"><br></p>';
+        $approvalLabel = e($approvalLabel);
+        $firstPartyLabel = e($firstPartyLabel);
+        $firstName = e($firstName);
+        $firstCompany = e($firstCompany);
+        $secondPartyLabel = e($secondPartyLabel);
+        $secondName = e($secondName);
+        $secondCompany = e($secondCompany);
+
+        return '<p>'.$approvalLabel.'</p>'
+            .'<div class="tableWrapper"><table class="spk-signature-table" style="min-width: 312px;"><colgroup><col style="min-width: 25px;"><col style="min-width: 25px;"></colgroup><tbody><tr>'
+            .'<td colspan="1" rowspan="1"><p><strong>'.$firstPartyLabel.'</strong></p>'.$spacer.'<p><strong>'.$firstName.'</strong></p><p>'.$firstCompany.'</p></td>'
+            .'<td colspan="1" rowspan="1"><p><strong>'.$secondPartyLabel.'</strong></p>'.$spacer.'<p><strong>'.$secondName.'</strong></p><p>'.$secondCompany.'</p></td>'
+            .'</tr></tbody></table></div>';
     }
 
     /**
@@ -223,7 +238,7 @@ class SpkTemplateRenderer
         return '<div class="tableWrapper"><table class="spk-party-table" style="min-width: 312px;"><colgroup><col style="min-width: 25px; width: 92px;"><col style="min-width: 25px; width: 24px;"><col style="min-width: 25px;"></colgroup><tbody>'.$bodyRows.'</tbody></table></div>';
     }
 
-    public static function toEditableTables(string $html): string
+    public static function toEditableTables(string $html, string $tableClass = 'spk-party-table'): string
     {
         if (! str_contains(strtolower($html), '<table')) {
             return $html;
@@ -245,7 +260,7 @@ class SpkTemplateRenderer
         }
 
         foreach ($tables as $table) {
-            self::prepareEditableTable($document, $table);
+            self::prepareEditableTable($document, $table, $tableClass);
         }
 
         $body = $document->getElementsByTagName('body')->item(0);
@@ -271,19 +286,29 @@ class SpkTemplateRenderer
 
     public static function ensurePartyTableClass(string $html): string
     {
+        return self::ensureTableClass($html, 'spk-party-table');
+    }
+
+    public static function ensureSignatureTableClass(string $html): string
+    {
+        return self::ensureTableClass($html, 'spk-signature-table');
+    }
+
+    public static function ensureTableClass(string $html, string $class): string
+    {
         $updated = preg_replace_callback(
             '/<table\b([^>]*)>/i',
-            function (array $matches): string {
+            function (array $matches) use ($class): string {
                 $attributes = $matches[1];
 
                 if (preg_match('/\bclass\s*=\s*(["\'])(.*?)\1/i', $attributes, $classMatch) === 1) {
-                    if (str_contains($classMatch[2], 'spk-party-table')) {
+                    if (str_contains($classMatch[2], $class)) {
                         return $matches[0];
                     }
 
                     $attributes = preg_replace(
                         '/\bclass\s*=\s*(["\'])(.*?)\1/i',
-                        'class=$1spk-party-table $2$1',
+                        'class=$1'.$class.' $2$1',
                         $attributes,
                         1,
                     );
@@ -291,7 +316,7 @@ class SpkTemplateRenderer
                     return '<table'.$attributes.'>';
                 }
 
-                return '<table class="spk-party-table"'.$attributes.'>';
+                return '<table class="'.$class.'"'.$attributes.'>';
             },
             $html,
         );
@@ -386,12 +411,39 @@ class SpkTemplateRenderer
         return (string) $date->copy()->locale($carbonLocale)->translatedFormat('d F Y');
     }
 
-    private static function prepareEditableTable(\DOMDocument $document, \DOMElement $table): void
+    private static function withEditableTables(string $field, string $content): string
+    {
+        $tableClass = self::tableClassForField($field);
+
+        return $tableClass === null ? $content : self::toEditableTables($content, $tableClass);
+    }
+
+    private static function withDisplayTableClass(string $field, string $content): string
+    {
+        $tableClass = self::tableClassForField($field);
+
+        return $tableClass === null ? $content : self::ensureTableClass($content, $tableClass);
+    }
+
+    private static function tableClassForField(string $field): ?string
+    {
+        return match ($field) {
+            'party_identification' => 'spk-party-table',
+            'signature' => 'spk-signature-table',
+            default => null,
+        };
+    }
+
+    private static function prepareEditableTable(
+        \DOMDocument $document,
+        \DOMElement $table,
+        string $tableClass = 'spk-party-table',
+    ): void
     {
         $class = $table->getAttribute('class');
 
-        if (! str_contains($class, 'spk-party-table')) {
-            $table->setAttribute('class', trim($class.' spk-party-table'));
+        if (! str_contains($class, $tableClass)) {
+            $table->setAttribute('class', trim($class.' '.$tableClass));
         }
 
         if (! $table->hasAttribute('style')) {
@@ -437,11 +489,13 @@ class SpkTemplateRenderer
 
             for ($index = 0; $index < $columnCount; $index++) {
                 $col = $document->createElement('col');
-                $style = match ($index) {
-                    0 => 'min-width: 25px; width: 92px;',
-                    1 => 'min-width: 25px; width: 24px;',
-                    default => 'min-width: 25px;',
-                };
+                $style = $tableClass === 'spk-party-table'
+                    ? match ($index) {
+                        0 => 'min-width: 25px; width: 92px;',
+                        1 => 'min-width: 25px; width: 24px;',
+                        default => 'min-width: 25px;',
+                    }
+                    : 'min-width: 25px; width: 50%;';
                 $col->setAttribute('style', $style);
                 $colgroup->appendChild($col);
             }
@@ -516,6 +570,15 @@ class SpkTemplateRenderer
                     'subjectText' => $subjectText,
                     'spkDateText' => $spkDateText,
                 ])->render(),
+                'signature' => self::tipTapSignatureHtml(
+                    approvalLabel: $locale === 'id' ? 'Menyetujui,' : 'Approved by,',
+                    firstPartyLabel: $locale === 'id' ? 'PIHAK PERTAMA' : 'FIRST PARTY',
+                    firstName: (string) $spk->client_pic_name,
+                    firstCompany: (string) $spk->client_company,
+                    secondPartyLabel: $locale === 'id' ? 'PIHAK KEDUA' : 'SECOND PARTY',
+                    secondName: (string) $spk->company_pic_name,
+                    secondCompany: (string) $spk->company_name,
+                ),
                 default => '',
             };
         } finally {

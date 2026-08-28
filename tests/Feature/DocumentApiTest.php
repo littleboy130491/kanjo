@@ -327,6 +327,7 @@ class DocumentApiTest extends TestCase
         $this->assertStringContainsString('JASA PEMBUATAN WEBSITE', $spk->getTranslation('subject', 'id'));
         $this->assertStringContainsString('PT Contoh', $spk->getTranslation('title', 'id'));
         $this->assertStringContainsString('spk-party-table', $spk->getTranslation('party_identification', 'id'));
+        $this->assertStringContainsString('spk-signature-table', $spk->getTranslation('signature', 'id'));
     }
 
     public function test_lookup_finds_proposals_services_and_invoices_for_a_client_company(): void
@@ -446,6 +447,7 @@ class DocumentApiTest extends TestCase
                 'party_identification' => ['mode' => 'empty'],
                 'subject' => ['mode' => 'empty'],
                 'content' => ['mode' => 'empty'],
+                'signature' => ['mode' => 'empty'],
             ],
         ])->assertOk();
 
@@ -502,6 +504,7 @@ class DocumentApiTest extends TestCase
             'party_identification' => ['mode' => 'default'],
             'subject' => ['mode' => 'default'],
             'content' => ['mode' => 'default'],
+            'signature' => ['mode' => 'default'],
         ];
     }
 

@@ -120,6 +120,7 @@ class SpkContentDefaultSeeder extends Seeder
 <p>Perjanjian ini dapat ditandatangani secara elektronik. Tanda tangan digital atau elektronik memiliki kekuatan hukum yang sama dengan tanda tangan basah.</p>
 <p>Demikian Perjanjian ini dibuat dan ditandatangani oleh PARA PIHAK pada tanggal sebagaimana tercantum di awal Perjanjian.</p>
 HTML,
+            'signature' => self::indonesianSignatureTemplate(),
         ];
     }
 
@@ -191,6 +192,7 @@ HTML,
 <p>This Agreement may be signed electronically with the same legal effect as a wet signature.</p>
 <p>This Agreement is made and signed by the PARTIES on the date stated at the beginning of this Agreement.</p>
 HTML,
+            'signature' => self::englishSignatureTemplate(),
         ];
     }
 
@@ -248,5 +250,31 @@ HTML;
             .'<p>Hereinafter referred to as the <strong>SECOND PARTY</strong>.</p>'
             .'<p>FIRST PARTY and SECOND PARTY are collectively referred to as the PARTIES and individually as a PARTY.</p>'
             .'<p>The PARTIES hereby enter into this Agreement under the following articles:</p>';
+    }
+
+    private static function indonesianSignatureTemplate(): string
+    {
+        return SpkTemplateRenderer::tipTapSignatureHtml(
+            approvalLabel: 'Menyetujui,',
+            firstPartyLabel: 'PIHAK PERTAMA',
+            firstName: '{{ client_pic_name }}',
+            firstCompany: '{{ client_company }}',
+            secondPartyLabel: 'PIHAK KEDUA',
+            secondName: '{{ company_pic_name }}',
+            secondCompany: '{{ company_name }}',
+        );
+    }
+
+    private static function englishSignatureTemplate(): string
+    {
+        return SpkTemplateRenderer::tipTapSignatureHtml(
+            approvalLabel: 'Approved by,',
+            firstPartyLabel: 'FIRST PARTY',
+            firstName: '{{ client_pic_name }}',
+            firstCompany: '{{ client_company }}',
+            secondPartyLabel: 'SECOND PARTY',
+            secondName: '{{ company_pic_name }}',
+            secondCompany: '{{ company_name }}',
+        );
     }
 }

@@ -46,7 +46,7 @@ class EditSpk extends EditRecord
         /** @var Spk $record */
         $record = $this->getRecord();
 
-        foreach (['title', 'party_identification'] as $field) {
+        foreach (['title', 'party_identification', 'signature'] as $field) {
             if (! isset($data[$field]) || ! is_array($data[$field])) {
                 $data[$field] = [];
             }
@@ -59,7 +59,11 @@ class EditSpk extends EditRecord
                 }
 
                 if ($field === 'party_identification') {
-                    $stored = SpkTemplateRenderer::toEditableTables($stored);
+                    $stored = SpkTemplateRenderer::toEditableTables($stored, 'spk-party-table');
+                }
+
+                if ($field === 'signature') {
+                    $stored = SpkTemplateRenderer::toEditableTables($stored, 'spk-signature-table');
                 }
 
                 $data[$field][$locale] = $stored;

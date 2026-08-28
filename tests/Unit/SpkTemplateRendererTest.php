@@ -42,4 +42,14 @@ class SpkTemplateRendererTest extends TestCase
             SpkTemplateRenderer::ensurePartyTableClass($html),
         );
     }
+
+    public function test_it_preserves_signature_table_class_for_signature_content(): void
+    {
+        $html = '<table><tbody><tr><td>First</td><td>Second</td></tr></tbody></table>';
+
+        $converted = SpkTemplateRenderer::toEditableTables($html, 'spk-signature-table');
+
+        $this->assertStringContainsString('class="spk-signature-table"', $converted);
+        $this->assertStringNotContainsString('spk-party-table', $converted);
+    }
 }

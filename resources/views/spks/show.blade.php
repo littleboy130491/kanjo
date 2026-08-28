@@ -40,6 +40,7 @@
     ) ?? $contentHtml;
     $titleHtml = \App\Services\SpkTemplateRenderer::displayHtml('title', $spk, $locale);
     $partyIdentificationHtml = \App\Services\SpkTemplateRenderer::displayHtml('party_identification', $spk, $locale);
+    $signatureHtml = \App\Services\SpkTemplateRenderer::displayHtml('signature', $spk, $locale);
     $activateTranslation = (bool) $spk->activate_translation;
 @endphp
 
@@ -114,20 +115,8 @@
         </section>
 
         <section class="document-section-pad spk-signature-section avoid-page-break">
-            <p class="spk-approval-label">Menyetujui,</p>
-            <div class="spk-signature-grid">
-                <div class="spk-signature-block">
-                    <p class="spk-signature-party">PIHAK PERTAMA</p>
-                    <div class="spk-signature-space"></div>
-                    <p class="spk-signature-name">{{ $spk->client_pic_name }}</p>
-                    <p>{{ $spk->client_company }}</p>
-                </div>
-                <div class="spk-signature-block">
-                    <p class="spk-signature-party">PIHAK KEDUA</p>
-                    <div class="spk-signature-space"></div>
-                    <p class="spk-signature-name">{{ $spk->company_pic_name }}</p>
-                    <p>{{ $spk->company_name }}</p>
-                </div>
+            <div class="document-richtext spk-signature-content">
+                {!! $signatureHtml !!}
             </div>
         </section>
     </div>

@@ -31,6 +31,7 @@ class SpkContentDefaultForm
                                         "value.{$locale}.party_identification",
                                         "value.{$locale}.subject",
                                         "value.{$locale}.content",
+                                        "value.{$locale}.signature",
                                     ])
                                     ->all()
                             )
@@ -59,6 +60,14 @@ class SpkContentDefaultForm
                                         ->label('Content'),
                                 )
                                     ->extraAttributes(['style' => 'min-height: 520px'])
+                                    ->columnSpanFull(),
+                                RichEditorHtml::configure(
+                                    RichEditor::make("value.{$locale}.signature")
+                                        ->label('Signature Block')
+                                        ->helperText('Default signing section copied onto new SPKs. Placeholders are resolved on create.'),
+                                )
+                                    ->enableToolbarButtons(['table'])
+                                    ->extraAttributes(['style' => 'min-height: 260px'])
                                     ->columnSpanFull(),
                             ])
                             ->suffixLocaleLabel(),

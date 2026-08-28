@@ -229,11 +229,11 @@ class SpkForm
                                             ->helperText('Enable EN/ID document language switching for this SPK.')
                                             ->default(false),
                                     ]),
-                                Section::make('Cover Title & Party Identification')
-                                    ->description('Copied from SPK Content Defaults when this document is created. Edit them here for this SPK only.')
+                                Section::make('Document Content Overrides')
+                                    ->description('Copied from SPK Content Defaults when this document is created. Edit them here for this SPK only. The signature block can also be overridden per SPK.')
                                     ->schema([
                                         Translate::make()
-                                            ->exclude(self::translatedFieldPaths(['title', 'party_identification', 'subject', 'content']))
+                                            ->exclude(self::translatedFieldPaths(['title', 'party_identification', 'subject', 'content', 'signature']))
                                             ->schema(fn (string $locale): array => [
                                                 RichEditorHtml::configure(
                                                     RichEditor::make("title.{$locale}")
@@ -276,6 +276,15 @@ class SpkForm
                                                 )
                                                     ->extraInputAttributes(['class' => 'spk-content-editor'], merge: true)
                                                     ->extraAttributes(['style' => 'min-height: 560px'])
+                                                    ->columnSpanFull(),
+                                                RichEditorHtml::configure(
+                                                    RichEditor::make("signature.{$locale}")
+                                                        ->label('Signature Block')
+                                                        ->helperText('Override the signing section for this SPK only. Leave empty to use the generated signing section.')
+                                                        ->default(fn (): string => SpkTemplateRenderer::defaultForLocale('signature', $locale)),
+                                                )
+                                                    ->enableToolbarButtons(['table'])
+                                                    ->extraAttributes(['style' => 'min-height: 260px'])
                                                     ->columnSpanFull(),
                                             ])
                                             ->suffixLocaleLabel(),

@@ -18,6 +18,7 @@ class SpkContentDefault extends Model
         'party_identification' => 'Party Identification',
         'subject' => 'Subject',
         'content' => 'Content',
+        'signature' => 'Signature',
     ];
 
     protected $fillable = [

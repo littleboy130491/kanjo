@@ -947,28 +947,31 @@ h3.offer_name {
     @apply w-3 px-0;
 }
 
+.spk-signature-content {
+    @apply text-sm leading-relaxed text-neutral-700;
+}
+
+.spk-signature-content .tableWrapper {
+    @apply my-0 w-full;
+}
+
+.spk-signature-content .spk-signature-table {
+    @apply my-0 w-full border-collapse text-center;
+    table-layout: fixed;
+}
+
+.spk-signature-content .spk-signature-table td,
+.spk-signature-content .spk-signature-table th {
+    border: 0;
+    @apply px-3 py-1 align-top;
+}
+
+.spk-signature-content .spk-signature-table p {
+    @apply mb-0;
+}
+
 .spk-signature-section {
     @apply pt-6;
-}
-
-.spk-approval-label {
-    @apply mb-8 text-sm text-neutral-700;
-}
-
-.spk-signature-grid {
-    @apply grid grid-cols-2 gap-8 text-center text-sm text-neutral-700;
-}
-
-.spk-signature-block {
-    @apply min-w-0;
-}
-
-.spk-signature-party {
-    @apply font-semibold text-neutral-900;
-}
-
-.spk-signature-space {
-    @apply h-28;
 }
 
 @media (max-width: 767px) {
@@ -1102,12 +1105,6 @@ h3.offer_name {
         margin-top: 1rem;
     }
 
-    .document-view.spk-document .spk-signature-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 2rem;
-    }
-
     .document-view .allow-page-break {
         break-inside: auto;
         page-break-inside: auto;
@@ -1120,6 +1117,11 @@ h3.offer_name {
     .document-view .spk-content table:not(.spk-party-table) th,
     .document-view .spk-content table:not(.spk-party-table) td {
         border: 1px solid #d4d4d4;
+    }
+
+    .document-view .spk-signature-content .spk-signature-table th,
+    .document-view .spk-signature-content .spk-signature-table td {
+        border: 0;
     }
 
     .document-view table tr,

@@ -119,6 +119,7 @@ class CreateSpkFromProposalTest extends TestCase
         $this->assertStringContainsString('PERJANJIAN KERJA SAMA', $spk->getTranslation('title', 'id'));
         $this->assertStringContainsString('Test Client PIC', $spk->getTranslation('party_identification', 'id'));
         $this->assertStringContainsString('spk-party-table', $spk->getTranslation('party_identification', 'id'));
+        $this->assertStringContainsString('spk-signature-table', $spk->getTranslation('signature', 'id'));
         $this->assertStringNotContainsString('Test Client PIC', $spk->getTranslation('content', 'id'));
         $this->assertStringNotContainsString('spk-party-table', $spk->getTranslation('content', 'id'));
         $this->assertStringNotContainsString('Activity', $spk->getTranslation('content', 'id'));
@@ -373,6 +374,10 @@ class CreateSpkFromProposalTest extends TestCase
                 'en' => '<p>Custom parties EN</p>',
                 'id' => '<p>Identitas pihak kustom</p>',
             ],
+            'signature' => [
+                'en' => '<p>Custom signature EN</p>',
+                'id' => '<p>Tanda tangan kustom</p>',
+            ],
             'subject' => [
                 'en' => 'Website',
                 'id' => 'Website',
@@ -398,6 +403,7 @@ class CreateSpkFromProposalTest extends TestCase
             ->assertSee('Identitas pihak kustom', false)
             ->assertDontSee('PERJANJIAN KERJA SAMA', false)
             ->assertDontSee('Selanjutnya dalam Perjanjian ini disebut', false)
+            ->assertSee('Tanda tangan kustom', false)
             ->assertSee('Isi SPK', false);
     }
 }

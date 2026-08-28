@@ -44,6 +44,7 @@ class Spk extends Model
         'party_identification',
         'subject',
         'content',
+        'signature',
         'status',
         'activate_translation',
         'access_username',
@@ -62,6 +63,7 @@ class Spk extends Model
         'party_identification',
         'subject',
         'content',
+        'signature',
     ];
 
     protected $casts = [
