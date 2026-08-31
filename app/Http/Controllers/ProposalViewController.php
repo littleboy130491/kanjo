@@ -13,6 +13,16 @@ class ProposalViewController extends Controller
 {
     public function show(Request $request, string $slug)
     {
+        return $this->renderProposal($request, $slug, 'proposals.show');
+    }
+
+    public function showV2(Request $request, string $slug)
+    {
+        return $this->renderProposal($request, $slug, 'proposals.show-v2');
+    }
+
+    private function renderProposal(Request $request, string $slug, string $view)
+    {
         /** @var Proposal|null $proposal */
         $proposal = $request->attributes->get('document');
 
@@ -25,7 +35,7 @@ class ProposalViewController extends Controller
 
         $proposal->loadMissing(['company', 'portfolios']);
 
-        return view('proposals.show', [
+        return view($view, [
             'proposal' => $proposal,
             'locale' => $locale,
             'slug' => $slug,
@@ -38,7 +48,17 @@ class ProposalViewController extends Controller
      */
     public function authenticateRedirect(Request $request, string $slug): RedirectResponse
     {
-        return redirect()->route('proposal.show', $this->buildRouteParameters(
+        return $this->redirectToProposal($request, $slug, 'proposal.show');
+    }
+
+    public function authenticateRedirectV2(Request $request, string $slug): RedirectResponse
+    {
+        return $this->redirectToProposal($request, $slug, 'proposal-v2.show');
+    }
+
+    private function redirectToProposal(Request $request, string $slug, string $route): RedirectResponse
+    {
+        return redirect()->route($route, $this->buildRouteParameters(
             $slug,
             $this->resolveDocument($slug),
             $request->query('lang'),
@@ -46,6 +66,16 @@ class ProposalViewController extends Controller
     }
 
     public function authenticate(Request $request, string $slug): RedirectResponse
+    {
+        return $this->authenticateForRoute($request, $slug, 'proposal.show');
+    }
+
+    public function authenticateV2(Request $request, string $slug): RedirectResponse
+    {
+        return $this->authenticateForRoute($request, $slug, 'proposal-v2.show');
+    }
+
+    private function authenticateForRoute(Request $request, string $slug, string $route): RedirectResponse
     {
         $request->validate([
             'username' => ['required', 'string'],
@@ -101,7 +131,7 @@ class ProposalViewController extends Controller
             DocumentAccessMiddleware::versionKey('proposal', $proposal->id) => DocumentAccessMiddleware::credentialVersion($proposal),
         ]);
 
-        return redirect()->route('proposal.show', $this->buildRouteParameters(
+        return redirect()->route($route, $this->buildRouteParameters(
             $slug,
             $proposal,
             $request->input('lang'),

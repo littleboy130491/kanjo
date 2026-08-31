@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DocumentAccessMiddleware
 {
-    public function handle(Request $request, Closure $next, string $type): Response
+    public function handle(Request $request, Closure $next, string $type, ?string $authRoute = null): Response
     {
         $slug = (string) $request->route('slug');
         $document = $this->resolveDocument($type, $slug);
@@ -52,7 +52,7 @@ class DocumentAccessMiddleware
                 'document' => $document,
                 'documentType' => $type,
                 'slug' => $slug,
-                'authRoute' => route($type.'.auth', ['slug' => $slug]),
+                'authRoute' => route($authRoute ?? $type.'.auth', ['slug' => $slug]),
                 'lang' => $document->activate_translation
                     ? $request->query('lang', config('app.locale', 'en'))
                     : config('app.locale', 'en'),

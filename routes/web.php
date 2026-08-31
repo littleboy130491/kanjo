@@ -17,6 +17,16 @@ Route::post('/proposal/{slug}/auth', [ProposalViewController::class, 'authentica
     ->defaults('document_type', 'proposal')
     ->middleware('document.auth.throttle')
     ->name('proposal.auth');
+
+Route::get('/proposal-v2/{slug}', [ProposalViewController::class, 'showV2'])
+    ->middleware('document.access:proposal,proposal-v2.auth')
+    ->name('proposal-v2.show');
+Route::get('/proposal-v2/{slug}/auth', [ProposalViewController::class, 'authenticateRedirectV2'])
+    ->name('proposal-v2.auth.redirect');
+Route::post('/proposal-v2/{slug}/auth', [ProposalViewController::class, 'authenticateV2'])
+    ->defaults('document_type', 'proposal')
+    ->middleware('document.auth.throttle')
+    ->name('proposal-v2.auth');
 Route::get('/proposal/{slug}/pdf', [PdfController::class, 'proposal'])
     ->middleware('document.access:proposal')
     ->name('pdf.proposal');
@@ -51,7 +61,7 @@ Route::get('/spk/{slug}/pdf', [PdfController::class, 'spk'])
 $proxyImageHandler = function (Request $request, ?string $encodedImageUrl = null) {
     $imageUrl = $request->query('url');
 
-    if (!is_string($imageUrl) || $imageUrl === '') {
+    if (! is_string($imageUrl) || $imageUrl === '') {
         $imageUrl = $encodedImageUrl ? rawurldecode($encodedImageUrl) : null;
     }
 

@@ -1,0 +1,448 @@
+.proposal-v2 {
+    --v2-ink: #142126;
+    --v2-muted: #5e6c72;
+    --v2-line: #dce5e8;
+    --v2-paper: #ffffff;
+    --v2-wash: #f4f7f8;
+    width: 100%;
+    max-width: none;
+    color: var(--v2-ink);
+    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.006em;
+    box-shadow: 0 24px 70px -38px rgba(20, 33, 38, 0.45);
+}
+
+.document-layout-full .document-toolbar {
+    position: sticky;
+    top: 0.75rem;
+    z-index: 50;
+    width: fit-content;
+    margin-left: auto;
+    padding: 0.4rem;
+    border: 1px solid rgba(220, 229, 232, 0.9);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 12px 32px -22px rgba(20, 33, 38, 0.7);
+    backdrop-filter: blur(14px);
+}
+
+.proposal-v2 .document-serif,
+.proposal-v2 h3.offer_name {
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+}
+
+.proposal-v2 .document-cover {
+    position: relative;
+    min-height: clamp(620px, calc(100vh - 8rem), 840px);
+    overflow: hidden;
+    border-left: clamp(8px, 0.8vw, 14px) solid var(--color-primary);
+    background:
+        linear-gradient(115deg, rgba(255, 255, 255, 0) 52%, rgba(208, 225, 233, 0.42) 100%),
+        var(--v2-paper);
+}
+
+.proposal-v2 .document-cover::after {
+    position: absolute;
+    right: clamp(2rem, 6vw, 7rem);
+    bottom: clamp(2rem, 5vw, 5rem);
+    width: clamp(7rem, 11vw, 11rem);
+    height: 2px;
+    background: var(--color-primary);
+    content: "";
+    opacity: 0.8;
+}
+
+.proposal-v2 .document-cover-pad {
+    padding: clamp(2rem, 5.2vw, 6.5rem);
+}
+
+.proposal-v2 .document-cover-header {
+    position: relative;
+    z-index: 1;
+    align-items: flex-start;
+}
+
+.proposal-v2 .document-cover-header img {
+    height: clamp(2rem, 3vw, 2.75rem);
+    max-width: min(15rem, 48vw);
+}
+
+.proposal-v2 .document-meta-stack {
+    margin-left: auto;
+    padding: 0.2rem 0 0.2rem 1.25rem;
+    border-left: 3px solid var(--color-primary);
+    text-align: left;
+}
+
+.proposal-v2 .cover-meta {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--v2-muted);
+}
+
+.proposal-v2 .cover-meta span {
+    margin-left: 0.25rem;
+    color: var(--v2-ink);
+}
+
+.proposal-v2 .document-cover > .my-8 {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 980px);
+    margin-top: clamp(4rem, 10vh, 8rem);
+    margin-bottom: clamp(4rem, 10vh, 8rem);
+}
+
+.proposal-v2 .document-kicker {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+}
+
+.proposal-v2 .cover-title {
+    max-width: 1050px;
+    font-size: clamp(3.25rem, 7.7vw, 8.75rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.07em;
+}
+
+.proposal-v2 .cover-subtitle {
+    display: inline-block;
+    margin-top: 0.15em;
+    color: var(--v2-muted);
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: -0.055em;
+}
+
+.proposal-v2 .document-cover > .flex:last-child {
+    position: relative;
+    z-index: 1;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--v2-line);
+}
+
+.proposal-v2 .document-cover > .flex:last-child > div {
+    max-width: 44rem;
+}
+
+.proposal-v2 .document-cover > .flex:last-child .text-xl {
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(1.35rem, 2vw, 2rem);
+    letter-spacing: -0.035em;
+}
+
+.proposal-v2 .section-row {
+    display: grid;
+    grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+    column-gap: clamp(2rem, 5vw, 7rem);
+    row-gap: 2rem;
+    padding: clamp(3rem, 5vw, 6rem) clamp(2rem, 6vw, 7rem);
+    border-color: var(--v2-line);
+    background: var(--v2-paper);
+}
+
+.proposal-v2 .section-label {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+    margin: 0;
+    padding-top: 0.3rem;
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.17em;
+}
+
+.proposal-v2 .section-label::before {
+    display: block;
+    width: 2.25rem;
+    height: 2px;
+    margin-bottom: 1rem;
+    background: var(--color-primary);
+    content: "";
+}
+
+.proposal-v2 .section-content {
+    grid-column: 2;
+    width: 100%;
+    max-width: 980px;
+    color: #435158;
+    font-size: clamp(0.96rem, 1.15vw, 1.08rem);
+    line-height: 1.78;
+}
+
+.proposal-v2 .section-content :where(h1, h2, h3, h4, h5, h6),
+.proposal-v2 .document-richtext :where(h1, h2, h3, h4, h5, h6) {
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    color: var(--v2-ink);
+    letter-spacing: -0.025em;
+}
+
+.proposal-v2 .section-content :where(p, ul, ol, blockquote) {
+    margin-bottom: 1.15em;
+}
+
+.proposal-v2 .section-content :where(li) {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    padding-left: 0.2em;
+}
+
+.proposal-v2 .section-content :where(strong, b) {
+    color: var(--v2-ink);
+    font-weight: 650;
+}
+
+.proposal-v2 .portfolio-grid,
+.proposal-v2 .about-us-stack {
+    max-width: 1180px;
+}
+
+.proposal-v2 .portfolio-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 3vw, 3rem);
+}
+
+.proposal-v2 .portfolio-card .aspect-\[4\/3\] {
+    border-radius: 0.65rem;
+    box-shadow: 0 18px 42px -30px rgba(20, 33, 38, 0.65);
+}
+
+.proposal-v2 .portfolio-card-title {
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+}
+
+.proposal-v2 h3.offer_name {
+    margin-bottom: 1.5rem;
+    color: var(--v2-ink);
+    font-size: clamp(1.7rem, 3vw, 2.75rem);
+    font-weight: 650;
+    line-height: 1.12;
+    letter-spacing: -0.045em;
+}
+
+.proposal-v2 .section-row > h3.offer_name {
+    grid-column: 2;
+    margin-bottom: 0;
+}
+
+.proposal-v2 .pricing-option,
+.proposal-v2 .pricing-option-divider {
+    margin: 0;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border: 1px solid var(--v2-line);
+    border-radius: 0.9rem;
+    background: var(--v2-wash);
+}
+
+.proposal-v2 .pricing-option-divider {
+    margin-top: 1rem;
+}
+
+.proposal-v2 .money-line {
+    color: var(--v2-muted);
+    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+}
+
+.proposal-v2 .money-line-value,
+.proposal-v2 .money-line-original {
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(0.95rem, 1.5vw, 1.2rem);
+}
+
+.proposal-v2 .document-alert {
+    margin: 1.25rem 0 0;
+    padding: 1.1rem 1.25rem;
+    border: 0;
+    border-left: 4px solid #369060;
+    border-radius: 0.35rem;
+    background: #edf8f1;
+    color: #235e42;
+}
+
+.proposal-v2 .table-wrap {
+    overflow-x: auto;
+    border-color: var(--v2-line);
+    border-radius: 0.65rem;
+}
+
+.proposal-v2 .data-table {
+    min-width: 580px;
+    font-size: 0.86rem;
+}
+
+.proposal-v2 .data-table thead {
+    background: #edf3f5;
+}
+
+.proposal-v2 .data-table th {
+    color: var(--v2-ink);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.proposal-v2 .data-table th,
+.proposal-v2 .data-table td {
+    padding: 1rem 1.1rem;
+}
+
+.proposal-v2 .client-logo-card,
+.proposal-v2 .video-testimonial-card,
+.proposal-v2 .company-map-wrap {
+    border-color: var(--v2-line);
+    border-radius: 0.65rem;
+}
+
+.proposal-v2 .document-endcap {
+    padding: clamp(2.5rem, 5vw, 6rem) clamp(2rem, 6vw, 7rem);
+    background: var(--color-primary);
+}
+
+.proposal-v2 .endcap-row-body {
+    max-width: 1120px;
+}
+
+.proposal-v2 + .floating-doc-nav {
+    top: auto;
+    right: auto;
+    bottom: 1.4rem;
+    left: 50%;
+    display: flex;
+    width: auto;
+    max-width: calc(100vw - 3rem);
+    padding: 0.4rem;
+    overflow-x: auto;
+    transform: translateX(-50%);
+    border-color: rgba(220, 229, 232, 0.92);
+    border-radius: 0.8rem;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 18px 48px -24px rgba(20, 33, 38, 0.75);
+    backdrop-filter: blur(16px);
+}
+
+.proposal-v2 + .floating-doc-nav a {
+    flex: 0 0 auto;
+    padding: 0.6rem 0.7rem;
+    border-radius: 0.45rem;
+    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.proposal-v2 + .floating-doc-nav a:hover,
+.proposal-v2 + .floating-doc-nav a:focus-visible {
+    color: var(--v2-ink);
+    background: var(--v2-wash);
+    outline: none;
+}
+
+@media (max-width: 900px) {
+    .proposal-v2 .document-cover {
+        min-height: 680px;
+    }
+
+    .proposal-v2 .document-meta-stack {
+        margin-left: 0;
+    }
+
+    .proposal-v2 .section-row {
+        display: block;
+        padding: 2.75rem 1.5rem;
+    }
+
+    .proposal-v2 .section-label {
+        position: static;
+        margin-bottom: 1.75rem;
+    }
+
+    .proposal-v2 .section-content {
+        max-width: none;
+        font-size: 0.96rem;
+        line-height: 1.72;
+    }
+
+    .proposal-v2 .section-row > h3.offer_name {
+        margin-bottom: 1.75rem;
+    }
+
+    .proposal-v2 .portfolio-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .proposal-v2 + .floating-doc-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 520px) {
+    .document-layout-full .document-toolbar {
+        position: static;
+        width: 100%;
+    }
+
+    .document-layout-full .document-toolbar a {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .proposal-v2 .document-cover-pad {
+        padding: 1.5rem;
+    }
+
+    .proposal-v2 .cover-title {
+        font-size: clamp(2.9rem, 15vw, 4.4rem);
+    }
+
+    .proposal-v2 .money-line-row {
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .proposal-v2 .money-line-amounts {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.2rem;
+    }
+}
+
+@media print {
+    .proposal-v2 {
+        max-width: 180mm;
+        box-shadow: none;
+    }
+
+    .proposal-v2 .document-cover {
+        border-left: 0;
+    }
+
+    .proposal-v2 .section-row {
+        display: block;
+        padding: 12mm 0;
+    }
+
+    .proposal-v2 .section-label {
+        position: static;
+        margin-bottom: 7mm;
+    }
+
+    .proposal-v2 .section-content,
+    .proposal-v2 .portfolio-grid,
+    .proposal-v2 .about-us-stack {
+        max-width: none;
+    }
+
+    .proposal-v2 .section-row > h3.offer_name {
+        margin-bottom: 7mm;
+    }
+}
