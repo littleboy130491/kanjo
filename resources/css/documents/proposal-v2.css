@@ -234,6 +234,10 @@
     .proposal-v2 > .document-cover .cover-title {
         font-size: clamp(3rem, 15vw, 4.4rem);
     }
+
+    .proposal-v2-body {
+        margin-top: 0;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
