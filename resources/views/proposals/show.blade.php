@@ -238,7 +238,7 @@
 @endphp
 <x-layout :locale="$locale" :title="$proposal->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
     :edit-url="$editUrl" :activate-translation="$activateTranslation" :is-draft="$proposal->status->value === 'draft'"
-    :full-width="$proposalV2 ?? false" :sans-only="$proposalV2 ?? false"
+    :full-width="$proposalV2 ?? false"
     :lang-route="($proposalV2 ?? false) ? 'proposal-v2.show' : 'proposal.show'" pdf-route="pdf.proposal">
     <div @class(['document-frame document-view document-shell', 'proposal-v2' => $proposalV2 ?? false])>
         <section class="document-cover document-cover-pad avoid-page-break">

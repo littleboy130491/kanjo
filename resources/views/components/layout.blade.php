@@ -10,7 +10,6 @@
     'activateTranslation' => false,
     'isDraft' => false,
     'fullWidth' => false,
-    'sansOnly' => false,
 ])
 @php
     use Illuminate\Support\Facades\Vite;
@@ -44,11 +43,7 @@
     <meta name="googlebot" content="noindex, nofollow, noarchive">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    @if($sansOnly)
-        <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
-    @else
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-    @endif
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
     @if($pdfMode)
         <style>{!! Vite::content('resources/css/app.css') !!}</style>
     @else
