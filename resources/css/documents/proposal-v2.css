@@ -219,8 +219,19 @@
         font-size: 0.62rem;
     }
 
+    .proposal-v2 > .document-cover {
+        height: 100vh;
+        min-height: 100vh;
+        height: 100svh;
+        min-height: 100svh;
+    }
+
     .proposal-v2 > .document-cover.document-cover-pad {
         padding: 1.5rem;
+    }
+
+    .proposal-v2 > .document-cover > .my-8 {
+        margin: auto;
     }
 
     .proposal-v2 > .document-cover .document-cover-header img {
