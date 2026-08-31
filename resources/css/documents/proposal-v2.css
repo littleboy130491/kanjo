@@ -1,7 +1,7 @@
 .proposal-v2 {
     width: 100%;
     max-width: none;
-    padding-bottom: clamp(3rem, 6vw, 6rem);
+    padding-bottom: 0;
     background: #f1f5f9;
     box-shadow: none;
 }
@@ -41,7 +41,7 @@
 .proposal-v2 > .document-cover {
     min-height: 100vh;
     border: 0;
-    background: var(--color-primary);
+    background: #004258;
     color: #ffffff;
 }
 
@@ -111,11 +111,12 @@
 }
 
 .proposal-v2 > .document-cover .cover-subtitle {
-    display: inline-block;
-    margin-top: 0.25em;
+    display: inline;
+    margin-top: 0;
     color: #ffffff;
     font-style: normal;
     font-weight: 300;
+    line-height: inherit;
     letter-spacing: -0.04em;
 }
 
