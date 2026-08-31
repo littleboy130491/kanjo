@@ -6,6 +6,11 @@
     box-shadow: none;
 }
 
+.document-layout-full {
+    overflow-x: hidden;
+    overflow-x: clip;
+}
+
 .document-layout-full .document-toolbar {
     position: absolute;
     top: 1.25rem;
@@ -277,14 +282,16 @@
     }
 
     .proposal-v2 ~ .floating-doc-flyout nav {
-        position: absolute;
-        right: 0;
-        bottom: calc(100% + 0.5rem);
+        position: fixed;
+        right: 1rem;
+        bottom: 4rem;
+        left: 1rem;
         box-sizing: border-box;
-        max-width: calc(100vw - 2rem);
+        width: auto;
+        max-width: none;
         max-height: calc(100vh - 5rem);
         max-height: calc(100svh - 5rem);
-        margin-top: 0;
+        margin: 0;
         overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior: contain;
