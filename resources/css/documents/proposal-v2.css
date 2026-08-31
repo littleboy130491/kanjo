@@ -1,19 +1,13 @@
 .proposal-v2 {
-    --v2-ink: #242422;
-    --v2-muted: #74746e;
-    --v2-line: #dfdfda;
-    --v2-paper: #fafaf8;
     width: 100%;
     max-width: none;
-    color: var(--v2-ink);
-    background: var(--v2-paper);
-    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-    letter-spacing: 0;
+    padding-bottom: clamp(3rem, 6vw, 6rem);
+    background: #f1f5f9;
     box-shadow: none;
 }
 
 .document-layout-full .document-toolbar {
-    position: fixed;
+    position: absolute;
     top: 1.25rem;
     right: 1.25rem;
     z-index: 50;
@@ -44,41 +38,31 @@
     color: var(--color-primary);
 }
 
-.proposal-v2 .document-serif,
-.proposal-v2 h3.offer_name {
-    font-family: "Cormorant Garamond", ui-serif, Georgia, serif;
-}
-
-.proposal-v2 .section-content :where(h1, h2, h3, h4, h5, h6),
-.proposal-v2 .document-richtext :where(h1, h2, h3, h4, h5, h6) {
-    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-}
-
-.proposal-v2 .document-cover {
+.proposal-v2 > .document-cover {
     min-height: 100vh;
     border: 0;
     background: var(--color-primary);
     color: #ffffff;
 }
 
-.proposal-v2 .document-cover-pad {
+.proposal-v2 > .document-cover.document-cover-pad {
     padding: clamp(2rem, 5vw, 6rem);
 }
 
-.proposal-v2 .document-cover-header {
+.proposal-v2 > .document-cover .document-cover-header {
     position: relative;
     justify-content: center;
     align-items: center;
     min-height: 3rem;
 }
 
-.proposal-v2 .document-cover-header img {
+.proposal-v2 > .document-cover .document-cover-header img {
     height: clamp(1.6rem, 2.2vw, 2.25rem);
     max-width: min(13rem, 44vw);
     filter: brightness(0) invert(1);
 }
 
-.proposal-v2 .document-meta-stack {
+.proposal-v2 > .document-cover .document-meta-stack {
     position: absolute;
     top: 0;
     left: 0;
@@ -87,7 +71,7 @@
     text-align: left;
 }
 
-.proposal-v2 .cover-meta {
+.proposal-v2 > .document-cover .cover-meta {
     margin: 0 0 0.3rem;
     color: rgba(255, 255, 255, 0.62);
     font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
@@ -96,18 +80,18 @@
     letter-spacing: 0.14em;
 }
 
-.proposal-v2 .cover-meta span {
+.proposal-v2 > .document-cover .cover-meta span {
     margin-left: 0.25rem;
     color: #ffffff;
 }
 
-.proposal-v2 .document-cover > .my-8 {
+.proposal-v2 > .document-cover > .my-8 {
     width: min(100%, 760px);
     margin: clamp(6rem, 14vh, 11rem) auto;
     text-align: center;
 }
 
-.proposal-v2 .document-kicker {
+.proposal-v2 > .document-cover .document-kicker {
     margin-bottom: 1.75rem;
     color: rgba(255, 255, 255, 0.68);
     font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
@@ -116,7 +100,7 @@
     letter-spacing: 0.22em;
 }
 
-.proposal-v2 .cover-title {
+.proposal-v2 > .document-cover .cover-title {
     max-width: none;
     color: #ffffff;
     font-family: "Cormorant Garamond", ui-serif, Georgia, serif;
@@ -126,7 +110,7 @@
     letter-spacing: -0.045em;
 }
 
-.proposal-v2 .cover-subtitle {
+.proposal-v2 > .document-cover .cover-subtitle {
     display: inline-block;
     margin-top: 0.25em;
     color: #ffffff;
@@ -135,23 +119,23 @@
     letter-spacing: -0.04em;
 }
 
-.proposal-v2 .document-cover > .flex:last-child {
+.proposal-v2 > .document-cover > .flex:last-child {
     display: block;
     padding: 0;
     border: 0;
     text-align: center;
 }
 
-.proposal-v2 .document-cover > .flex:last-child > div {
+.proposal-v2 > .document-cover > .flex:last-child > div {
     max-width: 36rem;
     margin: 0 auto;
 }
 
-.proposal-v2 .document-cover > .flex:last-child .document-kicker {
+.proposal-v2 > .document-cover > .flex:last-child .document-kicker {
     margin-bottom: 0.65rem;
 }
 
-.proposal-v2 .document-cover > .flex:last-child .text-xl {
+.proposal-v2 > .document-cover > .flex:last-child .text-xl {
     color: #ffffff;
     font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
     font-size: clamp(1.2rem, 2vw, 1.75rem);
@@ -159,242 +143,28 @@
     letter-spacing: -0.025em;
 }
 
-.proposal-v2 .document-cover > .flex:last-child p:last-child {
+.proposal-v2 > .document-cover > .flex:last-child p:last-child {
     color: rgba(255, 255, 255, 0.7);
 }
 
-.proposal-v2 .section-row {
-    display: block;
-    width: 100%;
-    padding: clamp(4rem, 6vw, 7rem) clamp(1.5rem, 6vw, 7rem);
-    border: 0;
-    background: var(--v2-paper);
-}
-
-.proposal-v2 .section-label {
-    position: static;
-    align-self: start;
-    width: min(100%, 62.5rem);
-    margin: 0 0 2rem;
-    padding: 0;
-    color: var(--v2-ink);
-    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.72rem;
-    font-weight: 500;
-    line-height: 1.45;
-    letter-spacing: 0.15em;
-}
-
-.proposal-v2 .section-content {
-    width: 100%;
-    max-width: 62.5rem;
-    margin: 0;
-    color: #555550;
-    font-size: clamp(0.98rem, 1.1vw, 1.06rem);
-    font-weight: 400;
-    line-height: 1.88;
-}
-
-.proposal-v2 .section-content :where(h1, h2, h3, h4, h5, h6),
-.proposal-v2 .document-richtext :where(h1, h2, h3, h4, h5, h6) {
-    color: var(--v2-ink);
-    font-weight: 400;
-    letter-spacing: -0.02em;
-}
-
-.proposal-v2 .section-content :where(p, ul, ol, blockquote) {
-    margin-bottom: 1.35em;
-}
-
-.proposal-v2 .section-content :where(li) {
-    margin-top: 0.55em;
-    margin-bottom: 0.55em;
-    padding-left: 0.2em;
-}
-
-.proposal-v2 .section-content :where(strong, b) {
-    color: var(--v2-ink);
-    font-weight: 600;
-}
-
-.proposal-v2 .section-content :where(blockquote) {
-    margin-left: 0;
-    padding-left: 1.25rem;
-    border-left: 1px solid var(--v2-line);
-    color: var(--v2-muted);
-}
-
-.proposal-v2 .proposal-introduction {
-    display: block;
-    min-height: 0;
-    text-align: left;
-}
-
-.proposal-v2 .proposal-introduction .section-label {
-    display: block;
-    width: min(100%, 62.5rem);
-    margin-bottom: 2rem;
-    font-size: 0.78rem;
-}
-
-.proposal-v2 .proposal-introduction .section-content {
-    max-width: 62.5rem;
-    margin: 0;
-    text-align: left;
-}
-
-.proposal-v2 .portfolio-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(2rem, 4vw, 4rem) clamp(1.25rem, 2.5vw, 2.5rem);
-    width: 100%;
-    max-width: 80rem;
-    margin: 0;
-}
-
-.proposal-v2 .portfolio-card {
-    margin: 0;
-}
-
-.proposal-v2 .portfolio-card:first-child {
-    margin-top: 0;
-}
-
-.proposal-v2 .portfolio-card a {
-    display: block;
-}
-
-.proposal-v2 .portfolio-card .aspect-\[4\/3\] {
-    margin: 0;
-    border-radius: 0;
-    background: #ffffff;
-    box-shadow: none;
-}
-
-.proposal-v2 .portfolio-card-title {
-    margin: 1.25rem 0 0;
-    color: var(--v2-ink);
-    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-    font-size: clamp(1.1rem, 1.5vw, 1.45rem);
-    font-weight: 300;
-    line-height: 1.15;
-    letter-spacing: -0.025em;
-}
-
-.proposal-v2 .portfolio-card-link {
-    margin: 0.65rem 0 0;
-    color: var(--v2-muted);
-    font-size: 0.62rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-}
-
-.proposal-v2 h3.offer_name {
-    margin-bottom: 1.75rem;
-    color: var(--v2-ink);
-    font-size: clamp(1.6rem, 2.8vw, 2.7rem);
-    font-weight: 300;
-    line-height: 1.12;
-    letter-spacing: -0.035em;
-}
-
-.proposal-v2 .section-row > h3.offer_name {
-    width: min(100%, 62.5rem);
-    margin: 0 0 2rem;
-}
-
-.proposal-v2 .pricing-option,
-.proposal-v2 .pricing-option-divider {
-    margin: 0;
-    padding: 2rem 0;
-    border: 0;
-    border-top: 1px solid var(--v2-line);
-    border-radius: 0;
-    background: transparent;
-}
-
-.proposal-v2 .pricing-option-divider {
-    margin-top: 2rem;
-}
-
-.proposal-v2 .money-line {
-    color: var(--v2-muted);
-    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-}
-
-.proposal-v2 .money-line-value,
-.proposal-v2 .money-line-original {
-    color: var(--v2-ink);
-    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-    font-size: clamp(0.95rem, 1.5vw, 1.2rem);
-    font-weight: 400;
-}
-
-.proposal-v2 .money-line-original {
-    color: var(--v2-muted);
-    font-weight: 300;
-}
-
-.proposal-v2 .document-alert {
-    margin: 2rem 0 0;
-    padding: 1.25rem 0;
-    border: 0;
-    border-top: 1px solid var(--v2-line);
-    border-bottom: 1px solid var(--v2-line);
-    border-radius: 0;
-    background: transparent;
-    color: var(--v2-muted);
-}
-
-.proposal-v2 .about-us-stack {
-    max-width: 52rem;
-}
-
-.proposal-v2 .client-logo-card,
-.proposal-v2 .video-testimonial-card,
-.proposal-v2 .company-map-wrap {
-    border-color: var(--v2-line);
-    border-radius: 0;
-    box-shadow: none;
-}
-
-.proposal-v2 .document-endcap {
-    padding: clamp(6rem, 12vw, 11rem) clamp(2rem, 5vw, 5rem);
-    background: var(--v2-paper);
-    text-align: center;
-}
-
-.proposal-v2 .document-endcap,
-.proposal-v2 .document-endcap * {
-    color: var(--v2-ink);
-}
-
-.proposal-v2 .document-endcap img.invert,
-.proposal-v2 .document-endcap img.grayscale {
-    filter: none;
-}
-
-.proposal-v2 .endcap-row-logo {
-    display: flex;
-    justify-content: center;
-}
-
-.proposal-v2 .endcap-row-body {
-    max-width: 44rem;
-    margin: 0 auto;
-    text-align: left;
-}
-
-.proposal-v2 .endcap-copyright {
-    text-align: center;
+.proposal-v2-body {
+    margin-top: clamp(3rem, 6vw, 6rem);
+    margin-bottom: 0;
 }
 
 .proposal-v2 + .floating-doc-nav,
 .proposal-v2 ~ .floating-doc-flyout {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+}
+
+.proposal-v2 + .floating-doc-nav.proposal-nav-visible,
+.proposal-v2 ~ .floating-doc-flyout.proposal-nav-visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 @media (max-width: 900px) {
@@ -403,37 +173,17 @@
         right: 0.75rem;
     }
 
-    .proposal-v2 .document-cover-header {
+    .proposal-v2 > .document-cover .document-cover-header {
         justify-content: flex-end;
     }
 
-    .proposal-v2 .document-meta-stack {
+    .proposal-v2 > .document-cover .document-meta-stack {
         right: auto;
         left: 0;
     }
 
-    .proposal-v2 .section-row {
-        display: block;
-        padding: 6rem 1.5rem;
-    }
-
-    .proposal-v2 .section-label {
-        margin-bottom: 2rem;
-    }
-
-    .proposal-v2 .section-content {
-        max-width: 38rem;
-        margin: 0;
-        font-size: 0.98rem;
-        line-height: 1.78;
-    }
-
-    .proposal-v2 .section-row > h3.offer_name {
-        margin-bottom: 2rem;
-    }
-
-    .proposal-v2 .portfolio-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .proposal-v2-body {
+        margin-top: 2rem;
     }
 }
 
@@ -447,35 +197,27 @@
         font-size: 0.62rem;
     }
 
-    .proposal-v2 .document-cover-pad {
+    .proposal-v2 > .document-cover.document-cover-pad {
         padding: 1.5rem;
     }
 
-    .proposal-v2 .document-cover-header img {
+    .proposal-v2 > .document-cover .document-cover-header img {
         max-width: 8rem;
     }
 
-    .proposal-v2 .cover-meta {
+    .proposal-v2 > .document-cover .cover-meta {
         font-size: 0.52rem;
     }
 
-    .proposal-v2 .cover-title {
+    .proposal-v2 > .document-cover .cover-title {
         font-size: clamp(3rem, 15vw, 4.4rem);
     }
+}
 
-    .proposal-v2 .money-line-row {
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-
-    .proposal-v2 .money-line-amounts {
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 0.2rem;
-    }
-
-    .proposal-v2 .portfolio-grid {
-        grid-template-columns: 1fr;
+@media (prefers-reduced-motion: reduce) {
+    .proposal-v2 + .floating-doc-nav,
+    .proposal-v2 ~ .floating-doc-flyout {
+        transition: none;
     }
 }
 
@@ -486,27 +228,18 @@
 
     .proposal-v2 {
         max-width: 180mm;
+        padding-bottom: 0;
+        background: #ffffff;
     }
 
-    .proposal-v2 .document-cover {
+    .proposal-v2 > .document-cover {
         min-height: 267mm;
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
     }
 
-    .proposal-v2 .section-row {
-        display: block;
-        padding: 12mm 0;
+    .proposal-v2-body {
+        margin-top: 0;
+        box-shadow: none;
     }
-
-    .proposal-v2 .section-label {
-        margin-bottom: 7mm;
-    }
-
-    .proposal-v2 .section-content,
-    .proposal-v2 .portfolio-grid,
-    .proposal-v2 .about-us-stack {
-        max-width: none;
-    }
-
 }

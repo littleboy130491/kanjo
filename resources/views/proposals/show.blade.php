@@ -240,7 +240,11 @@
     :edit-url="$editUrl" :activate-translation="$activateTranslation" :is-draft="$proposal->status->value === 'draft'"
     :full-width="$proposalV2 ?? false"
     :lang-route="($proposalV2 ?? false) ? 'proposal-v2.show' : 'proposal.show'" pdf-route="pdf.proposal">
-    <div @class(['document-frame document-view document-shell', 'proposal-v2' => $proposalV2 ?? false])>
+    <div @class([
+        'document-view',
+        'document-frame document-shell' => ! ($proposalV2 ?? false),
+        'proposal-v2' => $proposalV2 ?? false,
+    ])>
         <section class="document-cover document-cover-pad avoid-page-break">
             <div class="document-cover-header">
                 @if($logoUrl)
@@ -275,6 +279,10 @@
                 </div>
             @endif
         </section>
+
+        @if($proposalV2 ?? false)
+            <div class="proposal-v2-body document-frame document-shell">
+        @endif
 
         @if($present($briefHtml) || $present($extraContentBriefHtml))
             <section class="section-row proposal-introduction allow-page-break">
@@ -816,6 +824,9 @@
             </p>
 
         </section>
+        @if($proposalV2 ?? false)
+            </div>
+        @endif
     </div>
     @if(! $pdfMode)
         <nav class="floating-doc-nav" aria-label="Proposal Sections">
@@ -864,6 +875,27 @@
         </details>
 
         <script>
+            @if($proposalV2 ?? false)
+                const proposalV2Body = document.querySelector('.proposal-v2-body');
+                const proposalV2Navigation = document.querySelectorAll('.floating-doc-nav, .floating-doc-flyout');
+
+                if (proposalV2Body && 'IntersectionObserver' in window) {
+                    const proposalV2BodyObserver = new IntersectionObserver((entries) => {
+                        const isBodyVisible = entries.some((entry) => entry.isIntersecting);
+
+                        proposalV2Navigation.forEach((navigation) => {
+                            navigation.classList.toggle('proposal-nav-visible', isBodyVisible);
+                        });
+                    });
+
+                    proposalV2BodyObserver.observe(proposalV2Body);
+                } else {
+                    proposalV2Navigation.forEach((navigation) => {
+                        navigation.classList.add('proposal-nav-visible');
+                    });
+                }
+            @endif
+
             document.querySelectorAll('.js-flyout-link').forEach((link) => {
                 link.addEventListener('click', () => {
                     const flyout = link.closest('.floating-doc-flyout');
