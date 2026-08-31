@@ -747,7 +747,15 @@
             </section>
         @endif
 
+        @if($proposalV2 ?? false)
+            </div>
+        @endif
+
         <section class="document-endcap print-separator avoid-page-break block">
+            @if($proposalV2 ?? false)
+                <div class="proposal-v2-footer-inner">
+            @endif
+
             <div class="endcap-row-logo">
                 @if($logoUrl)
                     <img src="{{ $logoUrl }}" alt="{{ $company?->brand_name }}" class="h-8 object-contain invert grayscale">
@@ -823,10 +831,10 @@
             <p class="endcap-copyright text-xs">&copy; {{ now()->year }} {{ $company?->company_name }}
             </p>
 
+            @if($proposalV2 ?? false)
+                </div>
+            @endif
         </section>
-        @if($proposalV2 ?? false)
-            </div>
-        @endif
     </div>
     @if(! $pdfMode)
         <nav class="floating-doc-nav" aria-label="Proposal Sections">

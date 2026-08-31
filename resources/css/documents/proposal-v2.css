@@ -152,6 +152,18 @@
     margin-bottom: 0;
 }
 
+.proposal-v2 > .document-endcap {
+    width: 100%;
+    margin-top: clamp(3rem, 6vw, 6rem);
+    padding: clamp(2.5rem, 5vw, 5rem);
+}
+
+.proposal-v2-footer-inner {
+    width: 100%;
+    max-width: 1000px;
+    margin-inline: auto;
+}
+
 .proposal-v2 + .floating-doc-nav,
 .proposal-v2 ~ .floating-doc-flyout {
     visibility: hidden;
@@ -183,6 +195,10 @@
     }
 
     .proposal-v2-body {
+        margin-top: 2rem;
+    }
+
+    .proposal-v2 > .document-endcap {
         margin-top: 2rem;
     }
 }
@@ -241,5 +257,10 @@
     .proposal-v2-body {
         margin-top: 0;
         box-shadow: none;
+    }
+
+    .proposal-v2 > .document-endcap {
+        margin-top: 0;
+        padding: 10mm;
     }
 }
