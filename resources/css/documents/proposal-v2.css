@@ -187,12 +187,17 @@
     }
 
     .proposal-v2 > .document-cover .document-cover-header {
-        justify-content: flex-end;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 1rem;
     }
 
     .proposal-v2 > .document-cover .document-meta-stack {
+        position: static;
+        width: 100%;
         right: auto;
-        left: 0;
+        left: auto;
+        text-align: center;
     }
 
     .proposal-v2-body {
