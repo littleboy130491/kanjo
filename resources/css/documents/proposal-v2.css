@@ -166,7 +166,7 @@
 .proposal-v2 .section-row {
     display: block;
     width: 100%;
-    padding: clamp(6rem, 11vw, 12rem) clamp(1.5rem, 5vw, 5rem);
+    padding: clamp(4rem, 6vw, 7rem) clamp(1.5rem, 6vw, 7rem);
     border: 0;
     background: var(--v2-paper);
 }
@@ -174,8 +174,8 @@
 .proposal-v2 .section-label {
     position: static;
     align-self: start;
-    width: min(100%, 42rem);
-    margin: 0 auto 2.5rem;
+    width: min(100%, 62.5rem);
+    margin: 0 0 2rem;
     padding: 0;
     color: var(--v2-ink);
     font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
@@ -187,9 +187,8 @@
 
 .proposal-v2 .section-content {
     width: 100%;
-    max-width: 42rem;
-    margin-right: auto;
-    margin-left: auto;
+    max-width: 62.5rem;
+    margin: 0;
     color: #555550;
     font-size: clamp(0.98rem, 1.1vw, 1.06rem);
     font-weight: 400;
@@ -227,22 +226,20 @@
 
 .proposal-v2 .proposal-introduction {
     display: block;
-    min-height: 70vh;
-    padding-top: clamp(8rem, 16vw, 16rem);
-    padding-bottom: clamp(8rem, 16vw, 16rem);
-    text-align: center;
+    min-height: 0;
+    text-align: left;
 }
 
 .proposal-v2 .proposal-introduction .section-label {
     display: block;
-    width: auto;
-    margin-bottom: 2.5rem;
+    width: min(100%, 62.5rem);
+    margin-bottom: 2rem;
     font-size: 0.78rem;
 }
 
 .proposal-v2 .proposal-introduction .section-content {
-    max-width: 36rem;
-    margin: 0 auto;
+    max-width: 62.5rem;
+    margin: 0;
     text-align: left;
 }
 
@@ -252,8 +249,7 @@
     gap: clamp(2rem, 4vw, 4rem) clamp(1.25rem, 2.5vw, 2.5rem);
     width: 100%;
     max-width: 80rem;
-    margin-right: auto;
-    margin-left: auto;
+    margin: 0;
 }
 
 .proposal-v2 .portfolio-card {
@@ -303,8 +299,8 @@
 }
 
 .proposal-v2 .section-row > h3.offer_name {
-    width: min(100%, 42rem);
-    margin: 0 auto 2.5rem;
+    width: min(100%, 62.5rem);
+    margin: 0 0 2rem;
 }
 
 .proposal-v2 .pricing-option,
@@ -351,42 +347,6 @@
     border-radius: 0;
     background: transparent;
     color: var(--v2-muted);
-}
-
-.proposal-v2 .table-wrap {
-    overflow-x: auto;
-    border: 0;
-    border-top: 1px solid var(--v2-ink);
-    border-bottom: 1px solid var(--v2-ink);
-    border-radius: 0;
-}
-
-.proposal-v2 .data-table {
-    min-width: 580px;
-    font-size: 0.86rem;
-}
-
-.proposal-v2 .data-table thead,
-.proposal-v2 .data-table tbody tr:nth-child(even),
-.proposal-v2 .data-table tfoot th {
-    background: transparent;
-}
-
-.proposal-v2 .data-table th {
-    color: var(--v2-ink);
-    font-weight: 600;
-    letter-spacing: 0.1em;
-}
-
-.proposal-v2 .data-table th,
-.proposal-v2 .data-table td {
-    padding: 1rem 0.75rem;
-    border-bottom: 1px solid var(--v2-line);
-}
-
-.proposal-v2 .data-table tbody tr:last-child td,
-.proposal-v2 .data-table tfoot tr:last-child th {
-    border-bottom: 0;
 }
 
 .proposal-v2 .about-us-stack {
@@ -463,7 +423,7 @@
 
     .proposal-v2 .section-content {
         max-width: 38rem;
-        margin: 0 auto;
+        margin: 0;
         font-size: 0.98rem;
         line-height: 1.78;
     }
