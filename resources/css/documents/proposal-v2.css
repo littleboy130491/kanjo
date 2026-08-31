@@ -48,7 +48,7 @@
 .proposal-v2 h3.offer_name,
 .proposal-v2 .section-content :where(h1, h2, h3, h4, h5, h6),
 .proposal-v2 .document-richtext :where(h1, h2, h3, h4, h5, h6) {
-    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
 }
 
 .proposal-v2 .document-cover {
@@ -116,9 +116,9 @@
 .proposal-v2 .cover-title {
     max-width: none;
     color: #ffffff;
-    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
     font-size: clamp(3.4rem, 6vw, 6.6rem);
-    font-weight: 200;
+    font-weight: 300;
     line-height: 0.98;
     letter-spacing: -0.045em;
 }
@@ -128,7 +128,7 @@
     margin-top: 0.25em;
     color: #ffffff;
     font-style: normal;
-    font-weight: 200;
+    font-weight: 300;
     letter-spacing: -0.04em;
 }
 
@@ -150,7 +150,7 @@
 
 .proposal-v2 .document-cover > .flex:last-child .text-xl {
     color: #ffffff;
-    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
     font-size: clamp(1.2rem, 2vw, 1.75rem);
     font-weight: 400;
     letter-spacing: -0.025em;
@@ -161,11 +161,7 @@
 }
 
 .proposal-v2 .section-row {
-    display: grid;
-    grid-template-columns: minmax(8rem, 11rem) minmax(0, 42rem);
-    justify-content: center;
-    column-gap: clamp(3rem, 7vw, 7rem);
-    row-gap: 2rem;
+    display: block;
     width: 100%;
     padding: clamp(6rem, 11vw, 12rem) clamp(1.5rem, 5vw, 5rem);
     border: 0;
@@ -175,10 +171,11 @@
 .proposal-v2 .section-label {
     position: static;
     align-self: start;
-    margin: 0;
+    width: min(100%, 42rem);
+    margin: 0 auto 2.5rem;
     padding: 0;
     color: var(--v2-ink);
-    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
     font-size: 0.72rem;
     font-weight: 500;
     line-height: 1.45;
@@ -187,17 +184,18 @@
 
 .proposal-v2 .section-label::after {
     display: block;
-    width: 1px;
-    height: 4.5rem;
+    width: 2.5rem;
+    height: 1px;
     margin-top: 1.2rem;
     background: var(--v2-line);
     content: "";
 }
 
 .proposal-v2 .section-content {
-    grid-column: 2;
     width: 100%;
     max-width: 42rem;
+    margin-right: auto;
+    margin-left: auto;
     color: #555550;
     font-size: clamp(0.98rem, 1.1vw, 1.06rem);
     font-weight: 400;
@@ -313,7 +311,7 @@
     align-self: end;
     margin: 0;
     color: var(--v2-ink);
-    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
     font-size: clamp(1.3rem, 2vw, 2rem);
     font-weight: 300;
     line-height: 1.15;
@@ -339,8 +337,8 @@
 }
 
 .proposal-v2 .section-row > h3.offer_name {
-    grid-column: 2;
-    margin-bottom: 0;
+    width: min(100%, 42rem);
+    margin: 0 auto 2.5rem;
 }
 
 .proposal-v2 .pricing-option,
@@ -368,7 +366,7 @@
 .proposal-v2 .money-line-value,
 .proposal-v2 .money-line-original {
     color: var(--v2-ink);
-    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
     font-size: clamp(0.95rem, 1.5vw, 1.2rem);
     font-weight: 400;
 }
