@@ -1,8 +1,8 @@
 .proposal-v2 {
-    --v2-ink: #151515;
-    --v2-muted: #666662;
-    --v2-line: #d9d9d4;
-    --v2-paper: #ffffff;
+    --v2-ink: #242422;
+    --v2-muted: #74746e;
+    --v2-line: #dfdfda;
+    --v2-paper: #fafaf8;
     width: 100%;
     max-width: none;
     color: var(--v2-ink);
@@ -13,9 +13,12 @@
 }
 
 .document-layout-full .document-toolbar {
-    position: static;
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 50;
     width: fit-content;
-    margin-left: auto;
+    margin: 0;
     padding: 0;
     border: 0;
     border-radius: 0;
@@ -24,134 +27,148 @@
 }
 
 .document-layout-full .document-toolbar a {
+    border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 0;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
     box-shadow: none;
     font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+}
+
+.document-layout-full .document-toolbar a:hover,
+.document-layout-full .document-toolbar a:focus-visible {
+    background: #ffffff;
+    color: var(--color-primary);
 }
 
 .proposal-v2 .document-serif,
 .proposal-v2 h3.offer_name,
 .proposal-v2 .section-content :where(h1, h2, h3, h4, h5, h6),
 .proposal-v2 .document-richtext :where(h1, h2, h3, h4, h5, h6) {
-    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
 }
 
 .proposal-v2 .document-cover {
-    min-height: clamp(680px, calc(100vh - 7rem), 920px);
-    overflow: visible;
+    min-height: 100vh;
     border: 0;
-    background: var(--v2-paper);
-}
-
-.proposal-v2 .document-cover::after {
-    display: none;
+    background: var(--color-primary);
+    color: #ffffff;
 }
 
 .proposal-v2 .document-cover-pad {
-    padding: clamp(2rem, 5.5vw, 7rem);
+    padding: clamp(2rem, 5vw, 6rem);
 }
 
 .proposal-v2 .document-cover-header {
-    align-items: flex-end;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--v2-ink);
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    min-height: 3rem;
 }
 
 .proposal-v2 .document-cover-header img {
-    height: clamp(1.75rem, 2.4vw, 2.5rem);
-    max-width: min(14rem, 48vw);
+    height: clamp(1.6rem, 2.2vw, 2.25rem);
+    max-width: min(13rem, 44vw);
+    filter: brightness(0) invert(1);
 }
 
 .proposal-v2 .document-meta-stack {
-    display: grid;
-    grid-template-columns: repeat(2, auto);
-    gap: 0.35rem 2rem;
-    margin-left: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
     padding: 0;
-    border: 0;
     text-align: left;
 }
 
 .proposal-v2 .cover-meta {
-    margin: 0;
-    color: var(--v2-muted);
+    margin: 0 0 0.3rem;
+    color: rgba(255, 255, 255, 0.62);
     font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.67rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
 }
 
 .proposal-v2 .cover-meta span {
-    margin-left: 0.3rem;
-    color: var(--v2-ink);
+    margin-left: 0.25rem;
+    color: #ffffff;
 }
 
 .proposal-v2 .document-cover > .my-8 {
-    width: 100%;
-    margin-top: clamp(5rem, 11vh, 9rem);
-    margin-bottom: clamp(5rem, 11vh, 9rem);
+    width: min(100%, 760px);
+    margin: clamp(6rem, 14vh, 11rem) auto;
+    text-align: center;
 }
 
 .proposal-v2 .document-kicker {
-    margin-bottom: 1.35rem;
-    color: var(--color-primary);
+    margin-bottom: 1.75rem;
+    color: rgba(255, 255, 255, 0.68);
     font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
 }
 
 .proposal-v2 .cover-title {
-    max-width: 1220px;
-    color: var(--v2-ink);
-    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
-    font-size: clamp(3.8rem, 9vw, 10.75rem);
-    font-weight: 700;
-    line-height: 0.82;
-    letter-spacing: -0.075em;
+    max-width: none;
+    color: #ffffff;
+    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(3.4rem, 6vw, 6.6rem);
+    font-weight: 200;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
 }
 
 .proposal-v2 .cover-subtitle {
     display: inline-block;
-    margin-top: 0.22em;
-    color: var(--v2-ink);
+    margin-top: 0.25em;
+    color: #ffffff;
     font-style: normal;
-    font-weight: 300;
-    letter-spacing: -0.065em;
+    font-weight: 200;
+    letter-spacing: -0.04em;
 }
 
 .proposal-v2 .document-cover > .flex:last-child {
-    display: grid;
-    grid-template-columns: minmax(9rem, 0.25fr) minmax(0, 1fr);
-    gap: clamp(2rem, 6vw, 8rem);
-    align-items: start;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--v2-line);
+    display: block;
+    padding: 0;
+    border: 0;
+    text-align: center;
 }
 
 .proposal-v2 .document-cover > .flex:last-child > div {
-    grid-column: 2;
-    max-width: 46rem;
+    max-width: 36rem;
+    margin: 0 auto;
+}
+
+.proposal-v2 .document-cover > .flex:last-child .document-kicker {
+    margin-bottom: 0.65rem;
 }
 
 .proposal-v2 .document-cover > .flex:last-child .text-xl {
-    color: var(--v2-ink);
-    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
-    font-size: clamp(1.3rem, 2.2vw, 2.15rem);
-    font-weight: 500;
-    letter-spacing: -0.035em;
+    color: #ffffff;
+    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(1.2rem, 2vw, 1.75rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+}
+
+.proposal-v2 .document-cover > .flex:last-child p:last-child {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .proposal-v2 .section-row {
     display: grid;
-    grid-template-columns: minmax(9rem, 13rem) minmax(0, 1fr);
-    column-gap: clamp(2rem, 6vw, 8rem);
+    grid-template-columns: minmax(8rem, 11rem) minmax(0, 42rem);
+    justify-content: center;
+    column-gap: clamp(3rem, 7vw, 7rem);
     row-gap: 2rem;
-    padding: clamp(3.75rem, 6vw, 7.5rem) clamp(2rem, 5.5vw, 7rem);
-    border-color: var(--v2-line);
+    width: 100%;
+    padding: clamp(6rem, 11vw, 12rem) clamp(1.5rem, 5vw, 5rem);
+    border: 0;
     background: var(--v2-paper);
 }
 
@@ -159,95 +176,166 @@
     position: static;
     align-self: start;
     margin: 0;
-    padding-top: 0.9rem;
-    border-top: 2px solid var(--v2-ink);
+    padding: 0;
     color: var(--v2-ink);
-    font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.69rem;
-    font-weight: 700;
+    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
     line-height: 1.45;
     letter-spacing: 0.15em;
 }
 
-.proposal-v2 .section-label::before {
-    display: none;
+.proposal-v2 .section-label::after {
+    display: block;
+    width: 1px;
+    height: 4.5rem;
+    margin-top: 1.2rem;
+    background: var(--v2-line);
+    content: "";
 }
 
 .proposal-v2 .section-content {
     grid-column: 2;
     width: 100%;
-    max-width: 880px;
-    color: #3f3f3c;
-    font-size: clamp(1rem, 1.15vw, 1.12rem);
+    max-width: 42rem;
+    color: #555550;
+    font-size: clamp(0.98rem, 1.1vw, 1.06rem);
     font-weight: 400;
-    line-height: 1.78;
+    line-height: 1.88;
 }
 
 .proposal-v2 .section-content :where(h1, h2, h3, h4, h5, h6),
 .proposal-v2 .document-richtext :where(h1, h2, h3, h4, h5, h6) {
     color: var(--v2-ink);
-    font-weight: 600;
-    letter-spacing: -0.03em;
+    font-weight: 400;
+    letter-spacing: -0.02em;
 }
 
 .proposal-v2 .section-content :where(p, ul, ol, blockquote) {
-    margin-bottom: 1.2em;
+    margin-bottom: 1.35em;
 }
 
 .proposal-v2 .section-content :where(li) {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    margin-top: 0.55em;
+    margin-bottom: 0.55em;
     padding-left: 0.2em;
 }
 
 .proposal-v2 .section-content :where(strong, b) {
     color: var(--v2-ink);
-    font-weight: 650;
+    font-weight: 600;
 }
 
 .proposal-v2 .section-content :where(blockquote) {
     margin-left: 0;
-    padding: 0.2rem 0 0.2rem 1.5rem;
-    border-left: 2px solid var(--v2-ink);
+    padding-left: 1.25rem;
+    border-left: 1px solid var(--v2-line);
     color: var(--v2-muted);
 }
 
-.proposal-v2 .portfolio-grid,
-.proposal-v2 .about-us-stack {
-    max-width: 1240px;
+.proposal-v2 .proposal-introduction {
+    display: block;
+    min-height: 70vh;
+    padding-top: clamp(8rem, 16vw, 16rem);
+    padding-bottom: clamp(8rem, 16vw, 16rem);
+    text-align: center;
+}
+
+.proposal-v2 .proposal-introduction .section-label {
+    margin-bottom: 2.5rem;
+    font-size: 0.78rem;
+}
+
+.proposal-v2 .proposal-introduction .section-label::after {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.proposal-v2 .proposal-introduction .section-content {
+    max-width: 36rem;
+    margin: 0 auto;
+    text-align: left;
 }
 
 .proposal-v2 .portfolio-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 3vw, 3rem);
+    display: block;
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 100%;
+    max-width: 1040px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.proposal-v2 .portfolio-card {
+    margin-top: clamp(6rem, 12vw, 12rem);
+}
+
+.proposal-v2 .portfolio-card:first-child {
+    margin-top: 3rem;
+}
+
+.proposal-v2 .portfolio-card a {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(10rem, 0.75fr);
+    grid-template-rows: 1fr auto;
+    gap: 0.75rem clamp(2rem, 6vw, 6rem);
+    align-items: end;
+}
+
+.proposal-v2 .portfolio-card:nth-child(even) a {
+    grid-template-columns: minmax(10rem, 0.75fr) minmax(0, 2fr);
 }
 
 .proposal-v2 .portfolio-card .aspect-\[4\/3\] {
+    grid-row: 1 / 3;
+    margin: 0;
     border-radius: 0;
+    background: #ffffff;
     box-shadow: none;
 }
 
+.proposal-v2 .portfolio-card:nth-child(even) .aspect-\[4\/3\] {
+    grid-column: 2;
+}
+
+.proposal-v2 .portfolio-card-title,
+.proposal-v2 .portfolio-card-link {
+    grid-column: 2;
+}
+
+.proposal-v2 .portfolio-card:nth-child(even) .portfolio-card-title,
+.proposal-v2 .portfolio-card:nth-child(even) .portfolio-card-link {
+    grid-column: 1;
+}
+
 .proposal-v2 .portfolio-card-title {
+    align-self: end;
+    margin: 0;
     color: var(--v2-ink);
-    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
-    font-weight: 600;
+    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(1.3rem, 2vw, 2rem);
+    font-weight: 300;
+    line-height: 1.15;
     letter-spacing: -0.025em;
 }
 
 .proposal-v2 .portfolio-card-link {
+    align-self: start;
+    margin: 0;
     color: var(--v2-muted);
-    font-size: 0.64rem;
-    font-weight: 700;
-    letter-spacing: 0.13em;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
 }
 
 .proposal-v2 h3.offer_name {
-    margin-bottom: 1.6rem;
+    margin-bottom: 1.75rem;
     color: var(--v2-ink);
-    font-size: clamp(1.8rem, 3.2vw, 3.25rem);
-    font-weight: 600;
-    line-height: 1.05;
-    letter-spacing: -0.05em;
+    font-size: clamp(1.6rem, 2.8vw, 2.7rem);
+    font-weight: 300;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
 }
 
 .proposal-v2 .section-row > h3.offer_name {
@@ -260,7 +348,7 @@
     margin: 0;
     padding: 2rem 0;
     border: 0;
-    border-top: 1px solid var(--v2-ink);
+    border-top: 1px solid var(--v2-line);
     border-radius: 0;
     background: transparent;
 }
@@ -272,27 +360,27 @@
 .proposal-v2 .money-line {
     color: var(--v2-muted);
     font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.75rem;
-    font-weight: 650;
+    font-size: 0.72rem;
+    font-weight: 600;
     letter-spacing: 0.1em;
 }
 
 .proposal-v2 .money-line-value,
 .proposal-v2 .money-line-original {
     color: var(--v2-ink);
-    font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
-    font-size: clamp(1rem, 1.6vw, 1.35rem);
-    font-weight: 600;
+    font-family: "Urbanist", ui-sans-serif, system-ui, sans-serif;
+    font-size: clamp(0.95rem, 1.5vw, 1.2rem);
+    font-weight: 400;
 }
 
 .proposal-v2 .money-line-original {
     color: var(--v2-muted);
-    font-weight: 400;
+    font-weight: 300;
 }
 
 .proposal-v2 .document-alert {
     margin: 2rem 0 0;
-    padding: 1rem 0;
+    padding: 1.25rem 0;
     border: 0;
     border-top: 1px solid var(--v2-line);
     border-bottom: 1px solid var(--v2-line);
@@ -311,7 +399,7 @@
 
 .proposal-v2 .data-table {
     min-width: 580px;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
 }
 
 .proposal-v2 .data-table thead,
@@ -322,7 +410,7 @@
 
 .proposal-v2 .data-table th {
     color: var(--v2-ink);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.1em;
 }
 
@@ -337,6 +425,10 @@
     border-bottom: 0;
 }
 
+.proposal-v2 .about-us-stack {
+    max-width: 52rem;
+}
+
 .proposal-v2 .client-logo-card,
 .proposal-v2 .video-testimonial-card,
 .proposal-v2 .company-map-wrap {
@@ -345,135 +437,123 @@
     box-shadow: none;
 }
 
-.proposal-v2 .client-logo-card {
-    border-width: 0 0 1px;
+.proposal-v2 .document-endcap {
+    padding: clamp(6rem, 12vw, 11rem) clamp(2rem, 5vw, 5rem);
+    background: var(--v2-paper);
+    text-align: center;
 }
 
-.proposal-v2 .document-endcap {
-    padding: clamp(3rem, 6vw, 7rem) clamp(2rem, 5.5vw, 7rem);
-    background: var(--v2-ink);
+.proposal-v2 .document-endcap,
+.proposal-v2 .document-endcap * {
+    color: var(--v2-ink);
+}
+
+.proposal-v2 .document-endcap img.invert,
+.proposal-v2 .document-endcap img.grayscale {
+    filter: none;
+}
+
+.proposal-v2 .endcap-row-logo {
+    display: flex;
+    justify-content: center;
 }
 
 .proposal-v2 .endcap-row-body {
-    max-width: 1120px;
+    max-width: 44rem;
+    margin: 0 auto;
+    text-align: left;
 }
 
-.proposal-v2 + .floating-doc-nav {
-    top: auto;
-    right: auto;
-    bottom: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    max-width: none;
-    padding: 0.45rem 1.5rem;
-    overflow-x: auto;
-    transform: none;
-    border: 0;
-    border-top: 1px solid var(--v2-line);
-    border-radius: 0;
-    background: rgba(255, 255, 255, 0.98);
-    box-shadow: none;
-    backdrop-filter: none;
+.proposal-v2 .endcap-copyright {
+    text-align: center;
 }
 
-.proposal-v2 + .floating-doc-nav a {
-    flex: 0 0 auto;
-    padding: 0.45rem 0.7rem;
-    border-radius: 0;
-    color: var(--v2-muted);
-    font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.64rem;
-    font-weight: 650;
-    letter-spacing: 0.08em;
-}
-
-.proposal-v2 + .floating-doc-nav a:hover,
-.proposal-v2 + .floating-doc-nav a:focus-visible {
-    color: var(--v2-ink);
-    background: transparent;
-    text-decoration: underline;
-    text-underline-offset: 0.25rem;
-    outline: none;
-}
-
-@media (min-width: 1500px) {
-    .proposal-v2 .portfolio-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+.proposal-v2 + .floating-doc-nav,
+.proposal-v2 ~ .floating-doc-flyout {
+    display: none;
 }
 
 @media (max-width: 900px) {
-    .proposal-v2 .document-cover {
-        min-height: 680px;
+    .document-layout-full .document-toolbar {
+        top: 0.75rem;
+        right: 0.75rem;
     }
 
     .proposal-v2 .document-cover-header {
-        align-items: flex-start;
+        justify-content: flex-end;
     }
 
     .proposal-v2 .document-meta-stack {
-        grid-template-columns: 1fr;
-        gap: 0.3rem;
-        margin-left: 0;
+        right: auto;
+        left: 0;
     }
 
-    .proposal-v2 .document-cover > .flex:last-child,
     .proposal-v2 .section-row {
         display: block;
-    }
-
-    .proposal-v2 .document-cover > .flex:last-child > div {
-        max-width: none;
-    }
-
-    .proposal-v2 .section-row {
-        padding: 3.5rem 1.5rem;
+        padding: 6rem 1.5rem;
     }
 
     .proposal-v2 .section-label {
-        width: 7rem;
         margin-bottom: 2rem;
     }
 
+    .proposal-v2 .section-label::after {
+        height: 2.5rem;
+    }
+
     .proposal-v2 .section-content {
-        max-width: none;
-        font-size: 1rem;
-        line-height: 1.72;
+        max-width: 38rem;
+        margin: 0 auto;
+        font-size: 0.98rem;
+        line-height: 1.78;
     }
 
     .proposal-v2 .section-row > h3.offer_name {
         margin-bottom: 2rem;
     }
 
-    .proposal-v2 .portfolio-grid {
-        grid-template-columns: 1fr;
+    .proposal-v2 .portfolio-card {
+        margin-top: 7rem;
     }
 
-    .proposal-v2 + .floating-doc-nav {
-        display: none;
+    .proposal-v2 .portfolio-card a,
+    .proposal-v2 .portfolio-card:nth-child(even) a {
+        display: block;
+    }
+
+    .proposal-v2 .portfolio-card-title {
+        margin-top: 1.25rem;
+    }
+
+    .proposal-v2 .portfolio-card-link {
+        margin-top: 0.6rem;
     }
 }
 
 @media (max-width: 520px) {
     .document-layout-full .document-toolbar {
-        width: 100%;
+        gap: 0.35rem;
     }
 
     .document-layout-full .document-toolbar a {
-        flex: 1;
-        justify-content: center;
-        text-align: center;
+        padding: 0.45rem 0.55rem;
+        font-size: 0.62rem;
     }
 
     .proposal-v2 .document-cover-pad {
         padding: 1.5rem;
     }
 
+    .proposal-v2 .document-cover-header img {
+        max-width: 8rem;
+    }
+
+    .proposal-v2 .cover-meta {
+        font-size: 0.52rem;
+    }
+
     .proposal-v2 .cover-title {
-        font-size: clamp(3.25rem, 17vw, 5rem);
-        line-height: 0.84;
+        font-size: clamp(3rem, 15vw, 4.4rem);
     }
 
     .proposal-v2 .money-line-row {
@@ -489,13 +569,18 @@
 }
 
 @media print {
+    .document-layout-full .document-toolbar {
+        display: none;
+    }
+
     .proposal-v2 {
         max-width: 180mm;
-        box-shadow: none;
     }
 
     .proposal-v2 .document-cover {
-        border: 0;
+        min-height: 267mm;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
     }
 
     .proposal-v2 .section-row {
@@ -504,8 +589,11 @@
     }
 
     .proposal-v2 .section-label {
-        width: 38mm;
         margin-bottom: 7mm;
+    }
+
+    .proposal-v2 .section-label::after {
+        display: none;
     }
 
     .proposal-v2 .section-content,
@@ -514,7 +602,7 @@
         max-width: none;
     }
 
-    .proposal-v2 .section-row > h3.offer_name {
-        margin-bottom: 7mm;
+    .proposal-v2 .portfolio-card {
+        margin-top: 12mm;
     }
 }

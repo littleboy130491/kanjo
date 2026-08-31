@@ -18,12 +18,12 @@
     $bodyClass = $pdfMode
         ? 'bg-white p-0'
         : ($fullWidth
-            ? 'bg-slate-100 p-3 md:p-6 xl:p-8'
+            ? 'bg-white p-0'
             : 'bg-slate-100 px-4 py-6 md:px-8 md:py-8');
     $containerClass = $pdfMode
         ? 'mx-auto w-full max-w-[180mm] space-y-6'
         : ($fullWidth
-            ? 'document-layout-full mx-auto w-full space-y-6'
+            ? 'document-layout-full mx-auto w-full'
             : 'mx-auto w-full max-w-[210mm] space-y-6');
     $trackingSetting = ! $pdfMode && auth()->guest()
         ? rescue(fn () => app(\App\Settings\TrackingSettings::class), report: false)
@@ -45,7 +45,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     @if($sansOnly)
-        <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Urbanist:wght@200;300;400;500;600&display=swap" rel="stylesheet">
     @else
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
     @endif

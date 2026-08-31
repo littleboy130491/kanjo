@@ -277,7 +277,7 @@
         </section>
 
         @if($present($briefHtml) || $present($extraContentBriefHtml))
-            <section class="section-row allow-page-break">
+            <section class="section-row proposal-introduction allow-page-break">
                 <h2 class="section-label">Dear {{ $proposal->client_name }},</h2>
                 <div class="section-content">
                     @if($present($briefHtml))
