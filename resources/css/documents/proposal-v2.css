@@ -20,7 +20,8 @@
     box-shadow: none;
 }
 
-.document-layout-full .document-toolbar a {
+.document-layout-full .document-toolbar a,
+.proposal-v2-mobile-download {
     border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 0;
     background: rgba(255, 255, 255, 0.12);
@@ -33,9 +34,15 @@
 }
 
 .document-layout-full .document-toolbar a:hover,
-.document-layout-full .document-toolbar a:focus-visible {
+.document-layout-full .document-toolbar a:focus-visible,
+.proposal-v2-mobile-download:hover,
+.proposal-v2-mobile-download:focus-visible {
     background: #ffffff;
     color: var(--color-primary);
+}
+
+.proposal-v2-mobile-download {
+    display: none;
 }
 
 .proposal-v2 > .document-cover {
@@ -214,9 +221,20 @@
         gap: 0.35rem;
     }
 
-    .document-layout-full .document-toolbar a {
+    .document-layout-full .document-toolbar a,
+    .proposal-v2-mobile-download {
         padding: 0.45rem 0.55rem;
         font-size: 0.62rem;
+    }
+
+    .document-layout-full .document-toolbar .document-download-link {
+        display: none;
+    }
+
+    .proposal-v2-mobile-download {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .proposal-v2 > .document-cover {
@@ -252,6 +270,24 @@
 
     .proposal-v2 > .document-endcap {
         margin-top: 0;
+    }
+
+    .proposal-v2 ~ .floating-doc-flyout {
+        max-width: calc(100vw - 2rem);
+    }
+
+    .proposal-v2 ~ .floating-doc-flyout nav {
+        position: absolute;
+        right: 0;
+        bottom: calc(100% + 0.5rem);
+        box-sizing: border-box;
+        max-width: calc(100vw - 2rem);
+        max-height: calc(100vh - 5rem);
+        max-height: calc(100svh - 5rem);
+        margin-top: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 }
 

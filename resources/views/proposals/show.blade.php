@@ -256,6 +256,13 @@
                     @endif
                     <p class="cover-meta">No. — <span>{{ $proposal->document_number }}</span></p>
                 </div>
+
+                @if(($proposalV2 ?? false) && ! $pdfMode)
+                    <a class="proposal-v2-mobile-download no-print"
+                        href="{{ route('pdf.proposal', $pdfRouteParameters) }}">
+                        Download PDF
+                    </a>
+                @endif
             </div>
 
             <div class="my-8 md:my-8">

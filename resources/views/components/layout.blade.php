@@ -83,7 +83,7 @@
                     </a>
                 @endif
             @endauth
-            <a class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+            <a class="document-download-link rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
                 href="{{ route($pdfRoute, $pdfRouteParameters) }}">
                 Download PDF
             </a>
