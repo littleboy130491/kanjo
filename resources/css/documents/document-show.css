@@ -355,31 +355,55 @@
     @apply block aspect-[16/10] w-full border-0 md:aspect-[21/9];
 }
 
-.data-table {
+.data-table,
+.section-content table:not(.data-table) {
     @apply w-full table-fixed border-collapse text-[13px];
 }
 
-.table-wrap {
+.table-wrap,
+.section-content .tableWrapper {
     @apply mt-4 overflow-hidden rounded-sm border border-sky-100 bg-white;
 }
 
-.data-table thead {
+.section-content table:not(.data-table) {
+    @apply my-4 border border-sky-100 bg-white;
+}
+
+.section-content .tableWrapper {
+    @apply mb-4 w-full overflow-x-auto;
+}
+
+.section-content .tableWrapper > table:not(.data-table) {
+    @apply my-0 border-0;
+}
+
+.data-table thead,
+.section-content table:not(.data-table) thead,
+.section-content table:not(.data-table) tbody tr:first-child:has(th) {
     @apply text-[10px] uppercase tracking-[0.2em];
     color: var(--tone-deep);
     background: color-mix(in srgb, var(--tone-soft) 55%, #ffffff);
 }
 
-.data-table th {
+.data-table th,
+.section-content table:not(.data-table) th {
     @apply px-3 py-3.5 text-left font-medium break-words;
 }
 
-.data-table td {
+.data-table td,
+.section-content table:not(.data-table) td {
     @apply px-3 py-3.5 align-top break-words;
     color: #525252;
 }
 
-.data-table tbody tr:nth-child(even) {
+.data-table tbody tr:nth-child(even),
+.section-content table:not(.data-table) tbody tr:nth-child(even) {
     @apply bg-sky-50/40;
+}
+
+.section-content table:not(.data-table) :where(th, td) > p {
+    @apply mb-0;
+    min-height: 0;
 }
 
 .data-table tfoot th {
@@ -392,7 +416,9 @@
 }
 
 .data-table td:last-child,
-.data-table th:last-child {
+.data-table th:last-child,
+.section-content table:not(.data-table) td:last-child,
+.section-content table:not(.data-table) th:last-child {
     @apply text-right;
 }
 
@@ -1137,6 +1163,10 @@ h3.offer_name {
 
     .document-view table thead {
         display: table-header-group;
+    }
+
+    .document-view .section-content .tableWrapper {
+        overflow: visible;
     }
 
     .document-view .spk-content table:not(.spk-party-table) th,
