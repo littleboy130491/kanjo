@@ -12,7 +12,7 @@ class ViewProposalDocumentAction
         $action = Action::make('view_document')
             ->label('View Document')
             ->icon('heroicon-o-eye')
-            ->url(fn (Proposal $record): string => route('proposal.show', [
+            ->url(fn (Proposal $record): string => route('proposal-v2.show', [
                 'slug' => $record->slug ?: str_replace('/', '-', $record->document_number),
             ]))
             ->openUrlInNewTab();

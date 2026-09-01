@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\DocumentStatus;
+use App\Filament\Admin\Resources\Proposals\Actions\ViewProposalDocumentAction;
 use App\Http\Middleware\DocumentAccessMiddleware;
 use App\Models\Company;
 use App\Models\Proposal;
@@ -13,6 +14,19 @@ use Tests\TestCase;
 class ProposalV2ViewTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_proposal_header_action_uses_the_v2_route_by_default(): void
+    {
+        $proposal = new Proposal([
+            'slug' => 'example-proposal',
+        ]);
+
+        $url = ViewProposalDocumentAction::make()
+            ->record($proposal)
+            ->getUrl();
+
+        $this->assertSame(route('proposal-v2.show', ['slug' => $proposal->slug]), $url);
+    }
 
     public function test_v2_route_renders_the_new_full_width_proposal_view(): void
     {
