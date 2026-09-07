@@ -275,7 +275,9 @@ class InvoiceForm
                                                         TextInput::make('price')
                                                             ->required()
                                                             ->numeric()
+                                                            ->type('text')
                                                             ->inputMode('decimal')
+                                                            ->live(onBlur: true)
                                                             ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set))
                                                             ->columnSpan(1),
                                                         Textarea::make('description')
@@ -287,7 +289,7 @@ class InvoiceForm
                                                     ->addable()
                                                     ->reorderable()
                                                     ->deletable()
-                                                    ->live()
+                                                    ->live(onBlur: true)
                                                     ->afterStateUpdated(fn (Get $get, Set $set) => self::recalculateTotals($get, $set))
                                                     ->default([]),
                                             ])
@@ -467,7 +469,8 @@ class InvoiceForm
     protected static function recalculateTotals(Get $get, Set $set): void
     {
         $items = self::extractItemsForTotal(
-            $get('items')
+            $get('data.items', isAbsolute: true)
+            ?? $get('items')
             ?? $get('../items')
             ?? $get('../../items')
             ?? $get('../../../items')
@@ -475,16 +478,29 @@ class InvoiceForm
             ?? $get('../../../../../items')
         );
 
-        $subtotal = collect($items)
-            ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0));
+        $subtotal = self::normalizeMoney(
+            collect($items)
+                ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0))
+        );
 
-        $taxRate = (float) ($get('tax_rate') ?? 0);
-        $taxAmount = $subtotal * ($taxRate / 100);
-        $total = $subtotal + $taxAmount;
+        $taxRate = (float) ($get('data.tax_rate', isAbsolute: true) ?? $get('tax_rate') ?? 0);
+        $taxAmount = self::normalizeMoney($subtotal * ($taxRate / 100));
+        $total = self::normalizeMoney($subtotal + $taxAmount);
 
-        $set('subtotal', round($subtotal, 2));
-        $set('tax_amount', round($taxAmount, 2));
-        $set('total', round($total, 2));
+        $set('data.subtotal', $subtotal, isAbsolute: true);
+        $set('data.tax_amount', $taxAmount, isAbsolute: true);
+        $set('data.total', $total, isAbsolute: true);
+    }
+
+    /**
+     * PHP 8.4 json_encodes -0.0 as -0, which JavaScript stringifies as 0 and
+     * breaks the Livewire checksum. Coerce signed zero to unsigned zero.
+     */
+    protected static function normalizeMoney(float $value): float
+    {
+        $rounded = round($value, 2);
+
+        return $rounded == 0.0 ? 0.0 : $rounded;
     }
 
     protected static function translatedFieldPaths(string $fieldKey): array

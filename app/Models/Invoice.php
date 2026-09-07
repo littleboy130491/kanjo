@@ -110,15 +110,28 @@ class Invoice extends Model
         $invoice->items = self::normalizeTranslatedItemPrices($invoice->items);
 
         $items = self::extractItemsForTotal($invoice->items);
-        $subtotal = collect($items)
-            ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0));
+        $subtotal = self::normalizeMoney(
+            collect($items)
+                ->sum(fn (mixed $item): float => (float) data_get($item, 'price', 0))
+        );
 
         $taxRate = (float) ($invoice->getAttributes()['tax_rate'] ?? 0);
-        $taxAmount = $subtotal * ($taxRate / 100);
+        $taxAmount = self::normalizeMoney($subtotal * ($taxRate / 100));
 
-        $invoice->setAttribute('subtotal', round($subtotal, 2));
-        $invoice->setAttribute('tax_amount', round($taxAmount, 2));
-        $invoice->setAttribute('total', round($subtotal + $taxAmount, 2));
+        $invoice->setAttribute('subtotal', $subtotal);
+        $invoice->setAttribute('tax_amount', $taxAmount);
+        $invoice->setAttribute('total', self::normalizeMoney($subtotal + $taxAmount));
+    }
+
+    /**
+     * PHP 8.4 json_encodes -0.0 as -0, which JavaScript stringifies as 0 and
+     * breaks the Livewire checksum. Coerce signed zero to unsigned zero.
+     */
+    private static function normalizeMoney(float $value): float
+    {
+        $rounded = round($value, 2);
+
+        return $rounded == 0.0 ? 0.0 : $rounded;
     }
 
     private static function normalizeTranslatedItemPrices(mixed $items): mixed
