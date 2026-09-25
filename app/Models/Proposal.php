@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
 
@@ -169,6 +170,11 @@ class Proposal extends Model
     public function spks()
     {
         return $this->hasMany(Spk::class);
+    }
+
+    public function documentViews(): MorphMany
+    {
+        return $this->morphMany(DocumentView::class, 'viewable')->latest('viewed_at');
     }
 
     public function client(): BelongsTo
