@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Middleware\DocumentAccessMiddleware;
 use App\Http\Middleware\DocumentAuthThrottleMiddleware;
 use App\Models\Spk;
+use App\Services\DocumentViewLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,6 +25,8 @@ class SpkViewController extends Controller
         app()->setLocale($locale);
 
         $spk->loadMissing(['company', 'proposal']);
+
+        DocumentViewLogger::record($spk, 'html');
 
         return view('spks.show', [
             'spk' => $spk,

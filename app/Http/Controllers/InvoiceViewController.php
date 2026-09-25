@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Middleware\DocumentAccessMiddleware;
 use App\Http\Middleware\DocumentAuthThrottleMiddleware;
 use App\Models\Invoice;
+use App\Services\DocumentViewLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,6 +25,8 @@ class InvoiceViewController extends Controller
         app()->setLocale($locale);
 
         $invoice->loadMissing(['company', 'proposal']);
+
+        DocumentViewLogger::record($invoice, 'html');
 
         return view('invoices.show', [
             'invoice' => $invoice,

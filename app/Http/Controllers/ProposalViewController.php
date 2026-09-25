@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Middleware\DocumentAccessMiddleware;
 use App\Http\Middleware\DocumentAuthThrottleMiddleware;
 use App\Models\Proposal;
+use App\Services\DocumentViewLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -34,6 +35,8 @@ class ProposalViewController extends Controller
         app()->setLocale($locale);
 
         $proposal->loadMissing(['company', 'portfolios']);
+
+        DocumentViewLogger::record($proposal, 'html');
 
         return view($view, [
             'proposal' => $proposal,

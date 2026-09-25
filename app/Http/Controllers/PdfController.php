@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Models\Spk;
+use App\Services\DocumentViewLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
@@ -25,6 +26,8 @@ class PdfController extends Controller
         app()->setLocale($locale);
 
         $proposal->loadMissing(['company', 'portfolios']);
+
+        DocumentViewLogger::record($proposal, 'pdf');
 
         $html = view('proposals.show', [
             'proposal' => $proposal,
@@ -63,6 +66,8 @@ class PdfController extends Controller
 
         $invoice->loadMissing(['company', 'proposal']);
 
+        DocumentViewLogger::record($invoice, 'pdf');
+
         $html = view('invoices.show', [
             'invoice' => $invoice,
             'locale' => $locale,
@@ -99,6 +104,8 @@ class PdfController extends Controller
         app()->setLocale($locale);
 
         $spk->loadMissing(['company', 'proposal']);
+
+        DocumentViewLogger::record($spk, 'pdf');
 
         $html = view('spks.show', [
             'spk' => $spk,
