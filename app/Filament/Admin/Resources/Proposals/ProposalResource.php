@@ -47,6 +47,7 @@ class ProposalResource extends Resource
         return [
             InvoicesRelationManager::class,
             SpksRelationManager::class,
+            \App\Filament\Admin\Resources\Proposals\RelationManagers\DocumentViewsRelationManager::class,
         ];
     }
 

@@ -40,6 +40,13 @@ class InvoiceResource extends Resource
         return parent::getEloquentQuery()->with(['resourceLock.user']);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            \App\Filament\Admin\Resources\Invoices\RelationManagers\DocumentViewsRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
