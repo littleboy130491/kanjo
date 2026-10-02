@@ -672,6 +672,43 @@ Canonical agent operating manual: `docs/api/agent-guide.md`, also served at auth
 
 ---
 
+## MCP Server (AI Chat Clients)
+
+Model Context Protocol server so a Kanjo user can look up records and create documents from an AI chat client (Claude, ChatGPT, Claude Code, Cursor). It wraps the Remote Document API: tools call the same `/api/v1` controllers, form requests, and services, so validation, content modes, client rule, dry-run, and response bodies are identical.
+
+**Endpoint:** `POST /mcp` (streamable HTTP, `laravel/mcp`). Setup and client connection steps: `docs/api/mcp.md`.
+
+**Auth:** OAuth 2.1 via Laravel Passport (`Mcp::oauthRoutes()`): discovery at `/.well-known/oauth-*`, dynamic client registration at `POST /oauth/register`, PKCE, scope `mcp:use`. Guests are sent to the Filament login, then a Kanjo-styled consent screen. Registration redirect URIs are limited by `MCP_REDIRECT_DOMAINS` (default Claude, ChatGPT, localhost). The shared `DOCUMENT_API_KEY` is **not** accepted on `/mcp`.
+
+**Access:**
+- Only users who can access the admin panel (`canAccessPanel`) can authorize or call the server (403 otherwise).
+- Reads (search, get, skeletons, content defaults, guide) are open to any such user. Company lookups must stay open because editors need `company_id` to create documents.
+- Creates and updates check the same Shield policies as the panel (`create`/`update` on the model). Models without a policy are allowed, as in Filament.
+
+**Author:** documents are created and updated as the connected user (`user_id` / `updated_by`), not `DOCUMENT_API_USER_ID`. All other API rules apply: always `published` on create, no per-document credentials, no delete.
+
+**Rate limit:** 120 requests per minute (MCP sessions add protocol calls such as `initialize` and `tools/list`).
+
+### Tools
+
+| Tool | REST equivalent |
+|---|---|
+| `read_guide` | `GET /api/v1/guide`, prefixed with the REST → tool mapping |
+| `search_records` (`type`, filters) | `GET /api/v1/{companies,clients,proposals,invoices,spks,services}` |
+| `get_record` (`type`, `id`) | `GET /api/v1/{type}/{id}` |
+| `get_content_defaults` (`proposal`\|`spk`) | `GET /api/v1/content-defaults/{type}` |
+| `get_skeleton` (`proposal`\|`invoice`\|`spk`) | `GET /api/v1/{type}/skeleton` |
+| `create_proposal` | `POST /api/v1/proposals` |
+| `create_invoice` | `POST /api/v1/invoices` |
+| `create_spk` | `POST /api/v1/spks` |
+| `create_invoice_from_proposal` (`proposal_id`) | `POST /api/v1/proposals/{id}/invoices` |
+| `create_spk_from_proposal` (`proposal_id`) | `POST /api/v1/proposals/{id}/spks` |
+| `update_record` (`type`, `id`) | `PATCH /api/v1/{type}/{id}` |
+
+Write tools take the REST JSON body as `payload` and a separate `dry_run` boolean. API errors (422 body with `errors`, `missing_content_fields`, `hint`; unknown ids; policy denials) are returned as MCP tool errors so the agent can correct itself.
+
+---
+
 ## Resolved Decisions
 
 1. **Recurring invoices:** ✅ Yes — use "Create Renewal Invoice" action on proposals.
@@ -681,3 +718,4 @@ Canonical agent operating manual: `docs/api/agent-guide.md`, also served at auth
 5. **Client snapshot policy:** ✅ Proposal and Invoice keep frozen `client_*` fields; editing Client later does not mutate existing documents.
 6. **Service management:** ✅ Service is a first-class entity and can be created from Proposal/Invoice in one click.
 7. **Remote Document API:** ✅ Shared `.env` API key, always published, explicit per-field content modes, auto-create Client, global document credentials, dry-run, discovery catalogs for AI agents.
+8. **MCP server:** ✅ OAuth (Passport) for Claude/ChatGPT connectors, panel-access users only, writes follow panel policies, documents authored by the connected user, tools reuse the Remote Document API.
