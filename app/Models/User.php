@@ -26,6 +26,12 @@ class User extends Authenticatable implements FilamentUser, OAuthenticatable
     use Notifiable;
 
     /**
+     * Roles and permissions live on the web guard. Pin it so Passport (api guard) requests,
+     * such as MCP tool calls, check the same permissions as the admin panel.
+     */
+    protected string $guard_name = 'web';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
