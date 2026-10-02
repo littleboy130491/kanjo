@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(NoIndexMiddleware::class);
 
+        // OAuth consent (MCP connectors) sends guests to the Filament login, which returns them here afterwards.
+        $middleware->redirectGuestsTo(fn (): string => route('filament.admin.auth.login'));
+
         $middleware->alias([
             'document.access' => DocumentAccessMiddleware::class,
             'document.auth.throttle' => DocumentAuthThrottleMiddleware::class,
