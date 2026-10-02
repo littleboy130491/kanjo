@@ -39,9 +39,25 @@ The server wraps the Remote Document API (`docs/api/agent-guide.md`). The agent 
    | `APP_URL` | Must be the public **https** URL. OAuth metadata URLs are built from it. Claude and ChatGPT only connect over HTTPS. |
    | `MCP_REDIRECT_DOMAINS` | Comma-separated callback origins allowed to register. Default `https://claude.ai,https://claude.com,https://chatgpt.com,http://localhost`. Add an origin if another client fails with `invalid_redirect_uri`. `*` allows any. |
 
-4. If you cache routes or config in production, re-run `php artisan optimize` after deploying.
+4. **RunCloud only: allow OAuth discovery through nginx.** RunCloud's default nginx config denies every dot-path (`location ~ /\. { deny all; }`), so `/.well-known/oauth-*` returns 403. Claude then reports *"Couldn't register with … sign-in service"*. In RunCloud go to **Web Application → NGINX Config → Add a New Config**, choose *I want to write my own config*, set **Type** to `location.main-before`, name it `mcp-oauth-discovery`, and paste:
 
-5. Optional: purge expired tokens now and then with `php artisan passport:purge`.
+   ```nginx
+   # MCP OAuth discovery: let /.well-known/oauth-* reach Laravel (served at /oauth-discovery/*).
+   location ^~ /.well-known/oauth- {
+       rewrite ^/\.well-known/(oauth-authorization-server|oauth-protected-resource)(/.*)?$ /oauth-discovery/$1$2 last;
+       return 404;
+   }
+   ```
+
+   Click **Run and Debug**, then save. `^~` wins over the dot-file regex. The rewrite turns the request into a normal path, which nginx hands to PHP like any other route, on both the hybrid and native stacks. Verify with:
+
+   ```bash
+   curl -s https://{host}/.well-known/oauth-authorization-server   # JSON, not 403
+   ```
+
+5. If you cache routes or config in production, re-run `php artisan optimize` after deploying.
+
+6. Optional: purge expired tokens now and then with `php artisan passport:purge`.
 
 Smoke test: `curl -i -X POST https://{host}/mcp` should return `401` with a `WWW-Authenticate: Bearer ... resource_metadata=...` header.
 

@@ -62,6 +62,17 @@ class McpServerTest extends TestCase
             ->assertJsonPath('registration_endpoint', url('/oauth/register'));
     }
 
+    public function test_discovery_documents_are_also_served_without_a_dot_path(): void
+    {
+        $this->getJson('/oauth-discovery/oauth-protected-resource/mcp')
+            ->assertOk()
+            ->assertExactJson($this->getJson('/.well-known/oauth-protected-resource/mcp')->json());
+
+        $this->getJson('/oauth-discovery/oauth-authorization-server')
+            ->assertOk()
+            ->assertExactJson($this->getJson('/.well-known/oauth-authorization-server')->json());
+    }
+
     public function test_client_registration_only_accepts_allowed_redirect_domains(): void
     {
         $this->postJson('/oauth/register', [
