@@ -23,10 +23,7 @@ class CompanyForm
                     TextInput::make("brand_name")->required()->maxLength(255),
                     CuratorPicker::make("logo")
                         ->label("Logo")
-                        ->imageResizeMode("cover")
-                        ->imageCropAspectRatio("1:1")
-                        ->imageResizeTargetWidth("300")
-                        ->imageResizeTargetHeight("300"),
+                        ->constrained(),
                 ])
                 ->columnSpanFull(),
 
@@ -134,13 +131,10 @@ class CompanyForm
                                 ->maxLength(255),
                             CuratorPicker::make("pic_sign")
                                 ->label("Signature Image")
-                                ->imageResizeMode("cover"),
+                                ->constrained(),
                             CuratorPicker::make("pic_photo")
                                 ->label("Team Photo")
-                                ->imageResizeMode("cover")
-                                ->imageCropAspectRatio("1:1")
-                                ->imageResizeTargetWidth("300")
-                                ->imageResizeTargetHeight("300"),
+                                ->constrained(),
                             Toggle::make("show_in_proposal")
                                 ->label("Show in proposals")
                                 ->helperText("Copy this PIC into the About Us team section when a new proposal is created.")

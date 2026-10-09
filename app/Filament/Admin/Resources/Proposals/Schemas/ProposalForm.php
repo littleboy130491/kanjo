@@ -557,10 +557,7 @@ class ProposalForm
                                                     ->schema([
                                                         CuratorPicker::make('photo')
                                                             ->label('Photo')
-                                                            ->imageResizeMode('cover')
-                                                            ->imageCropAspectRatio('1:1')
-                                                            ->imageResizeTargetWidth('300')
-                                                            ->imageResizeTargetHeight('300'),
+                                                            ->constrained(),
                                                         TextInput::make('name')
                                                             ->label('Name')
                                                             ->required()

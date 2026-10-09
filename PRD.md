@@ -91,6 +91,7 @@ Represents the brands/companies that issue documents.
 ```
 
 - `pic_photo` is the team member photo shown on proposals (Curator media). Optional.
+- Logo, `pic_sign`, and `pic_photo` uploads are stored as the original file. Upload does not crop or resize them.
 - `show_in_proposal` defaults to `false`. Only PICs with `true` are copied into proposal team members.
 
 ---
