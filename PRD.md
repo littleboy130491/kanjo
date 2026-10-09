@@ -83,10 +83,15 @@ Represents the brands/companies that issue documents.
   {
     "pic_name": "Henry",
     "pic_role": "Director",
-    "pic_sign": "media_id or URL"
+    "pic_sign": "media_id or URL",
+    "pic_photo": "media_id or null",
+    "show_in_proposal": true
   }
 ]
 ```
+
+- `pic_photo` is the team member photo shown on proposals (Curator media). Optional.
+- `show_in_proposal` defaults to `false`. Only PICs with `true` are copied into proposal team members.
 
 ---
 
@@ -179,6 +184,7 @@ Represents the brands/companies that issue documents.
 | `offer_2_renewal_price` | decimal | no | nullable |
 | `offer_2_project_timeline` | JSON array | **yes** | See structure below |
 | `add_on` | JSON array | **yes** | See structure below |
+| `team_members` | JSON array | no | Frozen snapshot of company PICs, shown in About Us. See Team Members below |
 | `tax_rate` | decimal | no | percentage, default 11 (PPN) |
 | `tax_amount` | decimal | no | computed |
 | `total_amount` | decimal | no | computed |
@@ -192,6 +198,14 @@ Represents the brands/companies that issue documents.
 | `deleted_at` | timestamp | — | Soft delete |
 | `created_at` | timestamp | — | |
 | `updated_at` | timestamp | — | |
+
+**Team members (About Us):**
+- Source: company `pic` entries with `show_in_proposal = true`. Other PICs are not copied.
+- Copied into `team_members` as `{ "name", "role", "photo" }` when the proposal is created: Filament create form (prefilled, editable before save), Remote Document API, and MCP.
+- `photo` is the Curator media id from `pic_photo`. Empty when the PIC has no photo.
+- Frozen snapshot. Later edits to a company PIC (name, role, photo, flag) do not change existing proposals. Duplicated proposals copy the frozen list.
+- Editable per proposal after creation. Company changes never sync in.
+- Shown in the About Us section of the public proposal (HTML and PDF), after the About Us content. Empty list hides the team block.
 
 ---
 
@@ -632,6 +646,7 @@ Required snapshot when creating a client: `client.company`, `client.name`. Email
 - `issue_date` / `spk_date` default today. Proposal `valid_until` and invoice `due_date` default +30 days.
 - Document number and slug auto-generated. No override in v1.
 - Offer 2 and portfolios optional / omitted in v1 unless sent on the proposal payload (`offer_name_2`, prices).
+- Proposal `team_members` are copied from company PICs with `show_in_proposal = true`. No payload field in v1.
 - From-proposal SPK: `company_pic_index` (0-based) or `company_pic_name` + `company_pic_role`. If omitted, use the company’s first PIC.
 
 ### Dry-run
