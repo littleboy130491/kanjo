@@ -71,7 +71,7 @@ class Company extends Model
             ->map(fn (array $pic): array => [
                 'name' => (string) ($pic['pic_name'] ?? ''),
                 'role' => (string) ($pic['pic_role'] ?? ''),
-                'photo' => $pic['pic_photo'] ?: null,
+                'photo' => $pic['pic_photo'] ?? null,
             ])
             ->values()
             ->all();
