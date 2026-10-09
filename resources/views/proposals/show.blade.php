@@ -233,21 +233,10 @@
             : null;
     };
 
-    $teamNameLines = function (string $name): array {
-        $words = preg_split('/\s+/', trim($name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        $firstLineWords = (int) ceil(count($words) / 2);
-
-        return [
-            implode(' ', array_slice($words, 0, $firstLineWords)),
-            implode(' ', array_slice($words, $firstLineWords)) ?: "\u{00A0}",
-        ];
-    };
-
     $teamMembers = collect($proposal->team_members ?? [])
         ->filter(fn (mixed $member): bool => is_array($member) && filled($member['name'] ?? null))
         ->map(fn (array $member): array => [
             'name' => (string) $member['name'],
-            'name_lines' => $teamNameLines((string) $member['name']),
             'role' => (string) ($member['role'] ?? ''),
             'photo' => $teamPhotoUrl($member['photo'] ?? null),
         ])
@@ -727,7 +716,7 @@
                                         @else
                                             <div class="team-member-photo bg-neutral-100" aria-hidden="true"></div>
                                         @endif
-                                        <p class="text-sm font-bold text-neutral-900 md:text-base"><span class="block">{{ $member['name_lines'][0] }}</span><span class="block">{{ $member['name_lines'][1] }}</span></p>
+                                        <p class="team-member-name">{{ $member['name'] }}</p>
                                         @if(filled($member['role']))
                                             <p class="mt-1 text-xs leading-relaxed text-neutral-500 md:text-sm">{{ $member['role'] }}</p>
                                         @endif

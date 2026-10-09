@@ -89,7 +89,7 @@ class ProposalTeamMembersTest extends TestCase
                 ->assertOk()
                 ->assertSee('id="about-us"', false)
                 ->assertSee('Our Team')
-                ->assertSee('<span class="block">Henry</span><span class="block">Team</span>', false)
+                ->assertSee('Henry Team')
                 ->assertSee('Director')
                 ->assertSee('alt="Henry Team"', false);
         }
@@ -246,19 +246,17 @@ class ProposalTeamMembersTest extends TestCase
             ->get(route('proposal.show', ['slug' => $proposal->slug]))
             ->assertOk()
             ->assertSee('Our Team')
-            ->assertSee('<span class="block">Henry</span><span class="block">Team</span>', false);
+            ->assertSee('Henry Team');
     }
 
-    public function test_team_names_always_take_two_lines(): void
+    public function test_team_names_reserve_two_lines_and_are_capped_at_two(): void
     {
         $this->withoutVite();
 
         $proposal = $this->makeProposal($this->makeCompany(), [
             'team_members' => [
-                ['name' => 'Henry Arisman', 'role' => 'Account Executive', 'photo' => null],
-                ['name' => 'Lovento Kristo R F', 'role' => 'Project Manager', 'photo' => null],
-                ['name' => 'Fidelia Katherine Dijaya', 'role' => 'Lead UI/UX Designer', 'photo' => null],
                 ['name' => 'Cendy', 'role' => 'Lead Web Developer', 'photo' => null],
+                ['name' => 'Fidelia Katherine Dijaya', 'role' => 'Lead UI/UX Designer', 'photo' => null],
             ],
         ]);
 
@@ -269,10 +267,8 @@ class ProposalTeamMembersTest extends TestCase
             ])
             ->get(route('proposal.show', ['slug' => $proposal->slug]))
             ->assertOk()
-            ->assertSee('<span class="block">Henry</span><span class="block">Arisman</span>', false)
-            ->assertSee('<span class="block">Lovento Kristo</span><span class="block">R F</span>', false)
-            ->assertSee('<span class="block">Fidelia Katherine</span><span class="block">Dijaya</span>', false)
-            ->assertSee('<span class="block">Cendy</span><span class="block">'."\u{00A0}".'</span>', false);
+            ->assertSee('<p class="team-member-name">Cendy</p>', false)
+            ->assertSee('<p class="team-member-name">Fidelia Katherine Dijaya</p>', false);
     }
 
     public function test_hidden_team_members_are_not_rendered_but_about_us_stays(): void
@@ -298,7 +294,7 @@ class ProposalTeamMembersTest extends TestCase
                 ->assertSee('id="about-us"', false)
                 ->assertSee('About copy')
                 ->assertDontSee('Our Team')
-                ->assertDontSee('alt="Henry Team"', false);
+                ->assertDontSee('Henry Team');
         }
     }
 

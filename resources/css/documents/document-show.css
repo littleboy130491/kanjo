@@ -355,6 +355,10 @@
     @apply mb-4 h-28 w-28 object-contain;
 }
 
+.team-members-grid .team-member-name {
+    @apply min-h-[2lh] line-clamp-2 text-sm font-bold text-neutral-900 md:text-base;
+}
+
 .company-map-wrap {
     @apply overflow-hidden rounded-sm border border-sky-100 bg-white;
 }
