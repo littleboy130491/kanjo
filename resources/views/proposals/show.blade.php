@@ -709,13 +709,15 @@
                             <p class="document-accent document-subkicker">Our Team</p>
                             <div class="team-members-grid">
                                 @foreach($teamMembers as $member)
-                                    <div class="flex min-w-0 flex-col items-center bg-[linear-gradient(to_bottom,#e9e9e9,#c2c2c2)] pt-4 text-center">
-                                        @if(filled($member['photo']))
-                                            <img src="{{ $member['photo'] }}" alt="{{ $member['name'] }}"
-                                                class="team-member-photo"@unless($pdfMode) loading="lazy"@endunless>
-                                        @else
-                                            <div class="team-member-photo" aria-hidden="true"></div>
-                                        @endif
+                                    <div class="flex min-w-0 flex-col items-center text-center">
+                                        <div class="w-full rounded-xl bg-[linear-gradient(to_bottom,#e9e9e9,#c2c2c2)] pt-4">
+                                            @if(filled($member['photo']))
+                                                <img src="{{ $member['photo'] }}" alt="{{ $member['name'] }}"
+                                                    class="team-member-photo"@unless($pdfMode) loading="lazy"@endunless>
+                                            @else
+                                                <div class="team-member-photo" aria-hidden="true"></div>
+                                            @endif
+                                        </div>
                                         <p class="team-member-name">{{ $member['name'] }}</p>
                                         @if(filled($member['role']))
                                             <p class="mt-1 text-xs leading-relaxed text-neutral-500 md:text-sm">{{ $member['role'] }}</p>
