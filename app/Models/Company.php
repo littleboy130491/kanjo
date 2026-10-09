@@ -61,6 +61,22 @@ class Company extends Model
         return $this->hasMany(Spk::class);
     }
 
+    /**
+     * @return array<int, array{name: string, role: string, photo: int|string|null}>
+     */
+    public function proposalTeamMembers(): array
+    {
+        return collect($this->pic ?? [])
+            ->filter(fn (mixed $pic): bool => is_array($pic) && (bool) ($pic['show_in_proposal'] ?? false))
+            ->map(fn (array $pic): array => [
+                'name' => (string) ($pic['pic_name'] ?? ''),
+                'role' => (string) ($pic['pic_role'] ?? ''),
+                'photo' => $pic['pic_photo'] ?: null,
+            ])
+            ->values()
+            ->all();
+    }
+
     public function googleMapsLink(): ?string
     {
         $url = trim((string) ($this->google_maps_embed_url ?? ''));
