@@ -352,11 +352,11 @@
 }
 
 .team-member-photo {
-    @apply mb-4 h-28 w-28 object-contain bg-[linear-gradient(to_bottom,#e9e9e9,#c2c2c2)];
+    @apply mb-4 aspect-square w-full object-contain bg-[linear-gradient(to_bottom,#e9e9e9,#c2c2c2)];
 }
 
 .team-members-grid .team-member-name {
-    @apply min-h-[2lh] line-clamp-2 text-sm font-bold text-neutral-900 md:text-base;
+    @apply line-clamp-2 text-sm font-bold text-neutral-900 md:text-base;
 }
 
 .company-map-wrap {

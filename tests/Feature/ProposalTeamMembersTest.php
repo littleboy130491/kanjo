@@ -249,7 +249,7 @@ class ProposalTeamMembersTest extends TestCase
             ->assertSee('Henry Team');
     }
 
-    public function test_team_names_reserve_two_lines_and_are_capped_at_two(): void
+    public function test_team_names_are_capped_at_two_lines(): void
     {
         $this->withoutVite();
 
