@@ -224,6 +224,78 @@ class ProposalTeamMembersTest extends TestCase
             ->assertDontSee('Our Team');
     }
 
+    public function test_team_members_are_shown_by_default(): void
+    {
+        $this->withoutVite();
+
+        $proposal = $this->makeProposal($this->makeCompany(), [
+            'team_members' => [
+                ['name' => 'Henry Team', 'role' => 'Director', 'photo' => null],
+            ],
+        ]);
+
+        $this->assertTrue($proposal->show_team_member);
+
+        $this
+            ->withSession([
+                DocumentAccessMiddleware::sessionKey('proposal', $proposal->id) => true,
+                DocumentAccessMiddleware::versionKey('proposal', $proposal->id) => DocumentAccessMiddleware::credentialVersion($proposal),
+            ])
+            ->get(route('proposal.show', ['slug' => $proposal->slug]))
+            ->assertOk()
+            ->assertSee('Our Team')
+            ->assertSee('Henry Team');
+    }
+
+    public function test_hidden_team_members_are_not_rendered_but_about_us_stays(): void
+    {
+        $this->withoutVite();
+
+        $proposal = $this->makeProposal($this->makeCompany(), [
+            'about_us' => ['en' => '<p>About copy</p>', 'id' => '<p>Tentang kami</p>'],
+            'team_members' => [
+                ['name' => 'Henry Team', 'role' => 'Director', 'photo' => null],
+            ],
+            'show_team_member' => false,
+        ]);
+
+        foreach (['proposal-v2.show', 'proposal.show'] as $route) {
+            $this
+                ->withSession([
+                    DocumentAccessMiddleware::sessionKey('proposal', $proposal->id) => true,
+                    DocumentAccessMiddleware::versionKey('proposal', $proposal->id) => DocumentAccessMiddleware::credentialVersion($proposal),
+                ])
+                ->get(route($route, ['slug' => $proposal->slug]))
+                ->assertOk()
+                ->assertSee('id="about-us"', false)
+                ->assertSee('About copy')
+                ->assertDontSee('Our Team')
+                ->assertDontSee('Henry Team');
+        }
+    }
+
+    public function test_about_us_is_hidden_when_only_hidden_team_members_remain(): void
+    {
+        $this->withoutVite();
+
+        $proposal = $this->makeProposal($this->makeCompany(), [
+            'team_members' => [
+                ['name' => 'Henry Team', 'role' => 'Director', 'photo' => null],
+            ],
+            'show_team_member' => false,
+        ]);
+
+        $this
+            ->withSession([
+                DocumentAccessMiddleware::sessionKey('proposal', $proposal->id) => true,
+                DocumentAccessMiddleware::versionKey('proposal', $proposal->id) => DocumentAccessMiddleware::credentialVersion($proposal),
+            ])
+            ->get(route('proposal.show', ['slug' => $proposal->slug]))
+            ->assertOk()
+            ->assertDontSee('id="about-us"', false)
+            ->assertDontSee('Our Team');
+    }
+
     public function test_duplicate_keeps_the_show_team_member_flag(): void
     {
         $proposal = $this->makeProposal($this->makeCompany(), [

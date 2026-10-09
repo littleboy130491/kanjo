@@ -242,7 +242,7 @@
         ])
         ->values()
         ->all();
-    $hasTeamMembers = count($teamMembers) > 0;
+    $hasTeamMembers = (bool) $proposal->show_team_member && count($teamMembers) > 0;
     $hasAboutUsSection = $present($aboutUsHtml) || $hasTeamMembers;
 
     $bankRows = collect($company?->bank ?? [])
