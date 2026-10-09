@@ -185,6 +185,7 @@ Represents the brands/companies that issue documents.
 | `offer_2_project_timeline` | JSON array | **yes** | See structure below |
 | `add_on` | JSON array | **yes** | See structure below |
 | `team_members` | JSON array | no | Frozen snapshot of company PICs, shown in About Us. See Team Members below |
+| `show_team_member` | boolean | no | Default `true`. When `false`, the Our Team block is hidden on the public proposal (HTML and PDF). See Team Members below |
 | `tax_rate` | decimal | no | percentage, default 11 (PPN) |
 | `tax_amount` | decimal | no | computed |
 | `total_amount` | decimal | no | computed |
@@ -205,7 +206,9 @@ Represents the brands/companies that issue documents.
 - `photo` is the Curator media id from `pic_photo`. Empty when the PIC has no photo.
 - Frozen snapshot. Later edits to a company PIC (name, role, photo, flag) do not change existing proposals. Duplicated proposals copy the frozen list.
 - Editable per proposal after creation. Company changes never sync in.
-- Shown in the About Us section of the public proposal (HTML and PDF), after the About Us content. The About Us section appears when it has About Us content or team members.
+- Admin can press **Load latest team** on the proposal's Team Members section to replace `team_members` with the company's current flagged PICs. A confirmation warns that the current team will be replaced.
+- Shown in the About Us section of the public proposal (HTML and PDF), after the About Us content. The About Us section appears when it has About Us content or visible team members.
+- `show_team_member` controls the Our Team block only. It defaults to `true` for every new proposal (Filament, API, and MCP). When `false`, the Our Team block is hidden in HTML and PDF, and the saved `team_members` list is kept. Duplicated proposals copy this flag.
 - A member without a photo shows a neutral placeholder circle so names line up.
 
 ---
@@ -647,7 +650,7 @@ Required snapshot when creating a client: `client.company`, `client.name`. Email
 - `issue_date` / `spk_date` default today. Proposal `valid_until` and invoice `due_date` default +30 days.
 - Document number and slug auto-generated. No override in v1.
 - Offer 2 and portfolios optional / omitted in v1 unless sent on the proposal payload (`offer_name_2`, prices).
-- Proposal `team_members` are copied from company PICs with `show_in_proposal = true`. No payload field in v1.
+- Proposal `team_members` are copied from company PICs with `show_in_proposal = true`. No payload field in v1. `show_team_member` is `true` unless the database default changes.
 - From-proposal SPK: `company_pic_index` (0-based) or `company_pic_name` + `company_pic_role`. If omitted, use the company’s first PIC.
 
 ### Dry-run
