@@ -712,9 +712,9 @@
                                     <div class="flex min-w-0 flex-col items-center text-center">
                                         @if(filled($member['photo']))
                                             <img src="{{ $member['photo'] }}" alt="{{ $member['name'] }}"
-                                                class="mb-4 h-28 w-28 rounded-full object-cover"@unless($pdfMode) loading="lazy"@endunless>
+                                                class="team-member-photo"@unless($pdfMode) loading="lazy"@endunless>
                                         @else
-                                            <div class="mb-4 h-28 w-28 rounded-full bg-neutral-100" aria-hidden="true"></div>
+                                            <div class="team-member-photo bg-neutral-100" aria-hidden="true"></div>
                                         @endif
                                         <p class="text-sm font-bold text-neutral-900 md:text-base">{{ $member['name'] }}</p>
                                         @if(filled($member['role']))
