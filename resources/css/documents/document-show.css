@@ -356,7 +356,7 @@
 }
 
 .team-members-grid .team-member-name {
-    @apply mt-4 line-clamp-2 text-sm font-bold text-neutral-900 md:text-base;
+    @apply mt-4 mb-1 line-clamp-2 text-sm font-bold text-neutral-900 md:text-base;
 }
 
 .company-map-wrap {
