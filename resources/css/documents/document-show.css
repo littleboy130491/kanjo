@@ -347,6 +347,10 @@
     opacity: 0.88;
 }
 
+.team-members-grid {
+    @apply grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 md:gap-8;
+}
+
 .company-map-wrap {
     @apply overflow-hidden rounded-sm border border-sky-100 bg-white;
 }
@@ -1093,6 +1097,11 @@ h3.offer_name {
         gap: 1rem;
     }
 
+    .document-view .team-members-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
     .document-view .document-cover + .section-row {
         border-top: 0;
     }
@@ -1181,7 +1190,8 @@ h3.offer_name {
 
     .document-view table tr,
     .document-view .portfolio-grid > *,
-    .document-view .client-logos-grid > * {
+    .document-view .client-logos-grid > *,
+    .document-view .team-members-grid > * {
         break-inside: avoid;
         page-break-inside: avoid;
     }

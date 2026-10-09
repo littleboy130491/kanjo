@@ -214,7 +214,36 @@
     $hasVideoTestimonials = count($videoTestimonials) > 0 && ! $pdfMode;
     $googleMapsEmbedSrc = ! $pdfMode ? $company?->googleMapsEmbedSrc() : null;
     $googleMapsLink = ! $pdfMode ? $company?->googleMapsLink() : null;
-    $hasAboutUsSection = $present($aboutUsHtml);
+
+    $teamPhotoUrl = function (mixed $photo) use ($pdfMode): ?string {
+        $media = filled($photo) ? \Awcodes\Curator\Models\Media::query()->find($photo) : null;
+
+        if (! $media) {
+            return null;
+        }
+
+        if (! $pdfMode) {
+            return $media->url;
+        }
+
+        $disk = \Illuminate\Support\Facades\Storage::disk($media->disk);
+
+        return $disk->exists($media->path)
+            ? 'data:' . ($disk->mimeType($media->path) ?: 'image/jpeg') . ';base64,' . base64_encode($disk->get($media->path))
+            : null;
+    };
+
+    $teamMembers = collect($proposal->team_members ?? [])
+        ->filter(fn (mixed $member): bool => is_array($member) && filled($member['name'] ?? null))
+        ->map(fn (array $member): array => [
+            'name' => (string) $member['name'],
+            'role' => (string) ($member['role'] ?? ''),
+            'photo' => $teamPhotoUrl($member['photo'] ?? null),
+        ])
+        ->values()
+        ->all();
+    $hasTeamMembers = count($teamMembers) > 0;
+    $hasAboutUsSection = $present($aboutUsHtml) || $hasTeamMembers;
 
     $bankRows = collect($company?->bank ?? [])
         ->filter(fn($row) => filled($row['bank_name'] ?? null) || filled($row['account_name'] ?? null) || filled($row['account_number'] ?? null))
@@ -672,6 +701,26 @@
                     @if($present($aboutUsHtml))
                         <div class="document-richtext about-us-copy">
                             {!! $aboutUsHtml !!}
+                        </div>
+                    @endif
+
+                    @if($hasTeamMembers)
+                        <div class="about-us-subblock">
+                            <p class="document-accent document-subkicker">Our Team</p>
+                            <div class="team-members-grid">
+                                @foreach($teamMembers as $member)
+                                    <div class="flex min-w-0 flex-col items-center text-center">
+                                        @if(filled($member['photo']))
+                                            <img src="{{ $member['photo'] }}" alt="{{ $member['name'] }}"
+                                                class="mb-4 h-28 w-28 rounded-full object-cover"@unless($pdfMode) loading="lazy"@endunless>
+                                        @endif
+                                        <p class="text-sm font-bold text-neutral-900 md:text-base">{{ $member['name'] }}</p>
+                                        @if(filled($member['role']))
+                                            <p class="mt-1 text-xs leading-relaxed text-neutral-500 md:text-sm">{{ $member['role'] }}</p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
 
