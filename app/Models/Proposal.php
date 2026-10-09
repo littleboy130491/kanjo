@@ -61,6 +61,7 @@ class Proposal extends Model
         'video_testimonials',
         'client_logos',
         'team_members',
+        'show_team_member',
         'offer_name_1',
         'offer_1_price',
         'offer_1_original_price',
@@ -108,6 +109,7 @@ class Proposal extends Model
     protected $casts = [
         'document_number_override' => 'boolean',
         'activate_translation' => 'boolean',
+        'show_team_member' => 'boolean',
         'issue_date' => 'date',
         'valid_until' => 'date',
         'access_credentials_updated_at' => 'datetime',
