@@ -180,6 +180,23 @@ class DocumentApiTest extends TestCase
         $this->assertSame(1, Client::query()->count());
     }
 
+    public function test_proposal_create_copies_company_pics_flagged_for_proposals(): void
+    {
+        $this->company->update([
+            'pic' => [
+                ['pic_name' => 'Company PIC Alpha', 'pic_role' => 'Director', 'show_in_proposal' => true],
+                ['pic_name' => 'Company PIC Beta', 'pic_role' => 'Project Lead', 'show_in_proposal' => false],
+            ],
+        ]);
+
+        $response = $this->apiPost('/api/v1/proposals', $this->proposalPayload())->assertOk();
+
+        $proposal = Proposal::query()->find($response->json('data.id'));
+        $this->assertSame([
+            ['name' => 'Company PIC Alpha', 'role' => 'Director', 'photo' => null],
+        ], $proposal->team_members);
+    }
+
     public function test_proposal_override_converts_markdown_and_empty_skips_defaults(): void
     {
         $this->seed(ProposalContentDefaultSeeder::class);

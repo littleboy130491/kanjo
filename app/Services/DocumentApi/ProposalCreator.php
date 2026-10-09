@@ -97,6 +97,7 @@ class ProposalCreator
                 'offer_2_original_price' => $payload['offer_2_original_price'] ?? null,
                 'offer_2_renewal_price' => $payload['offer_2_renewal_price'] ?? null,
                 'offer_2_original_renewal_price' => $payload['offer_2_original_renewal_price'] ?? null,
+                'team_members' => $company->proposalTeamMembers(),
                 'status' => DocumentStatus::PUBLISHED,
                 'notes' => [],
             ]);
