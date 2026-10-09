@@ -352,7 +352,7 @@
 }
 
 .team-member-photo {
-    @apply mb-4 aspect-[4/5] w-full object-contain object-bottom;
+    @apply aspect-[4/5] w-full object-contain object-bottom;
 }
 
 .team-members-grid .team-member-name {
