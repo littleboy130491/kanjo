@@ -7,6 +7,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use SolutionForest\FilamentTranslateField\Forms\Component\Translate;
@@ -134,6 +135,16 @@ class CompanyForm
                             CuratorPicker::make("pic_sign")
                                 ->label("Signature Image")
                                 ->imageResizeMode("cover"),
+                            CuratorPicker::make("pic_photo")
+                                ->label("Team Photo")
+                                ->imageResizeMode("cover")
+                                ->imageCropAspectRatio("1:1")
+                                ->imageResizeTargetWidth("300")
+                                ->imageResizeTargetHeight("300"),
+                            Toggle::make("show_in_proposal")
+                                ->label("Show in proposals")
+                                ->helperText("Copy this PIC into the About Us team section when a new proposal is created.")
+                                ->default(false),
                         ])
                         ->addable()
                         ->reorderable()
