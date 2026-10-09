@@ -205,7 +205,8 @@ Represents the brands/companies that issue documents.
 - `photo` is the Curator media id from `pic_photo`. Empty when the PIC has no photo.
 - Frozen snapshot. Later edits to a company PIC (name, role, photo, flag) do not change existing proposals. Duplicated proposals copy the frozen list.
 - Editable per proposal after creation. Company changes never sync in.
-- Shown in the About Us section of the public proposal (HTML and PDF), after the About Us content. Empty list hides the team block.
+- Shown in the About Us section of the public proposal (HTML and PDF), after the About Us content. The About Us section appears when it has About Us content or team members.
+- A member without a photo shows a neutral placeholder circle so names line up.
 
 ---
 
