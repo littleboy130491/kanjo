@@ -709,7 +709,7 @@
                             <p class="document-accent document-subkicker">Our Team</p>
                             <div class="team-members-grid">
                                 @foreach($teamMembers as $member)
-                                    <div class="flex min-w-0 flex-col items-center text-center">
+                                    <div class="flex min-w-0 flex-col items-center bg-[linear-gradient(to_bottom,#e9e9e9,#c2c2c2)] pt-4 text-center">
                                         @if(filled($member['photo']))
                                             <img src="{{ $member['photo'] }}" alt="{{ $member['name'] }}"
                                                 class="team-member-photo"@unless($pdfMode) loading="lazy"@endunless>
