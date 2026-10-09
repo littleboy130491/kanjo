@@ -458,6 +458,10 @@ class ProposalForm
 
                                         Section::make('Team Members')
                                             ->schema([
+                                                Toggle::make('show_team_member')
+                                                    ->label('Show Team Members')
+                                                    ->helperText('Turn off to hide the Our Team block on this proposal and its PDF. The team list is kept.')
+                                                    ->default(true),
                                                 Repeater::make('team_members')
                                                     ->helperText('Copied from company PICs marked "Show in proposals" when the proposal is created. Edits here stay on this proposal.')
                                                     ->schema([

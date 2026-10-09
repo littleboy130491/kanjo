@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\DocumentStatus;
+use App\Filament\Admin\Resources\Proposals\Actions\DuplicateProposalAction;
 use App\Filament\Admin\Resources\Proposals\Pages\CreateProposal;
 use App\Http\Middleware\DocumentAccessMiddleware;
 use App\Models\Company;
@@ -221,6 +222,45 @@ class ProposalTeamMembersTest extends TestCase
             ->assertOk()
             ->assertDontSee('id="about-us"', false)
             ->assertDontSee('Our Team');
+    }
+
+    public function test_duplicate_keeps_the_show_team_member_flag(): void
+    {
+        $proposal = $this->makeProposal($this->makeCompany(), [
+            'team_members' => [
+                ['name' => 'Henry Team', 'role' => 'Director', 'photo' => null],
+            ],
+            'show_team_member' => false,
+        ]);
+
+        $duplicate = DuplicateProposalAction::duplicate($proposal);
+
+        $this->assertFalse($duplicate->refresh()->show_team_member);
+        $this->assertSame($proposal->team_members, $duplicate->team_members);
+    }
+
+    public function test_create_form_saves_the_show_team_member_toggle(): void
+    {
+        config(['curator.glide_token' => 'testing-glide-token']);
+        $this->seed(RoleAndPermissionSeeder::class);
+        $this->actingAs(User::query()->where('email', 'admin@example.com')->firstOrFail());
+
+        $this->makeCompany([
+            ['pic_name' => 'Henry', 'pic_role' => 'Director', 'show_in_proposal' => true],
+        ]);
+
+        Livewire::test(CreateProposal::class)
+            ->fillForm([
+                'client_company' => 'PT Example Client',
+                'client_name' => 'Rina',
+                'offer_name_1' => 'Website Design & Development',
+                'offer_1_price' => 15000000,
+                'show_team_member' => false,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertFalse(Proposal::query()->sole()->show_team_member);
     }
 
     /**
