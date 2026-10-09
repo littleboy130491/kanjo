@@ -210,9 +210,9 @@ Represents the brands/companies that issue documents.
 - Admin can press **Load latest team** on the proposal's Team Members section to replace `team_members` with the company's current flagged PICs. A confirmation warns that the current team will be replaced.
 - Shown in the About Us section of the public proposal (HTML and PDF), after the About Us content. The About Us section appears when it has About Us content or visible team members.
 - `show_team_member` controls the Our Team block only. It defaults to `true` for every new proposal (Filament, API, and MCP). When `false`, the Our Team block is hidden in HTML and PDF, and the saved `team_members` list is kept. Duplicated proposals copy this flag.
-- Photos are shown uncropped in a square frame with a grey gradient backdrop, not a circle crop. A member without a photo shows an empty square with the same gradient so names line up.
+- Photos are shown uncropped in a square frame that fills the column width, with a grey gradient backdrop, not a circle crop. A member without a photo shows an empty square with the same gradient so names line up.
 - Team members show 2 per row on mobile and 3 per row on desktop. The PDF also uses 3 per row.
-- Names are capped at two lines. Every name reserves space for two lines, so a shorter name leaves empty space below it and roles stay aligned across the row. A name longer than two lines is clamped after the second line.
+- Names are capped at two lines and take only the height they need, with no reserved space. A name longer than two lines is clamped after the second line.
 
 ---
 
