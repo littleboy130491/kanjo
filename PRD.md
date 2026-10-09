@@ -452,7 +452,7 @@ Proposals contain `offer_1_renewal_price`, which represents the recurring annual
 
 ### Resources
 
-- **ProposalResource** — full CRUD with all fields, repeater components for JSON arrays, translation tabs
+- **ProposalResource** — full CRUD with all fields, repeater components for JSON arrays, translation tabs. Content tab sections follow the public proposal order (Brief → Features → Assets → Server → Security → Support → Additional Benefits → Add-ons → Offer 1/2 Timeline → Our Process → Payment Terms → Additional Info → Terms & Conditions → FAQ → About Us).
 - **InvoiceResource** — full CRUD, payment status management
 - **CompanyResource** — full CRUD, media upload for logo and PIC signatures
 - **ClientResource** — full CRUD for clients
