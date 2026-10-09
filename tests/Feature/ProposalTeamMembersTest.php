@@ -3,13 +3,16 @@
 namespace Tests\Feature;
 
 use App\Enums\DocumentStatus;
+use App\Filament\Admin\Resources\Proposals\Pages\CreateProposal;
 use App\Http\Middleware\DocumentAccessMiddleware;
 use App\Models\Company;
 use App\Models\Proposal;
 use App\Models\User;
 use Awcodes\Curator\Models\Media;
+use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class ProposalTeamMembersTest extends TestCase
@@ -87,6 +90,84 @@ class ProposalTeamMembersTest extends TestCase
                 ->assertSee('Director')
                 ->assertSee('alt="Henry Team"', false);
         }
+    }
+
+    public function test_create_form_prefills_team_from_flagged_company_pics_and_saves_the_snapshot(): void
+    {
+        config(['curator.glide_token' => 'testing-glide-token']);
+        $this->seed(RoleAndPermissionSeeder::class);
+        $this->actingAs(User::query()->where('email', 'admin@example.com')->firstOrFail());
+
+        $media = Media::query()->create([
+            'disk' => 'public',
+            'directory' => 'media',
+            'visibility' => 'public',
+            'name' => 'henry',
+            'path' => 'media/henry.jpg',
+            'type' => 'image',
+            'ext' => 'jpg',
+            'size' => 1000,
+        ]);
+        $this->makeCompany([
+            ['pic_name' => 'Henry', 'pic_role' => 'Director', 'pic_photo' => $media->id, 'show_in_proposal' => true],
+            ['pic_name' => 'Finance', 'pic_role' => 'Finance Manager', 'show_in_proposal' => false],
+        ]);
+
+        Livewire::test(CreateProposal::class)
+            ->fillForm([
+                'client_company' => 'PT Example Client',
+                'client_name' => 'Rina',
+                'offer_name_1' => 'Website Design & Development',
+                'offer_1_price' => 15000000,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame([
+            ['name' => 'Henry', 'role' => 'Director', 'photo' => $media->id],
+        ], Proposal::query()->sole()->team_members);
+    }
+
+    public function test_changing_company_on_create_form_replaces_the_prefilled_team(): void
+    {
+        config(['curator.glide_token' => 'testing-glide-token']);
+        $this->seed(RoleAndPermissionSeeder::class);
+        $this->actingAs(User::query()->where('email', 'admin@example.com')->firstOrFail());
+
+        $this->makeCompany([
+            ['pic_name' => 'Henry', 'pic_role' => 'Director', 'show_in_proposal' => true],
+        ]);
+        $otherCompany = Company::query()->create([
+            'company_name' => 'PT Other Agency',
+            'brand_name' => 'Other Agency',
+            'address' => 'Bandung',
+            'email_1' => 'other@example.test',
+            'phone_1' => '08123456780',
+            'tax_id' => 'NPWP-002',
+            'default_currency' => 'IDR',
+            'color_primary' => '#111111',
+            'color_secondary' => '#222222',
+            'footer_text' => ['en' => 'Footer', 'id' => 'Footer'],
+            'bank' => [],
+            'pic' => [
+                ['pic_name' => 'Ana', 'pic_role' => 'Designer', 'show_in_proposal' => true],
+            ],
+        ]);
+
+        Livewire::test(CreateProposal::class)
+            ->fillForm([
+                'company_id' => $otherCompany->id,
+                'client_company' => 'PT Example Client',
+                'client_name' => 'Rina',
+                'offer_name_1' => 'Website Design & Development',
+                'offer_1_price' => 15000000,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame([
+            ['name' => 'Ana', 'role' => 'Designer', 'photo' => null],
+        ], Proposal::query()->sole()->team_members);
     }
 
     public function test_pdf_about_us_embeds_team_photo_as_data_uri(): void

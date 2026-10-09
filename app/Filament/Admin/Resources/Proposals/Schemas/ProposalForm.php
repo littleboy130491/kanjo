@@ -12,7 +12,9 @@ use App\Models\Company;
 use App\Models\Proposal;
 use App\Models\ProposalContentDefault;
 use App\Services\DocumentNumberGenerator;
+use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
+use Awcodes\Curator\Models\Media;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -103,7 +105,15 @@ class ProposalForm
                                             ->options(fn () => Company::pluck('brand_name', 'id'))
                                             ->default(fn () => Company::first()?->id)
                                             ->required()
-                                            ->searchable(),
+                                            ->searchable()
+                                            ->live()
+                                            ->afterStateUpdated(function ($state, Set $set, ?Proposal $record): void {
+                                                if ($record) {
+                                                    return;
+                                                }
+
+                                                $set('team_members', self::teamMemberRows(Company::find($state)));
+                                            }),
                                         Select::make('status')
                                             ->options(DocumentStatus::class)
                                             ->enum(DocumentStatus::class)
@@ -446,6 +456,34 @@ class ProposalForm
                                             ])
                                             ->compact(),
 
+                                        Section::make('Team Members')
+                                            ->schema([
+                                                Repeater::make('team_members')
+                                                    ->helperText('Copied from company PICs marked "Show in proposals" when the proposal is created. Edits here stay on this proposal.')
+                                                    ->schema([
+                                                        CuratorPicker::make('photo')
+                                                            ->label('Photo')
+                                                            ->imageResizeMode('cover')
+                                                            ->imageCropAspectRatio('1:1')
+                                                            ->imageResizeTargetWidth('300')
+                                                            ->imageResizeTargetHeight('300'),
+                                                        TextInput::make('name')
+                                                            ->label('Name')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                        TextInput::make('role')
+                                                            ->label('Role')
+                                                            ->maxLength(255),
+                                                    ])
+                                                    ->addable()
+                                                    ->reorderable()
+                                                    ->deletable()
+                                                    ->default(fn (Get $get): array => self::teamMemberRows(Company::find($get('company_id'))))
+                                                    ->columns(3)
+                                                    ->columnSpanFull(),
+                                            ])
+                                            ->compact(),
+
                                         Placeholder::make('about_us_map_note')
                                             ->label('Google Map')
                                             ->content('The map embed is configured on the issuing company record.')
@@ -778,6 +816,18 @@ class ProposalForm
         }
 
         return self::fallbackContentRows($fieldKey, config('app.locale', 'en'));
+    }
+
+    protected static function teamMemberRows(?Company $company): array
+    {
+        return collect($company?->proposalTeamMembers() ?? [])
+            ->map(fn (array $member): array => [
+                'name' => $member['name'],
+                'role' => $member['role'],
+                'photo' => filled($member['photo']) ? Media::query()->whereKey($member['photo'])->get()->toArray() : [],
+            ])
+            ->values()
+            ->all();
     }
 
     protected static function defaultContentRows(string $fieldKey, string $locale): array
