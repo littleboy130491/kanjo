@@ -348,11 +348,11 @@
 }
 
 .team-members-grid {
-    @apply grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 md:gap-8;
+    @apply grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-3 md:gap-8;
 }
 
 .team-member-photo {
-    @apply mb-4 h-28 w-28 object-contain;
+    @apply mb-4 h-28 w-28 object-contain bg-[linear-gradient(to_bottom,#e9e9e9,#c2c2c2)];
 }
 
 .team-members-grid .team-member-name {
@@ -1106,7 +1106,7 @@ h3.offer_name {
     }
 
     .document-view .team-members-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 1rem;
     }
 

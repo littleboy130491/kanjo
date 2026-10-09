@@ -714,7 +714,7 @@
                                             <img src="{{ $member['photo'] }}" alt="{{ $member['name'] }}"
                                                 class="team-member-photo"@unless($pdfMode) loading="lazy"@endunless>
                                         @else
-                                            <div class="team-member-photo bg-neutral-100" aria-hidden="true"></div>
+                                            <div class="team-member-photo" aria-hidden="true"></div>
                                         @endif
                                         <p class="team-member-name">{{ $member['name'] }}</p>
                                         @if(filled($member['role']))
