@@ -354,14 +354,14 @@ class ProposalForm
                                         self::makeTranslatedRichEditor('features'),
                                     ]),
 
-                                Section::make('Server')
-                                    ->schema([
-                                        self::makeTranslatedRichEditor('server'),
-                                    ]),
-
                                 Section::make('Assets')
                                     ->schema([
                                         self::makeTranslatedRichEditor('assets'),
+                                    ]),
+
+                                Section::make('Server')
+                                    ->schema([
+                                        self::makeTranslatedRichEditor('server'),
                                     ]),
 
                                 Section::make('Security')
@@ -416,6 +416,85 @@ class ProposalForm
                                             ]),
                                     ]),
 
+                                Section::make('Offer 1 Project Timeline')
+                                    ->headerActions([
+                                        self::makeLoadTimelineTemplateAction('offer_1_project_timeline'),
+                                    ])
+                                    ->schema([
+                                        Translate::make()
+                                            ->actions([
+                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('offer_1_project_timeline'),
+                                            ])
+                                            ->schema(fn (string $locale): array => [
+                                                TranslatableRepeaterSync::configure(
+                                                    Repeater::make('offer_1_project_timeline'),
+                                                    $locale,
+                                                )
+                                                    ->schema([
+                                                        TextInput::make('activity_name')
+                                                            ->label('Activity')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                        TextInput::make('activity_pic')
+                                                            ->label('PIC')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                        TextInput::make('activity_days')
+                                                            ->label('Days')
+                                                            ->numeric()
+                                                            ->required(),
+                                                    ])
+                                                    ->addable()
+                                                    ->reorderable()
+                                                    ->deletable()
+                                                    ->default(self::defaultContentRows('offer_1_project_timeline', $locale))
+                                                    ->columns(3)
+                                                    ->columnSpanFull(),
+                                            ]),
+                                    ]),
+
+                                Section::make('Offer 2 Project Timeline')
+                                    ->headerActions([
+                                        self::makeLoadTimelineTemplateAction('offer_2_project_timeline'),
+                                    ])
+                                    ->schema([
+                                        Translate::make()
+                                            ->actions([
+                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('offer_2_project_timeline'),
+                                            ])
+                                            ->schema(fn (string $locale): array => [
+                                                TranslatableRepeaterSync::configure(
+                                                    Repeater::make('offer_2_project_timeline'),
+                                                    $locale,
+                                                )
+                                                    ->schema([
+                                                        TextInput::make('activity_name')
+                                                            ->label('Activity')
+                                                            ->maxLength(255),
+                                                        TextInput::make('activity_pic')
+                                                            ->label('PIC')
+                                                            ->maxLength(255),
+                                                        TextInput::make('activity_days')
+                                                            ->label('Days')
+                                                            ->numeric(),
+                                                    ])
+                                                    ->addable()
+                                                    ->reorderable()
+                                                    ->deletable()
+                                                    ->default(self::defaultContentRows('offer_2_project_timeline', $locale))
+                                                    ->columns(3)
+                                                    ->columnSpanFull(),
+                                            ]),
+                                    ]),
+
+                                Section::make('Our Process')
+                                    ->headerActions([
+                                        self::makeLoadRichTextTemplateAction('our_process'),
+                                    ])
+                                    ->schema([
+                                        self::makeTranslatedRichEditor('our_process'),
+                                    ]),
+
                                 Section::make('Payment Terms')
                                     ->schema([
                                         self::makeTranslatedRichEditor('payment'),
@@ -429,20 +508,17 @@ class ProposalForm
                                         self::makeTranslatedRichEditor('additional_info', 'ex: for marketing program'),
                                     ]),
 
+                                Section::make('Terms & Conditions')
+                                    ->schema([
+                                        self::makeTranslatedRichEditor('terms_condition'),
+                                    ]),
+
                                 Section::make('FAQ')
                                     ->headerActions([
                                         self::makeLoadRichTextTemplateAction('faq'),
                                     ])
                                     ->schema([
                                         self::makeTranslatedRichEditor('faq'),
-                                    ]),
-
-                                Section::make('Our Process')
-                                    ->headerActions([
-                                        self::makeLoadRichTextTemplateAction('our_process'),
-                                    ])
-                                    ->schema([
-                                        self::makeTranslatedRichEditor('our_process'),
                                     ]),
 
                                 Section::make('About Us')
@@ -552,82 +628,6 @@ class ProposalForm
                                             ->compact(),
                                     ])
                                     ->columnSpanFull(),
-
-                                Section::make('Offer 1 Project Timeline')
-                                    ->headerActions([
-                                        self::makeLoadTimelineTemplateAction('offer_1_project_timeline'),
-                                    ])
-                                    ->schema([
-                                        Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('offer_1_project_timeline'),
-                                            ])
-                                            ->schema(fn (string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('offer_1_project_timeline'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('activity_name')
-                                                            ->label('Activity')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                        TextInput::make('activity_pic')
-                                                            ->label('PIC')
-                                                            ->required()
-                                                            ->maxLength(255),
-                                                        TextInput::make('activity_days')
-                                                            ->label('Days')
-                                                            ->numeric()
-                                                            ->required(),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('offer_1_project_timeline', $locale))
-                                                    ->columns(3)
-                                                    ->columnSpanFull(),
-                                            ]),
-                                    ]),
-
-                                Section::make('Offer 2 Project Timeline')
-                                    ->headerActions([
-                                        self::makeLoadTimelineTemplateAction('offer_2_project_timeline'),
-                                    ])
-                                    ->schema([
-                                        Translate::make()
-                                            ->actions([
-                                                TranslatableRepeaterSync::makeCopyToAllLocalesAction('offer_2_project_timeline'),
-                                            ])
-                                            ->schema(fn (string $locale): array => [
-                                                TranslatableRepeaterSync::configure(
-                                                    Repeater::make('offer_2_project_timeline'),
-                                                    $locale,
-                                                )
-                                                    ->schema([
-                                                        TextInput::make('activity_name')
-                                                            ->label('Activity')
-                                                            ->maxLength(255),
-                                                        TextInput::make('activity_pic')
-                                                            ->label('PIC')
-                                                            ->maxLength(255),
-                                                        TextInput::make('activity_days')
-                                                            ->label('Days')
-                                                            ->numeric(),
-                                                    ])
-                                                    ->addable()
-                                                    ->reorderable()
-                                                    ->deletable()
-                                                    ->default(self::defaultContentRows('offer_2_project_timeline', $locale))
-                                                    ->columns(3)
-                                                    ->columnSpanFull(),
-                                            ]),
-                                    ]),
-
-                                Section::make('Terms & Conditions')
-                                    ->schema([
-                                        self::makeTranslatedRichEditor('terms_condition'),
-                                    ]),
                             ]),
 
                         // Tab 5: Portfolios
