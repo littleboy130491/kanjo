@@ -457,13 +457,27 @@ class ProposalForm
                                             ->compact(),
 
                                         Section::make('Team Members')
+                                            ->key('team-members')
+                                            ->headerActions([
+                                                Action::make('load_latest_team_members')
+                                                    ->label('Load latest team')
+                                                    ->icon('heroicon-o-arrow-path')
+                                                    ->color('warning')
+                                                    ->requiresConfirmation()
+                                                    ->modalHeading('Replace team members?')
+                                                    ->modalDescription('This replaces every team member on this proposal with the latest team from the issuing company\'s PICs marked "Show in proposals". Current team edits on this proposal will be lost.')
+                                                    ->modalSubmitActionLabel('Replace team')
+                                                    ->action(function (Get $get, Set $set): void {
+                                                        $set('team_members', self::teamMemberRows(Company::find($get('company_id'))));
+                                                    }),
+                                            ])
                                             ->schema([
                                                 Toggle::make('show_team_member')
                                                     ->label('Show Team Members')
                                                     ->helperText('Turn off to hide the Our Team block on this proposal and its PDF. The team list is kept.')
                                                     ->default(true),
                                                 Repeater::make('team_members')
-                                                    ->helperText('Copied from company PICs marked "Show in proposals" when the proposal is created. Edits here stay on this proposal.')
+                                                    ->helperText('Copied from company PICs marked "Show in proposals" when the proposal is created. Edits here stay on this proposal. Use Load latest team to refresh from the company.')
                                                     ->schema([
                                                         CuratorPicker::make('photo')
                                                             ->label('Photo')

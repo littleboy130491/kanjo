@@ -5,12 +5,14 @@ namespace Tests\Feature;
 use App\Enums\DocumentStatus;
 use App\Filament\Admin\Resources\Proposals\Actions\DuplicateProposalAction;
 use App\Filament\Admin\Resources\Proposals\Pages\CreateProposal;
+use App\Filament\Admin\Resources\Proposals\Pages\EditProposal;
 use App\Http\Middleware\DocumentAccessMiddleware;
 use App\Models\Company;
 use App\Models\Proposal;
 use App\Models\User;
 use Awcodes\Curator\Models\Media;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -333,6 +335,64 @@ class ProposalTeamMembersTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertFalse(Proposal::query()->sole()->show_team_member);
+    }
+
+    public function test_load_latest_team_replaces_team_members_after_confirmation(): void
+    {
+        config(['curator.glide_token' => 'testing-glide-token']);
+        $this->seed(RoleAndPermissionSeeder::class);
+        $this->actingAs(User::query()->where('email', 'admin@example.com')->firstOrFail());
+
+        $company = $this->makeCompany([
+            ['pic_name' => 'Henry', 'pic_role' => 'Director', 'show_in_proposal' => true],
+            ['pic_name' => 'Finance', 'pic_role' => 'Finance Manager', 'show_in_proposal' => false],
+            ['pic_name' => 'Ana', 'pic_role' => 'Designer', 'show_in_proposal' => true],
+        ]);
+        $proposal = $this->makeProposal($company, [
+            'team_members' => [
+                ['name' => 'Old Member', 'role' => 'Intern', 'photo' => null],
+            ],
+        ]);
+
+        Livewire::test(EditProposal::class, ['record' => $proposal->getRouteKey()])
+            ->assertActionExists(TestAction::make('load_latest_team_members')->schemaComponent('team-members'))
+            ->mountAction(TestAction::make('load_latest_team_members')->schemaComponent('team-members'))
+            ->assertMountedActionModalSee('Replace team members?')
+            ->callMountedAction()
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame([
+            ['name' => 'Henry', 'role' => 'Director', 'photo' => null],
+            ['name' => 'Ana', 'role' => 'Designer', 'photo' => null],
+        ], $proposal->refresh()->team_members);
+    }
+
+    public function test_cancelling_load_latest_team_keeps_current_members(): void
+    {
+        config(['curator.glide_token' => 'testing-glide-token']);
+        $this->seed(RoleAndPermissionSeeder::class);
+        $this->actingAs(User::query()->where('email', 'admin@example.com')->firstOrFail());
+
+        $company = $this->makeCompany([
+            ['pic_name' => 'Henry', 'pic_role' => 'Director', 'show_in_proposal' => true],
+        ]);
+        $proposal = $this->makeProposal($company, [
+            'team_members' => [
+                ['name' => 'Old Member', 'role' => 'Intern', 'photo' => null],
+            ],
+        ]);
+
+        Livewire::test(EditProposal::class, ['record' => $proposal->getRouteKey()])
+            ->assertActionExists(TestAction::make('load_latest_team_members')->schemaComponent('team-members'))
+            ->mountAction(TestAction::make('load_latest_team_members')->schemaComponent('team-members'))
+            ->unmountAction()
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame([
+            ['name' => 'Old Member', 'role' => 'Intern', 'photo' => null],
+        ], $proposal->refresh()->team_members);
     }
 
     /**
