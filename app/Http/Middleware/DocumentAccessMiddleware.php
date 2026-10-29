@@ -48,6 +48,10 @@ class DocumentAccessMiddleware
         ) {
             $request->session()->forget([$sessionKey, $versionKey]);
 
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Document access required.'], 401);
+            }
+
             return response()->view('auth.document-access', [
                 'document' => $document,
                 'documentType' => $type,
