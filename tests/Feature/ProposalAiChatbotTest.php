@@ -232,6 +232,62 @@ class ProposalAiChatbotTest extends TestCase
         $this->assertSame(1, AiConversationMessage::query()->where('role', AiConversationMessage::ROLE_USER)->count());
     }
 
+    public function test_temperature_is_not_sent_by_default(): void
+    {
+        ProposalAssistant::fake(['Answer']);
+        $proposal = $this->createProposal();
+
+        $this->withDocumentAccess($proposal)
+            ->postJson(route('proposal.chat', ['slug' => $proposal->slug]), ['message' => 'Hi'])
+            ->assertOk();
+
+        ProposalAssistant::assertPrompted(fn (AgentPrompt $prompt): bool => $prompt->agent->temperature() === null);
+    }
+
+    public function test_request_is_retried_without_temperature_when_the_model_rejects_it(): void
+    {
+        $this->updateSettings(['temperature' => 0.2]);
+        $calls = 0;
+        ProposalAssistant::fake(function () use (&$calls) {
+            if (++$calls === 1) {
+                throw new RuntimeException('HTTP request returned status code 400: `temperature` is deprecated for this model.');
+            }
+
+            return 'Answer without temperature';
+        });
+        $proposal = $this->createProposal();
+
+        $this->withDocumentAccess($proposal)
+            ->postJson(route('proposal.chat', ['slug' => $proposal->slug]), ['message' => 'Hi'])
+            ->assertOk()
+            ->assertJsonPath('reply.failed', false);
+
+        $this->assertSame(2, $calls);
+        ProposalAssistant::assertPrompted(fn (AgentPrompt $prompt): bool => $prompt->agent->temperature() === null);
+        $reply = AiConversationMessage::query()->where('role', AiConversationMessage::ROLE_ASSISTANT)->sole();
+        $this->assertSame('Answer without temperature', $reply->content);
+        $this->assertNull($reply->error);
+    }
+
+    public function test_other_errors_are_not_retried(): void
+    {
+        $this->updateSettings(['temperature' => 0.2]);
+        $calls = 0;
+        ProposalAssistant::fake(function () use (&$calls) {
+            $calls++;
+
+            throw new RuntimeException('Invalid API key');
+        });
+        $proposal = $this->createProposal();
+
+        $this->withDocumentAccess($proposal)
+            ->postJson(route('proposal.chat', ['slug' => $proposal->slug]), ['message' => 'Hi'])
+            ->assertOk()
+            ->assertJsonPath('reply.failed', true);
+
+        $this->assertSame(1, $calls);
+    }
+
     public function test_chat_is_rate_limited_per_proposal_and_ip(): void
     {
         $this->updateSettings(['rate_limit_per_minute' => 1]);

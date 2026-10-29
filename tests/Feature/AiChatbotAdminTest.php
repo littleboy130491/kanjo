@@ -81,7 +81,7 @@ class AiChatbotAdminTest extends TestCase
                 'enabled' => false,
                 'provider' => 'anthropic',
                 'model' => ' claude-haiku-4-5 ',
-                'temperature' => 0.2,
+                'temperature' => null,
                 'max_tokens' => 500,
                 'rate_limit_per_minute' => 5,
                 'bot_name' => 'Kanjo Bot',
@@ -101,6 +101,7 @@ class AiChatbotAdminTest extends TestCase
         $this->assertFalse($settings->enabled);
         $this->assertSame('anthropic', $settings->provider);
         $this->assertSame('claude-haiku-4-5', $settings->model);
+        $this->assertNull($settings->temperature);
         $this->assertSame(500, $settings->max_tokens);
         $this->assertSame('Kanjo Bot', $settings->bot_name);
         $this->assertSame(['en' => 'Hello', 'id' => 'Halo'], $settings->welcome_message);
