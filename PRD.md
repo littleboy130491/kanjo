@@ -780,7 +780,7 @@ Never sent to the AI: internal `notes`, access credentials, client email/phone, 
 | `enabled` | Global switch, default `true` |
 | `provider` | Laravel AI SDK text provider (OpenAI, Anthropic, Gemini, Groq, xAI, DeepSeek, Mistral, OpenRouter, Ollama) |
 | `model` | Model name for the provider. Empty uses the provider default |
-| `temperature` | Default `0.3` |
+| `temperature` | nullable, default empty (model default, not sent). Some newer models reject it; if the provider rejects `temperature`, the request is retried once without it |
 | `max_tokens` | Max reply length, default `800` |
 | `bot_name` | Shown in the widget header, default `Assistant` |
 | `avatar` | Curator media, optional |
