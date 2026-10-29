@@ -65,7 +65,12 @@ class RoleAndPermissionSeeder extends Seeder
         $superAdminRole = Role::findOrCreate(UserRole::SuperAdmin->value, 'web');
         $editorRole = Role::findOrCreate(UserRole::Editor->value, 'web');
 
-        $superAdminRole->syncPermissions($permissions);
+        $pagePermissions = collect(FilamentShield::getPages())
+            ->pluck('permissions')
+            ->flatMap(fn (array $pagePermissions): array => array_keys($pagePermissions))
+            ->map(fn (string $permission): Permission => Permission::findOrCreate($permission, 'web'));
+
+        $superAdminRole->syncPermissions($permissions->merge($pagePermissions));
 
         $nonSensitivePermissions = $permissions->reject(
             fn (Permission $permission): bool => $this->isRestrictedPermission($permission->name),
