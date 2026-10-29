@@ -43,7 +43,6 @@
                     @endif
                     <div class="min-w-0">
                         <p class="truncate text-sm font-semibold">{{ $botName }}</p>
-                        <p class="truncate text-[11px] opacity-80">{{ $proposal->document_number }}</p>
                     </div>
                 </div>
                 <div class="flex shrink-0 items-center gap-1">
