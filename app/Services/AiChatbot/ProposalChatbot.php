@@ -66,7 +66,7 @@ class ProposalChatbot
 
     private const FALLBACK_REPLY = [
         'en' => 'Sorry, I could not answer right now. Please try again in a moment.',
-        'id' => 'Maaf, saya belum bisa menjawab saat ini. Silakan coba lagi sebentar lagi.',
+        'id' => 'Maaf, saya belum bisa menjawab saat ini. Silakan coba kembali nanti.',
     ];
 
     public function __construct(
