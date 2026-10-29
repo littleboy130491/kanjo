@@ -797,6 +797,8 @@ Never sent to the AI: internal `notes`, access credentials, client email/phone, 
 | `quick_questions` | Global quick-question buttons, same structure as `ai_chatbot_quick_questions` |
 | `rate_limit_per_minute` | Max visitor messages per minute per proposal and IP, default `10` |
 
+The settings page is split into tabs: **Provider** (switch, provider, model, temperature, max tokens, rate limit), **Behaviour** (instructions), **Knowledge** (default context), **Appearance** (bot name, avatar, accent color, welcome message), and **Quick Questions**.
+
 The settings page shows whether the selected provider's API key is set in `.env`.
 
 ### Chat session
