@@ -771,6 +771,12 @@ The AI receives, in this order:
 
 Never sent to the AI: internal `notes`, access credentials, client email/phone, author/user data.
 
+**Prompt caching:** the system prompt (sections 1–5) is the same for every request on the same proposal and locale, so it can be cached. Nothing that changes per request (time, visitor data) goes into it; the visitor message and history come after it.
+- Anthropic: a cache breakpoint on the system prompt (shared by all visitors of that proposal) plus top-level automatic caching (multi-turn history).
+- OpenRouter: top-level automatic caching for `anthropic/*` models, and `session_id` = conversation uuid for sticky provider routing.
+- OpenAI: automatic caching, with `prompt_cache_key` = proposal id + locale.
+- Other providers cache stable prefixes automatically.
+
 **Isolation:** the AI has no tools and no database access. It only sees the context above for the current proposal, so it cannot read other proposals.
 
 ### Settings page (Settings → AI Chatbot)
@@ -829,7 +835,9 @@ Every visitor message and every AI reply is stored, including failed AI calls.
 | `content` | text | Raw message text |
 | `provider` | string | nullable, assistant only |
 | `model` | string | nullable, assistant only |
-| `input_tokens` | integer | nullable |
+| `input_tokens` | integer | nullable. Uncached input tokens |
+| `cache_read_tokens` | integer | nullable. Input tokens read from the prompt cache |
+| `cache_write_tokens` | integer | nullable. Input tokens written to the prompt cache |
 | `output_tokens` | integer | nullable |
 | `error` | text | nullable. Set when the AI call failed; `content` then holds the fallback text shown to the visitor |
 | `created_at` / `updated_at` | timestamp | |
