@@ -12,7 +12,7 @@ class AiChatbotSettings extends Settings
 
     public ?string $model = null;
 
-    public float $temperature = 0.3;
+    public ?float $temperature = null;
 
     public int $max_tokens = 800;
 
