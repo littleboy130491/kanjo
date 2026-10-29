@@ -75,6 +75,35 @@ class ProposalAiChatbotTest extends TestCase
             ->assertSee('Is hosting included?');
     }
 
+    public function test_quick_questions_can_be_folded_away_by_the_visitor(): void
+    {
+        $proposal = $this->createProposal([
+            'ai_chatbot_quick_questions' => [['en' => 'Is hosting included?', 'id' => 'Apakah hosting termasuk?']],
+        ]);
+
+        $this->withDocumentAccess($proposal)
+            ->get(route('proposal.show', ['slug' => $proposal->slug]))
+            ->assertOk()
+            ->assertSee('aria-controls="ai-chat-quick-'.$proposal->id.'"', false)
+            ->assertSee('aria-expanded="true"', false)
+            ->assertSee('Quick questions')
+            ->assertSee('id="ai-chat-quick-'.$proposal->id.'"', false)
+            ->assertSee('Is hosting included?');
+    }
+
+    public function test_quick_question_toggle_is_hidden_when_there_are_no_questions(): void
+    {
+        $this->updateSettings(['quick_questions' => []]);
+        $proposal = $this->createProposal(['ai_chatbot_quick_questions' => []]);
+
+        $this->withDocumentAccess($proposal)
+            ->get(route('proposal.show', ['slug' => $proposal->slug]))
+            ->assertOk()
+            ->assertSee('data-ai-chat', false)
+            ->assertDontSee('aria-controls="ai-chat-quick-'.$proposal->id.'"', false)
+            ->assertDontSee('Quick questions');
+    }
+
     public function test_widget_is_hidden_when_disabled_on_the_proposal(): void
     {
         $proposal = $this->createProposal(['ai_chatbot_enabled' => false]);
