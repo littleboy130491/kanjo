@@ -72,6 +72,7 @@ class ProposalChatbot
     public function __construct(
         private AiChatbotSettings $settings,
         private ProposalChatContext $context,
+        private AnswerCache $answers,
     ) {}
 
     public function settings(): AiChatbotSettings
@@ -186,22 +187,50 @@ class ProposalChatbot
     }
 
     /**
-     * Log the visitor message, ask the AI, and log the reply (or the failure).
+     * Log the visitor message, then answer it: from the answer cache when the same
+     * question was answered before, otherwise by asking the AI. The reply, failure, or
+     * cached answer is logged either way.
      */
     public function reply(AiConversation $conversation, string $message, string $locale): AiConversationMessage
     {
         $proposal = $conversation->proposal;
         $history = $this->history($conversation);
+        $opening = $conversation->userMessagesCount() === 0;
+
+        $provider = $this->settings->provider;
+        $model = filled($this->settings->model) ? $this->settings->model : null;
+
+        $systemPrompt = $this->systemPrompt($proposal, $locale);
+        $questionHash = AnswerCache::questionHash($message);
+        $promptHash = AnswerCache::promptHash($systemPrompt, $provider, $model);
 
         $conversation->messages()->create([
             'role' => AiConversationMessage::ROLE_USER,
             'content' => $message,
         ]);
 
-        $provider = $this->settings->provider;
-        $model = filled($this->settings->model) ? $this->settings->model : null;
+        $cached = $this->answers->find($conversation, $questionHash, $promptHash, $opening);
 
-        $systemPrompt = $this->systemPrompt($proposal, $locale);
+        if ($cached !== null) {
+            // Keep it in this conversation as well, so asking it again later reuses it.
+            $this->answers->rememberForConversation(
+                $conversation,
+                $questionHash,
+                $promptHash,
+                $cached->content,
+                $cached->provider,
+                $cached->model,
+            );
+
+            return $conversation->messages()->create([
+                'role' => AiConversationMessage::ROLE_ASSISTANT,
+                'content' => $cached->content,
+                'provider' => $cached->provider,
+                'model' => $cached->model,
+                'cache_hit' => true,
+            ]);
+        }
+
         $ask = fn (?float $temperature) => (new ProposalAssistant(
             systemPrompt: $systemPrompt,
             history: $history,
@@ -231,7 +260,7 @@ class ProposalChatbot
 
             $text = trim($response->text);
 
-            return $conversation->messages()->create([
+            $reply = $conversation->messages()->create([
                 'role' => AiConversationMessage::ROLE_ASSISTANT,
                 'content' => $text !== '' ? $text : self::localized(self::FALLBACK_REPLY, $locale),
                 'provider' => $response->meta->provider ?? $provider,
@@ -242,6 +271,20 @@ class ProposalChatbot
                 'output_tokens' => $response->usage->completionTokens ?: null,
                 'error' => $text === '' ? 'Empty response from provider.' : null,
             ]);
+
+            if (blank($reply->error)) {
+                $this->answers->remember(
+                    $conversation,
+                    $questionHash,
+                    $promptHash,
+                    $reply->content,
+                    $reply->provider,
+                    $reply->model,
+                    $opening,
+                );
+            }
+
+            return $reply;
         } catch (Throwable $exception) {
             report($exception);
 
