@@ -9,6 +9,7 @@ use App\Models\Concerns\LogsModelActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -62,6 +63,9 @@ class Proposal extends Model
         'client_logos',
         'team_members',
         'show_team_member',
+        'ai_chatbot_enabled',
+        'ai_chatbot_context',
+        'ai_chatbot_quick_questions',
         'offer_name_1',
         'offer_1_price',
         'offer_1_original_price',
@@ -110,6 +114,7 @@ class Proposal extends Model
         'document_number_override' => 'boolean',
         'activate_translation' => 'boolean',
         'show_team_member' => 'boolean',
+        'ai_chatbot_enabled' => 'boolean',
         'issue_date' => 'date',
         'valid_until' => 'date',
         'access_credentials_updated_at' => 'datetime',
@@ -129,6 +134,7 @@ class Proposal extends Model
         'video_testimonials' => 'array',
         'client_logos' => 'array',
         'team_members' => 'array',
+        'ai_chatbot_quick_questions' => 'array',
     ];
 
     protected static function documentNumberType(): string
@@ -184,6 +190,11 @@ class Proposal extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function aiConversations(): HasMany
+    {
+        return $this->hasMany(AiConversation::class);
     }
 
     public function service(): HasOneThrough
