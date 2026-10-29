@@ -114,6 +114,7 @@ class AiConversationInfolist
         $parts = array_filter([
             $record->provider,
             $record->model,
+            $record->cache_hit ? 'from answer cache' : null,
             $tokens !== [] ? implode(' / ', $tokens).' tokens' : null,
         ]);
 
