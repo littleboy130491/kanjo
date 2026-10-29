@@ -12,6 +12,7 @@ use App\Models\Company;
 use App\Models\Proposal;
 use App\Models\ProposalContentDefault;
 use App\Services\DocumentNumberGenerator;
+use App\Settings\AiChatbotSettings;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Awcodes\Curator\Models\Media;
@@ -640,6 +641,48 @@ class ProposalForm
                                             ->preload()
                                             ->searchable()
                                             ->helperText('Link portfolios from your portfolio database to this proposal. Create new portfolios from the Portfolios resource.'),
+                                    ]),
+                            ]),
+
+                        Tab::make('AI Chatbot')
+                            ->icon('heroicon-o-chat-bubble-left-right')
+                            ->schema([
+                                Section::make('Chatbot')
+                                    ->description(fn (): string => app(AiChatbotSettings::class)->enabled
+                                        ? 'Visitors can ask an AI about this proposal on the public page. It only sees this proposal.'
+                                        : 'The chatbot is turned off globally in Settings → AI Chatbot, so it is hidden on every proposal.')
+                                    ->schema([
+                                        Toggle::make('ai_chatbot_enabled')
+                                            ->label('Show AI chatbot on this proposal')
+                                            ->default(true),
+                                        Textarea::make('ai_chatbot_context')
+                                            ->label('Extra Context')
+                                            ->helperText('Added on top of the default context from Settings → AI Chatbot. Only used for this proposal. Visitors never see this text directly.')
+                                            ->rows(8)
+                                            ->maxLength(20000)
+                                            ->nullable()
+                                            ->columnSpanFull(),
+                                    ]),
+
+                                Section::make('Quick Questions')
+                                    ->description('Buttons visitors can tap to ask common questions. Leave empty to use the global buttons from Settings → AI Chatbot.')
+                                    ->schema([
+                                        Repeater::make('ai_chatbot_quick_questions')
+                                            ->hiddenLabel()
+                                            ->schema([
+                                                TextInput::make('en')
+                                                    ->label('English')
+                                                    ->maxLength(150),
+                                                TextInput::make('id')
+                                                    ->label('Indonesian')
+                                                    ->maxLength(150),
+                                            ])
+                                            ->columns(2)
+                                            ->addActionLabel('Add question')
+                                            ->reorderable()
+                                            ->deletable()
+                                            ->default([])
+                                            ->columnSpanFull(),
                                     ]),
                             ]),
 
