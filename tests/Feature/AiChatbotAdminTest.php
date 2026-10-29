@@ -73,6 +73,13 @@ class AiChatbotAdminTest extends TestCase
         $this->assertFalse(ManageAiChatbotSettings::canAccess());
     }
 
+    public function test_settings_page_is_split_into_tabs(): void
+    {
+        Livewire::test(ManageAiChatbotSettings::class)
+            ->assertOk()
+            ->assertSee(['Provider', 'Behaviour', 'Knowledge', 'Appearance', 'Quick Questions']);
+    }
+
     public function test_settings_page_saves_settings(): void
     {
         Livewire::test(ManageAiChatbotSettings::class)
