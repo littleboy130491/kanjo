@@ -207,6 +207,9 @@ class ProposalChatbot
             history: $history,
             temperature: $temperature,
             maxTokens: $this->settings->max_tokens > 0 ? $this->settings->max_tokens : null,
+            cacheKey: "kanjo-proposal-{$proposal->id}-{$locale}",
+            sessionId: $conversation->uuid,
+            model: $model,
         ))->prompt(
             $message,
             provider: $provider,
@@ -234,6 +237,8 @@ class ProposalChatbot
                 'provider' => $response->meta->provider ?? $provider,
                 'model' => $response->meta->model ?? $model,
                 'input_tokens' => $response->usage->promptTokens ?: null,
+                'cache_read_tokens' => $response->usage->cacheReadInputTokens ?: null,
+                'cache_write_tokens' => $response->usage->cacheWriteInputTokens ?: null,
                 'output_tokens' => $response->usage->completionTokens ?: null,
                 'error' => $text === '' ? 'Empty response from provider.' : null,
             ]);
