@@ -897,6 +897,8 @@
         </section>
     </div>
     @if(! $pdfMode)
+        <x-ai-chatbot :proposal="$proposal" :locale="$locale" :slug="$slug" />
+
         <nav class="floating-doc-nav" aria-label="Proposal Sections">
             <a href="#services">Services</a>
             <a href="#price">Price</a>

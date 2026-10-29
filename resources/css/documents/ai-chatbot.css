@@ -1,0 +1,146 @@
+/* AI chatbot widget on public proposals. Screen only; hidden in print/PDF. */
+
+.ai-chat {
+    --chat-accent: #0f172a;
+    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+}
+
+.ai-chat-launcher {
+    @apply fixed right-5 bottom-5 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full text-white shadow-lg transition hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2;
+    background: var(--chat-accent);
+    outline-color: var(--chat-accent);
+}
+
+.ai-chat-panel {
+    @apply fixed right-5 bottom-24 z-50 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-800 shadow-2xl;
+    width: min(380px, calc(100vw - 2rem));
+    height: min(600px, calc(100vh - 8rem));
+}
+
+.ai-chat-panel[hidden] {
+    display: none;
+}
+
+.ai-chat-header {
+    @apply flex items-center justify-between gap-3 px-4 py-3 text-white;
+    background: var(--chat-accent);
+}
+
+.ai-chat-avatar {
+    @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20;
+}
+
+.ai-chat-icon-button {
+    @apply flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-white/90 transition hover:bg-white/20 hover:text-white;
+}
+
+.ai-chat-messages {
+    @apply flex flex-1 flex-col gap-3 overflow-y-auto bg-slate-50 px-4 py-4;
+    overscroll-behavior: contain;
+}
+
+.ai-chat-bubble {
+    @apply max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed break-words;
+}
+
+.ai-chat-bubble-user {
+    @apply self-end rounded-br-md text-white whitespace-pre-wrap;
+    background: var(--chat-accent);
+}
+
+.ai-chat-bubble-assistant {
+    @apply self-start rounded-bl-md border border-slate-200 bg-white;
+}
+
+.ai-chat-bubble-error {
+    @apply border-amber-200 bg-amber-50 text-amber-900;
+}
+
+.ai-chat-bubble-assistant p + p,
+.ai-chat-bubble-assistant p + ul,
+.ai-chat-bubble-assistant p + ol,
+.ai-chat-bubble-assistant ul + p,
+.ai-chat-bubble-assistant ol + p {
+    @apply mt-2;
+}
+
+.ai-chat-bubble-assistant ul {
+    @apply list-disc pl-5;
+}
+
+.ai-chat-bubble-assistant ol {
+    @apply list-decimal pl-5;
+}
+
+.ai-chat-bubble-assistant a {
+    @apply underline;
+    color: var(--chat-accent);
+}
+
+.ai-chat-bubble-assistant strong {
+    @apply font-semibold;
+}
+
+.ai-chat-quick {
+    @apply flex gap-2 overflow-x-auto border-t border-slate-100 bg-white px-4 py-2.5;
+    scrollbar-width: thin;
+}
+
+.ai-chat-chip {
+    @apply shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-[12px] whitespace-nowrap transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50;
+    border-color: var(--chat-accent);
+    color: var(--chat-accent);
+}
+
+.ai-chat-form {
+    @apply flex items-end gap-2 border-t border-slate-100 bg-white px-3 py-3;
+}
+
+.ai-chat-input {
+    @apply max-h-[120px] min-h-[40px] flex-1 resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] leading-5 text-slate-800 outline-none focus:border-slate-400 focus:bg-white disabled:opacity-60;
+}
+
+.ai-chat-send {
+    @apply flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+    background: var(--chat-accent);
+}
+
+.ai-chat-typing {
+    @apply inline-flex items-center gap-1 py-1;
+}
+
+.ai-chat-typing span {
+    @apply h-1.5 w-1.5 rounded-full bg-slate-400;
+    animation: ai-chat-typing 1.2s infinite ease-in-out;
+}
+
+.ai-chat-typing span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.ai-chat-typing span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes ai-chat-typing {
+    0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* Mobile: the "Sections" flyout sits bottom-right, so lift the chat above it. */
+@media (max-width: 900px) {
+    .ai-chat-launcher {
+        @apply right-4 bottom-[4.25rem] h-12 w-12;
+    }
+
+    .ai-chat-panel {
+        @apply right-4 bottom-[7.75rem];
+        height: min(560px, calc(100vh - 9.5rem));
+    }
+}
+
+@media print {
+    .ai-chat {
+        display: none !important;
+    }
+}
