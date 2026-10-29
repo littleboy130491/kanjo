@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\InvoiceViewController;
 use App\Http\Controllers\PdfController;
+use App\Http\Controllers\ProposalChatController;
 use App\Http\Controllers\ProposalViewController;
 use App\Http\Controllers\SpkViewController;
 use Illuminate\Http\Request;
@@ -30,6 +31,9 @@ Route::post('/proposal-v2/{slug}/auth', [ProposalViewController::class, 'authent
 Route::get('/proposal/{slug}/pdf', [PdfController::class, 'proposal'])
     ->middleware('document.access:proposal')
     ->name('pdf.proposal');
+Route::post('/proposal/{slug}/chat', [ProposalChatController::class, 'send'])
+    ->middleware('document.access:proposal')
+    ->name('proposal.chat');
 
 Route::get('/invoice/{slug}', [InvoiceViewController::class, 'show'])
     ->middleware('document.access:invoice')
