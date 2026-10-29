@@ -24,6 +24,8 @@ class AiChatbotSettings extends Settings
 
     public array $welcome_message = [];
 
+    public ?string $instructions = null;
+
     public ?string $default_context = null;
 
     public array $quick_questions = [];
