@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Proposals;
 use App\Filament\Admin\Resources\Proposals\Pages\CreateProposal;
 use App\Filament\Admin\Resources\Proposals\Pages\EditProposal;
 use App\Filament\Admin\Resources\Proposals\Pages\ListProposals;
+use App\Filament\Admin\Resources\Proposals\RelationManagers\AiConversationsRelationManager;
 use App\Filament\Admin\Resources\Proposals\RelationManagers\InvoicesRelationManager;
 use App\Filament\Admin\Resources\Proposals\RelationManagers\SpksRelationManager;
 use App\Filament\Admin\Resources\Proposals\Schemas\ProposalForm;
@@ -48,6 +49,7 @@ class ProposalResource extends Resource
             InvoicesRelationManager::class,
             SpksRelationManager::class,
             \App\Filament\Admin\Resources\Proposals\RelationManagers\DocumentViewsRelationManager::class,
+            AiConversationsRelationManager::class,
         ];
     }
 
