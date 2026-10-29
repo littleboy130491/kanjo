@@ -808,6 +808,7 @@ The settings page shows whether the selected provider's API key is set in `.env`
 - A conversation can only be continued from the same browser session that started it, and only on its own proposal.
 - Max visitor message length: 1000 characters. Max 50 visitor messages per conversation.
 - AI replies may use Markdown; the server converts it to safe HTML (raw HTML stripped).
+- Quick-question buttons are laid out in a two-column grid above the input. Visitors can fold them away with the **Quick questions** header; that choice is stored in the same `sessionStorage` entry and survives **New chat**.
 
 ### Answer cache
 
