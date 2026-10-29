@@ -147,6 +147,22 @@ class AiChatbotAdminTest extends TestCase
             ->assertCanSeeTableRecords([$conversation]);
     }
 
+    public function test_conversation_list_handles_proposals_without_a_document_number(): void
+    {
+        $proposal = $this->makeProposal();
+        Proposal::query()->whereKey($proposal->id)->toBase()->update(['document_number' => null]);
+        $conversation = $this->makeConversation($proposal->refresh());
+
+        Livewire::test(ListAiConversations::class)
+            ->assertOk()
+            ->assertCanSeeTableRecords([$conversation])
+            ->assertSee('Proposal #'.$proposal->id);
+
+        Livewire::test(ViewAiConversation::class, ['record' => $conversation->getRouteKey()])
+            ->assertOk()
+            ->assertSee('Proposal #'.$proposal->id);
+    }
+
     public function test_prune_deletes_old_conversations_and_their_messages(): void
     {
         $proposal = $this->makeProposal();

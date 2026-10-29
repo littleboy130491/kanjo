@@ -20,6 +20,7 @@ class AiConversationInfolist
                     ->schema([
                         TextEntry::make('proposal.document_number')
                             ->label('Proposal')
+                            ->state(fn (AiConversation $record): string => $record->proposal?->document_number ?: 'Proposal #'.$record->proposal_id)
                             ->url(fn (AiConversation $record): ?string => $record->proposal && ! $record->proposal->trashed()
                                 ? ProposalResource::getUrl('edit', ['record' => $record->proposal])
                                 : null)

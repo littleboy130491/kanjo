@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\AiConversations\Tables;
 use App\Filament\Admin\Resources\AiConversations\AiConversationResource;
 use App\Filament\Admin\Resources\Proposals\ProposalResource;
 use App\Models\AiConversation;
+use App\Models\Proposal;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
@@ -25,6 +26,7 @@ class AiConversationsTable
         if ($withProposal) {
             $columns[] = TextColumn::make('proposal.document_number')
                 ->label('Proposal')
+                ->state(fn (AiConversation $record): string => $record->proposal?->document_number ?: 'Proposal #'.$record->proposal_id)
                 ->url(fn (AiConversation $record): ?string => $record->proposal && ! $record->proposal->trashed()
                     ? ProposalResource::getUrl('edit', ['record' => $record->proposal])
                     : null)
@@ -78,8 +80,13 @@ class AiConversationsTable
         if ($withProposal) {
             $filters[] = SelectFilter::make('proposal_id')
                 ->label('Proposal')
-                ->relationship('proposal', 'document_number')
-                ->searchable()
+                ->relationship(
+                    'proposal',
+                    'document_number',
+                    fn (Builder $query): Builder => $query->whereHas('aiConversations'),
+                )
+                ->getOptionLabelFromRecordUsing(fn (Proposal $record): string => self::proposalLabel($record))
+                ->searchable(['document_number', 'client_company'])
                 ->preload();
         }
 
@@ -124,5 +131,13 @@ class AiConversationsTable
             ->recordUrl(fn (AiConversation $record): string => AiConversationResource::getUrl('view', ['record' => $record]))
             ->recordActions([])
             ->toolbarActions([]);
+    }
+
+    private static function proposalLabel(Proposal $proposal): string
+    {
+        return collect([
+            $proposal->document_number ?: 'Proposal #'.$proposal->getKey(),
+            $proposal->client_company,
+        ])->filter()->implode(' — ');
     }
 }
