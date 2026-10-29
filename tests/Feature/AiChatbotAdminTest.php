@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\DocumentStatus;
+use App\Enums\UserRole;
 use App\Filament\Admin\Pages\ManageAiChatbotSettings;
 use App\Filament\Admin\Resources\AiConversations\Pages\ListAiConversations;
 use App\Filament\Admin\Resources\AiConversations\Pages\ViewAiConversation;
@@ -16,12 +17,11 @@ use App\Models\User;
 use App\Services\AiChatbot\ProposalChatbot;
 use App\Services\AiConversationPruner;
 use App\Settings\AiChatbotSettings;
-use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class AiChatbotAdminTest extends TestCase
@@ -62,11 +62,19 @@ class AiChatbotAdminTest extends TestCase
         $this->assertSame([['en' => 'When can we start?', 'id' => 'Kapan bisa mulai?']], array_values($proposal->ai_chatbot_quick_questions));
     }
 
+    public function test_settings_page_is_visible_to_super_admin_but_not_editor(): void
+    {
+        $this->assertTrue(ManageAiChatbotSettings::canAccess());
+
+        $editor = User::factory()->create();
+        $editor->assignRole(Role::findByName(UserRole::Editor->value, 'web'));
+        $this->actingAs($editor);
+
+        $this->assertFalse(ManageAiChatbotSettings::canAccess());
+    }
+
     public function test_settings_page_saves_settings(): void
     {
-        $permission = array_key_first(FilamentShield::getPages()[ManageAiChatbotSettings::class]['permissions']);
-        $this->admin->givePermissionTo(Permission::findOrCreate($permission, 'web'));
-
         Livewire::test(ManageAiChatbotSettings::class)
             ->assertOk()
             ->fillForm([
@@ -103,9 +111,6 @@ class AiChatbotAdminTest extends TestCase
 
     public function test_settings_page_prefills_saves_and_resets_instructions(): void
     {
-        $permission = array_key_first(FilamentShield::getPages()[ManageAiChatbotSettings::class]['permissions']);
-        $this->admin->givePermissionTo(Permission::findOrCreate($permission, 'web'));
-
         Livewire::test(ManageAiChatbotSettings::class)
             ->assertSchemaStateSet(['instructions' => ProposalChatbot::DEFAULT_INSTRUCTIONS])
             ->fillForm(['instructions' => 'Only answer about the website project.'])
