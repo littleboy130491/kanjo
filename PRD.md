@@ -809,6 +809,20 @@ The settings page shows whether the selected provider's API key is set in `.env`
 - Max visitor message length: 1000 characters. Max 50 visitor messages per conversation.
 - AI replies may use Markdown; the server converts it to safe HTML (raw HTML stripped).
 
+### Answer cache
+
+Identical questions are answered from a stored answer instead of calling the AI again, saving provider cost and latency. The visitor experience is unchanged: the exchange is still logged.
+
+- **Cache key:** `proposal_id` + locale + normalized question (trim, collapse spaces, lowercase, trailing `?`, `!`, `.` removed) + prompt fingerprint.
+- **Prompt fingerprint:** hash of the full system prompt plus provider and model. The system prompt already contains the instructions, default context, proposal content, and extra context, so editing any of them (or switching model) stops the old answers from being used. No manual invalidation needed.
+- **Two scopes:**
+  - **Shared** (no conversation): used only for the first question of a chat, where the prompt is exactly the system prompt plus that question. Every visitor of the proposal, and any visitor starting a new chat, reuses it.
+  - **Per conversation:** used when the same question is asked again later in the same chat. The earlier answer from that chat is reused, since the conversation context at that point is what produced it. Answers are never shared between different chats mid-conversation.
+- **Not cached:** failed calls, empty replies, and rate-limited requests.
+- **Edits to a proposal or to the settings** change the fingerprint, so the next matching question calls the AI again and refreshes the cache.
+- **Logging:** the user message and the cached reply are both stored as normal rows. The reply has `cache_hit = true`, no token counts, and keeps the provider and model that originally produced it.
+- **Retention:** rows unused for 30 days are deleted by the conversation pruner.
+
 ### Conversation log
 
 Every visitor message and every AI reply is stored, including failed AI calls.
@@ -842,7 +856,27 @@ Every visitor message and every AI reply is stored, including failed AI calls.
 | `cache_write_tokens` | integer | nullable. Input tokens written to the prompt cache |
 | `output_tokens` | integer | nullable |
 | `error` | text | nullable. Set when the AI call failed; `content` then holds the fallback text shown to the visitor |
+| `cache_hit` | boolean | Default `false`. `true` when the reply was served from `ai_chatbot_answers` instead of the AI |
 | `created_at` / `updated_at` | timestamp | |
+
+**`ai_chatbot_answers`** (answer cache)
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | bigint | PK |
+| `proposal_id` | FK | `cascadeOnDelete` |
+| `ai_conversation_id` | FK | nullable, `cascadeOnDelete`. `null` = shared across all visitors of the proposal |
+| `locale` | string | `en` / `id` |
+| `question_hash` | string | sha256 of the normalized question |
+| `prompt_hash` | string | sha256 of system prompt + provider + model |
+| `content` | text | The answer, as Markdown |
+| `provider` | string | nullable. Provider that produced it |
+| `model` | string | nullable. Model that produced it |
+| `hits` | integer | How many times this answer has been reused |
+| `last_used_at` | timestamp | nullable |
+| `created_at` / `updated_at` | timestamp | |
+
+Unique on `proposal_id` + `ai_conversation_id` + `locale` + `question_hash` + `prompt_hash`. Database unique indexes ignore `NULL`, so shared rows are deduplicated by the service (`updateOrCreate`) instead.
 
 **Relationships:** `Proposal hasMany(AiConversation)` as `aiConversations`; `AiConversation belongsTo(Proposal)`, `hasMany(AiConversationMessage)`.
 
