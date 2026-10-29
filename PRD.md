@@ -731,6 +731,116 @@ Write tools take the REST JSON body as `payload` and a separate `dry_run` boolea
 
 ---
 
+## AI Chatbot (Proposals)
+
+A chat widget on the public proposal page. Visitors ask questions about that proposal and an AI answers from the proposal's own content.
+
+**Engine:** Laravel AI SDK (`laravel/ai`). Provider API keys live in `.env` only (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, etc.). The settings page picks the provider and model but never stores keys.
+
+### Where it shows
+
+- Only on the public proposal page (HTML, v1 and v2), after the visitor has passed the document access gate.
+- Never in the PDF. Never on invoices or SPKs.
+- Shown when the global switch is on **and** the proposal's `ai_chatbot_enabled` is `true`. Default is on.
+
+### Proposal fields
+
+| Field | Type | Translatable | Notes |
+|---|---|---|---|
+| `ai_chatbot_enabled` | boolean | no | Default `true`. Admin can turn the chatbot off per proposal |
+| `ai_chatbot_context` | text | no | nullable. Extra context for this proposal only, added on top of the default context |
+| `ai_chatbot_quick_questions` | JSON array | no | nullable. Per-proposal quick-question buttons. Empty uses the global list |
+
+`ai_chatbot_quick_questions` structure (each row holds both locales):
+```json
+[
+  { "en": "What is included in Offer 1?", "id": "Apa saja yang termasuk di Penawaran 1?" }
+]
+```
+
+Filament: a new **AI Chatbot** tab on the proposal form holds these fields. Duplicated proposals copy them.
+
+### Context rules
+
+The AI receives, in this order:
+1. Fixed system rules: answer only about this proposal, reply in the visitor's language, say so when the answer is not in the context, do not invent prices or terms.
+2. **Default context** from AI Chatbot settings. Used live: editing it affects every proposal.
+3. **Proposal context**, built from the proposal record at request time: document number, issuing company, client company and name, issue date, valid until, offers (names, prices, original prices, renewal prices), timelines, add-ons, and the rich-text content sections (brief, services, features, server, assets, security, support, additional benefit, payment, terms, additional info, FAQ, our process, about us) as plain text in the visitor's locale.
+4. **Extra context** from `ai_chatbot_context` on that proposal.
+
+Never sent to the AI: internal `notes`, access credentials, client email/phone, author/user data.
+
+**Isolation:** the AI has no tools and no database access. It only sees the context above for the current proposal, so it cannot read other proposals.
+
+### Settings page (Settings → AI Chatbot)
+
+| Setting | Notes |
+|---|---|
+| `enabled` | Global switch, default `true` |
+| `provider` | Laravel AI SDK text provider (OpenAI, Anthropic, Gemini, Groq, xAI, DeepSeek, Mistral, OpenRouter, Ollama) |
+| `model` | Model name for the provider. Empty uses the provider default |
+| `temperature` | Default `0.3` |
+| `max_tokens` | Max reply length, default `800` |
+| `bot_name` | Shown in the widget header, default `Assistant` |
+| `avatar` | Curator media, optional |
+| `accent_color` | Hex, optional. Empty uses the proposal company `color_primary` |
+| `welcome_message` | EN/ID text shown as the first bubble |
+| `default_context` | Default context text, see Context rules |
+| `quick_questions` | Global quick-question buttons, same structure as `ai_chatbot_quick_questions` |
+| `rate_limit_per_minute` | Max visitor messages per minute per proposal and IP, default `10` |
+
+The settings page shows whether the selected provider's API key is set in `.env`.
+
+### Chat session
+
+- Chat history lives in the browser tab's `sessionStorage`. Closing the tab clears it and the visitor starts over. A **New chat** button also starts over.
+- The server rebuilds the history for the AI from its own log, not from the browser, so a visitor cannot fake earlier messages.
+- A conversation can only be continued from the same browser session that started it, and only on its own proposal.
+- Max visitor message length: 1000 characters. Max 50 visitor messages per conversation.
+- AI replies may use Markdown; the server converts it to safe HTML (raw HTML stripped).
+
+### Conversation log
+
+Every visitor message and every AI reply is stored, including failed AI calls.
+
+**`ai_conversations`**
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | bigint | PK |
+| `uuid` | uuid | Public conversation id used by the widget |
+| `proposal_id` | FK | `cascadeOnDelete` |
+| `locale` | string | `en` / `id` at start |
+| `ip_address` | string | nullable |
+| `user_agent` | text | nullable |
+| `messages_count` | integer | Stored count of all messages |
+| `last_message_at` | timestamp | nullable |
+| `created_at` / `updated_at` | timestamp | |
+
+**`ai_conversation_messages`**
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | bigint | PK |
+| `ai_conversation_id` | FK | `cascadeOnDelete` |
+| `role` | string | `user` or `assistant` |
+| `content` | text | Raw message text |
+| `provider` | string | nullable, assistant only |
+| `model` | string | nullable, assistant only |
+| `input_tokens` | integer | nullable |
+| `output_tokens` | integer | nullable |
+| `error` | text | nullable. Set when the AI call failed; `content` then holds the fallback text shown to the visitor |
+| `created_at` / `updated_at` | timestamp | |
+
+**Relationships:** `Proposal hasMany(AiConversation)` as `aiConversations`; `AiConversation belongsTo(Proposal)`, `hasMany(AiConversationMessage)`.
+
+### Filament
+
+- **AI Conversations** resource (Documents group): list with proposal number, client company, started at, message count, last message, locale, IP. Filters by proposal and date. View page shows details and the full transcript. Delete, bulk delete, and a **Prune Conversations** action (delete conversations older than N days, default 90).
+- Proposal edit page gets an **AI Conversations** relation manager tab, linking each row to the conversation view page.
+
+---
+
 ## Resolved Decisions
 
 1. **Recurring invoices:** ✅ Yes — use "Create Renewal Invoice" action on proposals.
@@ -741,3 +851,4 @@ Write tools take the REST JSON body as `payload` and a separate `dry_run` boolea
 6. **Service management:** ✅ Service is a first-class entity and can be created from Proposal/Invoice in one click.
 7. **Remote Document API:** ✅ Shared `.env` API key, always published, explicit per-field content modes, auto-create Client, global document credentials, dry-run, discovery catalogs for AI agents.
 8. **MCP server:** ✅ OAuth (Passport) for Claude/ChatGPT connectors, panel-access users only, writes follow panel policies, documents authored by the connected user, tools reuse the Remote Document API.
+9. **AI chatbot:** ✅ Laravel AI SDK, keys in `.env`, on by default per proposal, live global default context plus per-proposal extra context, session-only chat in the browser, every message logged server-side.
