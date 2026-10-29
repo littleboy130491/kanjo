@@ -82,12 +82,12 @@
 }
 
 .ai-chat-quick {
-    @apply flex max-h-[8.5rem] flex-wrap gap-2 overflow-y-auto border-t border-slate-100 bg-white px-4 py-2.5;
+    @apply flex max-h-[8.5rem] flex-wrap gap-2 overflow-y-auto border-t border-slate-100 bg-slate-50 px-4 py-2.5;
     scrollbar-width: thin;
 }
 
 .ai-chat-chip {
-    @apply max-w-full cursor-pointer rounded-full border px-3 py-1.5 text-left text-[12px] leading-snug transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply max-w-full cursor-pointer rounded-full border bg-white px-3 py-1.5 text-left text-[12px] leading-snug transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50;
     border-color: var(--chat-accent);
     color: var(--chat-accent);
     overflow-wrap: anywhere;
