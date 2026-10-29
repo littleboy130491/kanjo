@@ -8,6 +8,7 @@ use App\Models\AiConversationMessage;
 use App\Models\Proposal;
 use App\Settings\AiChatbotSettings;
 use Awcodes\Curator\Models\Media;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Str;
 use Laravel\Ai\Messages\Message;
 use Throwable;
@@ -200,18 +201,30 @@ class ProposalChatbot
         $provider = $this->settings->provider;
         $model = filled($this->settings->model) ? $this->settings->model : null;
 
+        $systemPrompt = $this->systemPrompt($proposal, $locale);
+        $ask = fn (?float $temperature) => (new ProposalAssistant(
+            systemPrompt: $systemPrompt,
+            history: $history,
+            temperature: $temperature,
+            maxTokens: $this->settings->max_tokens > 0 ? $this->settings->max_tokens : null,
+        ))->prompt(
+            $message,
+            provider: $provider,
+            model: $model,
+            timeout: self::TIMEOUT_SECONDS,
+        );
+
         try {
-            $response = (new ProposalAssistant(
-                systemPrompt: $this->systemPrompt($proposal, $locale),
-                history: $history,
-                temperature: $this->settings->temperature,
-                maxTokens: $this->settings->max_tokens > 0 ? $this->settings->max_tokens : null,
-            ))->prompt(
-                $message,
-                provider: $provider,
-                model: $model,
-                timeout: self::TIMEOUT_SECONDS,
-            );
+            try {
+                $response = $ask($this->settings->temperature);
+            } catch (Throwable $exception) {
+                if ($this->settings->temperature === null || ! self::rejectsTemperature($exception)) {
+                    throw $exception;
+                }
+
+                // Some models (e.g. newer Claude models) reject `temperature`; retry with the model default.
+                $response = $ask(null);
+            }
 
             $text = trim($response->text);
 
@@ -235,6 +248,18 @@ class ProposalChatbot
                 'error' => Str::limit(class_basename($exception).': '.$exception->getMessage(), 2000),
             ]);
         }
+    }
+
+    private static function rejectsTemperature(Throwable $exception): bool
+    {
+        $details = $exception instanceof RequestException
+            ? (string) $exception->response->body()
+            : $exception->getMessage();
+
+        $status = $exception instanceof RequestException ? $exception->response->status() : null;
+
+        return ($status === null || $status === 400)
+            && str_contains(strtolower($details), 'temperature');
     }
 
     public static function toHtml(string $markdown): string
