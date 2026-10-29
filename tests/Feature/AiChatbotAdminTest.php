@@ -143,6 +143,7 @@ class AiChatbotAdminTest extends TestCase
             ->assertOk()
             ->assertSee('How long does it take?')
             ->assertSee('About 30 days.')
+            ->assertSee('20 in / 5,600 cached / 8 out tokens')
             ->assertSee('Provider timeout');
 
         Livewire::test(AiConversationsRelationManager::class, [
@@ -188,7 +189,7 @@ class AiChatbotAdminTest extends TestCase
     {
         $conversation = $proposal->aiConversations()->create(['locale' => 'en', 'ip_address' => '127.0.0.1']);
         $conversation->messages()->create(['role' => 'user', 'content' => 'How long does it take?']);
-        $conversation->messages()->create(['role' => 'assistant', 'content' => 'About 30 days.', 'provider' => 'openai', 'model' => 'gpt-4o-mini']);
+        $conversation->messages()->create(['role' => 'assistant', 'content' => 'About 30 days.', 'provider' => 'openai', 'model' => 'gpt-4o-mini', 'input_tokens' => 20, 'cache_read_tokens' => 5600, 'output_tokens' => 8]);
         $conversation->messages()->create(['role' => 'user', 'content' => 'And the price?']);
         $conversation->messages()->create(['role' => 'assistant', 'content' => 'Sorry, try again.', 'error' => 'Provider timeout']);
 
