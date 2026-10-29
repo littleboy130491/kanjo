@@ -750,6 +750,7 @@ A chat widget on the public proposal page. Visitors ask questions about that pro
 | `ai_chatbot_enabled` | boolean | no | Default `true`. Admin can turn the chatbot off per proposal |
 | `ai_chatbot_context` | text | no | nullable. Extra context for this proposal only, added on top of the default context |
 | `ai_chatbot_quick_questions` | JSON array | no | nullable. Per-proposal quick-question buttons. Empty uses the global list |
+| `ai_chatbot_quick_questions_visibility` | enum | no | `default` / `on` / `off`, default `default`. `default` follows the global `show_quick_questions` setting; `on` and `off` override it for this proposal |
 
 `ai_chatbot_quick_questions` structure (each row holds both locales):
 ```json
@@ -795,9 +796,12 @@ Never sent to the AI: internal `notes`, access credentials, client email/phone, 
 | `instructions` | System prompt, see Context rules. A **Reset to default** button restores the built-in text |
 | `default_context` | Default context text, see Context rules |
 | `quick_questions` | Global quick-question buttons, same structure as `ai_chatbot_quick_questions` |
+| `show_quick_questions` | Global switch for the quick-question buttons, default `true`. A proposal can override it with `ai_chatbot_quick_questions_visibility` |
 | `rate_limit_per_minute` | Max visitor messages per minute per proposal and IP, default `10` |
 
 The settings page is split into tabs: **Provider** (switch, provider, model, temperature, max tokens, rate limit), **Behaviour** (instructions), **Knowledge** (default context), **Appearance** (bot name, avatar, accent color, welcome message), and **Quick Questions**.
+
+Quick-question visibility resolves per proposal: `on` always shows the buttons, `off` always hides them, and `default` follows the global `show_quick_questions` switch. Hiding the buttons also hides the **Quick questions** toggle in the widget; the visitor's own fold state is unaffected by this setting.
 
 The settings page shows whether the selected provider's API key is set in `.env`.
 
