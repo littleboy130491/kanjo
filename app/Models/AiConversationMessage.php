@@ -18,12 +18,16 @@ class AiConversationMessage extends Model
         'provider',
         'model',
         'input_tokens',
+        'cache_read_tokens',
+        'cache_write_tokens',
         'output_tokens',
         'error',
     ];
 
     protected $casts = [
         'input_tokens' => 'integer',
+        'cache_read_tokens' => 'integer',
+        'cache_write_tokens' => 'integer',
         'output_tokens' => 'integer',
     ];
 
