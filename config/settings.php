@@ -6,6 +6,7 @@ use DateTimeZone;
 return [
     'settings' => [
         'App\\Settings\\TrackingSettings',
+        'App\\Settings\\AiChatbotSettings',
     ],
 
     'setting_class_path' => app_path('Settings'),
