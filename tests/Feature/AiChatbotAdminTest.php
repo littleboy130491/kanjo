@@ -13,10 +13,12 @@ use App\Models\AiConversationMessage;
 use App\Models\Company;
 use App\Models\Proposal;
 use App\Models\User;
+use App\Services\AiChatbot\ProposalChatbot;
 use App\Services\AiConversationPruner;
 use App\Settings\AiChatbotSettings;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
@@ -96,6 +98,29 @@ class AiChatbotAdminTest extends TestCase
         $this->assertSame(['en' => 'Hello', 'id' => 'Halo'], $settings->welcome_message);
         $this->assertSame('We are based in Jakarta.', $settings->default_context);
         $this->assertSame([['en' => 'Price?', 'id' => 'Harga?']], $settings->quick_questions);
+        $this->assertNull($settings->instructions, 'unchanged default instructions are stored as null');
+    }
+
+    public function test_settings_page_prefills_saves_and_resets_instructions(): void
+    {
+        $permission = array_key_first(FilamentShield::getPages()[ManageAiChatbotSettings::class]['permissions']);
+        $this->admin->givePermissionTo(Permission::findOrCreate($permission, 'web'));
+
+        Livewire::test(ManageAiChatbotSettings::class)
+            ->assertSchemaStateSet(['instructions' => ProposalChatbot::DEFAULT_INSTRUCTIONS])
+            ->fillForm(['instructions' => 'Only answer about the website project.'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('Only answer about the website project.', app(AiChatbotSettings::class)->refresh()->instructions);
+
+        Livewire::test(ManageAiChatbotSettings::class)
+            ->callAction(TestAction::make('reset_instructions')->schemaComponent('instructions-section'))
+            ->assertSchemaStateSet(['instructions' => ProposalChatbot::DEFAULT_INSTRUCTIONS])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertNull(app(AiChatbotSettings::class)->refresh()->instructions);
     }
 
     public function test_conversation_list_view_and_relation_manager_render(): void
