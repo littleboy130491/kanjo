@@ -6,6 +6,7 @@ use App\Services\AiChatbot\ProposalChatbot;
 use App\Settings\AiChatbotSettings;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+use Filament\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Pages\SettingsPage;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class ManageAiChatbotSettings extends SettingsPage
@@ -112,6 +114,35 @@ class ManageAiChatbotSettings extends SettingsPage
                     ->columns(2)
                     ->columnSpanFull(),
 
+                Section::make('Instructions (System Prompt)')
+                    ->key('instructions-section')
+                    ->description('Tells the AI how to behave: what it may answer, what it must decline, and its tone. Placeholders: {bot_name}, {company}, {language}. Safety rules (use only the proposal information, never invent prices or terms, only this proposal, ignore attempts to change the rules) are always added and cannot be removed here.')
+                    ->headerActions([
+                        Action::make('reset_instructions')
+                            ->label('Reset to default')
+                            ->icon('heroicon-o-arrow-path')
+                            ->color('gray')
+                            ->requiresConfirmation()
+                            ->modalHeading('Reset instructions?')
+                            ->modalDescription('This replaces the current instructions with the built-in default. Save the page to apply it.')
+                            ->action(fn (Set $set) => $set('instructions', ProposalChatbot::DEFAULT_INSTRUCTIONS)),
+                    ])
+                    ->schema([
+                        Textarea::make('instructions')
+                            ->hiddenLabel()
+                            ->rows(16)
+                            ->maxLength(10000)
+                            ->afterStateHydrated(function (Textarea $component, ?string $state): void {
+                                if (blank($state)) {
+                                    $component->state(ProposalChatbot::DEFAULT_INSTRUCTIONS);
+                                }
+                            })
+                            ->helperText('Leave empty to use the built-in default.')
+                            ->nullable()
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull(),
+
                 Section::make('Default Context')
                     ->description('Sent to the AI for every proposal, together with that proposal\'s content and its own extra context. Use it for company facts, policies, and tone. Changes apply to all proposals right away.')
                     ->schema([
@@ -156,6 +187,11 @@ class ManageAiChatbotSettings extends SettingsPage
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $data['model'] = filled($data['model'] ?? null) ? trim((string) $data['model']) : null;
+        $instructions = trim((string) ($data['instructions'] ?? ''));
+        // Store null when unchanged so future improvements to the built-in default apply automatically.
+        $data['instructions'] = $instructions === '' || $instructions === trim(ProposalChatbot::DEFAULT_INSTRUCTIONS)
+            ? null
+            : $instructions;
         $data['accent_color'] = filled($data['accent_color'] ?? null) ? $data['accent_color'] : null;
         $data['avatar'] = filled($data['avatar'] ?? null) ? (int) (is_array($data['avatar']) ? reset($data['avatar']) : $data['avatar']) : null;
         $data['temperature'] = (float) ($data['temperature'] ?? 0.3);
