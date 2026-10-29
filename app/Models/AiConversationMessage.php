@@ -22,6 +22,7 @@ class AiConversationMessage extends Model
         'cache_write_tokens',
         'output_tokens',
         'error',
+        'cache_hit',
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class AiConversationMessage extends Model
         'cache_read_tokens' => 'integer',
         'cache_write_tokens' => 'integer',
         'output_tokens' => 'integer',
+        'cache_hit' => 'boolean',
     ];
 
     protected static function booted(): void
