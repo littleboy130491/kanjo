@@ -60,10 +60,17 @@
             <div class="ai-chat-messages" data-ai-chat-messages aria-live="polite"></div>
 
             @if(count($quickQuestions) > 0)
-                <div class="ai-chat-quick" data-ai-chat-quick>
-                    @foreach($quickQuestions as $question)
-                        <button type="button" class="ai-chat-chip" data-ai-chat-question>{{ $question }}</button>
-                    @endforeach
+                <div class="ai-chat-quick-wrap">
+                    <button type="button" class="ai-chat-quick-head" data-ai-chat-quick-toggle
+                        aria-expanded="true" aria-controls="ai-chat-quick-{{ $proposal->id }}">
+                        <span>{{ $isIndonesian ? 'Pertanyaan cepat' : 'Quick questions' }}</span>
+                        <svg viewBox="0 0 24 24" fill="none" class="ai-chat-quick-chevron" aria-hidden="true"><path d="M6 15l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="ai-chat-quick" id="ai-chat-quick-{{ $proposal->id }}" data-ai-chat-quick>
+                        @foreach($quickQuestions as $question)
+                            <button type="button" class="ai-chat-chip" data-ai-chat-question>{{ $question }}</button>
+                        @endforeach
+                    </div>
                 </div>
             @endif
 
@@ -103,9 +110,10 @@
             const input = root.querySelector('[data-ai-chat-input]');
             const send = root.querySelector('[data-ai-chat-send]');
             const quick = root.querySelector('[data-ai-chat-quick]');
+            const quickToggle = root.querySelector('[data-ai-chat-quick-toggle]');
 
             // Chat lives only in this tab's sessionStorage: closing the tab starts over.
-            const emptyState = () => ({ conversation: null, messages: [], open: false });
+            const emptyState = () => ({ conversation: null, messages: [], open: false, quickOpen: true });
             const load = () => {
                 try {
                     return { ...emptyState(), ...JSON.parse(sessionStorage.getItem(config.storageKey) || '{}') };
@@ -169,6 +177,17 @@
                     list.scrollTop = list.scrollHeight;
                     input.focus();
                 }
+            };
+
+            // Visitors can fold the quick questions away to give the conversation more room.
+            const setQuickOpen = (open) => {
+                state.quickOpen = open;
+
+                if (quick) {
+                    quick.hidden = !open;
+                }
+
+                quickToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
             };
 
             const setBusy = (value) => {
@@ -248,7 +267,7 @@
                     return;
                 }
 
-                state = { ...emptyState(), open: true };
+                state = { ...emptyState(), open: true, quickOpen: state.quickOpen };
                 save();
                 render();
                 input.focus();
@@ -267,10 +286,24 @@
                 }
             });
 
+            quickToggle?.addEventListener('click', () => {
+                if (!quick) {
+                    return;
+                }
+
+                setQuickOpen(quick.hidden);
+                save();
+
+                if (!quick.hidden) {
+                    list.scrollTop = list.scrollHeight;
+                }
+            });
+
             quick?.querySelectorAll('[data-ai-chat-question]').forEach((button) => {
                 button.addEventListener('click', () => ask(button.textContent));
             });
 
+            setQuickOpen(state.quickOpen !== false);
             render();
             setOpen(!!state.open);
         })();
