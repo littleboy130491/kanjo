@@ -61,12 +61,13 @@ class ManageAiChatbotSettings extends SettingsPage
                             ->maxLength(255),
                         TextInput::make('temperature')
                             ->label('Temperature')
-                            ->helperText('Lower is more factual. 0.2 to 0.5 works well for proposals.')
+                            ->placeholder('Model default')
+                            ->helperText('Optional. Leave empty (recommended). Newer models such as recent Claude models do not accept it; if a model rejects it, the chatbot retries without it.')
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(2)
                             ->step(0.1)
-                            ->required(),
+                            ->nullable(),
                         TextInput::make('max_tokens')
                             ->label('Max Reply Tokens')
                             ->helperText('Limits how long each reply can be.')
@@ -194,7 +195,7 @@ class ManageAiChatbotSettings extends SettingsPage
             : $instructions;
         $data['accent_color'] = filled($data['accent_color'] ?? null) ? $data['accent_color'] : null;
         $data['avatar'] = filled($data['avatar'] ?? null) ? (int) (is_array($data['avatar']) ? reset($data['avatar']) : $data['avatar']) : null;
-        $data['temperature'] = (float) ($data['temperature'] ?? 0.3);
+        $data['temperature'] = filled($data['temperature'] ?? null) ? (float) $data['temperature'] : null;
         $data['max_tokens'] = (int) ($data['max_tokens'] ?? 800);
         $data['rate_limit_per_minute'] = (int) ($data['rate_limit_per_minute'] ?? 10);
         $data['welcome_message'] = [
