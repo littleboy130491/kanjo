@@ -104,12 +104,17 @@ class AiConversationInfolist
             return null;
         }
 
+        $tokens = array_filter([
+            $record->input_tokens ? number_format($record->input_tokens).' in' : null,
+            $record->cache_read_tokens ? number_format($record->cache_read_tokens).' cached' : null,
+            $record->cache_write_tokens ? number_format($record->cache_write_tokens).' cache write' : null,
+            $record->output_tokens ? number_format($record->output_tokens).' out' : null,
+        ]);
+
         $parts = array_filter([
             $record->provider,
             $record->model,
-            $record->input_tokens || $record->output_tokens
-                ? number_format((int) $record->input_tokens).' in / '.number_format((int) $record->output_tokens).' out tokens'
-                : null,
+            $tokens !== [] ? implode(' / ', $tokens).' tokens' : null,
         ]);
 
         return $parts === [] ? null : implode(' · ', $parts);
