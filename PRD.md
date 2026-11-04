@@ -61,7 +61,7 @@ Represents the brands/companies that issue documents.
 | `color_primary` | string | hex, for branded PDF |
 | `color_secondary` | string | hex, for branded PDF |
 | `footer_text` | text | translatable, appears on every document |
-| `tax_notice` | text | nullable, translatable; tax status note (e.g. Non-PKP / PPh 23) shown under the invoice totals only; hidden when empty |
+| `tax_notice` | text | nullable, translatable; default tax status note (e.g. Non-PKP / PPh 23) copied into each new invoice's `tax_notice` |
 | `bank` | JSON array | non-translatable |
 | `pic` | JSON array | non-translatable |
 | `created_at` | timestamp | |
@@ -240,6 +240,7 @@ Represents the brands/companies that issue documents.
 | `tax_amount` | decimal | no | computed |
 | `subtotal` | decimal | no | computed |
 | `total` | decimal | no | computed |
+| `tax_notice` | text | **yes** | nullable; frozen copy of the company `tax_notice`, filled on create when left empty; shown at the end of Payment Info; never re-synced from the company |
 | `notes` | JSON array | no | Internal |
 | `status` | enum | no | `draft`, `published` |
 | `payment_status` | enum | no | `unpaid`, `partially_paid`, `paid`, `overdue`, `cancelled` |
