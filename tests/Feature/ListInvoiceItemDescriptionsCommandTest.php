@@ -16,6 +16,9 @@ class ListInvoiceItemDescriptionsCommandTest extends TestCase
 
     public function test_it_outputs_only_invoice_items_with_descriptions(): void
     {
+        // Invoice numbers embed the month (V = May), so pin the clock to match.
+        $this->travelTo('2026-05-15 10:00:00');
+
         $user = User::factory()->create();
         $company = Company::query()->create([
             'company_name' => 'PT Example Agency',
