@@ -378,10 +378,6 @@
                 </table>
             </div>
 
-            @if($taxNotice !== '')
-                <p class="invoice-tax-notice">{!! nl2br(e($taxNotice)) !!}</p>
-            @endif
-
             @if(filled($proposalShowUrl) && ! $pdfMode)
                 <p class="invoice-proposal-link">
                     <a href="{{ $proposalShowUrl }}" target="_blank" rel="noopener noreferrer">View proposal</a>
@@ -398,7 +394,7 @@
             </section>
         @endif
 
-        @if(! empty($bankRows))
+        @if(! empty($bankRows) || $taxNotice !== '')
             <section class="document-section-pad invoice-row-section invoice-payment-info text-neutral-600">
                 <span class="document-accent document-kicker">Payment Info</span>
                 @if(! empty($bankRows))
@@ -414,6 +410,9 @@
                             @endforeach
                         </div>
                     </div>
+                @endif
+                @if($taxNotice !== '')
+                    <p class="mt-4 leading-relaxed">{!! nl2br(e($taxNotice)) !!}</p>
                 @endif
             </section>
         @endif

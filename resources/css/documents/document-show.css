@@ -814,10 +814,6 @@ h3.offer_name {
     @apply text-neutral-900 underline underline-offset-2;
 }
 
-.invoice-tax-notice {
-    @apply mt-4 text-xs leading-relaxed text-neutral-500 md:text-sm;
-}
-
 .invoice-proposal-link {
     @apply mt-4 text-sm text-neutral-600;
 }

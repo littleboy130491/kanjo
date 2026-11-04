@@ -42,8 +42,7 @@ class CompanyTaxNoticeTest extends TestCase
         $this->withDocumentSession('invoice', $invoice)
             ->get(route('invoice.show', ['slug' => $invoice->slug]))
             ->assertOk()
-            ->assertSee('invoice-tax-notice', false)
-            ->assertSee(self::NOTICE_EN);
+            ->assertSeeInOrder(['Payment Info', self::NOTICE_EN]);
 
         $this->withDocumentSession('invoice', $invoice)
             ->get(route('invoice.show', ['slug' => $invoice->slug, 'lang' => 'id']))
@@ -59,7 +58,7 @@ class CompanyTaxNoticeTest extends TestCase
         $this->withDocumentSession('invoice', $invoice)
             ->get(route('invoice.show', ['slug' => $invoice->slug]))
             ->assertOk()
-            ->assertDontSee('invoice-tax-notice', false);
+            ->assertDontSee(self::NOTICE_EN);
     }
 
     private function withDocumentSession(string $type, Invoice $document): static
