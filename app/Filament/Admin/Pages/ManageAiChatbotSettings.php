@@ -217,6 +217,10 @@ class ManageAiChatbotSettings extends SettingsPage
                                 Section::make('Buttons')
                                     ->description('Buttons visitors can tap to ask common questions. A proposal can replace these with its own list in its AI Chatbot tab.')
                                     ->schema([
+                                        Toggle::make('show_quick_questions')
+                                            ->label('Show quick questions on proposals')
+                                            ->helperText('Each proposal follows this switch unless its AI Chatbot tab is set to Always show or Always hide.')
+                                            ->columnSpanFull(),
                                         Repeater::make('quick_questions')
                                             ->hiddenLabel()
                                             ->schema([
