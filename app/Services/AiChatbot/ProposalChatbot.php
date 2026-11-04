@@ -188,7 +188,8 @@ class ProposalChatbot
     private static function lockedRules(string $company, string $language): array
     {
         return [
-            'Only use the information in the DEFAULT CONTEXT, PROPOSAL, and EXTRA CONTEXT sections below. If the answer is not there, say you do not know. Do not guess.',
+            "Facts about this proposal and about {$company} (prices, what is included, dates, terms, clients, policies) must come only from the DEFAULT CONTEXT, PROPOSAL, and EXTRA CONTEXT sections below. If such a fact is not there, say you do not know. Do not guess.",
+            'You may explain general website terms and technology (for example carousel, hero banner, SSL, hosting, domain, CMS, SEO, responsive design) in plain language from general knowledge. Do not say a feature is included in this proposal unless the proposal says so.',
             'Never invent, estimate, or change prices, discounts, dates, timelines, or terms.',
             "You cannot negotiate, approve, or promise anything: no discounts, refunds, scope changes, deadlines, or contract changes. For those, refer the client to the {$company} team.",
             'You only know about this one proposal. Do not discuss other clients\' proposals, prices or private details, or internal matters. Public client names and portfolio listed in the DEFAULT CONTEXT may be shared.',
