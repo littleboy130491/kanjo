@@ -4,6 +4,7 @@ namespace App\Services\AiChatbot;
 
 use App\Ai\Agents\ProposalAssistant;
 use App\Enums\ChatbotVisibility;
+use App\Enums\QuickQuestionsVisibility;
 use App\Models\AiConversation;
 use App\Models\AiConversationMessage;
 use App\Models\Proposal;
@@ -118,11 +119,24 @@ class ProposalChatbot
      */
     public function quickQuestions(Proposal $proposal, string $locale): array
     {
+        if (! $this->showsQuickQuestions($proposal)) {
+            return [];
+        }
+
         $own = self::localizedRows($proposal->ai_chatbot_quick_questions ?? [], $locale);
 
         return $own !== []
             ? $own
             : self::localizedRows($this->settings->quick_questions, $locale);
+    }
+
+    public function showsQuickQuestions(Proposal $proposal): bool
+    {
+        return match ($proposal->ai_chatbot_quick_questions_visibility ?? QuickQuestionsVisibility::DEFAULT) {
+            QuickQuestionsVisibility::ON => true,
+            QuickQuestionsVisibility::OFF => false,
+            QuickQuestionsVisibility::DEFAULT => $this->settings->show_quick_questions,
+        };
     }
 
     public function welcomeMessage(string $locale): string
