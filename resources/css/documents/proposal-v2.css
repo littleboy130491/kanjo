@@ -177,7 +177,7 @@
     margin-inline: auto;
 }
 
-.proposal-v2 + .floating-doc-nav,
+.proposal-v2 ~ .floating-doc-nav,
 .proposal-v2 ~ .floating-doc-flyout {
     visibility: hidden;
     opacity: 0;
@@ -185,7 +185,7 @@
     transition: opacity 180ms ease;
 }
 
-.proposal-v2 + .floating-doc-nav.proposal-nav-visible,
+.proposal-v2 ~ .floating-doc-nav.proposal-nav-visible,
 .proposal-v2 ~ .floating-doc-flyout.proposal-nav-visible {
     visibility: visible;
     opacity: 1;
@@ -299,7 +299,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .proposal-v2 + .floating-doc-nav,
+    .proposal-v2 ~ .floating-doc-nav,
     .proposal-v2 ~ .floating-doc-flyout {
         transition: none;
     }
