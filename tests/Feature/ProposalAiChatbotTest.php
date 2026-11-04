@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Ai\Agents\ProposalAssistant;
 use App\Enums\ChatbotVisibility;
 use App\Enums\DocumentStatus;
+use App\Enums\QuickQuestionsVisibility;
 use App\Http\Controllers\ProposalChatController;
 use App\Http\Middleware\DocumentAccessMiddleware;
 use App\Models\AiConversation;
@@ -433,6 +434,45 @@ class ProposalAiChatbotTest extends TestCase
 
         $this->assertStringContainsString('Ringkasan proyek', $prompt);
         $this->assertStringContainsString('Indonesian', $prompt);
+    }
+
+    public function test_new_proposals_follow_the_global_quick_question_setting_by_default(): void
+    {
+        $this->assertSame(QuickQuestionsVisibility::DEFAULT, $this->createProposal()->refresh()->ai_chatbot_quick_questions_visibility);
+    }
+
+    public function test_quick_question_visibility_follows_or_overrides_the_global_switch(): void
+    {
+        $questions = ['ai_chatbot_quick_questions' => [['en' => 'Is hosting included?', 'id' => 'Apakah hosting termasuk?']]];
+        $chatbot = app(ProposalChatbot::class);
+
+        $this->assertSame(['Is hosting included?'], $chatbot->quickQuestions($this->createProposal($questions), 'en'));
+        $this->assertSame([], $chatbot->quickQuestions($this->createProposal($questions + [
+            'ai_chatbot_quick_questions_visibility' => QuickQuestionsVisibility::OFF,
+        ]), 'en'));
+
+        $this->updateSettings(['show_quick_questions' => false]);
+        $chatbot = app(ProposalChatbot::class);
+
+        $this->assertSame([], $chatbot->quickQuestions($this->createProposal($questions), 'en'));
+        $this->assertSame(['Is hosting included?'], $chatbot->quickQuestions($this->createProposal($questions + [
+            'ai_chatbot_quick_questions_visibility' => QuickQuestionsVisibility::ON,
+        ]), 'en'));
+    }
+
+    public function test_hidden_quick_questions_also_hide_the_toggle_in_the_widget(): void
+    {
+        $proposal = $this->createProposal([
+            'ai_chatbot_quick_questions' => [['en' => 'Is hosting included?', 'id' => 'Apakah hosting termasuk?']],
+            'ai_chatbot_quick_questions_visibility' => QuickQuestionsVisibility::OFF,
+        ]);
+
+        $this->withDocumentAccess($proposal)
+            ->get(route('proposal.show', ['slug' => $proposal->slug]))
+            ->assertOk()
+            ->assertSee('data-ai-chat', false)
+            ->assertDontSee('Quick questions')
+            ->assertDontSee('Is hosting included?');
     }
 
     public function test_proposal_quick_questions_override_the_global_list(): void

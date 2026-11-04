@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\ChatbotVisibility;
 use App\Enums\DocumentStatus;
+use App\Enums\QuickQuestionsVisibility;
 use App\Enums\UserRole;
 use App\Filament\Admin\Pages\ManageAiChatbotSettings;
 use App\Filament\Admin\Resources\AiConversations\Pages\ListAiConversations;
@@ -49,6 +50,7 @@ class AiChatbotAdminTest extends TestCase
             ->assertSee('AI Chatbot')
             ->fillForm([
                 'ai_chatbot_visibility' => ChatbotVisibility::OFF->value,
+                'ai_chatbot_quick_questions_visibility' => QuickQuestionsVisibility::ON->value,
                 'ai_chatbot_context' => 'Client asked for a fast launch.',
                 'ai_chatbot_quick_questions' => [
                     ['en' => 'When can we start?', 'id' => 'Kapan bisa mulai?'],
@@ -59,6 +61,7 @@ class AiChatbotAdminTest extends TestCase
 
         $proposal->refresh();
         $this->assertSame(ChatbotVisibility::OFF, $proposal->ai_chatbot_visibility);
+        $this->assertSame(QuickQuestionsVisibility::ON, $proposal->ai_chatbot_quick_questions_visibility);
         $this->assertSame('Client asked for a fast launch.', $proposal->ai_chatbot_context);
         $this->assertSame([['en' => 'When can we start?', 'id' => 'Kapan bisa mulai?']], array_values($proposal->ai_chatbot_quick_questions));
     }
@@ -109,6 +112,7 @@ class AiChatbotAdminTest extends TestCase
                     ['en' => 'Price?', 'id' => 'Harga?'],
                     ['en' => '', 'id' => ''],
                 ],
+                'show_quick_questions' => false,
             ])
             ->call('save')
             ->assertHasNoFormErrors();
@@ -124,6 +128,7 @@ class AiChatbotAdminTest extends TestCase
         $this->assertSame(['en' => 'Hello', 'id' => 'Halo'], $settings->welcome_message);
         $this->assertSame('We are based in Jakarta.', $settings->default_context);
         $this->assertSame([['en' => 'Price?', 'id' => 'Harga?']], $settings->quick_questions);
+        $this->assertFalse($settings->show_quick_questions);
         $this->assertNull($settings->instructions, 'unchanged default instructions are stored as null');
     }
 
