@@ -192,7 +192,7 @@ Represents the brands/companies that issue documents.
 | `tax_amount` | decimal | no | computed |
 | `total_amount` | decimal | no | computed |
 | `notes` | JSON array | no | Internal, not shown on frontend |
-| `status` | enum | no | `draft`, `published` |
+| `status` | enum | no | `draft`, `published`, `expired`. `expired` is set by `documents:check-overdue` (or manually). See Expired Proposals below |
 | `access_username` | string | no | nullable, per-record override |
 | `access_password` | string | no | nullable, hashed, per-record override |
 | `user_id` | FK | no | Author/admin who created |
@@ -400,6 +400,13 @@ Simple document-level authentication. No user accounts, no registration, no toke
 
 SPK uses the same access credential fields and fallback behavior.
 
+### Expired Proposals
+
+- Only proposals have the `expired` status. Invoices and SPKs stay `draft` / `published`.
+- Public visitors opening an expired proposal (HTML v1/v2 or PDF link) see an **expired page** instead of the proposal, without the credential gate. The page shows the issuing company's brand, the document number, the message "This proposal has expired. Please contact us if you need any help." (Indonesian: "Proposal ini telah kedaluwarsa. Silakan hubungi kami apabila membutuhkan bantuan.") and the company contacts (email, phone, website). It never shows client data, prices or content. Language follows `?lang=` when `activate_translation` is on.
+- The AI chatbot endpoint returns 404 for expired proposals.
+- Logged-in admins (super admin, editor) still open the full proposal as usual, with a notice bar at the top saying the proposal has expired. The notice is hidden in print/PDF.
+
 ---
 
 ## Proposal → Invoice Conversion
@@ -529,7 +536,7 @@ Proposals contain `offer_1_renewal_price`, which represents the recurring annual
 **Recommended schedule:** Daily via Laravel scheduler.
 
 **Operations:**
-1. Expire proposals where `status = published`, `valid_until IS NOT NULL`, and `valid_until < today` → set `status = draft`.
+1. Expire proposals where `status = published`, `valid_until IS NOT NULL`, `valid_until < today`, and no linked invoice is `paid` → set `status = expired`.
 2. Flag invoices where `status = published`, `payment_status IN (unpaid, partially_paid)`, and `due_date < today` → set `payment_status = overdue`.
 
 ---
