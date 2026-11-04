@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ChatbotVisibility;
 use App\Enums\DocumentStatus;
+use App\Enums\QuickQuestionsVisibility;
 use App\Models\Concerns\HasDocumentModelBehavior;
 use App\Models\Concerns\HasLocks;
 use App\Models\Concerns\LogsModelActivity;
@@ -67,6 +68,7 @@ class Proposal extends Model
         'ai_chatbot_visibility',
         'ai_chatbot_context',
         'ai_chatbot_quick_questions',
+        'ai_chatbot_quick_questions_visibility',
         'offer_name_1',
         'offer_1_price',
         'offer_1_original_price',
@@ -136,6 +138,7 @@ class Proposal extends Model
         'client_logos' => 'array',
         'team_members' => 'array',
         'ai_chatbot_quick_questions' => 'array',
+        'ai_chatbot_quick_questions_visibility' => QuickQuestionsVisibility::class,
     ];
 
     protected static function documentNumberType(): string
