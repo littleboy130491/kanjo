@@ -233,6 +233,7 @@
     }
 
     $footerTextHtml = trim((string) ($company?->getTranslation('footer_text', $locale, false) ?? ''));
+    $taxNotice = trim((string) ($company?->getTranslation('tax_notice', $locale, false) ?? ''));
 
     $linkedProposal = filled($invoice->proposal_id) ? $invoice->proposal : null;
     $proposalShowUrl = null;
@@ -376,6 +377,10 @@
                     </tfoot>
                 </table>
             </div>
+
+            @if($taxNotice !== '')
+                <p class="invoice-tax-notice">{!! nl2br(e($taxNotice)) !!}</p>
+            @endif
 
             @if(filled($proposalShowUrl) && ! $pdfMode)
                 <p class="invoice-proposal-link">
