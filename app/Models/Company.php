@@ -19,10 +19,11 @@ class Company extends Model
         'email_1', 'email_2', 'phone_1', 'phone_2',
         'tax_id', 'website', 'google_maps_embed_url', 'default_currency',
         'color_primary', 'color_secondary',
-        'footer_text', 'bank', 'pic',
+        'footer_text', 'tax_notice', 'bank', 'pic',
     ];
     protected $translatable = [
         'footer_text',
+        'tax_notice',
     ];
 
     protected $casts = [
