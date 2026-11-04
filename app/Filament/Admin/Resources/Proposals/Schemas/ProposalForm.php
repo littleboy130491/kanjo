@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Proposals\Schemas;
 
+use App\Enums\ChatbotVisibility;
 use App\Enums\DocumentStatus;
 use App\Enums\UserRole;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
@@ -27,6 +28,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -648,13 +650,19 @@ class ProposalForm
                             ->icon('heroicon-o-chat-bubble-left-right')
                             ->schema([
                                 Section::make('Chatbot')
-                                    ->description(fn (): string => app(AiChatbotSettings::class)->enabled
-                                        ? 'Visitors can ask an AI about this proposal on the public page. It only sees this proposal.'
-                                        : 'The chatbot is turned off globally in Settings → AI Chatbot, so it is hidden on every proposal.')
+                                    ->description('Visitors can ask an AI about this proposal on the public page. It only sees this proposal.')
                                     ->schema([
-                                        Toggle::make('ai_chatbot_enabled')
+                                        ToggleButtons::make('ai_chatbot_visibility')
                                             ->label('Show AI chatbot on this proposal')
-                                            ->default(true),
+                                            ->options(collect(ChatbotVisibility::cases())
+                                                ->mapWithKeys(fn (ChatbotVisibility $case): array => [$case->value => $case->getLabel()])
+                                                ->all())
+                                            ->default(ChatbotVisibility::DEFAULT->value)
+                                            ->inline()
+                                            ->required()
+                                            ->helperText(fn (): string => 'Follow settings uses the global switch in Settings → AI Chatbot, which is currently '
+                                                .(app(AiChatbotSettings::class)->enabled ? 'on' : 'off')
+                                                .'. Always show or Always hide overrides it for this proposal.'),
                                         Textarea::make('ai_chatbot_context')
                                             ->label('Extra Context')
                                             ->helperText('Added on top of the default context from Settings → AI Chatbot. Only used for this proposal. Visitors never see this text directly.')
