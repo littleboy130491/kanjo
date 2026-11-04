@@ -28,6 +28,12 @@ class DocumentAccessMiddleware
             return $next($request);
         }
 
+        if ($document instanceof Proposal && $document->status === DocumentStatus::EXPIRED) {
+            abort_if($request->expectsJson(), 404);
+
+            return $this->expiredResponse($request, $document);
+        }
+
         if ($document->status !== DocumentStatus::PUBLISHED) {
             abort(404);
         }
@@ -67,6 +73,20 @@ class DocumentAccessMiddleware
         $request->attributes->set('document', $document);
 
         return $next($request);
+    }
+
+    private function expiredResponse(Request $request, Proposal $proposal): Response
+    {
+        $proposal->loadMissing('company');
+        $lang = $proposal->activate_translation
+            ? (string) $request->query('lang', config('app.locale', 'en'))
+            : (string) config('app.locale', 'en');
+
+        return response()->view('proposals.expired', [
+            'proposal' => $proposal,
+            'company' => $proposal->company,
+            'lang' => in_array($lang, config('app.supported_locales', ['en', 'id']), true) ? $lang : config('app.locale', 'en'),
+        ], 410);
     }
 
     public static function sessionKey(string $type, int $id): string
