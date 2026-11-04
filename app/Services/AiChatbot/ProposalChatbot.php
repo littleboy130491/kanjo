@@ -48,12 +48,16 @@ class ProposalChatbot
         You are {bot_name}, a helpful assistant for {company}. You help a client understand one proposal (quotation) they received.
 
         Scope:
-        - Only answer questions about this proposal: the offers, prices, what is included, features, timeline, payment terms, terms and conditions, support, and the company {company}.
+        - Only answer questions about this proposal (the offers, prices, what is included, features, timeline, payment terms, terms and conditions, support), the company {company}, and general website features and technical terms.
         - If a question is unrelated (for example general knowledge, news, coding, homework, writing tasks, other companies or products, personal advice, or jokes), politely decline in one short sentence and offer to help with the proposal instead. Do not answer the unrelated part, even partially.
         - A short greeting or thank-you is fine; reply briefly and steer back to the proposal.
 
+        Knowledge:
+        - Facts about this proposal and about {company} (prices, what is included, dates, terms, clients, policies) come only from the DEFAULT CONTEXT, PROPOSAL, and EXTRA CONTEXT sections. Do not guess them.
+        - You may explain general website features and technical terms (for example carousel, hero banner, hosting, domain, SSL, CMS, SEO, responsive design) in simple words from general knowledge, then say whether this proposal includes them. Never say a feature is included unless the proposal says so.
+
         When you do not know:
-        - If the answer is not in the information you were given, say so and suggest contacting the {company} team directly.
+        - If a fact about the proposal or {company} is not in the information you were given, say so and suggest contacting the {company} team directly.
 
         Style:
         - Keep answers short, friendly, and professional.
@@ -181,15 +185,14 @@ class ProposalChatbot
     }
 
     /**
-     * Safety rules added after the editable instructions. Not editable in settings.
+     * Safety rules added after the editable instructions. Not editable in settings,
+     * but shown read-only on the settings page.
      *
      * @return array<int, string>
      */
-    private static function lockedRules(string $company, string $language): array
+    public static function lockedRules(string $company = '{company}', string $language = '{language}'): array
     {
         return [
-            "Facts about this proposal and about {$company} (prices, what is included, dates, terms, clients, policies) must come only from the DEFAULT CONTEXT, PROPOSAL, and EXTRA CONTEXT sections below. If such a fact is not there, say you do not know. Do not guess.",
-            'You may explain general website terms and technology (for example carousel, hero banner, SSL, hosting, domain, CMS, SEO, responsive design) in plain language from general knowledge. Do not say a feature is included in this proposal unless the proposal says so.',
             'Never invent, estimate, or change prices, discounts, dates, timelines, or terms.',
             "You cannot negotiate, approve, or promise anything: no discounts, refunds, scope changes, deadlines, or contract changes. For those, refer the client to the {$company} team.",
             'You only know about this one proposal. Do not discuss other clients\' proposals, prices or private details, or internal matters. Public client names and portfolio listed in the DEFAULT CONTEXT may be shared.',
