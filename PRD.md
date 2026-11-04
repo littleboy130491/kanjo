@@ -743,13 +743,13 @@ A chat widget on the public proposal page. Visitors ask questions about that pro
 
 - Only on the public proposal page (HTML, v1 and v2), after the visitor has passed the document access gate.
 - Never in the PDF. Never on invoices or SPKs.
-- Shown when the global switch is on **and** the proposal's `ai_chatbot_enabled` is `true`. Default is on.
+- Visibility resolves per proposal from `ai_chatbot_visibility`: `on` always shows the chatbot, `off` always hides it, and `default` follows the global `enabled` switch. New proposals use `default`.
 
 ### Proposal fields
 
 | Field | Type | Translatable | Notes |
 |---|---|---|---|
-| `ai_chatbot_enabled` | boolean | no | Default `true`. Admin can turn the chatbot off per proposal |
+| `ai_chatbot_visibility` | enum | no | `default` / `on` / `off`, default `default`. `default` follows the global `enabled` setting; `on` and `off` override it for this proposal |
 | `ai_chatbot_context` | text | no | nullable. Extra context for this proposal only, added on top of the default context |
 | `ai_chatbot_quick_questions` | JSON array | no | nullable. Per-proposal quick-question buttons. Empty uses the global list |
 | `ai_chatbot_quick_questions_visibility` | enum | no | `default` / `on` / `off`, default `default`. `default` follows the global `show_quick_questions` setting; `on` and `off` override it for this proposal |
@@ -788,7 +788,7 @@ Never sent to the AI: internal `notes`, access credentials, client email/phone, 
 
 | Setting | Notes |
 |---|---|
-| `enabled` | Global switch, default `true` |
+| `enabled` | Global switch, default `true`. A proposal can override it with `ai_chatbot_visibility` |
 | `provider` | Laravel AI SDK text provider (OpenAI, Anthropic, Gemini, Groq, xAI, DeepSeek, Mistral, OpenRouter, Ollama) |
 | `model` | Model name for the provider. Empty uses the provider default |
 | `temperature` | nullable, default empty (model default, not sent). Some newer models reject it; if the provider rejects `temperature`, the request is retried once without it |
@@ -906,4 +906,4 @@ Unique on `proposal_id` + `ai_conversation_id` + `locale` + `question_hash` + `p
 6. **Service management:** ✅ Service is a first-class entity and can be created from Proposal/Invoice in one click.
 7. **Remote Document API:** ✅ Shared `.env` API key, always published, explicit per-field content modes, auto-create Client, global document credentials, dry-run, discovery catalogs for AI agents.
 8. **MCP server:** ✅ OAuth (Passport) for Claude/ChatGPT connectors, panel-access users only, writes follow panel policies, documents authored by the connected user, tools reuse the Remote Document API.
-9. **AI chatbot:** ✅ Laravel AI SDK, keys in `.env`, on by default per proposal, live global default context plus per-proposal extra context, session-only chat in the browser, every message logged server-side.
+9. **AI chatbot:** ✅ Laravel AI SDK, keys in `.env`, follows the global switch per proposal unless overridden, live global default context plus per-proposal extra context, session-only chat in the browser, every message logged server-side.
