@@ -50,6 +50,47 @@ class CompanyTaxNoticeTest extends TestCase
             ->assertSee(self::NOTICE_ID);
     }
 
+    public function test_invoice_freezes_tax_notice_at_creation(): void
+    {
+        $company = $this->createCompany(withNotice: true);
+        $invoice = $this->createInvoiceFromProposal($this->createProposal($company));
+
+        $this->assertSame(
+            ['en' => self::NOTICE_EN, 'id' => self::NOTICE_ID],
+            $invoice->fresh()->getTranslations('tax_notice'),
+        );
+
+        $company->update(['tax_notice' => ['en' => 'Changed later.', 'id' => 'Diubah kemudian.']]);
+
+        $this->assertSame(self::NOTICE_EN, $invoice->fresh()->getTranslation('tax_notice', 'en'));
+
+        $this->withDocumentSession('invoice', $invoice)
+            ->get(route('invoice.show', ['slug' => $invoice->slug]))
+            ->assertOk()
+            ->assertSee(self::NOTICE_EN)
+            ->assertDontSee('Changed later.');
+    }
+
+    public function test_invoice_keeps_its_own_tax_notice_on_create(): void
+    {
+        $company = $this->createCompany(withNotice: true);
+
+        $invoice = Invoice::query()->create([
+            'client_company' => 'Client Co',
+            'client_name' => 'Client Name',
+            'issue_date' => now()->toDateString(),
+            'due_date' => now()->addDays(30)->toDateString(),
+            'currency' => 'IDR',
+            'items' => ['en' => [['title' => 'Support', 'price' => 100000, 'description' => '']]],
+            'tax_notice' => ['en' => 'Custom notice.'],
+            'status' => DocumentStatus::PUBLISHED,
+            'user_id' => User::factory()->create()->id,
+            'company_id' => $company->id,
+        ]);
+
+        $this->assertSame(['en' => 'Custom notice.'], $invoice->fresh()->getTranslations('tax_notice'));
+    }
+
     public function test_tax_notice_is_hidden_when_empty(): void
     {
         $proposal = $this->createProposal($this->createCompany(withNotice: false));

@@ -233,7 +233,7 @@
     }
 
     $footerTextHtml = trim((string) ($company?->getTranslation('footer_text', $locale, false) ?? ''));
-    $taxNotice = trim((string) ($company?->getTranslation('tax_notice', $locale, false) ?? ''));
+    $taxNotice = trim((string) ($invoice->getTranslation('tax_notice', $locale, false) ?? ''));
 
     $linkedProposal = filled($invoice->proposal_id) ? $invoice->proposal : null;
     $proposalShowUrl = null;
