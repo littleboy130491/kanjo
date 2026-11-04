@@ -30,6 +30,8 @@ class AiChatbotSettings extends Settings
 
     public array $quick_questions = [];
 
+    public bool $show_quick_questions = true;
+
     public int $rate_limit_per_minute = 10;
 
     public static function group(): string
