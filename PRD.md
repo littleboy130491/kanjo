@@ -61,6 +61,7 @@ Represents the brands/companies that issue documents.
 | `color_primary` | string | hex, for branded PDF |
 | `color_secondary` | string | hex, for branded PDF |
 | `footer_text` | text | translatable, appears on every document |
+| `tax_notice` | text | nullable, translatable; tax status note (e.g. Non-PKP / PPh 23) shown under the invoice totals only; hidden when empty |
 | `bank` | JSON array | non-translatable |
 | `pic` | JSON array | non-translatable |
 | `created_at` | timestamp | |
