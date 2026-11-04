@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ChatbotVisibility;
 use App\Enums\DocumentStatus;
 use App\Models\Concerns\HasDocumentModelBehavior;
 use App\Models\Concerns\HasLocks;
@@ -63,7 +64,7 @@ class Proposal extends Model
         'client_logos',
         'team_members',
         'show_team_member',
-        'ai_chatbot_enabled',
+        'ai_chatbot_visibility',
         'ai_chatbot_context',
         'ai_chatbot_quick_questions',
         'offer_name_1',
@@ -114,7 +115,7 @@ class Proposal extends Model
         'document_number_override' => 'boolean',
         'activate_translation' => 'boolean',
         'show_team_member' => 'boolean',
-        'ai_chatbot_enabled' => 'boolean',
+        'ai_chatbot_visibility' => ChatbotVisibility::class,
         'issue_date' => 'date',
         'valid_until' => 'date',
         'access_credentials_updated_at' => 'datetime',
