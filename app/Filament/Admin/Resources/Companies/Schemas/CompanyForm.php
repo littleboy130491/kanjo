@@ -97,6 +97,19 @@ class CompanyForm
                 ])
                 ->columnSpanFull(),
 
+            Section::make("Tax Notice")
+                ->description("Shown under the invoice totals. Leave empty to hide.")
+                ->schema([
+                    Translate::make()
+                        ->schema([
+                            Textarea::make("tax_notice")
+                                ->rows(3)
+                                ->columnSpanFull(),
+                        ])
+                        ->suffixLocaleLabel(),
+                ])
+                ->columnSpanFull(),
+
             Section::make("Bank Accounts")
                 ->schema([
                     Repeater::make("bank")
