@@ -24,7 +24,7 @@ class CheckOverdueDocuments extends Command
             ->whereDate('valid_until', '<', $today)
             ->whereDoesntHave('invoices', fn ($query) => $query->where('payment_status', PaymentStatus::PAID))
             ->update([
-                'status' => DocumentStatus::DRAFT,
+                'status' => DocumentStatus::EXPIRED,
             ]);
 
         $flaggedInvoices = Invoice::query()
