@@ -16,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class DocumentViewsTable
 {
@@ -34,6 +35,16 @@ class DocumentViewsTable
                 ->url(fn (DocumentView $record): ?string => DocumentViewResource::resolveDocumentEditUrl($record))
                 ->openUrlInNewTab()
                 ->copyable();
+            $columns[] = TextColumn::make('client_company')
+                ->label('Client Company')
+                ->state(fn (DocumentView $record): ?string => $record->viewable?->client_company)
+                ->default('-')
+                ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHasMorph(
+                    'viewable',
+                    [Proposal::class, Invoice::class, Spk::class],
+                    fn (Builder $query): Builder => $query->where('client_company', 'like', '%'.$search.'%'),
+                ))
+                ->wrap();
         }
 
         $columns[] = TextColumn::make('viewed_at')
