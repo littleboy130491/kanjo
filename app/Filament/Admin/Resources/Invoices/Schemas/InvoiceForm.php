@@ -307,6 +307,19 @@ class InvoiceForm
                                             ]),
                                     ]),
 
+                                Section::make('Tax Notice')
+                                    ->description('Copied from the company when the invoice is created if left empty. Later changes to the company do not update this invoice.')
+                                    ->schema([
+                                        Translate::make()
+                                            ->exclude(self::translatedFieldPaths('tax_notice'))
+                                            ->schema(fn (string $locale): array => [
+                                                Textarea::make("tax_notice.{$locale}")
+                                                    ->hiddenLabel()
+                                                    ->rows(3)
+                                                    ->columnSpanFull(),
+                                            ]),
+                                    ]),
+
                                 Section::make('Currency & Tax')
                                     ->schema([
                                         Select::make('currency')

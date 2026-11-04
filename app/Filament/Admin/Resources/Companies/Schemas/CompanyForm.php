@@ -98,7 +98,7 @@ class CompanyForm
                 ->columnSpanFull(),
 
             Section::make("Tax Notice")
-                ->description("Shown under the invoice totals. Leave empty to hide.")
+                ->description("Copied into each new invoice when it is created. Editing this does not change existing invoices.")
                 ->schema([
                     Translate::make()
                         ->schema([
