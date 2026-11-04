@@ -20,7 +20,7 @@ class UpdateSpkRequest extends DocumentApiRequest
             'company_id' => ['sometimes', 'integer', 'exists:companies,id'],
             'client_id' => ['nullable', 'integer', 'exists:clients,id'],
             'proposal_id' => ['nullable', 'integer', 'exists:proposals,id'],
-            'status' => ['sometimes', Rule::enum(DocumentStatus::class)],
+            'status' => ['sometimes', Rule::enum(DocumentStatus::class)->only(DocumentStatus::invoiceCases())],
             'spk_date' => ['nullable', 'date'],
             'offer' => ['nullable', 'integer', 'in:1,2'],
             'offer_index' => ['nullable', 'integer', 'in:1,2'],

@@ -21,7 +21,7 @@ class UpdateInvoiceRequest extends DocumentApiRequest
             'client_id' => ['nullable', 'integer', 'exists:clients,id'],
             'proposal_id' => ['nullable', 'integer', 'exists:proposals,id'],
             'service_id' => ['nullable', 'integer', 'exists:services,id'],
-            'status' => ['sometimes', Rule::enum(DocumentStatus::class)],
+            'status' => ['sometimes', Rule::enum(DocumentStatus::class)->only(DocumentStatus::invoiceCases())],
             'payment_status' => ['sometimes', Rule::enum(PaymentStatus::class)],
             'issue_date' => ['nullable', 'date'],
             'due_date' => ['nullable', 'date'],

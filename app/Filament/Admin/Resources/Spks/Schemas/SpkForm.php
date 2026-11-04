@@ -101,7 +101,7 @@ class SpkForm
                                                 $set('document_number', self::generateDocumentNumberFromRaw($get('document_number_raw'), $state));
                                             }),
                                         Select::make('status')
-                                            ->options(DocumentStatus::class)
+                                            ->options(DocumentStatus::options(DocumentStatus::invoiceCases()))
                                             ->enum(DocumentStatus::class)
                                             ->default(DocumentStatus::PUBLISHED)
                                             ->required(),

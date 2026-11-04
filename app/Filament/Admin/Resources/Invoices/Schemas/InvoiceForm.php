@@ -119,7 +119,7 @@ class InvoiceForm
                                             ->placeholder('Not linked to a proposal')
                                             ->native(false),
                                         Select::make('status')
-                                            ->options(DocumentStatus::class)
+                                            ->options(DocumentStatus::options(DocumentStatus::invoiceCases()))
                                             ->enum(DocumentStatus::class)
                                             ->default(DocumentStatus::PUBLISHED)
                                             ->required(),

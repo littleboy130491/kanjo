@@ -86,7 +86,7 @@ class InvoicesTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options(DocumentStatus::class),
+                    ->options(DocumentStatus::options(DocumentStatus::invoiceCases())),
                 SelectFilter::make('payment_status')
                     ->options(PaymentStatus::class),
                 TernaryFilter::make('has_proposal')
@@ -136,9 +136,7 @@ class InvoicesTable
                         ->form([
                             Select::make('status')
                                 ->label('Status')
-                                ->options(collect(DocumentStatus::cases())->mapWithKeys(
-                                    fn (DocumentStatus $status): array => [$status->value => $status->getLabel()]
-                                )->all())
+                                ->options(DocumentStatus::options(DocumentStatus::invoiceCases()))
                                 ->required(),
                         ])
                         ->action(function (Collection $records, array $data): void {
