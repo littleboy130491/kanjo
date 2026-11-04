@@ -244,7 +244,7 @@
             $proposalShowRouteParameters['lang'] = $locale;
         }
 
-        $proposalShowUrl = route('proposal.show', $proposalShowRouteParameters);
+        $proposalShowUrl = route('proposal-v2.show', $proposalShowRouteParameters);
     }
 @endphp
 

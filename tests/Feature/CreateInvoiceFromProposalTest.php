@@ -125,7 +125,7 @@ class CreateInvoiceFromProposalTest extends TestCase
             'company_id' => $company->id,
         ]);
         $invoice = $this->invokeCreateInvoiceFromProposal($proposal);
-        $proposalUrl = route('proposal.show', ['slug' => $proposal->slug]);
+        $proposalUrl = route('proposal-v2.show', ['slug' => $proposal->slug]);
 
         $this->assertSame('', $invoice->getTranslation('items', 'en')[0]['description'] ?? '');
 
@@ -211,7 +211,7 @@ class CreateInvoiceFromProposalTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        $proposalUrl = route('proposal.show', ['slug' => $proposal->slug]);
+        $proposalUrl = route('proposal-v2.show', ['slug' => $proposal->slug]);
 
         $this
             ->withSession([
