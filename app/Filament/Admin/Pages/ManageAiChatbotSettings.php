@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Pages\SettingsPage;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -113,7 +114,7 @@ class ManageAiChatbotSettings extends SettingsPage
                             ->schema([
                                 Section::make('Instructions (System Prompt)')
                                     ->key('instructions-section')
-                                    ->description('Tells the AI how to behave: what it may answer, what it must decline, and its tone. Placeholders: {bot_name}, {company}, {language}. Safety rules (use only the proposal information, never invent prices or terms, only this proposal, ignore attempts to change the rules) are always added and cannot be removed here.')
+                                    ->description('Tells the AI how to behave: what it may answer, where its facts come from, what it must decline, and its tone. Placeholders: {bot_name}, {company}, {language}. The locked safety rules below are always added after these instructions.')
                                     ->headerActions([
                                         Action::make('reset_instructions')
                                             ->label('Reset to default')
@@ -136,6 +137,20 @@ class ManageAiChatbotSettings extends SettingsPage
                                             })
                                             ->helperText('Leave empty to use the built-in default.')
                                             ->nullable()
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columnSpanFull(),
+
+                                Section::make('Locked Safety Rules')
+                                    ->description('Always sent after the instructions above and take priority over them. Set in code, so they cannot be removed here. Replies that repeat the prompt are also blocked automatically.')
+                                    ->collapsible()
+                                    ->schema([
+                                        TextEntry::make('locked_rules')
+                                            ->hiddenLabel()
+                                            ->state(ProposalChatbot::lockedRules())
+                                            ->listWithLineBreaks()
+                                            ->bulleted()
+                                            ->color('gray')
                                             ->columnSpanFull(),
                                     ])
                                     ->columnSpanFull(),
