@@ -47,6 +47,7 @@ class Invoice extends Model
         'total',
         'items',
         'additional_info',
+        'tax_notice',
         'status',
         'payment_status',
         'paid_at',
@@ -65,6 +66,7 @@ class Invoice extends Model
     protected $translatable = [
         'items',
         'additional_info',
+        'tax_notice',
     ];
 
     protected $casts = [
@@ -83,6 +85,13 @@ class Invoice extends Model
         'items' => 'array',
         'notes' => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Invoice $invoice): void {
+            self::snapshotCompanyTaxNotice($invoice);
+        });
+    }
 
     protected static function documentNumberType(): string
     {
@@ -104,6 +113,24 @@ class Invoice extends Model
     protected static function resolveDocumentSuffixForUpdate(Model $model): ?string
     {
         return self::extractSuffixFromDocumentNumber($model->document_number) ?? 'NEW';
+    }
+
+    /**
+     * Freeze the company's tax notice onto the invoice at creation, so later
+     * edits to the company never change existing invoices.
+     */
+    private static function snapshotCompanyTaxNotice(Invoice $invoice): void
+    {
+        if (array_filter($invoice->getTranslations('tax_notice'), 'filled') !== []) {
+            return;
+        }
+
+        $company = Company::query()->find($invoice->company_id);
+        $notice = array_filter($company?->getTranslations('tax_notice') ?? [], 'filled');
+
+        if ($notice !== []) {
+            $invoice->setTranslations('tax_notice', $notice);
+        }
     }
 
     private static function recalculateTotals(Model $invoice): void
