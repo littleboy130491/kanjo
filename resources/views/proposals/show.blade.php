@@ -21,6 +21,9 @@
     $footerBarcodeUrl = file_exists(storage_path('app/public/' . $footerBarcodePath))
         ? asset('storage/' . $footerBarcodePath)
         : null;
+    $expiredNotice = $proposal->status === \App\Enums\DocumentStatus::EXPIRED
+        ? 'This proposal has EXPIRED' . ($proposal->valid_until ? ' (valid until ' . $proposal->valid_until->format('d M Y') . ')' : '') . '. Clients see the expired page instead of this proposal.'
+        : null;
     $editUrl = auth()->check()
         ? \App\Filament\Admin\Resources\Proposals\ProposalResource::getUrl('edit', ['record' => $proposal])
         : null;
@@ -266,7 +269,7 @@
     $sectionNo = 1;
 @endphp
 <x-layout :locale="$locale" :title="$proposal->document_number" :company="$company" :pdf-mode="$pdfMode" :slug="$slug"
-    :edit-url="$editUrl" :activate-translation="$activateTranslation" :is-draft="$proposal->status->value === 'draft'"
+    :edit-url="$editUrl" :activate-translation="$activateTranslation" :is-draft="$proposal->status->value === 'draft'" :expired-notice="$expiredNotice"
     :full-width="$proposalV2 ?? false"
     :lang-route="($proposalV2 ?? false) ? 'proposal-v2.show' : 'proposal.show'" pdf-route="pdf.proposal">
     <div @class([

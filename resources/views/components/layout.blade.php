@@ -9,6 +9,7 @@
     'editUrl' => null,
     'activateTranslation' => false,
     'isDraft' => false,
+    'expiredNotice' => null,
     'fullWidth' => false,
 ])
 @php
@@ -71,6 +72,11 @@
     @if(! $pdfMode && $isDraft)
         <div class="no-print rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm font-medium text-amber-800">
             This document is a <span class="uppercase tracking-wide font-bold">Draft</span> and has not been published yet.
+        </div>
+    @endif
+    @if(! $pdfMode && filled($expiredNotice))
+        <div class="no-print rounded-lg border border-rose-300 bg-rose-50 px-4 py-3 text-center text-sm font-medium text-rose-800">
+            {{ $expiredNotice }}
         </div>
     @endif
     @if(! $pdfMode && $slug && $langRoute && $pdfRoute)
