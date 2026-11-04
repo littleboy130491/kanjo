@@ -3,6 +3,7 @@
 namespace App\Services\AiChatbot;
 
 use App\Ai\Agents\ProposalAssistant;
+use App\Enums\ChatbotVisibility;
 use App\Models\AiConversation;
 use App\Models\AiConversationMessage;
 use App\Models\Proposal;
@@ -92,7 +93,11 @@ class ProposalChatbot
 
     public function isEnabledFor(Proposal $proposal): bool
     {
-        return $this->settings->enabled && (bool) ($proposal->ai_chatbot_enabled ?? true);
+        return match ($proposal->ai_chatbot_visibility ?? ChatbotVisibility::DEFAULT) {
+            ChatbotVisibility::ON => true,
+            ChatbotVisibility::OFF => false,
+            ChatbotVisibility::DEFAULT => $this->settings->enabled,
+        };
     }
 
     public static function providerHasKey(?string $provider): bool
