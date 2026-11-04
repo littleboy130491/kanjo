@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\Proposals\Schemas;
 
 use App\Enums\ChatbotVisibility;
 use App\Enums\DocumentStatus;
+use App\Enums\QuickQuestionsVisibility;
 use App\Enums\UserRole;
 use App\Filament\Admin\Resources\Clients\Schemas\ClientForm;
 use App\Filament\Admin\Support\TranslatableRepeaterSync;
@@ -675,6 +676,18 @@ class ProposalForm
                                 Section::make('Quick Questions')
                                     ->description('Buttons visitors can tap to ask common questions. Leave empty to use the global buttons from Settings → AI Chatbot.')
                                     ->schema([
+                                        ToggleButtons::make('ai_chatbot_quick_questions_visibility')
+                                            ->label('Show quick questions on this proposal')
+                                            ->options(collect(QuickQuestionsVisibility::cases())
+                                                ->mapWithKeys(fn (QuickQuestionsVisibility $case): array => [$case->value => $case->getLabel()])
+                                                ->all())
+                                            ->default(QuickQuestionsVisibility::DEFAULT->value)
+                                            ->inline()
+                                            ->required()
+                                            ->helperText(fn (): string => 'Follow settings uses the global switch in Settings → AI Chatbot → Quick Questions, which is currently '
+                                                .(app(AiChatbotSettings::class)->show_quick_questions ? 'on' : 'off')
+                                                .'. Always show or Always hide overrides it for this proposal.')
+                                            ->columnSpanFull(),
                                         Repeater::make('ai_chatbot_quick_questions')
                                             ->hiddenLabel()
                                             ->schema([
