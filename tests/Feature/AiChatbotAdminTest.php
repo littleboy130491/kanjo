@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ChatbotVisibility;
 use App\Enums\DocumentStatus;
 use App\Enums\UserRole;
 use App\Filament\Admin\Pages\ManageAiChatbotSettings;
@@ -47,7 +48,7 @@ class AiChatbotAdminTest extends TestCase
         Livewire::test(EditProposal::class, ['record' => $proposal->getRouteKey()])
             ->assertSee('AI Chatbot')
             ->fillForm([
-                'ai_chatbot_enabled' => false,
+                'ai_chatbot_visibility' => ChatbotVisibility::OFF->value,
                 'ai_chatbot_context' => 'Client asked for a fast launch.',
                 'ai_chatbot_quick_questions' => [
                     ['en' => 'When can we start?', 'id' => 'Kapan bisa mulai?'],
@@ -57,7 +58,7 @@ class AiChatbotAdminTest extends TestCase
             ->assertHasNoFormErrors();
 
         $proposal->refresh();
-        $this->assertFalse($proposal->ai_chatbot_enabled);
+        $this->assertSame(ChatbotVisibility::OFF, $proposal->ai_chatbot_visibility);
         $this->assertSame('Client asked for a fast launch.', $proposal->ai_chatbot_context);
         $this->assertSame([['en' => 'When can we start?', 'id' => 'Kapan bisa mulai?']], array_values($proposal->ai_chatbot_quick_questions));
     }

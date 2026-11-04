@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Ai\Agents\ProposalAssistant;
+use App\Enums\ChatbotVisibility;
 use App\Enums\DocumentStatus;
 use App\Http\Controllers\ProposalChatController;
 use App\Http\Middleware\DocumentAccessMiddleware;
@@ -56,9 +57,20 @@ class ProposalAiChatbotTest extends TestCase
         ]);
     }
 
-    public function test_new_proposals_have_the_chatbot_enabled_by_default(): void
+    public function test_new_proposals_follow_the_global_chatbot_setting_by_default(): void
     {
-        $this->assertTrue($this->createProposal()->ai_chatbot_enabled);
+        $this->assertSame(ChatbotVisibility::DEFAULT, $this->createProposal()->refresh()->ai_chatbot_visibility);
+    }
+
+    public function test_widget_shows_when_forced_on_even_if_disabled_globally(): void
+    {
+        $this->updateSettings(['enabled' => false]);
+        $proposal = $this->createProposal(['ai_chatbot_visibility' => ChatbotVisibility::ON]);
+
+        $this->withDocumentAccess($proposal)
+            ->get(route('proposal.show', ['slug' => $proposal->slug]))
+            ->assertOk()
+            ->assertSee('data-ai-chat', false);
     }
 
     public function test_widget_renders_on_the_public_proposal(): void
@@ -106,7 +118,7 @@ class ProposalAiChatbotTest extends TestCase
 
     public function test_widget_is_hidden_when_disabled_on_the_proposal(): void
     {
-        $proposal = $this->createProposal(['ai_chatbot_enabled' => false]);
+        $proposal = $this->createProposal(['ai_chatbot_visibility' => ChatbotVisibility::OFF]);
 
         $this->withDocumentAccess($proposal)
             ->get(route('proposal.show', ['slug' => $proposal->slug]))
@@ -157,7 +169,7 @@ class ProposalAiChatbotTest extends TestCase
 
     public function test_chat_is_not_available_when_disabled_on_the_proposal(): void
     {
-        $proposal = $this->createProposal(['ai_chatbot_enabled' => false]);
+        $proposal = $this->createProposal(['ai_chatbot_visibility' => ChatbotVisibility::OFF]);
 
         $this->withDocumentAccess($proposal)
             ->postJson(route('proposal.chat', ['slug' => $proposal->slug]), ['message' => 'Hi'])
