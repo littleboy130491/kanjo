@@ -48,7 +48,7 @@ class ManageAiChatbotSettings extends SettingsPage
                             ->icon('heroicon-o-cpu-chip')
                             ->schema([
                                 Section::make('Availability')
-                                    ->description('The chatbot appears on published proposal pages. Each proposal can also turn it off in its AI Chatbot tab.')
+                                    ->description('The chatbot appears on published proposal pages. Each proposal follows this switch unless its AI Chatbot tab is set to Always show or Always hide.')
                                     ->schema([
                                         Toggle::make('enabled')
                                             ->label('Enable AI chatbot on proposals')
