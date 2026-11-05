@@ -22,6 +22,8 @@ use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogInfolist
@@ -119,6 +121,51 @@ class ActivityLogInfolist
         }
 
         return '-';
+    }
+
+    /**
+     * Searchable label columns per subject model, mirroring resolveSubjectLabel().
+     *
+     * @var array<class-string, list<string>>
+     */
+    protected const SUBJECT_LABEL_COLUMNS = [
+        Client::class => ['name', 'email'],
+        Company::class => ['company_name', 'brand_name'],
+        Invoice::class => ['document_number'],
+        Portfolio::class => ['name'],
+        Proposal::class => ['document_number'],
+        ProposalContentDefault::class => ['name'],
+        Service::class => ['name'],
+        User::class => ['name', 'email'],
+    ];
+
+    public static function searchAssociatedModel(Builder $query, string $search): Builder
+    {
+        $like = '%' . $search . '%';
+
+        return $query->where(fn (Builder $query): Builder => $query
+            ->where('subject_type', 'like', $like)
+            ->orWhere('properties->document_type', 'like', $like));
+    }
+
+    public static function searchAssociatedRecord(Builder $query, string $search): Builder
+    {
+        $like = '%' . $search . '%';
+
+        return $query->where(fn (Builder $query): Builder => $query
+            ->where('subject_id', 'like', $like)
+            ->orWhere('properties->slug', 'like', $like)
+            ->orWhereHasMorph(
+                'subject',
+                array_keys(self::SUBJECT_LABEL_COLUMNS),
+                function (Builder $query, string $type) use ($like): void {
+                    $query->withoutGlobalScope(SoftDeletingScope::class)->where(function (Builder $query) use ($type, $like): void {
+                        foreach (self::SUBJECT_LABEL_COLUMNS[$type] as $column) {
+                            $query->orWhere($column, 'like', $like);
+                        }
+                    });
+                },
+            ));
     }
 
     public static function resolveSubjectEditUrl(Activity $record): ?string

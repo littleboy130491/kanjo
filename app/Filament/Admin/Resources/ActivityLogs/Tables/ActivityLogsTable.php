@@ -9,6 +9,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogsTable
@@ -28,13 +29,15 @@ class ActivityLogsTable
                 TextColumn::make('associated_model')
                     ->label('Model Associated')
                     ->state(fn (Activity $record): string => ActivityLogInfolist::resolveAssociatedModel($record))
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(query: fn (Builder $query, string $search): Builder => ActivityLogInfolist::searchAssociatedModel($query, $search))
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('subject_type', $direction)),
                 TextColumn::make('associated_record')
                     ->label('Record Associated')
                     ->state(fn (Activity $record): string => ActivityLogInfolist::resolveAssociatedRecord($record))
-                    ->searchable()
-                    ->sortable()
+                    ->searchable(query: fn (Builder $query, string $search): Builder => ActivityLogInfolist::searchAssociatedRecord($query, $search))
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query
+                        ->orderBy('subject_type', $direction)
+                        ->orderBy('subject_id', $direction))
                     ->url(fn (Activity $record): ?string => ActivityLogInfolist::resolveSubjectEditUrl($record))
                     ->openUrlInNewTab(),
                 TextColumn::make('created_at')
