@@ -1,8 +1,5 @@
 <?php
 
-use DateTimeInterface;
-use DateTimeZone;
-
 return [
     'settings' => [
         'App\\Settings\\TrackingSettings',
