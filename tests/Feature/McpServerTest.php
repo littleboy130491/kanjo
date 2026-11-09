@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Mcp\Servers\KanjoServer;
 use App\Mcp\Tools\CreateInvoiceFromProposalTool;
 use App\Mcp\Tools\CreateProposalTool;
+use App\Mcp\Tools\CreateSpkFromProposalTool;
 use App\Mcp\Tools\GetRecordTool;
 use App\Mcp\Tools\ReadGuideTool;
 use App\Mcp\Tools\SearchRecordsTool;
@@ -13,6 +14,7 @@ use App\Mcp\Tools\UpdateRecordTool;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Proposal;
+use App\Models\Spk;
 use App\Models\User;
 use App\Services\DocumentApi\ProposalContentCatalog;
 use Database\Seeders\ProposalContentDefaultSeeder;
@@ -303,6 +305,97 @@ class McpServerTest extends TestCase
             ])
             ->assertHasNoErrors();
         $this->assertNull($proposal->refresh()->valid_until);
+    }
+
+    public function test_get_record_returns_full_document_content_without_credentials(): void
+    {
+        KanjoServer::actingAs($this->editor)
+            ->tool(CreateProposalTool::class, ['payload' => $this->proposalPayload()])
+            ->assertHasNoErrors();
+        $proposal = Proposal::query()->sole();
+
+        KanjoServer::actingAs($this->editor)
+            ->tool(CreateInvoiceFromProposalTool::class, ['proposal_id' => $proposal->id, 'payload' => []])
+            ->assertHasNoErrors();
+        $invoice = Invoice::query()->sole();
+
+        KanjoServer::actingAs($this->editor)
+            ->tool(CreateSpkFromProposalTool::class, ['proposal_id' => $proposal->id, 'payload' => [
+                'content' => [
+                    'title' => ['mode' => 'empty'],
+                    'party_identification' => ['mode' => 'empty'],
+                    'subject' => ['mode' => 'override', 'value' => 'Subject'],
+                    'content' => ['mode' => 'override', 'value' => 'Body'],
+                    'signature' => ['mode' => 'empty'],
+                ],
+            ]])
+            ->assertHasNoErrors();
+        $spk = Spk::query()->sole();
+
+        $bilingual = ['en' => 'ENGLISH_TEXT', 'id' => 'TEKS_INDONESIA'];
+        $edits = [
+            'proposal' => [$proposal->id, ['content' => [
+                'brief' => ['mode' => 'override', 'value' => $bilingual],
+                'add_on' => ['mode' => 'override', 'value' => [
+                    'en' => [['name' => 'Hosting', 'description' => 'Yearly', 'price' => '100']],
+                    'id' => [['name' => 'Hosting ID', 'description' => 'Tahunan', 'price' => '100']],
+                ]],
+                'client_logos' => ['mode' => 'override', 'value' => [['url' => 'https://example.test/logo.png']]],
+            ]]],
+            'invoice' => [$invoice->id, [
+                'items' => [
+                    'en' => [['title' => 'Website', 'price' => 1000, 'description' => 'Build']],
+                    'id' => [['title' => 'Situs', 'price' => 1000, 'description' => 'Bangun']],
+                ],
+                'content' => ['additional_info' => ['mode' => 'override', 'value' => $bilingual]],
+            ]],
+            'spk' => [$spk->id, ['content' => ['content' => ['mode' => 'override', 'value' => $bilingual]]]],
+        ];
+
+        foreach ($edits as $type => [$id, $payload]) {
+            KanjoServer::actingAs($this->editor)
+                ->tool(UpdateRecordTool::class, ['type' => $type, 'id' => $id, 'payload' => $payload])
+                ->assertHasNoErrors();
+        }
+
+        foreach ([$proposal, $invoice, $spk] as $document) {
+            $document->forceFill(['access_username' => 'SECRET_USER', 'access_password' => 'SECRET_PASS'])->saveQuietly();
+        }
+
+        Passport::actingAs($this->editor, ['mcp:use']);
+        $read = fn (string $type, int $id) => $this->postJson('/mcp', $this->rpc('tools/call', [
+            'name' => 'get_record',
+            'arguments' => ['type' => $type, 'id' => $id],
+        ]))->assertOk();
+
+        $proposalResponse = $read('proposal', $proposal->id);
+        $data = $proposalResponse->json('result.structuredContent.data');
+        $this->assertStringContainsString('ENGLISH_TEXT', $data['content']['brief']['en']);
+        $this->assertStringContainsString('TEKS_INDONESIA', $data['content']['brief']['id']);
+        $this->assertSame('Hosting ID', $data['content']['add_on']['id'][0]['name']);
+        $this->assertSame([['url' => 'https://example.test/logo.png']], $data['content']['client_logos']);
+        $this->assertEqualsCanonicalizing(ProposalContentCatalog::fieldKeys(), array_keys($data['content']));
+
+        $invoiceResponse = $read('invoice', $invoice->id);
+        $data = $invoiceResponse->json('result.structuredContent.data');
+        $this->assertSame('Situs', $data['items']['id'][0]['title']);
+        $this->assertStringContainsString('ENGLISH_TEXT', $data['content']['additional_info']['en']);
+
+        $spkResponse = $read('spk', $spk->id);
+        $data = $spkResponse->json('result.structuredContent.data');
+        $this->assertStringContainsString('TEKS_INDONESIA', $data['content']['content']['id']);
+        $this->assertSame('', $data['content']['title']['en']);
+
+        foreach ([$proposalResponse, $invoiceResponse, $spkResponse] as $response) {
+            $this->assertStringNotContainsString('SECRET_', $response->getContent());
+            $this->assertStringNotContainsString('access_password', $response->getContent());
+        }
+
+        $listed = $this->postJson('/mcp', $this->rpc('tools/call', [
+            'name' => 'search_records',
+            'arguments' => ['type' => 'spk'],
+        ]))->assertOk();
+        $this->assertStringNotContainsString('TEKS_INDONESIA', $listed->getContent());
     }
 
     public function test_guide_explains_tool_mapping(): void

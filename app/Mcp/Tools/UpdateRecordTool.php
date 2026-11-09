@@ -19,7 +19,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('update_record')]
-#[Description('Partially update an existing company, client, service, proposal, invoice, or SPK. Send only the fields to change. Editing a client does not change client details already frozen on its documents. Nothing can be deleted. Dry-run first.')]
+#[Description('Partially update an existing company, client, service, proposal, invoice, or SPK. Send only the fields to change. An override replaces the whole content field, so call get_record first and resend the text you are keeping, in every language. Editing a client does not change client details already frozen on its documents. Nothing can be deleted. Dry-run first.')]
 #[IsReadOnly(false)]
 #[IsDestructive]
 #[IsIdempotent]

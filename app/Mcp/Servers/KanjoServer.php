@@ -29,6 +29,7 @@ use Laravel\Mcp\Server\Attributes\Version;
     - Never invent ids. Get company, client, proposal, invoice, service, and SPK ids from search_records or get_record.
     - To create a document: get_skeleton, fill in every field, call the create tool with dry_run=true, fix any errors, then call it again with dry_run=false.
     - Created documents are published immediately and attributed to the signed-in Kanjo user. Give the user the public_url and pdf_url from the response.
+    - To edit a document's content: get_record, change the current text, and send it back with mode=override in every language. An override replaces the whole field, and a language left out is blanked.
     - Documents store a frozen copy of the client's details. Editing a client does not change existing documents.
     - Nothing can be deleted through this server.
     TXT)]

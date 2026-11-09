@@ -726,7 +726,7 @@ Model Context Protocol server so a Kanjo user can look up records and create doc
 |---|---|
 | `read_guide` | `GET /api/v1/guide`, prefixed with the REST → tool mapping |
 | `search_records` (`type`, filters) | `GET /api/v1/{companies,clients,proposals,invoices,spks,services}` |
-| `get_record` (`type`, `id`) | `GET /api/v1/{type}/{id}` |
+| `get_record` (`type`, `id`) | `GET /api/v1/{type}/{id}`. Proposals, invoices, and SPKs return full content in every language, never access credentials |
 | `get_content_defaults` (`proposal`\|`spk`) | `GET /api/v1/content-defaults/{type}` |
 | `get_skeleton` (`proposal`\|`invoice`\|`spk`) | `GET /api/v1/{type}/skeleton` |
 | `create_proposal` | `POST /api/v1/proposals` |

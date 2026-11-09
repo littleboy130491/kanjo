@@ -60,7 +60,7 @@ class ProposalController extends Controller
             ->values();
 
         return response()->json([
-            'data' => DocumentCatalog::proposal($proposal),
+            'data' => DocumentCatalog::proposalDetail($proposal),
             'invoices' => $invoices->map(fn ($invoice): array => DocumentCatalog::invoice($invoice))->values(),
             'spks' => $spks->map(fn ($spk): array => DocumentCatalog::spk($spk))->values(),
             'service_ids' => $serviceIds,

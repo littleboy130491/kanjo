@@ -49,7 +49,7 @@ class InvoiceController extends Controller
     public function show(Invoice $invoice): JsonResponse
     {
         return response()->json([
-            'data' => DocumentCatalog::invoice($invoice),
+            'data' => DocumentCatalog::invoiceDetail($invoice),
         ]);
     }
 

@@ -109,7 +109,7 @@ The inspector walks through the same OAuth flow against your local `APP_URL`.
 |---|---|
 | `read_guide` | Operating manual. The assistant should call it once per chat. |
 | `search_records` | List/search companies, clients, proposals, invoices, SPKs, services |
-| `get_record` | One record plus its related documents |
+| `get_record` | One record plus its related documents. Proposals, invoices, and SPKs include their full content in every language |
 | `get_content_defaults` | Proposal content-default packs / SPK defaults |
 | `get_skeleton` | Create template for a proposal, invoice, or SPK |
 | `create_proposal`, `create_invoice`, `create_spk` | Create published documents (dry-run first) |

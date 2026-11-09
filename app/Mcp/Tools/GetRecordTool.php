@@ -17,7 +17,7 @@ use Laravel\Mcp\Server\Tools\Annotations\IsOpenWorld;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[Name('get_record')]
-#[Description('Get one Kanjo record by id with its related records: a client includes its proposals, invoices, services, and SPKs; a proposal includes its invoices and SPKs; a service includes its invoices. Get ids from search_records first.')]
+#[Description('Get one Kanjo record by id with its related records: a client includes its proposals, invoices, services, and SPKs; a proposal includes its invoices and SPKs; a service includes its invoices. A proposal, invoice, or SPK also returns its full content in every language. Get ids from search_records first.')]
 #[IsReadOnly]
 #[IsIdempotent]
 #[IsOpenWorld(false)]

@@ -167,7 +167,7 @@ Proposal summary:
 
 `type`, `id`, `document_number`, `status`, `client_id`, `company_id`, `client_company`, `client_name`, `client_email`, `client_phone`, `issue_date`, `valid_until`, `currency`, `offer_name_1`, `offer_1_price`, `offer_1_renewal_price`, `offer_name_2`, `offer_2_price`, `invoices_count`, `public_url`, `pdf_url`
 
-`GET /proposals/{id}` adds `invoices[]`, `spks[]`, `service_ids[]` (from those invoices).
+`GET /proposals/{id}` adds `invoices[]`, `spks[]`, `service_ids[]` (from those invoices). Its `data` also has `client_address`, `tax_rate`, `activate_translation`, the remaining offer prices, `show_team_member`, `team_members`, `notes`, and `content` with every proposal content key. Translatable keys are `{ "en": ..., "id": ... }`; `video_testimonials` and `client_logos` are plain lists.
 
 ### Invoices
 
@@ -185,6 +185,8 @@ Invoice summary:
 
 `type`, `id`, `document_number`, `status`, `payment_status`, `client_id`, `company_id`, `proposal_id`, `service_id`, `client_company`, `client_name`, `client_email`, `client_phone`, `issue_date`, `due_date`, `currency`, `subtotal`, `tax_rate`, `tax_amount`, `total`, `public_url`, `pdf_url`
 
+`GET /invoices/{id}` also returns `client_address`, `paid_at`, `activate_translation`, `items` (`{ "en": [...], "id": [...] }`), `tax_notice`, `notes`, and `content.additional_info`.
+
 ### SPKs
 
 | Method | Path | Query / body |
@@ -200,6 +202,10 @@ Invoice summary:
 SPK summary:
 
 `type`, `id`, `document_number`, `status`, `client_id`, `company_id`, `proposal_id`, `client_company`, `client_pic_name`, `spk_date`, `subject`, `public_url`, `pdf_url`
+
+`GET /spks/{id}` also returns `client_pic_role`, `client_address`, `company_name`, `company_pic_name`, `company_pic_role`, `company_address`, `activate_translation`, `notes`, and `content` with `title`, `party_identification`, `subject`, `content`, `signature`, each as `{ "en": ..., "id": ... }`.
+
+List endpoints return summaries only. Fetch the record by id for its content. Access credentials are never returned.
 
 ### Services
 
@@ -290,6 +296,7 @@ Then the same body without `dry_run`.
 - To change what a **document** shows for the client, PATCH that document’s `client_company` / `client_name` / … or `client: { ... }`.
 - Setting `client_id` on a document does not copy the master client unless you also send snapshot fields.
 - Proposal/SPK `content` is optional; each key you send still needs `mode`.
+- `override` replaces the whole field. To change part of the text, `GET` the record first, edit its `content` value, and send every language back. A language left out is blanked.
 - Invoice `content.additional_info` modes: `override` or `empty` only. `items` replaces the whole list if sent.
 - `payment_status: paid` sets `paid_at` if it was empty.
 - Still **no DELETE**.

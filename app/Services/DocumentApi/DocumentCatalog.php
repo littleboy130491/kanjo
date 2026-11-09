@@ -32,6 +32,30 @@ class DocumentCatalog
     }
 
     /**
+     * Stored translations with every configured locale present, so a blank language is visible.
+     *
+     * @return array<string, mixed>
+     */
+    private static function translations(Model $document, string $field, mixed $blank): array
+    {
+        $locales = config('translatable.locales', ['en', 'id']);
+        $stored = $document->getTranslations($field);
+
+        // Older rows can hold one untranslated value instead of a locale map.
+        if ($stored !== [] && array_intersect($locales, array_keys($stored)) === []) {
+            $stored = array_fill_keys($locales, $stored);
+        }
+
+        $translations = [];
+
+        foreach ($locales as $locale) {
+            $translations[$locale] = $stored[$locale] ?? $blank;
+        }
+
+        return $translations;
+    }
+
+    /**
      * @param  array<int, string>  $columns
      */
     public static function applySearch(Builder $query, string $term, array $columns): void
@@ -156,6 +180,89 @@ class DocumentCatalog
             'subject' => $spk->getTranslation('subject', config('app.locale', 'en')) ?: $spk->getTranslation('subject', 'id'),
             'public_url' => $slug !== '' ? route('spk.show', ['slug' => $slug]) : null,
             'pdf_url' => $slug !== '' ? route('pdf.spk', ['slug' => $slug]) : null,
+        ];
+    }
+
+    /**
+     * Everything shown on the proposal. Content uses the same keys as the update payload,
+     * so an agent can read a field, change it, and send it back as an override.
+     *
+     * @return array<string, mixed>
+     */
+    public static function proposalDetail(Proposal $proposal): array
+    {
+        $content = [];
+
+        foreach (ProposalContentCatalog::RICH_TEXT_FIELDS as $field) {
+            $content[$field] = self::translations($proposal, $field, '');
+        }
+
+        foreach (ProposalContentCatalog::TRANSLATABLE_REPEATER_FIELDS as $field) {
+            $content[$field] = self::translations($proposal, $field, []);
+        }
+
+        foreach (ProposalContentCatalog::SHARED_REPEATER_FIELDS as $field) {
+            $content[$field] = $proposal->{$field} ?? [];
+        }
+
+        return [
+            ...self::proposal($proposal),
+            'client_address' => $proposal->client_address,
+            'tax_rate' => self::decimal($proposal, 'tax_rate'),
+            'activate_translation' => (bool) $proposal->activate_translation,
+            'offer_1_original_price' => self::decimal($proposal, 'offer_1_original_price'),
+            'offer_1_original_renewal_price' => self::decimal($proposal, 'offer_1_original_renewal_price'),
+            'offer_2_original_price' => self::decimal($proposal, 'offer_2_original_price'),
+            'offer_2_renewal_price' => self::decimal($proposal, 'offer_2_renewal_price'),
+            'offer_2_original_renewal_price' => self::decimal($proposal, 'offer_2_original_renewal_price'),
+            'show_team_member' => (bool) $proposal->show_team_member,
+            'team_members' => $proposal->team_members ?? [],
+            'notes' => $proposal->notes ?? [],
+            'content' => $content,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function invoiceDetail(Invoice $invoice): array
+    {
+        return [
+            ...self::invoice($invoice),
+            'client_address' => $invoice->client_address,
+            'paid_at' => $invoice->paid_at?->toIso8601String(),
+            'activate_translation' => (bool) $invoice->activate_translation,
+            'items' => self::translations($invoice, 'items', []),
+            'tax_notice' => self::translations($invoice, 'tax_notice', ''),
+            'notes' => $invoice->notes ?? [],
+            'content' => [
+                'additional_info' => self::translations($invoice, 'additional_info', ''),
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function spkDetail(Spk $spk): array
+    {
+        $content = [];
+
+        foreach (SpkContentCatalog::FIELD_KEYS as $field) {
+            $content[$field] = self::translations($spk, $field, '');
+        }
+
+        return [
+            ...self::spk($spk),
+            'client_pic_role' => $spk->client_pic_role,
+            'client_address' => $spk->client_address,
+            'company_name' => $spk->company_name,
+            'company_pic_name' => $spk->company_pic_name,
+            'company_pic_role' => $spk->company_pic_role,
+            'company_address' => $spk->company_address,
+            'activate_translation' => (bool) $spk->activate_translation,
+            'notes' => $spk->notes ?? [],
+            'content' => $content,
         ];
     }
 

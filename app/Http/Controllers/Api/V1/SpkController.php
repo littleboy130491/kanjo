@@ -45,7 +45,7 @@ class SpkController extends Controller
     public function show(Spk $spk): JsonResponse
     {
         return response()->json([
-            'data' => DocumentCatalog::spk($spk),
+            'data' => DocumentCatalog::spkDetail($spk),
         ]);
     }
 
