@@ -21,6 +21,7 @@ use Database\Seeders\ProposalContentDefaultSeeder;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Passport\Passport;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -396,6 +397,87 @@ class McpServerTest extends TestCase
             'arguments' => ['type' => 'spk'],
         ]))->assertOk();
         $this->assertStringNotContainsString('TEKS_INDONESIA', $listed->getContent());
+    }
+
+    public function test_document_updates_are_saved_through_the_model_and_logged(): void
+    {
+        KanjoServer::actingAs($this->editor)
+            ->tool(CreateProposalTool::class, ['payload' => $this->proposalPayload()])
+            ->assertHasNoErrors();
+        $proposal = Proposal::query()->sole();
+
+        KanjoServer::actingAs($this->editor)
+            ->tool(CreateInvoiceFromProposalTool::class, ['proposal_id' => $proposal->id, 'payload' => []])
+            ->assertHasNoErrors();
+        $invoice = Invoice::query()->sole();
+
+        KanjoServer::actingAs($this->editor)
+            ->tool(CreateSpkFromProposalTool::class, ['proposal_id' => $proposal->id, 'payload' => [
+                'content' => [
+                    'title' => ['mode' => 'empty'],
+                    'party_identification' => ['mode' => 'empty'],
+                    'subject' => ['mode' => 'override', 'value' => 'Subject'],
+                    'content' => ['mode' => 'override', 'value' => 'Body'],
+                    'signature' => ['mode' => 'empty'],
+                ],
+            ]])
+            ->assertHasNoErrors();
+        $spk = Spk::query()->sole();
+
+        $numbers = [$proposal->document_number, $invoice->document_number, $spk->document_number];
+        $other = User::factory()->create();
+        Proposal::query()->whereKey($proposal->id)->update(['updated_by' => $other->id]);
+        Activity::query()->delete();
+
+        $update = fn (string $type, int $id, array $payload) => KanjoServer::actingAs($this->editor)
+            ->tool(UpdateRecordTool::class, ['type' => $type, 'id' => $id, 'payload' => $payload])
+            ->assertHasNoErrors();
+
+        $update('proposal', $proposal->id, [
+            'offer_1_price' => 7777,
+            'issue_date' => '2026-11-20',
+            'content' => ['brief' => ['mode' => 'override', 'value' => ['en' => 'New EN', 'id' => 'New ID']]],
+        ]);
+        $update('invoice', $invoice->id, [
+            'tax_rate' => 10,
+            'payment_status' => 'paid',
+            'items' => [['title' => 'Website', 'price' => 1000, 'description' => 'Build']],
+        ]);
+        $update('spk', $spk->id, [
+            'content' => ['content' => ['mode' => 'override', 'value' => ['en' => 'New EN', 'id' => 'New ID']]],
+        ]);
+
+        $proposal->refresh();
+        $this->assertSame('7777.00', $proposal->offer_1_price);
+        $this->assertSame('2026-11-20', $proposal->issue_date->toDateString());
+        $this->assertStringContainsString('New ID', $proposal->getTranslation('brief', 'id'));
+        $this->assertSame($this->editor->id, $proposal->updated_by);
+
+        $invoice->refresh();
+        $this->assertSame('1000.00', $invoice->subtotal);
+        $this->assertSame('100.00', $invoice->tax_amount);
+        $this->assertSame('1100.00', $invoice->total);
+        $this->assertNotNull($invoice->paid_at);
+
+        $spk->refresh();
+        $this->assertStringContainsString('New EN', $spk->getTranslation('content', 'en'));
+        $this->assertSame($numbers, [$proposal->document_number, $invoice->document_number, $spk->document_number]);
+
+        foreach ([$proposal, $invoice, $spk] as $document) {
+            $activity = Activity::query()
+                ->where('subject_type', $document::class)
+                ->where('subject_id', $document->id)
+                ->where('event', 'updated')
+                ->sole();
+
+            $this->assertSame($this->editor->id, $activity->causer_id);
+            $this->assertNotEmpty($activity->properties['attributes']);
+        }
+
+        $this->assertArrayHasKey('offer_1_price', Activity::query()
+            ->where('subject_type', Proposal::class)
+            ->sole()
+            ->properties['attributes']);
     }
 
     public function test_guide_explains_tool_mapping(): void

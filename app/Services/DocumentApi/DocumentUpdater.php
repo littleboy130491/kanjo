@@ -11,8 +11,11 @@ use App\Models\Proposal;
 use App\Models\ProposalContentDefault;
 use App\Models\Service;
 use App\Models\Spk;
+use App\Models\User;
 use App\Services\SpkTemplateRenderer;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Facades\CauserResolver;
 
 class DocumentUpdater
 {
@@ -130,7 +133,7 @@ class DocumentUpdater
         }
 
         return DB::transaction(function () use ($proposal, $payload, $author): array {
-            $updates = ['updated_by' => $author->id, 'updated_at' => now()];
+            $updates = ['updated_by' => $author->id];
             $this->mergeDocumentMeta($updates, $payload);
 
             if (array_key_exists('valid_until', $payload)) {
@@ -173,7 +176,7 @@ class DocumentUpdater
                 }
             }
 
-            DB::table('proposals')->where('id', $proposal->id)->update($updates);
+            $this->persist($proposal, $updates, $author);
 
             $saved = Proposal::query()->withCount('invoices')->findOrFail($proposal->id);
 
@@ -195,7 +198,7 @@ class DocumentUpdater
         }
 
         return DB::transaction(function () use ($invoice, $payload, $author): array {
-            $updates = ['updated_by' => $author->id, 'updated_at' => now()];
+            $updates = ['updated_by' => $author->id];
             $this->mergeDocumentMeta($updates, $payload, 'issue_date', ['due_date']);
             $this->mergeSnapshot($updates, $payload, [
                 'client_company' => 'company',
@@ -216,7 +219,7 @@ class DocumentUpdater
                 $updates['payment_status'] = (string) $payload['payment_status'];
 
                 if ($payload['payment_status'] === PaymentStatus::PAID->value && blank($invoice->getAttributes()['paid_at'] ?? null)) {
-                    $updates['paid_at'] = now();
+                    $updates['paid_at'] = now()->toDateTimeString();
                 }
             }
 
@@ -238,25 +241,7 @@ class DocumentUpdater
                 );
             }
 
-            if ($items !== null || array_key_exists('tax_rate', $payload)) {
-                $itemRows = $items['en'] ?? $items['id'] ?? [];
-                if ($items === null) {
-                    $existing = $invoice->getAttributes()['items'] ?? '[]';
-                    $decoded = is_string($existing) ? json_decode($existing, true) : $existing;
-                    $itemRows = is_array($decoded) ? ($decoded['en'] ?? $decoded['id'] ?? $decoded) : [];
-                }
-                $subtotal = 0.0;
-                foreach (is_array($itemRows) ? $itemRows : [] as $row) {
-                    $subtotal += (float) data_get($row, 'price', 0);
-                }
-                $taxRate = (float) ($updates['tax_rate'] ?? $invoice->getAttributes()['tax_rate'] ?? 0);
-                $taxAmount = round($subtotal * ($taxRate / 100), 2);
-                $updates['subtotal'] = round($subtotal, 2);
-                $updates['tax_amount'] = $taxAmount;
-                $updates['total'] = round($subtotal + $taxAmount, 2);
-            }
-
-            DB::table('invoices')->where('id', $invoice->id)->update($updates);
+            $this->persist($invoice, $updates, $author);
 
             return ['data' => DocumentCatalog::invoice(Invoice::query()->findOrFail($invoice->id))];
         });
@@ -276,7 +261,7 @@ class DocumentUpdater
         }
 
         return DB::transaction(function () use ($spk, $payload, $author): array {
-            $updates = ['updated_by' => $author->id, 'updated_at' => now()];
+            $updates = ['updated_by' => $author->id];
             $this->mergeDocumentMeta($updates, $payload, 'spk_date');
             $this->mergeSnapshot($updates, $payload, [
                 'client_company' => 'company',
@@ -296,10 +281,29 @@ class DocumentUpdater
             $content = is_array($payload['content'] ?? null) ? $payload['content'] : [];
             $this->mergeSpkContent($updates, $spk, $content, $payload);
 
-            DB::table('spks')->where('id', $spk->id)->update($updates);
+            $this->persist($spk, $updates, $author);
 
             return ['data' => DocumentCatalog::spk(Spk::query()->findOrFail($spk->id))];
         });
+    }
+
+    /**
+     * Save through the model so its hooks and the activity log run, as they do for panel edits.
+     * Updates are already column-ready, so they bypass the translatable and cast setters.
+     *
+     * @param  array<string, mixed>  $updates
+     */
+    private function persist(Model $document, array $updates, User $author): void
+    {
+        $document->setRawAttributes(array_replace($document->getAttributes(), $updates));
+
+        CauserResolver::setCauser($author);
+
+        try {
+            $document->save();
+        } finally {
+            CauserResolver::setCauser(null);
+        }
     }
 
     /**

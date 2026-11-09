@@ -716,7 +716,7 @@ Model Context Protocol server so a Kanjo user can look up records and create doc
 - Reads (search, get, skeletons, content defaults, guide) are open to any such user. Company lookups must stay open because editors need `company_id` to create documents.
 - Creates and updates check the same Shield policies as the panel (`create`/`update` on the model). Models without a policy are allowed, as in Filament.
 
-**Author:** documents are created and updated as the connected user (`user_id` / `updated_by`), not `DOCUMENT_API_USER_ID`. All other API rules apply: always `published` on create, no per-document credentials, no delete.
+**Author:** documents are created and updated as the connected user (`user_id` / `updated_by`), not `DOCUMENT_API_USER_ID`. All other API rules apply: always `published` on create, no per-document credentials, no delete. Proposal, invoice, and SPK updates are saved through the models, so they appear in the activity log under that user.
 
 **Rate limit:** 120 requests per minute (MCP sessions add protocol calls such as `initialize` and `tools/list`).
 
