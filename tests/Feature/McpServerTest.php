@@ -279,6 +279,32 @@ class McpServerTest extends TestCase
             ->assertHasErrors(['No invoice with id 999999']);
     }
 
+    public function test_update_saves_and_clears_proposal_valid_until(): void
+    {
+        KanjoServer::actingAs($this->editor)
+            ->tool(CreateProposalTool::class, ['payload' => $this->proposalPayload()])
+            ->assertHasNoErrors();
+        $proposal = Proposal::query()->sole();
+
+        KanjoServer::actingAs($this->editor)
+            ->tool(UpdateRecordTool::class, [
+                'type' => 'proposal',
+                'id' => $proposal->id,
+                'payload' => ['valid_until' => '2031-01-31'],
+            ])
+            ->assertHasNoErrors();
+        $this->assertSame('2031-01-31', $proposal->refresh()->valid_until->toDateString());
+
+        KanjoServer::actingAs($this->editor)
+            ->tool(UpdateRecordTool::class, [
+                'type' => 'proposal',
+                'id' => $proposal->id,
+                'payload' => ['valid_until' => null],
+            ])
+            ->assertHasNoErrors();
+        $this->assertNull($proposal->refresh()->valid_until);
+    }
+
     public function test_guide_explains_tool_mapping(): void
     {
         KanjoServer::actingAs($this->editor)

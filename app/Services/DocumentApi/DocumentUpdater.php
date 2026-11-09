@@ -132,6 +132,12 @@ class DocumentUpdater
         return DB::transaction(function () use ($proposal, $payload, $author): array {
             $updates = ['updated_by' => $author->id, 'updated_at' => now()];
             $this->mergeDocumentMeta($updates, $payload);
+
+            if (array_key_exists('valid_until', $payload)) {
+                // Null is meaningful here: a proposal without valid_until never expires.
+                $updates['valid_until'] = filled($payload['valid_until']) ? $payload['valid_until'] : null;
+            }
+
             $this->mergeSnapshot($updates, $payload, [
                 'client_company' => 'company',
                 'client_name' => 'name',
